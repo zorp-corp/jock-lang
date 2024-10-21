@@ -76,11 +76,11 @@ jobs:
       with:
         path: assets
         key: hoon-${{ runner.os }}-choo-${{ env.CHOO_VERSION }}-${{ hashFiles('hoon/**') }}
-    - name: Build Dumbnet kernel
+    - name: Build Jock Testing kernel
       if: ${{ (steps.restore-hoon.outputs.cache-hit != 'true' ) }}
       run: |
         ./choo hoon/main.hoon hoon
-        mv out.jam assets/dumb.jam
+        mv out.jam assets/jocktest.jam
     - name: Save Hoon cache
       if: ${{ (steps.restore-hoon.outputs.cache-hit != 'true' ) }}
       uses: actions/cache/save@v4
@@ -89,5 +89,5 @@ jobs:
         key: ${{ steps.restore-hoon.outputs.cache-primary-key }}
     # Test building and running are split for caching and build time tracking purposes
     - name: Run hoon/nock tests
-      run: make jock-test-one
+      run: make release-test-all
 
