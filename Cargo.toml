@@ -15,3 +15,17 @@ tracing = "0.1.40"
 [[bin]]
 name = "jock-testing"
 path = "main.rs"
+
+[profile.dev]
+opt-level = 3
+
+[profile.dev-fast]
+inherits = "dev"
+opt-level = 3
+debug = 2
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+
