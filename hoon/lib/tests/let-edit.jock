@@ -1,0 +1,6 @@
+let a: ? = true;
+
+a = false;
+
+a
+

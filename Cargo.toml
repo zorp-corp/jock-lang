@@ -1,0 +1,17 @@
+[package]
+name = "jock-testing"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+crown = { git = "https://github.com/zorp-corp/nockapp", rev="503a5afd0a969fb1d2c240ffc1793a694407072b" }
+sword = { git = "https://github.com/zorp-corp/sword.git", rev="92f4f40cf7af714538b8766de6f7792eaa103cbd" }
+sword_macros = { git = "https://github.com/zorp-corp/sword.git", rev="92f4f40cf7af714538b8766de6f7792eaa103cbd" }
+assert_no_alloc = { git = "https://github.com/zorp-corp/sword.git", rev="92f4f40cf7af714538b8766de6f7792eaa103cbd" }
+clap = { version = "4.4.4", features = ["derive", "cargo", "color", "env"]}
+tokio = { version = "1.32", features = ["rt", "rt-multi-thread", "net", "macros", "io-util", "fs", "sync", "time"] }
+tracing = "0.1.40"
+
+[[bin]]
+name = "jock-testing"
+path = "main.rs"

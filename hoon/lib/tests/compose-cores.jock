@@ -1,0 +1,13 @@
+let g = (a:@ -> @) {
+  29
+};
+
+compose
+  with this; object {
+    b = (c:@ -> @) {
+      g(5)
+    }
+    c = 89
+  };
+
+b(3)

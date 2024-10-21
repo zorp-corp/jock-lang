@@ -1,0 +1,9 @@
+compose
+  object {
+    b = 5
+    a = (c: @ -> @) {
+      +(c)
+    }
+  };
+a(b)
+

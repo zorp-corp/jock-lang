@@ -1,0 +1,13 @@
+let dec = (a:@  -> @) {
+  let b = 0;
+  loop;
+  if a == +(b) {
+    b
+  } else {
+    b = +(b);
+    recur
+  }
+};
+
+dec(5)
+

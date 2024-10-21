@@ -1,0 +1,20 @@
+# Compilation artifacts
+target
+bin/
+
+.data.crown
+**/.data.crown
+
+# Dev config
+.vscode/settings.json
+
+# Junk
+.unikraft
+.DS_Store
+
+*.swp
+**/*.swp
+.DS_Store
+._.DS_Store
+**/.DS_store
+**/._.DS_store

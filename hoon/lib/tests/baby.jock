@@ -1,0 +1,10 @@
+compose with 0; object {
+  load = crash
+  peek = crash
+  poke = (a:* -> [* &1]) {
+    [a &1]
+  }
+  wish = crash
+};
+
+poke(3)
