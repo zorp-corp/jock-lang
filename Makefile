@@ -15,12 +15,19 @@ PROFILE_DEV_FAST = --profile dev-fast
 # Fastest!
 PROFILE_RELEASE = --profile release
 
+# Retrieve latest choo build.
+CHOO_URL=https://github.com/zorp-corp/nockapp
+CHOO_TAG=$(shell git ls-remote --tags $(CHOO_URL) | grep 'refs/tags/choo-' | grep -o 'refs/tags/.*' | sed 's/refs\/tags\///' | sort -V | tail -n1)
+
 -: ## -----------------------------------------------------------
 -: ## --------------  Commonly used commands below --------------
 -: ## -----------------------------------------------------------
 
 .PHONY: build
 build: build-dev-fast ## Build in default profile (dev-fast)
+
+.PHONY: release
+release: build-release
 
 .PHONY: release-test-zero
 release-test-zero:
@@ -36,17 +43,41 @@ release-test-all:
 
 .PHONY: build-dev-fast
 build-dev-fast: ## Slower to compile, faster to execute. Builds all projects
+	@set -e; \
+	./choo hoon/main.hoon hoon; \
+	cp out.jam assets/jocktest.jam; \
+	python3 update-cargo.py; \
 	cargo build $(PROFILE_DEV_FAST)
 
 .PHONY: build-parallel
 build-parallel: ## profiling profile with parallel feature enabled
+	@set -e; \
+	./choo hoon/main.hoon hoon; \
+	cp out.jam assets/jocktest.jam; \
+	python3 update-cargo.py; \
 	cargo build $(FEATURES_PARALLEL) $(PROFILE_PROFILING)
 
 .PHONY: build
 build-dev-debug: ## Fast to compile, slow to execute. Builds all projects
+	@set -e; \
+	./choo hoon/main.hoon hoon; \
+	cp out.jam assets/jocktest.jam; \
+	python3 update-cargo.py; \
 	cargo build
 
 .PHONY: build-release
 build-release: ## Slowest to compile, fastest to execute. Builds all projects
+	@set -e; \
+	./choo hoon/main.hoon hoon; \
+	cp out.jam assets/jocktest.jam; \
+	python3 update-cargo.py; \
 	cargo build $(PROFILE_RELEASE)
 
+.PHONY: update-choo
+update-choo:
+	curl -L -o choo "$(CHOO_URL)/releases/download/$(CHOO_TAG)/choo"
+	chmod u+x choo
+
+.PHONY: choo-version
+choo-version:
+	@echo "Latest choo version: $(CHOO_TAG)"
