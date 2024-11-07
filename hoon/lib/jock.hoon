@@ -45,6 +45,7 @@
       %'('  %')'  %'{'  %'}'  %'['  %']'
       %'='  %'<'  %'>'
       %'+'  %'-'  %'*'  %'/'
+      %'_'  %'=>'
   ==
 ::
 +$  jatom
@@ -140,7 +141,7 @@
       [%defer next=jock]
       if-expression
       [%assert cond=jock then=jock]
-      [%match default=(unit jype) cases=(list (pair jype jock))]
+      [%match val=jock def=(unit jype) cases=(list (pair jock jype))]
       [%call func=jock arg=(unit jock)]
       [%compare a=jock comp=comparator b=jock]
       [%lambda p=lambda]
@@ -513,6 +514,17 @@
     :_  tokens
     [%compose p q]
   ::
+      %match
+  :: [%match val=jock def=(unit jype) cases=(list (pair jype jock))]
+    =^  p  tokens
+      (match-inner-jock tokens)
+    =^  q  tokens
+      (match-block [tokens %'{' %'}'] match-jock)
+    =+  r=(tail q)
+    ?~  r
+      [%match p def=q cases=(snip q) def=~]
+    [%match val=p def=r cases=(snip q) def=`(tail q)]
+  ::
       ?(%loop %defer)
     ?>  (got-punctuator -.tokens %';')
     =^  jock  tokens
@@ -703,6 +715,37 @@
     (gate +.tokens)
   ?>  (got-punctuator -.tokens end)
   [output +.tokens]
+::
+++  match-match
+  |*  =tokens
+  ^-  [cases=(map jype jock) default=jock]
+  |^
+  ?~  tokens  ~|("expect map. token: ~" !!)
+  =/  pairs=(list kind)  (pare tokens)
+  =/  fair=(list kind)  (murn pairs |=(=kind =(%fall -.kind)))
+  ?>  =(1 (lent fair))
+  =/  lair=(list [jype jock])
+    (turn (murn fair |=(=kind =(%line -.kind))) |=(=kind +.kind))
+  :_  +.t.fair
+  ^-  (map jype jock)
+  (malt lair)
+  ::  match non-linebreak whitespace
+  ::  TODO maybe rewrite to pair match-block ['=>' ';'] instead?
+  ++  gas  (cold ~ (star gah))
+  +$  kind  $?([%fall @] [%line [@ @]])
+  ::  match regular pair
+  ++  line  ;~(plug dem:ag gas (jest '=>') gas dem:ag gas mic)
+  ::  match default case
+  ++  fall  ;~(plug cab gas (jest '=>') gas dem:ag gas mic)
+  ++  pare
+    %+  cook
+      |=  [=term typ=jype gp1=@ mar=@ gp2=@ jok=jock gp3=@ mic=@]
+      ^-  kind
+      ?:  =(%fall term)  [%fall jok]
+      [%line typ jok]
+    ;~(pose (stag %pair line) (stag %fall fall))
+  --
+
 ::
 ++  got-jatom-number
   |=  =tokens
@@ -1077,8 +1120,44 @@
       [[%6 cond then [%0 0]] then-jyp]
     ::
         %match
-      ::  TODO: support %match expression
-      !!
+    :: [%match val=jock def=(unit jype) cases=(list (pair jock jype))]
+      ?~  cases.j
+        =+  [def def-jyp]=$(j (need def.j))
+        [%1 def]
+      =+  [val val-jyp]=$(j val.j)
+      :*  %8  [%1 val]
+          %6
+          =+  [cas cas-jyp]=$(j i.cases.j)
+          =+  cell=[cas]
+          =+  cases=t.cases.j
+          |-  ^-  ^
+          ?~  cases  cell
+          =+  [cas cas-jyp]=$(j i.cases)
+          %=  $
+            cell  [[[%5 [%1 jype] %0 %2] [%7 [%0 %3] %1 jock]] cell]
+            cases  t.cases
+          ==
+          ?~  def
+            [%7 [%0 %3] [%0 %0]]
+          =+  [def def-jyp]=$(j u.def.j)
+          [%7 [%0 %3] [%1 u.def]]
+      ==
+:: > !=(?+(300 400 %100 '100', %200 '200'))
+:: [ 8
+::   [1 300]
+::   6
+::   [5 [1 100] 0 2]
+::   [7 [0 3] 1 3.158.065]
+::   6
+::   [5 [1 200] 0 2]
+::   [7 [0 3] 1 3.158.066]
+::   11
+::   [1.936.945.012 1 0]
+::   7
+::   [0 3]
+::   1
+::   400
+:: ]
     ::
         %call
       ?+    -.func.j  !!

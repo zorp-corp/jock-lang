@@ -1,47 +1,47 @@
 /+  jock
-::/*  let-edit  %jock  /lib/tests/let-edit/jock
-::/*  let-inner-exp  %jock  /lib/tests/let-inner-exp/jock
-::/*  call  %jock  /lib/tests/call/jock
-::/*  axis-call  %jock  /lib/tests/axis-call/jock
-::/*  inline-lambda-call  %jock  /lib/tests/inline-lambda-call/jock
-::/*  in-subj-call  %jock  /lib/tests/in-subj-call/jock
-::/*  if-else  %jock  /lib/tests/if-else/jock
-::/*  assert  %jock  /lib/tests/assert/jock
-::/*  call-let-edit  %jock  /lib/tests/call-let-edit/jock
-::/*  inline-point  %jock  /lib/tests/inline-point/jock
-::/*  inline-lambda-no-arg  %jock  /lib/tests/inline-lambda-no-arg/jock
-::/*  dec-jock  %jock  /lib/tests/dec/jock
-::/*  eval  %jock  /lib/tests/eval/jock
-::/*  multi-limb  %jock  /lib/tests/multi-limb/jock
-::/*  compose  %jock  /lib/tests/compose/jock
-::/*  compose-cores  %jock  /lib/tests/compose-cores/jock
-::/*  baby  %jock  /lib/tests/baby/jock
-::/*  comparator  %jock  /lib/tests/comparator/jock
+/*  let-edit              %jock  /lib/tests/let-edit
+/*  let-inner-exp         %jock  /lib/tests/let-inner-exp
+/*  call                  %jock  /lib/tests/call
+/*  axis-call             %jock  /lib/tests/axis-call
+/*  inline-lambda-call    %jock  /lib/tests/inline-lambda-call
+/*  in-subj-call          %jock  /lib/tests/in-subj-call
+/*  if-else               %jock  /lib/tests/if-else
+/*  assert                %jock  /lib/tests/assert
+/*  call-let-edit         %jock  /lib/tests/call-let-edit
+/*  inline-point          %jock  /lib/tests/inline-point
+/*  inline-lambda-no-arg  %jock  /lib/tests/inline-lambda-no-arg
+/*  dec                   %jock  /lib/tests/dec
+/*  eval                  %jock  /lib/tests/eval
+/*  multi-limb            %jock  /lib/tests/multi-limb
+/*  match                 %jock  /lib/tests/match
+/*  compose               %jock  /lib/tests/compose
+/*  compose-cores         %jock  /lib/tests/compose-cores
+/*  baby                  %jock  /lib/tests/baby
+/*  comparator            %jock  /lib/tests/comparator
 |%
 ::
 ++  list-jocks
   ^-  (list [term @t])
-  :~  ex+''
+  :~  [%let-edit q.let-edit]
+      [%let-inner-exp q.let-inner-exp]
+      [%call q.call]
+      [%axis-call q.axis-call]
+      [%inline-lambda-call q.inline-lambda-call]
+      [%in-subj-call q.in-subj-call]
+      [%if-else q.if-else]
+      [%assert q.assert]
+      [%call-let-edit q.call-let-edit]
+      [%inline-point q.inline-point]
+      [%inline-lambda-no-arg q.inline-lambda-no-arg]
+      [%dec q.dec]
+      [%eval q.eval]
+      [%multi-limb q.multi-limb]
+      [%match q.match]
+      [%compose q.compose]
+      [%compose-cores q.compose-cores]
+      [%baby q.baby]
+      [%comparator q.comparator]
   ==
-::  :~  let-edit+let-edit
-::      let-inner-exp+let-inner-exp
-::      call+call
-::      axis-call+axis-call
-::      inline-lambda-call+inline-lambda-call
-::      in-subj-call+in-subj-call
-::      if-else+if-else
-::      assert+assert
-::      call-let-edit+call-let-edit
-::      inline-point+inline-point
-::      inline-lambda-no-arg+inline-lambda-no-arg
-::      dec-jock+dec-jock
-::      eval+eval
-::      multi-limb+multi-limb
-::      compose+compose
-::      compose-cores+compose-cores
-::      baby+baby
-::      ::comparator+comparator
-::  ==
 ::
 ++  jeam
   |=  i=@
