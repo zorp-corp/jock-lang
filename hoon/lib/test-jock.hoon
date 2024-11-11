@@ -13,11 +13,11 @@
 /*  dec                   %jock  /lib/tests/dec
 /*  eval                  %jock  /lib/tests/eval
 /*  multi-limb            %jock  /lib/tests/multi-limb
-/*  match                 %jock  /lib/tests/match
 /*  compose               %jock  /lib/tests/compose
 /*  compose-cores         %jock  /lib/tests/compose-cores
 /*  baby                  %jock  /lib/tests/baby
 /*  comparator            %jock  /lib/tests/comparator
+/*  match                 %jock  /lib/tests/match
 |%
 ::
 ++  list-jocks
@@ -36,11 +36,12 @@
       [%dec q.dec]
       [%eval q.eval]
       [%multi-limb q.multi-limb]
-      [%match q.match]
       [%compose q.compose]
       [%compose-cores q.compose-cores]
       [%baby q.baby]
       [%comparator q.comparator]
+      ~&  >  %match
+      [%match q.match]
   ==
 ::
 ++  jeam
