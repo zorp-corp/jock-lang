@@ -1,6 +1,8 @@
 # Compilation artifacts
 target
 bin/
+choo
+out.jam
 
 .data.crown
 **/.data.crown

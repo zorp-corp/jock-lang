@@ -6,13 +6,18 @@ Visit the [blog post](https://zorp.io/blog/jock) for more information.
 
 The Jock compiler is written in Hoon.
 
-##  Building
+##  Prerequisites
 
-Jock requires a `choo` NockApp executable.  The `Makefile` can retrieve the latest tagged `choo`.  If you would like a nightly build, you should simply include the appropriate `choo` in the root folder instead.
+Jock requires a `choo` NockApp executable.  The `Makefile` can retrieve the latest tagged `choo`.  For Linux, run the following:
 
 ```bash
 make update-choo
 ```
+
+If you would like a nightly build of `choo`, or if you are using something other than Linux, [clone this repo](https://github.com/zorp-corp/nockapp) and build.
+Then copy the `choo` executable to the root folder.
+
+## Building
 
 To build and run Jock with tests:
 
@@ -21,3 +26,4 @@ make release
 
 ./target/release/jock-testing test-all
 ```
+
