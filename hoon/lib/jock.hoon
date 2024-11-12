@@ -1126,15 +1126,16 @@
       ^-  nock
       :*  %8  [%1 val]
           :: %6
-          :: [%5 [%1 100] %0 2]
+          :: ((([%5 [%1 100] %0 2])))
           :: [%7 [%0 3] %1 3.158.065]
           ::  if the noun at q is in the type of p
           ::  [%wtts *]   [%fits ~(example ax p.gen) q.gen]
-          
+          =+  [jip jip-jyp]=$(j -.-.cases)
+          =+  [jok jok-jyp]=$(j +.-.cases)
           =/  cell
             :*  %6
-                [%5 [%1 jype] %0 2]
-                [%7 [%0 3] %1 jock]
+                (hunt jip)
+                [%7 [%0 3] %1 jok]
             ==
           ::
           |-
@@ -1144,26 +1145,11 @@
           %=  $
             cell  :_  cell
                   :*  %6
-                      [%5 [%1 jip] %0 2]
+                      (hunt jip)
                       [%7 [%0 3] %1 jok]
                   ==
             cases  +.cases
           ==
-      ::     :: =+  [cas cas-jyp]=$(j -.cases)
-      ::     ?~  cases  cell
-      ::     =/  cas  -.cases
-      ::     :: =^  cell  cases  [cas +.cases]
-      ::     =/  cell  `^`[[%5 [%1 -.cas] %0 %2] [%7 [%0 %3] %1 +.cas]]
-      ::     =+  cases=+.cases
-      ::     ::
-      ::     |-
-      ::     ?~  cases  cell
-      ::     =/  cas  -.cases
-      ::     :: =+  [cas cas-jyp]=$(j +.-.cases)
-      ::     %=  $
-      ::       cell   [[[%5 [%1 -.cas] %0 %2] [%7 [%0 %3] %1 +.cas]] cell]
-      ::       cases  +.cases
-      ::     ==
           ::
           ?~  default.j  [%0 0]
           =+  [def def-jyp]=$(j u.default.j)
@@ -1195,7 +1181,6 @@
 ::   0
 ::   0
 :: ]
-
     ::
         %call
       ?+    -.func.j  !!
@@ -1366,6 +1351,41 @@
       ?~  inp.p.p.p.j
         [%0 0]
       [[%1 $(j u.inp.p.p.p.j)] [%0 0]]
+    ==
+  ::
+  :: +hunt: make a $nock to test whether a jock nests in a jype
+  :: TODO: provide atom type and aura nesting for convenience
+  ++  hunt
+    |=  =jype
+    ^-  nock
+    ?+    -.jype
+      ::
+      :: cell case
+      :: XXX adjust tree axes
+      ^-  nock
+      :: [%3 %0 2]
+      [%6 [%3 %0 2] [%6 [%6 [%3 %0 4] [%1 1] %1 0] [%6 [%3 %0 5] [%1 1] %1 0] %1 1] [%1 1]]
+      ::
+        %atom
+      ^-  nock
+      [%6 [%3 %0 2] [%1 1] [%1 0]]
+      ::
+        [%core p=core-body q=(unit jype)]
+      ~|('hunt: can\'t match core' !!)
+      ::
+        [%limb p=(list limb)]
+      ~|('hunt: can\'t match limb' !!)
+      ::
+        [%symbol p=jatom-type q=@]
+      =/  jyp  p.-.jype
+      =/  val  q.-.jype
+      [%5 [%1 val] %0 2]
+      ::
+        [%fork p=jype q=jype]
+      ~|('hunt: can\'t match fork' !!)
+      ::
+        [%untyped ~]
+      ~|('hunt: can\'t match untyped' !!)
     ==
   --
 --
