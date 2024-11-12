@@ -1128,7 +1128,9 @@
           :: %6
           :: [%5 [%1 100] %0 2]
           :: [%7 [%0 3] %1 3.158.065]
-          ::
+          ::  if the noun at q is in the type of p
+          ::  [%wtts *]   [%fits ~(example ax p.gen) q.gen]
+          
           =/  cell
             :*  %6
                 [%5 [%1 jype] %0 2]
