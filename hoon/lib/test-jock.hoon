@@ -40,7 +40,6 @@
       [%compose-cores q.compose-cores]
       [%baby q.baby]
       [%comparator q.comparator]
-      ~&  >  %match
       [%match q.match]
   ==
 ::

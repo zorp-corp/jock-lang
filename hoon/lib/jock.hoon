@@ -44,7 +44,7 @@
       %'@'  %'?'  %'!'
       %'('  %')'  %'{'  %'}'  %'['  %']'
       %'='  %'<'  %'>'
-      %'+'  %'-'  %'*'  %'/'
+      %'+'  %'-'  %'*'  %'/'  %'_'
   ==
 ::
 +$  jatom
@@ -714,96 +714,37 @@
   [output +.tokens]
 ::
 ++  match-match
-  |*  =tokens
-  ^-  [[cases=(map jype jock) default=(unit jock)] tokens=(list token)]
+  |=  =tokens
+  ^-  [[(map jype jock) (unit jock)] (list token)]
   !:
-  |^
-  ?~  tokens  ~|("expect map. token: ~" !!)
-  ~&  [tokens]
+  ?:  =(~ tokens)  ~|("expect map. token: ~" !!)
+  ~&  >  tokens
   =|  fall=(unit jock)
   =/  cases
-    =|  duo=(list (pair jype jock))
-    |-
-    ?~  tokens  `(map jype jock)`(malt duo)
-    :: =^  label=?(jype %$)  tokens  `[?(jype %$) (list token)]`(match-lhs tokens)
-    =/  value  *jock
-    duo
-    :: ?>  (got-punctuator -.tokens %'-')
-    :: ?>  (got-punctuator -.+.tokens %'>')
-    :: =^  value=jock  tokens  `[jock (list token)]`(match-jock +.+.tokens)
-    ::  TODO fence on single default
-  ::   %=  $
-  ::     duo  ^-  (list (pair (unit jype) jock))
-  ::          [[?:(=(%$ label) *(unit jype) `;;(jype label)) value] duo]
-  ::   ==
-  ~&  cases
-  ^-  [[cases=(map jype jock) default=(unit jock)] (list token)]
-  [[duo fall] tokens]
-  ::
-  ++  match-lhs
-    |=  tokens=(list token)  !!
-    :: ^-  [?(jype %$) (list token)]
-    :: ?:  (has-punctuator -.tokens %'_')
-    ::   [%$ +.tokens]
-    :: (match-jype tokens)
-  --
-::
-:: ++  match-match
-::   |*  =tokens
-::   ^-  [[cases=(list (pair jype jock)) default=(unit jock)] ^tokens]
-::   !:
-::   |^
-::   ?~  tokens  ~|("expect map. token: ~" !!)
-::   ~&  [tokens]
-::   =/  pairs=(list kind)  (pare tokens)
-::   ~&  pairs
-::   =/  fair=(list kind)  (skim pairs |=(=kind =(%fall -.kind)))
-::   ~&  fair
-::   =|  far=(unit kind)
-::   =?  far  =(0 (lent fair))  ~
-::   =?  far  =(1 (lent fair))  `-.fair
-::   ?<  (gte (lent fair) 2)
-::   =/  lair=(list (pair jype jock))
-::   :: !!
-::     %+  turn
-::       `(list kind)`(skim fair |=(=kind =(%line -.kind)))
-::     |=(=kind ^-((pair jype jock) [(match-jype +<.kind) (match-jock +>.kind)]))
-::   ~&  lair
-:: !!
-::   :: [lair far *^tokens]  :: empty tokens to satisfy typechecker
-::   ::  match non-linebreak whitespace
-::   ::  TODO maybe rewrite to pair match-block ['=>' ';'] instead?
-::   :: ++  gas  (cold ~ (star gah))
-::   +$  kind  $?([%fall @] [%line [@ @]])
-::   ::  match regular pair
-::   :: ++  line  ;~(plug dem:ag gas (jest '=>') gas dem:ag gas mic)
-::   ::  match default case
-::   :: ++  fall  ;~(plug cab gas (jest '=>') gas dem:ag gas mic)
-::   :: ++  parse
-::   ::   %+  cook
-::   ::     |=  [=term typ=jype gp1=@ mar=@ gp2=@ jok=jock gp3=@ mic=@]
-::   ::     ^-  kind
-::   ::     ?:  =(%fall term)  [%fall jok]
-::   ::     [%line typ jok]
-::   ::   ;~(pose (stag %pair line) (stag %fall fall))
-::   ++  pare
-::     |=  =^tokens
-::     ^-  (list kind)
-::     =|  pairs=(list kind)
-::     |-  ^+  pairs
-::     pairs
-::     :: ?~  tokens  !!  ::pairs
-::     :: =|  which=?(%fall %line)
-::     :: =?  which  ?=(%'_' +.i.tokens)  %fall
-::     :: =^  label  tokens
-::     ::   (match-jype tokens)
-::     :: =^  tisgar=@t  tokens
-::     ::   ?>  ?=(%'=>' +.i.tokens)
-::     ::   ['=>' t.tokens]
-::     :: =^  value  tokens
-::     ::   (match-jock)
-::     :: $(pairs `(list kind)`[`kind`[which ?:(=(%fall which) value [label value])] pairs])
-::   --
+    =|  duo=(list [jype jock])
+    |-  ^-  (map jype jock)
+    ?:  =(~ tokens)  (malt duo)
+    :: default case, must be last
+    ?:  (has-punctuator -.tokens %'_')
+      ?:  =(~ -.+.tokens)  ~|("expect more. tokens: ->" !!)
+      ?>  (got-punctuator -.+.tokens %'-')
+      ?:  =(~ -.+.+.tokens)  ~|("expect more. tokens: ->" !!)
+      ?>  (got-punctuator -.+.+.tokens %'>')
+      ?:  =(~ +.+.+.tokens)  ~|("expect more. tokens: ~" !!)
+      =^  jock  tokens  `[jock (list token)]`(match-jock `(list token)`+.+.+.tokens)
+      =.  fall  `jock
+      (malt duo)
+    :: regular case
+    =^  jype  tokens  (match-jype tokens)
+    ?:  =(~ -.tokens)  ~|("expect more. tokens: ->" !!)
+    ?>  (got-punctuator -.tokens %'-')
+    ?:  =(~ -.+.tokens)  ~|("expect more. tokens: ->" !!)
+    ?>  (got-punctuator -.+.tokens %'>')
+    ?:  =(~ +.+.+.tokens)  ~|("expect more. tokens: ~" !!)
+    =^  jock  tokens  (match-jock +.+.tokens)
+    $(duo [[jype jock] duo])
+  ~&  >>  [cases fall]
+  [[cases fall] tokens]
 ::
 ++  got-jatom-number
   |=  =tokens
@@ -1178,29 +1119,53 @@
       [[%6 cond then [%0 0]] then-jyp]
     ::
         %match
-    :: [%match value=jock cases=(map jype jock) default=(unit jock)]
-      =/  cases  ~(tap by cases.j)
-      ?~  cases.j
-        =+  [def def-jyp]=$(j (need default.j))
-        [[%1 def] jyp]
+      =/  cases=(list (pair jype jock))  ~(tap by cases.j)
+      ?:  =(~ cases)  ~|("expect more. cases: ~" !!)
       =+  [val val-jyp]=$(j value.j)
       :_  jyp
+      ^-  nock
       :*  %8  [%1 val]
-          %6
-          =+  [cas cas-jyp]=$(j i.cases.j)
-          =+  cell=[cas]
-          =+  cases=t.cases.j
-          |-  ^-  ^
+          :: %6
+          :: [%5 [%1 100] %0 2]
+          :: [%7 [%0 3] %1 3.158.065]
+          ::
+          =/  cell
+            :*  %6
+                [%5 [%1 jype] %0 2]
+                [%7 [%0 3] %1 jock]
+            ==
+          ::
+          |-
           ?~  cases  cell
-          =+  [cas cas-jyp]=$(j i.cases)
+          =+  [jip jip-jyp]=$(j -.-.cases)
+          =+  [jok jok-jyp]=$(j +.-.cases)
           %=  $
-            cell  [[[%5 [%1 jype] %0 %2] [%7 [%0 %3] %1 jock]] cell]
-            cases  t.cases
+            cell  :_  cell
+                  :*  %6
+                      [%5 [%1 jip] %0 2]
+                      [%7 [%0 3] %1 jok]
+                  ==
+            cases  +.cases
           ==
-          ?~  def
-            [%7 [%0 %3] [%0 %0]]
+      ::     :: =+  [cas cas-jyp]=$(j -.cases)
+      ::     ?~  cases  cell
+      ::     =/  cas  -.cases
+      ::     :: =^  cell  cases  [cas +.cases]
+      ::     =/  cell  `^`[[%5 [%1 -.cas] %0 %2] [%7 [%0 %3] %1 +.cas]]
+      ::     =+  cases=+.cases
+      ::     ::
+      ::     |-
+      ::     ?~  cases  cell
+      ::     =/  cas  -.cases
+      ::     :: =+  [cas cas-jyp]=$(j +.-.cases)
+      ::     %=  $
+      ::       cell   [[[%5 [%1 -.cas] %0 %2] [%7 [%0 %3] %1 +.cas]] cell]
+      ::       cases  +.cases
+      ::     ==
+          ::
+          ?~  default.j  [%0 0]
           =+  [def def-jyp]=$(j u.default.j)
-          [%7 [%0 %3] [%1 u.def]]
+          [%7 [%0 3] [%1 def]]
       ==
 :: > !=(?+(300 400 %100 '100', %200 '200'))
 :: [ 8
@@ -1211,13 +1176,24 @@
 ::   6
 ::   [5 [1 200] 0 2]
 ::   [7 [0 3] 1 3.158.066]
-::   11
-::   [1.936.945.012 1 0]
 ::   7
 ::   [0 3]
 ::   1
 ::   400
 :: ]
+:: > !=(?-(300 %100 '100', %200 '200'))
+:: [ 8
+::   [1 300]
+::   6
+::   [5 [1 100] 0 2]
+::   [7 [0 3] 1 3.158.065]
+::   6
+::   [5 [1 200] 0 2]
+::   [7 [0 3] 1 3.158.066]
+::   0
+::   0
+:: ]
+
     ::
         %call
       ?+    -.func.j  !!
