@@ -1323,19 +1323,22 @@
   :: +hunt: make a $nock to test whether a jock nests in a jype
   :: TODO: provide atom type and aura nesting for convenience
   ++  hunt
+    =|  axis=_2
     |=  =jype
     ^-  nock
     ?+    -.jype
-      ::
       :: cell case
-      :: XXX adjust tree axes
-      ^-  nock
-      :: [%3 %0 2]
-      [%6 [%3 %0 2] [%6 [%6 [%3 %0 4] [%1 1] %1 0] [%6 [%3 %0 5] [%1 1] %1 0] %1 1] [%1 1]]
+      :*  %6
+          [%3 %0 2]
+          %6
+            .(axis (mul 2 axis), jype -.jype)
+            .(axis +((mul 2 axis)), jype -.jype)
+            [%1 1]
+          [%1 1]
+      ==
       ::
         %atom
-      ^-  nock
-      [%6 [%3 %0 2] [%1 1] [%1 0]]
+      [%6 [%3 %0 axis] [%1 1] [%1 0]]
       ::
         [%core p=core-body q=(unit jype)]
       ~|('hunt: can\'t match core' !!)
