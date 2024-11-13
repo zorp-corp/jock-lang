@@ -726,22 +726,20 @@
     ?:  =(~ tokens)  (malt duo)
     :: default case, must be last
     ?:  (has-punctuator -.tokens %'_')
-      ?:  =(~ -.+.tokens)  ~|("expect more. tokens: ->" !!)
       ?>  (got-punctuator -.+.tokens %'-')
-      ?:  =(~ -.+.+.tokens)  ~|("expect more. tokens: ->" !!)
       ?>  (got-punctuator -.+.+.tokens %'>')
-      ?:  =(~ +.+.+.tokens)  ~|("expect more. tokens: ~" !!)
       =^  jock  tokens  `[jock (list token)]`(match-jock `(list token)`+.+.+.tokens)
+      ?>  (got-punctuator -.tokens %';')
+      =.  tokens  +.tokens
       =.  fall  `jock
       (malt duo)
     :: regular case
     =^  jype  tokens  (match-jype tokens)
-    ?:  =(~ -.tokens)  ~|("expect more. tokens: ->" !!)
     ?>  (got-punctuator -.tokens %'-')
-    ?:  =(~ -.+.tokens)  ~|("expect more. tokens: ->" !!)
     ?>  (got-punctuator -.+.tokens %'>')
-    ?:  =(~ +.+.+.tokens)  ~|("expect more. tokens: ~" !!)
     =^  jock  tokens  (match-jock +.+.tokens)
+    ?>  (got-punctuator -.tokens %';')
+    =.  tokens  +.tokens
     $(duo [[jype jock] duo])
   ~&  >>  [cases fall]
   [[cases fall] tokens]
@@ -1125,11 +1123,6 @@
       :_  jyp
       ^-  nock
       :*  %8  [%1 val]
-          :: %6
-          :: ((([%5 [%1 100] %0 2])))
-          :: [%7 [%0 3] %1 3.158.065]
-          ::  if the noun at q is in the type of p
-          ::  [%wtts *]   [%fits ~(example ax p.gen) q.gen]
           =+  [jip jip-jyp]=$(j -.-.cases)
           =+  [jok jok-jyp]=$(j +.-.cases)
           =/  cell
@@ -1155,32 +1148,6 @@
           =+  [def def-jyp]=$(j u.default.j)
           [%7 [%0 3] [%1 def]]
       ==
-:: > !=(?+(300 400 %100 '100', %200 '200'))
-:: [ 8
-::   [1 300]
-::   6
-::   [5 [1 100] 0 2]
-::   [7 [0 3] 1 3.158.065]
-::   6
-::   [5 [1 200] 0 2]
-::   [7 [0 3] 1 3.158.066]
-::   7
-::   [0 3]
-::   1
-::   400
-:: ]
-:: > !=(?-(300 %100 '100', %200 '200'))
-:: [ 8
-::   [1 300]
-::   6
-::   [5 [1 100] 0 2]
-::   [7 [0 3] 1 3.158.065]
-::   6
-::   [5 [1 200] 0 2]
-::   [7 [0 3] 1 3.158.066]
-::   0
-::   0
-:: ]
     ::
         %call
       ?+    -.func.j  !!
