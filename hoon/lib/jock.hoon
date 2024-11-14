@@ -62,6 +62,7 @@
   $+  token
   $%  [%keyword keyword]
       [%punctuator punctuator]
+      [%symbol jatom]
       [%literal jatom]
       [%name term]
   ==
@@ -92,6 +93,8 @@
   ++  string             (stag %string (ifix [soq soq] sym))
   ++  literal            ;~(pose loobean hexadecimal number string)
   ++  tagged-literal     (stag %literal literal)
+  ++  symbol             ;~(pfix cen ;~(pose loobean hexadecimal number string))
+  ++  tagged-symbol      (stag %symbol symbol)
   ::
   ++  name               sym
   ++  tagged-name        (stag %name name)
@@ -112,13 +115,14 @@
         %'@'  %'?'  %'!'
         %'('  %')'  %'{'  %'}'  %'['  %']'
         %'='  %'<'  %'>'
-        %'+'  %'-'  %'*'  %'/'
+        %'+'  %'-'  %'*'  %'/'  %'_'
     ==
   ++  tagged-punctuator  (stag %punctuator punctuator)
   ::
   ++  token
     ;~  pose
         tagged-keyword
+        tagged-symbol
         tagged-punctuator
         tagged-literal
         tagged-name
@@ -236,6 +240,7 @@
       ::  TODO: check if we're in a compare
       (match-literal tokens)
     ::
+      %symbol      (match-symbol tokens)
       %name        (match-start-name tokens)
       %keyword     (match-keyword tokens)
       %punctuator  (match-start-punctuator tokens)
@@ -263,6 +268,7 @@
     ::  TODO: check if we're in a compare
     (match-literal tokens)
   ::
+    %symbol      (match-symbol tokens)
     %name        (match-start-name tokens)
     %punctuator  (match-start-punctuator tokens)
   ==
@@ -293,6 +299,7 @@
     [[jock-nex pairs] tokens]
   ?+  -.i.tokens  !!
     %literal     (match-literal tokens)
+    %symbol      (match-symbol tokens)
     %name        (match-start-name tokens)
     %punctuator  (match-start-punctuator tokens)
   ==
@@ -516,18 +523,28 @@
       %match
   :: [%match value=jock cases=(map jype jock) default=(unit jock)]
   :: [%cases value=jock cases=(map jock jock) default=(unit jock)]
-    ?:  =(%case -.tokens)
+    ?:  (has-keyword -.tokens %case)
+      ~&  >  'case'
       =^  value  tokens
         (match-inner-jock +.tokens)
+      ~&  >  'value'
+      ~&  >  value
       =^  pairs  tokens
         (match-block [tokens %'{' %'}'] match-cases)
+      ~&  >  'pairs'
+      ~&  >  pairs
       :_  tokens
       [%cases value -.pairs +.pairs]
-    ?>  =(%type -.tokens)
+    ?>  (has-keyword -.tokens %type)
+    ~&  >  'type'
     =^  value  tokens
       (match-inner-jock +.tokens)
+    ~&  >  'value'
+    ~&  >  value
     =^  pairs  tokens
       (match-block [tokens %'{' %'}'] match-match)
+    ~&  >  'pairs'
+    ~&  >  pairs
     :_  tokens
     [%match value -.pairs +.pairs]
   ::
@@ -702,23 +719,34 @@
   |=  =tokens
   ^-  [[%atom jatom] (list token)]
   ?~  tokens  ~|("expect literal. token: ~" !!)
-  ?.  ?=(%literal -.i.tokens)
-    ~|("expect literal. token: {<-.i.tokens>}" !!)
-  [[%atom +.i.tokens] t.tokens]
+  ?.  ?=(%literal -.-.tokens)
+    ~|("expect literal. token: {<-.-.tokens>}" !!)
+  [[%atom +.-.tokens] +.tokens]
+::
+++  match-symbol
+  |=  =tokens
+  ^-  [[%atom jatom] (list token)]
+  ?~  tokens  ~|("expect symbol. token: ~" !!)
+  ?.  ?=(%symbol -.-.tokens)
+    ~|("expect symbol. token: {<-.-.tokens>}" !!)
+  [[%atom +.-.tokens] +.tokens]
 ::
 ++  match-name
   |=  =tokens
   ^-  [[%limb (list jlimb)] (list token)]
   ?~  tokens  ~|("expect name. token: ~" !!)
-  ?.  ?=(%name -.i.tokens)
-    ~|("expect name. token: {<-.i.tokens>}" !!)
-  [[%limb [%name +.i.tokens]~] t.tokens]
+  ?.  ?=(%name -.-.tokens)
+    ~|("expect name. token: {<-.-.tokens>}" !!)
+  [[%limb [%name +.-.tokens]~] +.tokens]
 ::
 ++  match-block
   |*  [[=tokens start=punctuator end=punctuator] gate=$-(tokens [* tokens])]
   ?>  (got-punctuator -.tokens start)
+  ~&  >  'match-block'
   =^  output  tokens
     (gate +.tokens)
+  ~&  >  'output'
+  ~&  >  output
   ?>  (got-punctuator -.tokens end)
   [output +.tokens]
 ::
@@ -727,12 +755,11 @@
   ^-  [[(map jype jock) (unit jock)] (list token)]
   !:
   ?:  =(~ tokens)  ~|("expect map. token: ~" !!)
-  ~&  >  tokens
   =|  fall=(unit jock)
-  =/  cases
+  =/  cf=[(map jype jock) (unit jock)]
     =|  duo=(list [jype jock])
-    |-  ^-  (map jype jock)
-    ?:  =(~ tokens)  (malt duo)
+    |-  ^-  [(map jype jock) (unit jock)]
+    ?:  =(~ tokens)  [(malt duo) fall]
     :: default case, must be last
     ?:  (has-punctuator -.tokens %'_')
       ?>  (got-punctuator -.+.tokens %'-')
@@ -740,8 +767,9 @@
       =^  jock  tokens  `[jock (list token)]`(match-jock `(list token)`+.+.+.tokens)
       ?>  (got-punctuator -.tokens %';')
       =.  tokens  +.tokens
+      ?>  (has-punctuator -.tokens %'}')  :: no trailing tokens in case block
       =.  fall  `jock
-      (malt duo)
+      [(malt duo) fall]
     :: regular case
     =^  jype  tokens  (match-jype tokens)
     ?>  (got-punctuator -.tokens %'-')
@@ -750,7 +778,8 @@
     ?>  (got-punctuator -.tokens %';')
     =.  tokens  +.tokens
     $(duo [[jype jock] duo])
-  ~&  >>  [cases fall]
+  =/  cases  -.cf
+  =/  fall  +.cf
   [[cases fall] tokens]
 ::
 ++  match-cases
@@ -758,12 +787,11 @@
   ^-  [[(map jock jock) (unit jock)] (list token)]
   !:
   ?:  =(~ tokens)  ~|("expect map. token: ~" !!)
-  ~&  >  tokens
   =|  fall=(unit jock)
-  =/  cases
+  =/  cf=[(map jock jock) (unit jock)]
     =|  duo=(list [jock jock])
-    |-  ^-  (map jock jock)
-    ?:  =(~ tokens)  (malt duo)
+    |-  ^-  [(map jock jock) (unit jock)]
+    ?:  =(~ tokens)  [(malt duo) fall]
     :: default case, must be last
     ?:  (has-punctuator -.tokens %'_')
       ?>  (got-punctuator -.+.tokens %'-')
@@ -771,8 +799,9 @@
       =^  jock  tokens  `[jock (list token)]`(match-jock `(list token)`+.+.+.tokens)
       ?>  (got-punctuator -.tokens %';')
       =.  tokens  +.tokens
+      ?>  (has-punctuator -.tokens %'}')  :: no trailing tokens in case block
       =.  fall  `jock
-      (malt duo)
+      [(malt duo) fall]
     :: regular case
     =^  case  tokens  (match-jock tokens)
     ?>  (got-punctuator -.tokens %'-')
@@ -781,8 +810,8 @@
     ?>  (got-punctuator -.tokens %';')
     =.  tokens  +.tokens
     $(duo [[case jock] duo])
-  ~&  >>  [cases fall]
-  ?>  =(~ tokens)  :: no trailing tokens in case block
+  =/  cases  -.cf
+  =/  fall  +.cf
   [[cases fall] tokens]
 ::
 ++  got-jatom-number

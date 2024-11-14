@@ -2,9 +2,7 @@ let a: @ = 3;
 
 if a == 3 {
   72
-} else
-if a == 5
-{
+} else if a == 5 {
   17
 } else {
   15
