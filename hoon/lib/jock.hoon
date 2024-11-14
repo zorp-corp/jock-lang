@@ -240,22 +240,7 @@
       %keyword     (match-keyword tokens)
       %punctuator  (match-start-punctuator tokens)
     ==
-  ?:  =(~ tokens)
-    [jock tokens]
-  :: ::  check if we end in a comment
-  :: ?.  (has-punctuator -.tokens %'/')
-  ::   [jock tokens]
-  :: =.  tokens  +.tokens
-  :: ?>  (got-punctuator -.tokens %'*')
-  :: =.  tokens  +.tokens
-  :: |-
-  :: ?~  tokens  !!
-  :: ?:  (has-punctuator i.tokens %'*')
-  ::   ?~  t.tokens  !!
-  ::   ?:  (has-punctuator i.t.tokens %'/')
-  ::     [jock t.t.tokens]
-  ::   $(tokens t.tokens)
-  $(tokens +.tokens)
+  [jock tokens]
 ::
 ++  match-inner-jock
   |=  =tokens
