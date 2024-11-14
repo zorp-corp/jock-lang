@@ -37,7 +37,9 @@
   ~&  >>>  "could not mold poke type: {<dat>}"  !!
   =/  c=cause  u.soft-cau
   ~&  exec-all:test-jock
-  ~&  -:(flop list-jocks:test-jock)
+  ~&  (parse:test-jock 1)
+  :: ~&  -:(flop list-jocks:test-jock)
+  :: ~&  (mint:test-jock (dec (lent list-jocks:test-jock)))
   ?-  -.c
     %test-n  [~ k]
     %test-all  [~ k]

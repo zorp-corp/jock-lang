@@ -36,6 +36,8 @@
       %eval
       %with
       %this
+      %type
+      %case
   ==
 ::
 +$  punctuator
@@ -88,6 +90,7 @@
     :~  %let  %if  %else  %crash  %assert
         %object  %compose  %loop  %defer
         %recur  %match  %eval  %with  %this
+        %type  %case
     ==
   ::
   ++  tagged-keyword     (stag %keyword keyword)
@@ -141,6 +144,7 @@
       if-expression
       [%assert cond=jock then=jock]
       [%match value=jock cases=(map jype jock) default=(unit jock)]
+      [%cases value=jock cases=(map jock jock) default=(unit jock)]
       [%call func=jock arg=(unit jock)]
       [%compare a=jock comp=comparator b=jock]
       [%lambda p=lambda]
@@ -515,8 +519,17 @@
   ::
       %match
   :: [%match value=jock cases=(map jype jock) default=(unit jock)]
+  :: [%cases value=jock cases=(map jock jock) default=(unit jock)]
+    ?:  =(%case -.tokens)
+      =^  value  tokens
+        (match-inner-jock +.tokens)
+      =^  pairs  tokens
+        (match-block [tokens %'{' %'}'] match-cases)
+      :_  tokens
+      [%cases value -.pairs +.pairs]
+    ?>  =(%type -.tokens)
     =^  value  tokens
-      (match-inner-jock tokens)
+      (match-inner-jock +.tokens)
     =^  pairs  tokens
       (match-block [tokens %'{' %'}'] match-match)
     :_  tokens
@@ -742,6 +755,38 @@
     =.  tokens  +.tokens
     $(duo [[jype jock] duo])
   ~&  >>  [cases fall]
+  [[cases fall] tokens]
+::
+++  match-cases
+  |=  =tokens
+  ^-  [[(map jock jock) (unit jock)] (list token)]
+  !:
+  ?:  =(~ tokens)  ~|("expect map. token: ~" !!)
+  ~&  >  tokens
+  =|  fall=(unit jock)
+  =/  cases
+    =|  duo=(list [jock jock])
+    |-  ^-  (map jock jock)
+    ?:  =(~ tokens)  (malt duo)
+    :: default case, must be last
+    ?:  (has-punctuator -.tokens %'_')
+      ?>  (got-punctuator -.+.tokens %'-')
+      ?>  (got-punctuator -.+.+.tokens %'>')
+      =^  jock  tokens  `[jock (list token)]`(match-jock `(list token)`+.+.+.tokens)
+      ?>  (got-punctuator -.tokens %';')
+      =.  tokens  +.tokens
+      =.  fall  `jock
+      (malt duo)
+    :: regular case
+    =^  case  tokens  (match-jock tokens)
+    ?>  (got-punctuator -.tokens %'-')
+    ?>  (got-punctuator -.+.tokens %'>')
+    =^  jock  tokens  (match-jock +.+.tokens)
+    ?>  (got-punctuator -.tokens %';')
+    =.  tokens  +.tokens
+    $(duo [[case jock] duo])
+  ~&  >>  [cases fall]
+  ?>  =(~ tokens)  :: no trailing tokens in case block
   [[cases fall] tokens]
 ::
 ++  got-jatom-number
@@ -1122,32 +1167,36 @@
       =+  [val val-jyp]=$(j value.j)
       :_  jyp
       ^-  nock
-      :*  %8  [%1 val]
-          =+  [jip jip-jyp]=$(j -.-.cases)
-          =+  [jok jok-jyp]=$(j +.-.cases)
-          =/  cell
-            :*  %6
-                (hunt jip)
-                [%7 [%0 3] %1 jok]
-            ==
-          ::
-          |-
-          ?~  cases  cell
-          =+  [jip jip-jyp]=$(j -.-.cases)
-          =+  [jok jok-jyp]=$(j +.-.cases)
-          %=  $
-            cell  :_  cell
-                  :*  %6
-                      (hunt jip)
-                      [%7 [%0 3] %1 jok]
-                  ==
-            cases  +.cases
-          ==
-          ::
-          ?~  default.j  [%0 0]
-          =+  [def def-jyp]=$(j u.default.j)
-          [%7 [%0 3] [%1 def]]
-      ==
+      *nock
+      :: :*  %8  [%1 val]
+      ::     =+  [jip jip-jyp]=$(j -.-.cases)
+      ::     =+  [jok jok-jyp]=$(j +.-.cases)
+      ::     =/  cell
+      ::       :*  %6
+      ::           (hunt jip)
+      ::           [%7 [%0 3] %1 jok]
+      ::       ==
+      ::     ::
+      ::     |-
+      ::     ?~  cases  cell
+      ::     =+  [jip jip-jyp]=$(j -.-.cases)
+      ::     =+  [jok jok-jyp]=$(j +.-.cases)
+      ::     %=  $
+      ::       cell  :_  cell
+      ::             :*  %6
+      ::                 (hunt jip)
+      ::                 [%7 [%0 3] %1 jok]
+      ::             ==
+      ::       cases  +.cases
+      ::     ==
+      ::     ::
+      ::     ?~  default.j  [%0 0]
+      ::     =+  [def def-jyp]=$(j u.default.j)
+      ::     [%7 [%0 3] [%1 def]]
+      :: ==
+    ::
+        %cases
+      [*nock jyp]
     ::
         %call
       ?+    -.func.j  !!
@@ -1326,36 +1375,36 @@
     =|  axis=_2
     |=  =jype
     ^-  nock
-    ?+    -.jype
-      :: cell case
-      :*  %6
-          [%3 %0 2]
-          %6
-            .(axis (mul 2 axis), jype -.jype)
-            .(axis +((mul 2 axis)), jype -.jype)
-            [%1 1]
-          [%1 1]
-      ==
-      ::
-        %atom
-      [%6 [%3 %0 axis] [%1 1] [%1 0]]
-      ::
-        [%core p=core-body q=(unit jype)]
-      ~|('hunt: can\'t match core' !!)
-      ::
-        [%limb p=(list limb)]
-      ~|('hunt: can\'t match limb' !!)
-      ::
-        [%symbol p=jatom-type q=@]
-      =/  jyp  p.-.jype
-      =/  val  q.-.jype
-      [%5 [%1 val] %0 2]
-      ::
-        [%fork p=jype q=jype]
-      ~|('hunt: can\'t match fork' !!)
-      ::
-        [%untyped ~]
-      ~|('hunt: can\'t match untyped' !!)
-    ==
+    *nock
+    :: ?+    jype
+    ::   :: cell case
+    ::     :*  %6
+    ::         [%3 %0 2]
+    ::         %6
+    ::           .(axis (mul 2 axis), jype -.jype)
+    ::           .(axis +((mul 2 axis)), jype -.jype)
+    ::           [%1 1]
+    ::         [%1 1]
+    ::     ==
+    ::   ::
+    ::     [[%atom p=jatom-type] name=term]
+    ::   [%6 [%3 %0 axis] [%1 1] [%1 0]]
+    ::   ::
+    ::     [[%core p=* q=(unit ^jype)] name=term]
+    ::   ~|('hunt: can\'t match core' !!)
+    ::   ::
+    ::     [[%limb p=*] name=term]
+    ::   ~|('hunt: can\'t match limb' !!)
+    ::   ::
+    ::     [[%symbol p=jatom-type q=@] name=term]
+    ::   =/  val  q
+    ::   [%5 [%1 val] [%0 2]]
+    ::   ::
+    ::     [[%fork p=* q=*] name=term]
+    ::   ~|('hunt: can\'t match fork' !!)
+    ::   ::
+    ::     [[%untyped ~] name=term]
+    ::   ~|('hunt: can\'t match untyped' !!)
+    :: ==
   --
 --

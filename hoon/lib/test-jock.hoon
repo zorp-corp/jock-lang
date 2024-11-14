@@ -6,6 +6,7 @@
 /*  inline-lambda-call    %jock  /lib/tests/inline-lambda-call
 /*  in-subj-call          %jock  /lib/tests/in-subj-call
 /*  if-else               %jock  /lib/tests/if-else
+/*  if-elseif-else        %jock  /lib/tests/if-elseif-else
 /*  assert                %jock  /lib/tests/assert
 /*  call-let-edit         %jock  /lib/tests/call-let-edit
 /*  inline-point          %jock  /lib/tests/inline-point
@@ -17,7 +18,8 @@
 /*  compose-cores         %jock  /lib/tests/compose-cores
 /*  baby                  %jock  /lib/tests/baby
 /*  comparator            %jock  /lib/tests/comparator
-/*  match                 %jock  /lib/tests/match
+/*  match-type            %jock  /lib/tests/match-type
+/*  match-case            %jock  /lib/tests/match-case
 |%
 ::
 ++  list-jocks
@@ -29,6 +31,7 @@
       [%inline-lambda-call q.inline-lambda-call]
       [%in-subj-call q.in-subj-call]
       [%if-else q.if-else]
+      [%if-elseif-else q.if-elseif-else]
       [%assert q.assert]
       [%call-let-edit q.call-let-edit]
       [%inline-point q.inline-point]
@@ -40,8 +43,23 @@
       [%compose-cores q.compose-cores]
       [%baby q.baby]
       [%comparator q.comparator]
-      [%match q.match]
+      [%match-type q.match-type]
+      [%match-case q.match-case]
   ==
+::
+++  parse
+  |=  i=@
+  ^-  (list token:jock)
+  =/  p  (snag i list-jocks)
+  ~|  -.p
+  (rash +.p parse-tokens:jock)
+::
+++  parse-all
+  ^-  (list (list token:jock))
+  %+  turn  list-jocks
+  |=  [=term t=@t]
+  ~|  term
+  (rash t parse-tokens:jock)
 ::
 ++  jeam
   |=  i=@
@@ -67,7 +85,9 @@
 ++  mint
   |=  i=@
   ^-  [term *]
+  ~&  >>  i
   =/  p  (snag i list-jocks)
+  ~&  >>  p
   :-  -.p
   (mint:jock +.p)
 ::
