@@ -1,4 +1,4 @@
-/+  *wrapper, test-jock
+/+  *wrapper, test-jock, jock
 =>
 |%
 +$  test-state  ~
@@ -37,7 +37,10 @@
   ~&  >>>  "could not mold poke type: {<dat>}"  !!
   =/  c=cause  u.soft-cau
   ~&  exec-all:test-jock
-  ~&  (parse:test-jock 1)
+  ~&  (parse:test-jock 7)
+  =/  nok  |.((mint:jock +:(snag 7 list-jocks:test-jock)))
+  ~&  (mole nok)
+  :: =/  val  (mute nok)
   :: ~&  -:(flop list-jocks:test-jock)
   :: ~&  (mint:test-jock (dec (lent list-jocks:test-jock)))
   ?-  -.c

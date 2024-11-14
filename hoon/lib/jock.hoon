@@ -676,11 +676,11 @@
   ^-  (pair after-if-expression (list token))
   ?~  tokens
     ~|("expect after-if. token: ~" !!)
-  ?.  ?=(%keyword -.i.tokens)
+  ?.  ?=(%keyword -.-.tokens)
     ~|("expect keyword. token: {<-.i.tokens>}" !!)
-  ?.  =(%else +.i.tokens)
-    ~|("expect %else. token: {<+.i.tokens>}" !!)
-  =>  .(tokens `(list token)`t.tokens)
+  ?.  =(%else +.-.tokens)
+    ~|("expect %else. token: {<+.-.tokens>}" !!)
+  =>  .(tokens `(list token)`+.tokens)
   ?:  =(~ tokens)
     ~|("expect more. tokens: ~" !!)
   ?:  (has-punctuator -.tokens %'{')
@@ -699,7 +699,7 @@
   =^  then  tokens
     (match-block [tokens %'{' %'}'] match-jock)
   =^  after-if  tokens
-    (match-after-if-expression +.tokens)
+    (match-after-if-expression tokens)
   [[%else-if cond then after-if] tokens]
 ::
 ++  match-literal
