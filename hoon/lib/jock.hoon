@@ -68,7 +68,18 @@
 ::
 +$  tokens  (list token)
 ::
-++  gae  ;~(pose gaw (easy ~))
+++  val   %+  cold  ~
+          ;~  plug  fas  fas
+            (star prn)
+            (just `@`10)
+          ==
+++  var   %+  cold  ~
+          ;~  plug  ;~(plug fas tar)
+              (star ;~(less ;~(plug tar fas) prn))
+              ;~(plug tar fas)
+          ==
+++  gav  (cold ~ (star ;~(pose val var gah)))
+++  gae  ;~(pose gav (easy ~))
 ::
 ++  tokenize
   |%
@@ -113,7 +124,7 @@
         tagged-name
     ==
   ::
-  ++  tokens  (star ;~(pose token ;~(pfix gaw token)))
+  ++  tokens  (star ;~(pose token ;~(pfix gav token)))
   --
 ::
 ++  parse-tokens
@@ -231,20 +242,20 @@
     ==
   ?:  =(~ tokens)
     [jock tokens]
-  ::  check if we end in a comment
-  ?.  (has-punctuator -.tokens %'/')
-    [jock tokens]
-  =.  tokens  +.tokens
-  ?>  (got-punctuator -.tokens %'*')
-  =.  tokens  +.tokens
-  |-
-  ?~  tokens  !!
-  ?:  (has-punctuator i.tokens %'*')
-    ?~  t.tokens  !!
-    ?:  (has-punctuator i.t.tokens %'/')
-      [jock t.t.tokens]
-    $(tokens t.tokens)
-  $(tokens t.tokens)
+  :: ::  check if we end in a comment
+  :: ?.  (has-punctuator -.tokens %'/')
+  ::   [jock tokens]
+  :: =.  tokens  +.tokens
+  :: ?>  (got-punctuator -.tokens %'*')
+  :: =.  tokens  +.tokens
+  :: |-
+  :: ?~  tokens  !!
+  :: ?:  (has-punctuator i.tokens %'*')
+  ::   ?~  t.tokens  !!
+  ::   ?:  (has-punctuator i.t.tokens %'/')
+  ::     [jock t.t.tokens]
+  ::   $(tokens t.tokens)
+  $(tokens +.tokens)
 ::
 ++  match-inner-jock
   |=  =tokens
