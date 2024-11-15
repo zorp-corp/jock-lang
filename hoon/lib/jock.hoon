@@ -158,13 +158,14 @@
       [%defer next=jock]
       if-expression
       [%assert cond=jock then=jock]
-      [%match value=jock cases=(map jype jock) default=(unit jock)]
+      [%match value=jock cases=(map jock jock) default=(unit jock)]
       [%cases value=jock cases=(map jock jock) default=(unit jock)]
       [%call func=jock arg=(unit jock)]
       [%compare a=jock comp=comparator b=jock]
       [%lambda p=lambda]
       [%limb p=(list jlimb)]
-      [%atom p=jatom]
+      [%atom p=jatom]  :: XXX would be okay to combine these to a hard/soft type
+      [%symbol p=jatom]
       [%crash ~]
   ==
 ::
@@ -521,20 +522,20 @@
     [%compose p q]
   ::
       %match
-  :: [%match value=jock cases=(map jype jock) default=(unit jock)]
+  :: [%match value=jock cases=(map jock jock) default=(unit jock)]
   :: [%cases value=jock cases=(map jock jock) default=(unit jock)]
     ?:  (has-keyword -.tokens %case)
       =^  value  tokens
         (match-inner-jock +.tokens)
       =^  pairs  tokens
-        (match-block [tokens %'{' %'}'] match-match-case)
+        (match-block [tokens %'{' %'}'] match-match)
       :_  tokens
       [%cases value -.pairs +.pairs]
     ?>  (has-keyword -.tokens %type)
     =^  value  tokens
       (match-inner-jock +.tokens)
     =^  pairs  tokens
-      (match-block [tokens %'{' %'}'] match-match-type)
+      (match-block [tokens %'{' %'}'] match-match)
     :_  tokens
     [%match value -.pairs +.pairs]
   ::
@@ -715,11 +716,11 @@
 ::
 ++  match-symbol
   |=  =tokens
-  ^-  [[%atom jatom] (list token)]
+  ^-  [[%symbol jatom] (list token)]
   ?~  tokens  ~|("expect symbol. token: ~" !!)
   ?.  ?=(%symbol -.-.tokens)
     ~|("expect symbol. token: {<-.-.tokens>}" !!)
-  [[%atom +.-.tokens] +.tokens]
+  [[%symbol +.-.tokens] +.tokens]
 ::
 ++  match-name
   |=  =tokens
@@ -737,45 +738,13 @@
   ?>  (got-punctuator -.tokens end)
   [output +.tokens]
 ::
-++  match-match-type
-  |=  =tokens
-  ^-  [[(map jype jock) (unit jock)] (list token)]
-  ?:  =(~ tokens)  ~|("expect map. token: ~" !!)
-  =|  fall=(unit jock)
-  =^  cf=[(map jype jock) (unit jock)]  tokens
-    =|  duo=(list [jype jock])
-    |-  ^-  [[(map jype jock) (unit jock)] (list token)]
-    ?:  (has-punctuator -.tokens %'}')
-      [[(malt duo) fall] tokens]
-    :: default case, must be last
-    ?:  (has-punctuator -.tokens %'_')
-      ?>  (got-punctuator -.+.tokens %'-')
-      ?>  (got-punctuator -.+.+.tokens %'>')
-      =^  jock  tokens  `[jock (list token)]`(match-jock `(list token)`+.+.+.tokens)
-      ?>  (got-punctuator -.tokens %';')
-      =.  tokens  +.tokens
-      ?>  (has-punctuator -.tokens %'}')  :: no trailing tokens in case block
-      =.  fall  `jock
-      [[(malt duo) fall] tokens]
-    :: regular case
-    =^  jype  tokens  (match-jype tokens)
-    ?>  (got-punctuator -.tokens %'-')
-    ?>  (got-punctuator -.+.tokens %'>')
-    =^  jock  tokens  (match-jock +.+.tokens)
-    ?>  (got-punctuator -.tokens %';')
-    =.  tokens  +.tokens
-    $(duo [[jype jock] duo])
-  =/  cases  -.cf
-  =/  fall  +.cf
-  [[cases fall] tokens]
-::
-++  match-match-case
+++  match-match
   |=  =tokens
   ^-  [[(map jock jock) (unit jock)] (list token)]
   ?:  =(~ tokens)  ~|("expect map. token: ~" !!)
   =|  fall=(unit jock)
   =^  cf=[(map jock jock) (unit jock)]  tokens
-    =|  duo=(list [jock jock])
+    =|  duo=(list (pair jock jock))
     |-  ^-  [[(map jock jock) (unit jock)] (list token)]
     ?:  (has-punctuator -.tokens %'}')
       [[(malt duo) fall] tokens]
@@ -790,13 +759,13 @@
       =.  fall  `jock
       [[(malt duo) fall] tokens]
     :: regular case
-    =^  case  tokens  (match-jock tokens)
+    =^  jock-1  tokens  (match-jock tokens)
     ?>  (got-punctuator -.tokens %'-')
     ?>  (got-punctuator -.+.tokens %'>')
-    =^  jock  tokens  (match-jock +.+.tokens)
+    =^  jock-2  tokens  (match-jock +.+.tokens)
     ?>  (got-punctuator -.tokens %';')
     =.  tokens  +.tokens
-    $(duo [[case jock] duo])
+    $(duo [[jock-1 jock-2] duo])
   =/  cases  -.cf
   =/  fall  +.cf
   [[cases fall] tokens]
@@ -805,11 +774,11 @@
   |=  =tokens
   ^-  @
   ?~  tokens  ~|("expect literal. token: ~" !!)
-  ?.  ?=(%literal -.i.tokens)
-    ~|("expect literal. token: {<-.i.tokens>}" !!)
+  ?.  ?=(?(%literal %symbol) -.i.tokens)
+    ~|("expect literal or symbol. token: {<-.i.tokens>}" !!)
   =/  p=jatom  +.i.tokens
   ?.  ?=(%number -.p)
-    ~|("expect number. token: {<-.p>}" !!)
+    ~|("expect number or symbol. token: {<-.p>}" !!)
   +.p
 ::
 ++  got-name
@@ -1174,41 +1143,55 @@
       [[%6 cond then [%0 0]] then-jyp]
     ::
         %match
-      =/  cases=(list (pair jype jock))  ~(tap by cases.j)
-      ?:  =(~ cases)  ~|("expect more. cases: ~" !!)
       =+  [val val-jyp]=$(j value.j)
+      =/  cases=(list (pair jock jock))  ~(tap by cases.j)
+      ?:  =(~ cases)  ~|("expect more. cases: ~" !!)
       :_  jyp
       ^-  nock
-      *nock
-      :: :*  %8  [%1 val]
-      ::     =+  [jip jip-jyp]=$(j -.-.cases)
-      ::     =+  [jok jok-jyp]=$(j +.-.cases)
-      ::     =/  cell
-      ::       :*  %6
-      ::           (hunt jip)
-      ::           [%7 [%0 3] %1 jok]
-      ::       ==
-      ::     ::
-      ::     |-
-      ::     ?~  cases  cell
-      ::     =+  [jip jip-jyp]=$(j -.-.cases)
-      ::     =+  [jok jok-jyp]=$(j +.-.cases)
-      ::     %=  $
-      ::       cell  :_  cell
-      ::             :*  %6
-      ::                 (hunt jip)
-      ::                 [%7 [%0 3] %1 jok]
-      ::             ==
-      ::       cases  +.cases
-      ::     ==
-      ::     ::
-      ::     ?~  default.j  [%0 0]
-      ::     =+  [def def-jyp]=$(j u.default.j)
-      ::     [%7 [%0 3] [%1 def]]
-      :: ==
+      :+  %8
+        [%1 val]
+      =/  cell=nock
+        ?~  default.j  [%0 0]
+        =+  [def def-jyp]=$(j u.default.j)
+        [%7 [%0 3] [%1 def]]
+      |-
+      ?~  cases  cell
+      =+  [jip jip-jyp]=^$(j -.-.cases)
+      =+  [jok jok-jyp]=^$(j +.-.cases)
+      %=  $
+        cell  :^    %6
+                  ^-  nock
+                  (hunt-type jip-jyp)
+                ^-  nock
+                [%7 [%0 3] %1 `nock`jok]
+              cell
+        cases  +.cases
+      ==
     ::
         %cases
-      [*nock jyp]
+      =+  [val val-jyp]=$(j value.j)
+      =/  cases=(list (pair jock jock))  ~(tap by cases.j)
+      ?:  =(~ cases)  ~|("expect more. cases: ~" !!)
+      :_  jyp
+      ^-  nock
+      :+  %8
+        [%1 val]
+      =/  cell=nock
+        ?~  default.j  [%0 0]
+        =+  [def def-jyp]=$(j u.default.j)
+        [%7 [%0 3] [%1 def]]
+      |-
+      ?~  cases  cell
+      =+  [jok jok-jyp]=^$(j +.-.cases)
+      %=  $
+        cell  :^    %6
+                  ^-  nock
+                  (hunt-value -.-.cases)
+                ^-  nock
+                [%7 [%0 3] %1 `nock`jok]
+              cell
+        cases  +.cases
+      ==
     ::
         %call
       ?+    -.func.j  !!
@@ -1319,7 +1302,12 @@
         %atom
       ~|  [%atom +>.j]
       :-  [%1 +>.j]
-      [;;(jype-leaf [%atom +<.j]) %$]
+      [^-(jype-leaf [%atom +<.j]) %$]
+    ::
+        %symbol
+      ~|  [%symbol +>.j]
+      :-  [%1 +>.j]
+      [^-(jype-leaf [%symbol +<.j +>.j]) %$]
     ::
         %crash
       ~|  %crash
@@ -1381,11 +1369,11 @@
       [[%1 $(j u.inp.p.p.p.j)] [%0 0]]
     ==
   ::
-  :: +hunt: make a $nock to test whether a jock nests in a jype
-  :: We check only four cases:  %atom and %symbol to bottom out,
-  :: and %fork and nothing (cell) to continue.
+  :: +hunt-type: make a $nock to test whether jock nests in jype
+  :: We check only four cases:  %untyped and %symbol to
+  :: bottom out, and %fork and nothing (cell) to continue.
   :: TODO: provide atom type and aura nesting for convenience
-  ++  hunt
+  ++  hunt-type
     =|  axis=_2
     |=  =jype
     ^-  nock
@@ -1393,28 +1381,54 @@
     ?^  -.-.jype
       :: cell case
       ^-  nock
-      :^  %6  [%3 %0 2]
+      :^    %6
+          [%3 %0 axis]
         ^-  nock
-        :^  %6  `nock`[$(axis (mul 2 axis), jype `^jype`-.-.jype)]
+        :^    %6
+            `nock`[$(axis (mul 2 axis), jype `^jype`-.-.jype)]
           `nock`[$(axis +((mul 2 axis)), jype `^jype`-.+.jype)]
         [%1 1]
       [%1 1]
     ::  atom case
     ?+    -.-.jype
-      ::  default case:  %core, %limb
+      ::  default case:  %atom, %core, %limb
         ~|((crip "hunt: can't match {<`@tas`-.-.jype>}") !!)
       ::
-        %atom
-      ~|('hunt: can\'t match atom' !!)
-      ::
         %symbol
-      ~|('hunt: can\'t match symbol' !!)
+      [%5 [%1 q.p.jype] %0 axis]
       ::
         %fork
       ~|('hunt: can\'t match fork' !!)
       ::
         %untyped
       ~|('hunt: can\'t match untyped' !!)
+    ==
+  ::
+  :: +hunt-value: make a $nock to test whether jock matches value
+  :: We check only atom cases for now (and cells like paths)
+  ++  hunt-value
+    =|  axis=_2
+    |=  =jock
+    ^-  nock
+    ::  cell case
+    ?^  -.jock
+      :: cell case
+      ^-  nock
+      :^    %6
+          [%3 %0 axis]
+        ^-  nock
+        :^    %6
+            `nock`[$(axis (mul 2 axis), jock `^jock`-.jock)]
+          `nock`[$(axis +((mul 2 axis)), jock `^jock`+.jock)]
+        [%1 1]
+      [%1 1]
+    ::  atom case
+    ?+    -.jock
+      ::  default case:  %core, %limb
+        ~|((crip "hunt: can't match {<`@tas`-.-.jock>}") !!)
+      ::
+        %atom
+      [%5 [%1 `@`+.p.jock] %0 axis]
     ==
   --
 --
