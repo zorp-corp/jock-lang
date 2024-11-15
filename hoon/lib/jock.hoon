@@ -527,14 +527,14 @@
       =^  value  tokens
         (match-inner-jock +.tokens)
       =^  pairs  tokens
-        (match-block [tokens %'{' %'}'] match-cases)
+        (match-block [tokens %'{' %'}'] match-match-case)
       :_  tokens
       [%cases value -.pairs +.pairs]
     ?>  (has-keyword -.tokens %type)
     =^  value  tokens
       (match-inner-jock +.tokens)
     =^  pairs  tokens
-      (match-block [tokens %'{' %'}'] match-match)
+      (match-block [tokens %'{' %'}'] match-match-type)
     :_  tokens
     [%match value -.pairs +.pairs]
   ::
@@ -737,7 +737,7 @@
   ?>  (got-punctuator -.tokens end)
   [output +.tokens]
 ::
-++  match-match
+++  match-match-type
   |=  =tokens
   ^-  [[(map jype jock) (unit jock)] (list token)]
   ?:  =(~ tokens)  ~|("expect map. token: ~" !!)
@@ -769,7 +769,7 @@
   =/  fall  +.cf
   [[cases fall] tokens]
 ::
-++  match-cases
+++  match-match-case
   |=  =tokens
   ^-  [[(map jock jock) (unit jock)] (list token)]
   ?:  =(~ tokens)  ~|("expect map. token: ~" !!)
@@ -1382,41 +1382,39 @@
     ==
   ::
   :: +hunt: make a $nock to test whether a jock nests in a jype
+  :: We check only four cases:  %atom and %symbol to bottom out,
+  :: and %fork and nothing (cell) to continue.
   :: TODO: provide atom type and aura nesting for convenience
   ++  hunt
     =|  axis=_2
     |=  =jype
     ^-  nock
-    *nock
-    :: ?+    jype
-    ::   :: cell case
-    ::     :*  %6
-    ::         [%3 %0 2]
-    ::         %6
-    ::           .(axis (mul 2 axis), jype -.jype)
-    ::           .(axis +((mul 2 axis)), jype -.jype)
-    ::           [%1 1]
-    ::         [%1 1]
-    ::     ==
-    ::   ::
-    ::     [[%atom p=jatom-type] name=term]
-    ::   [%6 [%3 %0 axis] [%1 1] [%1 0]]
-    ::   ::
-    ::     [[%core p=* q=(unit ^jype)] name=term]
-    ::   ~|('hunt: can\'t match core' !!)
-    ::   ::
-    ::     [[%limb p=*] name=term]
-    ::   ~|('hunt: can\'t match limb' !!)
-    ::   ::
-    ::     [[%symbol p=jatom-type q=@] name=term]
-    ::   =/  val  q
-    ::   [%5 [%1 val] [%0 2]]
-    ::   ::
-    ::     [[%fork p=* q=*] name=term]
-    ::   ~|('hunt: can\'t match fork' !!)
-    ::   ::
-    ::     [[%untyped ~] name=term]
-    ::   ~|('hunt: can\'t match untyped' !!)
-    :: ==
+    ::  cell case
+    ?^  -.-.jype
+      :: cell case
+      ^-  nock
+      :^  %6  [%3 %0 2]
+        ^-  nock
+        :^  %6  `nock`[$(axis (mul 2 axis), jype `^jype`-.-.jype)]
+          `nock`[$(axis +((mul 2 axis)), jype `^jype`-.+.jype)]
+        [%1 1]
+      [%1 1]
+    ::  atom case
+    ?+    -.-.jype
+      ::  default case:  %core, %limb
+        ~|((crip "hunt: can't match {<`@tas`-.-.jype>}") !!)
+      ::
+        %atom
+      ~|('hunt: can\'t match atom' !!)
+      ::
+        %symbol
+      ~|('hunt: can\'t match symbol' !!)
+      ::
+        %fork
+      ~|('hunt: can\'t match fork' !!)
+      ::
+        %untyped
+      ~|('hunt: can\'t match untyped' !!)
+    ==
   --
 --
