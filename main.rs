@@ -39,21 +39,21 @@ enum Command {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = TestCli::parse();
-    let mut kernel = boot::setup(KERNEL_JAM, Some(cli.boot), &[])?;
+    let mut nockapp = boot::setup(KERNEL_JAM, Some(cli.boot), &[], "jock")?;
 
     let poke = match cli.command {
         Command::TestN { n } => {
             let n = n.unwrap_or(0); // Default to 0 if not provided
-            create_poke(&mut kernel, &[D(tas!(b"test-n")), D(n)])
+            create_poke(&mut nockapp.kernel, &[D(tas!(b"test-n")), D(n)])
         }
         Command::TestAll { } => {
-            let tas = make_tas(kernel.serf.stack(), "test-all");
-            create_poke(&mut kernel, &[tas.as_noun(), D(0)])
+            let tas = make_tas(nockapp.kernel.serf.stack(), "test-all");
+            create_poke(&mut nockapp.kernel, &[tas.as_noun(), D(0)])
         }
     };
 
     debug!("Sending poke: {:?}", poke);
-    let poke_result = kernel.poke(poke)?;
+    let poke_result = nockapp.kernel.poke(poke)?;
     debug!("Poke response: {:?}", poke_result);
 
     Ok(())

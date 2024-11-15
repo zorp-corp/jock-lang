@@ -1383,40 +1383,51 @@
   ::
   :: +hunt: make a $nock to test whether a jock nests in a jype
   :: TODO: provide atom type and aura nesting for convenience
+  ::
+::+$  jype
+::  $+  jype
+::  $:  $^([p=jype q=jype] p=jype-leaf)
+::      name=term
+::  ==
+::::
+::+$  jype-leaf
+::  $%  [%atom p=jatom-type]
+::      [%core p=core-body q=(unit jype)]
+::      [%limb p=(list jlimb)]
+::      [%symbol p=jatom-type q=@]
+::      [%fork p=jype q=jype]
+::      [%untyped ~]
+::  ==
   ++  hunt
     =|  axis=_2
     |=  =jype
     ^-  nock
-    *nock
-    :: ?+    jype
-    ::   :: cell case
-    ::     :*  %6
-    ::         [%3 %0 2]
-    ::         %6
-    ::           .(axis (mul 2 axis), jype -.jype)
-    ::           .(axis +((mul 2 axis)), jype -.jype)
-    ::           [%1 1]
-    ::         [%1 1]
-    ::     ==
-    ::   ::
-    ::     [[%atom p=jatom-type] name=term]
-    ::   [%6 [%3 %0 axis] [%1 1] [%1 0]]
-    ::   ::
-    ::     [[%core p=* q=(unit ^jype)] name=term]
-    ::   ~|('hunt: can\'t match core' !!)
-    ::   ::
-    ::     [[%limb p=*] name=term]
-    ::   ~|('hunt: can\'t match limb' !!)
-    ::   ::
-    ::     [[%symbol p=jatom-type q=@] name=term]
-    ::   =/  val  q
-    ::   [%5 [%1 val] [%0 2]]
-    ::   ::
-    ::     [[%fork p=* q=*] name=term]
-    ::   ~|('hunt: can\'t match fork' !!)
-    ::   ::
-    ::     [[%untyped ~] name=term]
-    ::   ~|('hunt: can\'t match untyped' !!)
-    :: ==
+    ?^  -<.jype
+      :: cell case
+      :^  %6  [%3 %0 2]
+        :^  %6  .(axis (mul 2 axis), jype -.jype)
+          .(axis +((mul 2 axis)), jype -.jype)
+        [%1 1]
+      [%1 1]
+    ?-  -<.jype
+      ::
+        %atom
+      ~|('hunt: can\'t match atom' !!)
+      ::
+        %core
+      ~|('hunt: can\'t match core' !!)
+      ::
+        %limb
+      ~|('hunt: can\'t match limb' !!)
+      ::
+        %symbol
+      ~|('hunt: can\'t match symbol' !!)
+      ::
+        %fork
+      ~|('hunt: can\'t match fork' !!)
+      ::
+        %untyped
+      ~|('hunt: can\'t match untyped' !!)
+    ==
   --
 --
