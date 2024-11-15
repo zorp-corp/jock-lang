@@ -524,27 +524,17 @@
   :: [%match value=jock cases=(map jype jock) default=(unit jock)]
   :: [%cases value=jock cases=(map jock jock) default=(unit jock)]
     ?:  (has-keyword -.tokens %case)
-      ~&  >  'case'
       =^  value  tokens
         (match-inner-jock +.tokens)
-      ~&  >  'value'
-      ~&  >  value
       =^  pairs  tokens
         (match-block [tokens %'{' %'}'] match-cases)
-      ~&  >  'pairs'
-      ~&  >  pairs
       :_  tokens
       [%cases value -.pairs +.pairs]
     ?>  (has-keyword -.tokens %type)
-    ~&  >  'type'
     =^  value  tokens
       (match-inner-jock +.tokens)
-    ~&  >  'value'
-    ~&  >  value
     =^  pairs  tokens
       (match-block [tokens %'{' %'}'] match-match)
-    ~&  >  'pairs'
-    ~&  >  pairs
     :_  tokens
     [%match value -.pairs +.pairs]
   ::
@@ -742,24 +732,21 @@
 ++  match-block
   |*  [[=tokens start=punctuator end=punctuator] gate=$-(tokens [* tokens])]
   ?>  (got-punctuator -.tokens start)
-  ~&  >  'match-block'
   =^  output  tokens
     (gate +.tokens)
-  ~&  >  'output'
-  ~&  >  output
   ?>  (got-punctuator -.tokens end)
   [output +.tokens]
 ::
 ++  match-match
   |=  =tokens
   ^-  [[(map jype jock) (unit jock)] (list token)]
-  !:
   ?:  =(~ tokens)  ~|("expect map. token: ~" !!)
   =|  fall=(unit jock)
-  =/  cf=[(map jype jock) (unit jock)]
+  =^  cf=[(map jype jock) (unit jock)]  tokens
     =|  duo=(list [jype jock])
-    |-  ^-  [(map jype jock) (unit jock)]
-    ?:  =(~ tokens)  [(malt duo) fall]
+    |-  ^-  [[(map jype jock) (unit jock)] (list token)]
+    ?:  (has-punctuator -.tokens %'}')
+      [[(malt duo) fall] tokens]
     :: default case, must be last
     ?:  (has-punctuator -.tokens %'_')
       ?>  (got-punctuator -.+.tokens %'-')
@@ -769,7 +756,7 @@
       =.  tokens  +.tokens
       ?>  (has-punctuator -.tokens %'}')  :: no trailing tokens in case block
       =.  fall  `jock
-      [(malt duo) fall]
+      [[(malt duo) fall] tokens]
     :: regular case
     =^  jype  tokens  (match-jype tokens)
     ?>  (got-punctuator -.tokens %'-')
@@ -785,13 +772,13 @@
 ++  match-cases
   |=  =tokens
   ^-  [[(map jock jock) (unit jock)] (list token)]
-  !:
   ?:  =(~ tokens)  ~|("expect map. token: ~" !!)
   =|  fall=(unit jock)
-  =/  cf=[(map jock jock) (unit jock)]
+  =^  cf=[(map jock jock) (unit jock)]  tokens
     =|  duo=(list [jock jock])
-    |-  ^-  [(map jock jock) (unit jock)]
-    ?:  =(~ tokens)  [(malt duo) fall]
+    |-  ^-  [[(map jock jock) (unit jock)] (list token)]
+    ?:  (has-punctuator -.tokens %'}')
+      [[(malt duo) fall] tokens]
     :: default case, must be last
     ?:  (has-punctuator -.tokens %'_')
       ?>  (got-punctuator -.+.tokens %'-')
@@ -801,7 +788,7 @@
       =.  tokens  +.tokens
       ?>  (has-punctuator -.tokens %'}')  :: no trailing tokens in case block
       =.  fall  `jock
-      [(malt duo) fall]
+      [[(malt duo) fall] tokens]
     :: regular case
     =^  case  tokens  (match-jock tokens)
     ?>  (got-punctuator -.tokens %'-')
