@@ -46,8 +46,11 @@
  ==
 ::
 ++  test-jocks
-  ^-  (list [term @t])
-  :~  [%test-let-edit test-let-edit]
+  !:
+  ^-  (list [term *])
+  :~  [%test-let-edit-tokens test-tokenize:test-let-edit]
+      [%test-let-edit-jeam test-jeam:test-let-edit]
+      [%test-let-edit-mint test-mint:test-let-edit]
   ==
 ::
 ++  parse

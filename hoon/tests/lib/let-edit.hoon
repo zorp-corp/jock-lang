@@ -11,7 +11,8 @@
 ::
 ++  test-jeam
   %+  expect-eq:test
-    !>  ~[%let type=[p=[%atom p=%loobean] name=%a] val=[%atom p=[%loobean %.y]] next=[%edit limb=~[[%name p=%a]] val=[%atom p=[%loobean %.n]] next=[%limb p=~[[%name p=%a]]]]]
+    !>  ^-  jock:jock
+        [[%let type=[p=[%atom p=%loobean] name=%a] val=[%atom p=[%loobean %.y]] next=[%edit limb=~[[%name p=%a]] val=[%atom p=[%loobean %.n]] next=[%limb p=~[[%name p=%a]]]]]]
     !>  (jeam:jock txt)
 ::
 ++  test-mint
