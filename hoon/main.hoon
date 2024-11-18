@@ -1,4 +1,6 @@
-/+  *wrapper, test-jock
+/+  jock,
+    test-jock,
+    *wrapper
 =>
 |%
 +$  test-state  ~
@@ -36,6 +38,11 @@
   ?~  soft-cau
    ~&  "could not mold poke type: {<dat>}"  !!
   =/  c=cause  u.soft-cau
+  ~&  exec-all:test-jock
+  ~&  parse-all:test-jock
+  ~&  jeam-all:test-jock
+  ~&  mint-all:test-jock
+  ~&  test-all:test-jock
   ?-  -.c
     %test-n  [~ k]
     %test-all  [~ k]
