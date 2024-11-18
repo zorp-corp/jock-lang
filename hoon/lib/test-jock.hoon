@@ -1,11 +1,7 @@
 /+  jock
 /*  let-edit              %jock  /lib/tests/let-edit
 /*  let-inner-exp         %jock  /lib/tests/let-inner-exp
-<<<<<<< HEAD
 :: /*  call                  %jock  /lib/tests/call
-=======
-/*  call                  %jock  /lib/tests/call
->>>>>>> 1466938 (WIP but commit version in issue #10)
 /*  axis-call             %jock  /lib/tests/axis-call
 /*  inline-lambda-call    %jock  /lib/tests/inline-lambda-call
 /*  in-subj-call          %jock  /lib/tests/in-subj-call
