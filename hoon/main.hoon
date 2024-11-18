@@ -43,7 +43,7 @@
   ~&  parse-all:test-jock
   ~&  jeam-all:test-jock
   ~&  mint-all:test-jock
-  ~&  test-all:test-jock
+  ~&  test-jocks:test-jock
   ?-  -.c
     %test-n  [~ k]
     %test-all  [~ k]
