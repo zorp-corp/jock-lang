@@ -1,0 +1,22 @@
+/+  jock,
+    test
+::
+|%
+++  text
+  'let dec = (a:@  -> @) {\0a  let b = 0;\0a  loop;\0a  if a == +(b) {\0a    b\0a  } else {\0a    b = +(b);\0a    recur\0a  }\0a};\0a\0adec(5)\0a\0a'
+++  test-tokenize
+  %+  expect-eq:test
+    !>  ~[[%keyword %let] [%name %a] [%punctuator %':'] [%punctuator %'@'] [%punctuator %'='] [%literal [%number 3]] [%punctuator %';'] [%keyword %if] [%name %a] [%punctuator %'='] [%punctuator %'='] [%literal [%number 3]] [%punctuator %'{'] [%literal [%number 72]] [%punctuator %'}'] [%keyword %else] [%keyword %if] [%name %a] [%punctuator %'='] [%punctuator %'='] [%literal [%number 5]] [%punctuator %'{'] [%literal [%number 17]] [%punctuator %'}'] [%keyword %else] [%punctuator %'{'] [%literal [%number 15]] [%punctuator %'}']]
+    !>  (rash text parse-tokens:jock)
+::
+++  test-jeam
+  %+  expect-eq:test
+    !>  ^-  jock:jock
+        [%let type=[p=[%atom p=%number] name=%a] val=[%atom p=[%number 3]] next=[%if cond=[%compare a=[%limb p=~[[%name p=%a]]] comp=%'==' b=[%atom p=[%number 3]]] then=[%atom p=[%number 72]] after=[%else-if cond=[%compare a=[%limb p=~[[%name p=%a]]] comp=%'==' b=[%atom p=[%number 5]]] then=[%atom p=[%number 17]] after=[%else then=[%atom p=[%number 15]]]]]]
+    !>  (jeam:jock text)
+::
+++  test-mint
+  %+  expect-eq:test
+    !>  [8 [1 3] 6 [5 [0 2] 1 3] [1 72] 6 [5 [0 2] 1 5] [1 17] 1 15]
+    !>  (mint:jock text)
+--
