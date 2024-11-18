@@ -66,7 +66,18 @@
 ::
 +$  tokens  (list token)
 ::
-++  gae  ;~(pose gaw (easy ~))
+++  val   %+  cold  ~
+          ;~  plug  fas  fas
+            (star prn)
+            (just `@`10)
+          ==
+++  var   %+  cold  ~
+          ;~  plug  ;~(plug fas tar)
+              (star ;~(less ;~(plug tar fas) prn))
+              ;~(plug tar fas)
+          ==
+++  gav  (cold ~ (star ;~(pose val var gah)))
+++  gae  ;~(pose gav (easy ~))
 ::
 ++  tokenize
   |%
@@ -110,7 +121,7 @@
         tagged-name
     ==
   ::
-  ++  tokens  (star ;~(pose token ;~(pfix gaw token)))
+  ++  tokens  (star ;~(pose token ;~(pfix gav token)))
   --
 ::
 ++  parse-tokens
@@ -677,7 +688,7 @@
   =^  then  tokens
     (match-block [tokens %'{' %'}'] match-jock)
   =^  after-if  tokens
-    (match-after-if-expression +.tokens)
+    (match-after-if-expression tokens)
   [[%else-if cond then after-if] tokens]
 ::
 ++  match-literal
