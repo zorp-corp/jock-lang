@@ -166,7 +166,6 @@
   :-  -.p
   (mint:jock +.p)
 ::
-<<<<<<< HEAD
 ++  test-all
   ^-  (list ?)
   =|  i=@
@@ -185,30 +184,7 @@
     [?=(^ res) lis]
   $(i +(i))
 ::
-=======
-:: ++  test-all
-::   ^-  (list *)
-::   %+  turn  test-jocks
-::   |=  [=term t=@t]
-::   ~|  term
-::   (test t)
-
-::   =|  i=@
-::   =/  len  (lent list-jocks)
-::   =|  lis=(list ?)
-::   |-
-::   ?:  =(i len)
-::     (flop lis)
-::   =/  res=(unit *)
-::     %-  mole
-::     |.
-::     =/  nok  (mint i)
-::     .*(%jock +.nok)
-::   =.  lis
-::     [?=(^ res) lis]
-::   $(i +(i))
 :: ::
->>>>>>> 4dd55b1 (Post with jamfile.)
 :: ++  test
 ::   |=  i=@
 ::   ^-  [term *]
