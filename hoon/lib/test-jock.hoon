@@ -172,6 +172,21 @@
 ::   |=  [=term t=@t]
 ::   ~|  term
 ::   (test t)
+
+::   =|  i=@
+::   =/  len  (lent list-jocks)
+::   =|  lis=(list ?)
+::   |-
+::   ?:  =(i len)
+::     (flop lis)
+::   =/  res=(unit *)
+::     %-  mole
+::     |.
+::     =/  nok  (mint i)
+::     .*(%jock +.nok)
+::   =.  lis
+::     [?=(^ res) lis]
+::   $(i +(i))
 :: ::
 :: ++  test
 ::   |=  i=@
@@ -199,7 +214,9 @@
     %-  mole
     |.
     =/  nok  (mint i)
-    .*(%jock +.nok)
+    =/  jok  .*(%jock +.nok)
+    ~&  [i `@tas`-.nok jok]
+    jok
   =.  lis
     [?=(^ res) lis]
   $(i +(i))

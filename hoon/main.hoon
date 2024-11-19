@@ -58,7 +58,7 @@
   ::     ?~  pa  results
   ::     $(pa t.pa, results `(list tank)`[leaf+"{<i.pa>}" results])
   :: ~&  >  " "
-  ~&  test-jocks:test-jock
+  :: ~&  test-jocks:test-jock
   ?-  -.c
     %test-n  [~ k]
     %test-all  [~ k]
