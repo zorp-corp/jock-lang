@@ -40,6 +40,8 @@
 /*  test-compose-cores    %hoon  /tests/lib/compose-cores
 :: /*  test-baby             %hoon  /tests/lib/baby
 /*  test-comparator       %hoon  /tests/lib/comparator
+/*  test-match-type       %hoon  /tests/lib/match-type
+/*  test-match-case       %hoon  /tests/lib/match-case
 ::
 |%
 ++  list-jocks
@@ -126,6 +128,12 @@
       [%test-comparator-tokens test-tokenize:test-comparator]
       [%test-comparator-jeam test-jeam:test-comparator]
       [%test-comparator-mint test-mint:test-comparator]
+      [%test-match-type-tokens test-tokenize:test-match-type]
+      [%test-match-type-jeam test-jeam:test-match-type]
+      [%test-match-type-mint test-mint:test-match-type]
+      [%test-match-case-tokens test-tokenize:test-match-case]
+      [%test-match-case-jeam test-jeam:test-match-case]
+      [%test-match-case-mint test-mint:test-match-case]
   ==
 ::
 ++  parse
