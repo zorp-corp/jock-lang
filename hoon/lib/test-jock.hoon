@@ -85,9 +85,7 @@
 ++  mint
   |=  i=@
   ^-  [term *]
-  ~&  >>  i
   =/  p  (snag i list-jocks)
-  ~&  >>  p
   :-  -.p
   (mint:jock +.p)
 ::
