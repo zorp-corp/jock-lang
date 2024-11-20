@@ -1,11 +1,7 @@
 /+  jock
 /*  let-edit              %jock  /lib/tests/let-edit
 /*  let-inner-exp         %jock  /lib/tests/let-inner-exp
-<<<<<<< HEAD
-/*  call                  %jock  /lib/tests/call
-=======
 :: /*  call                  %jock  /lib/tests/call
->>>>>>> ef5e79acca352b1484a3b63aa31b8badce0e376a
 /*  axis-call             %jock  /lib/tests/axis-call
 /*  inline-lambda-call    %jock  /lib/tests/inline-lambda-call
 /*  in-subj-call          %jock  /lib/tests/in-subj-call
@@ -24,7 +20,6 @@
 /*  comparator            %jock  /lib/tests/comparator
 /*  match-type            %jock  /lib/tests/match-type
 /*  match-case            %jock  /lib/tests/match-case
-|%
 ::
 /*  test-let-edit         %hoon  /tests/lib/let-edit
 /*  test-let-inner-exp    %hoon  /tests/lib/let-inner-exp
@@ -70,6 +65,67 @@
       [%comparator q.comparator]
       [%match-type q.match-type]
       [%match-case q.match-case]
+  ==
+::
+++  test-jocks
+  ^-  (list [term tang])
+  :~  [%test-let-edit-tokens test-tokenize:test-let-edit]
+      [%test-let-edit-jeam test-jeam:test-let-edit]
+      [%test-let-edit-mint test-mint:test-let-edit]
+      [%test-let-inner-exp-tokens test-tokenize:test-let-inner-exp]
+      [%test-let-inner-exp-jeam test-jeam:test-let-inner-exp]
+      [%test-let-inner-exp-mint test-mint:test-let-inner-exp]
+      :: [%test-call-tokens test-tokenize:test-call]
+      :: [%test-call-jeam test-jeam:test-call]
+      :: [%test-call-mint test-mint:test-call]
+      [%test-axis-call-tokens test-tokenize:test-axis-call]
+      [%test-axis-call-jeam test-jeam:test-axis-call]
+      [%test-axis-call-mint test-mint:test-axis-call]
+      [%test-inline-lambda-call-tokens test-tokenize:test-inline-lambda-call]
+      [%test-inline-lambda-call-jeam test-jeam:test-inline-lambda-call]
+      [%test-inline-lambda-call-mint test-mint:test-inline-lambda-call]
+      [%test-in-subj-call-tokens test-tokenize:test-in-subj-call]
+      [%test-in-subj-call-jeam test-jeam:test-in-subj-call]
+      [%test-in-subj-call-mint test-mint:test-in-subj-call]
+      [%test-if-else-tokens test-tokenize:test-if-else]
+      [%test-if-else-jeam test-jeam:test-if-else]
+      [%test-if-else-mint test-mint:test-if-else]
+      [%test-if-elseif-else-tokens test-tokenize:test-if-elseif-else]
+      [%test-if-elseif-else-jeam test-jeam:test-if-elseif-else]
+      [%test-if-elseif-else-mint test-mint:test-if-elseif-else]
+      [%test-assert-tokens test-tokenize:test-assert]
+      [%test-assert-jeam test-jeam:test-assert]
+      [%test-assert-mint test-mint:test-assert]
+      [%test-call-let-edit-tokens test-tokenize:test-call-let-edit]
+      [%test-call-let-edit-jeam test-jeam:test-call-let-edit]
+      [%test-call-let-edit-mint test-mint:test-call-let-edit]
+      [%test-inline-point-tokens test-tokenize:test-inline-point]
+      [%test-inline-point-jeam test-jeam:test-inline-point]
+      [%test-inline-point-mint test-mint:test-inline-point]
+      [%test-inline-lambda-no-arg-tokens test-tokenize:test-inline-lambda-no-arg]
+      [%test-inline-lambda-no-arg-jeam test-jeam:test-inline-lambda-no-arg]
+      [%test-inline-lambda-no-arg-mint test-mint:test-inline-lambda-no-arg]
+      [%test-dec-tokens test-tokenize:test-dec]
+      [%test-dec-jeam test-jeam:test-dec]
+      [%test-dec-mint test-mint:test-dec]
+      [%test-eval-tokens test-tokenize:test-eval]
+      [%test-eval-jeam test-jeam:test-eval]
+      [%test-eval-mint test-mint:test-eval]
+      [%test-multi-limb-tokens test-tokenize:test-multi-limb]
+      [%test-multi-limb-jeam test-jeam:test-multi-limb]
+      [%test-multi-limb-mint test-mint:test-multi-limb]
+      [%test-compose-tokens test-tokenize:test-compose]
+      [%test-compose-jeam test-jeam:test-compose]
+      [%test-compose-mint test-mint:test-compose]
+      [%test-compose-cores-tokens test-tokenize:test-compose-cores]
+      [%test-compose-cores-jeam test-jeam:test-compose-cores]
+      [%test-compose-cores-mint test-mint:test-compose-cores]
+      :: [%test-baby-tokens test-tokenize:test-baby]
+      :: [%test-baby-jeam test-jeam:test-baby]
+      :: [%test-baby-mint test-mint:test-baby]
+      [%test-comparator-tokens test-tokenize:test-comparator]
+      [%test-comparator-jeam test-jeam:test-comparator]
+      [%test-comparator-mint test-mint:test-comparator]
   ==
 ::
 ++  parse

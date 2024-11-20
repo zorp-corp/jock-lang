@@ -42,6 +42,7 @@
   |^
   ~&  exec-all:test-jock
   ~&  test-all:test-jock
+  ~&  "COMPLETE"
   ?-  -.c
     %test-n  [~ k]
     %test-all  [~ k]
