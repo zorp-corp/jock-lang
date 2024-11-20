@@ -1,7 +1,11 @@
 /+  jock
 /*  let-edit              %jock  /lib/tests/let-edit
 /*  let-inner-exp         %jock  /lib/tests/let-inner-exp
+<<<<<<< HEAD
 /*  call                  %jock  /lib/tests/call
+=======
+:: /*  call                  %jock  /lib/tests/call
+>>>>>>> ef5e79acca352b1484a3b63aa31b8badce0e376a
 /*  axis-call             %jock  /lib/tests/axis-call
 /*  inline-lambda-call    %jock  /lib/tests/inline-lambda-call
 /*  in-subj-call          %jock  /lib/tests/in-subj-call
@@ -22,11 +26,32 @@
 /*  match-case            %jock  /lib/tests/match-case
 |%
 ::
+/*  test-let-edit         %hoon  /tests/lib/let-edit
+/*  test-let-inner-exp    %hoon  /tests/lib/let-inner-exp
+:: /*  test-call             %hoon  /tests/lib/call
+/*  test-axis-call        %hoon  /tests/lib/axis-call
+/*  test-inline-lambda-call  %hoon  /tests/lib/inline-lambda-call
+/*  test-in-subj-call     %hoon  /tests/lib/in-subj-call
+/*  test-if-else          %hoon  /tests/lib/if-else
+/*  test-if-elseif-else   %hoon  /tests/lib/if-elseif-else
+/*  test-assert           %hoon  /tests/lib/assert
+/*  test-call-let-edit    %hoon  /tests/lib/call-let-edit
+/*  test-inline-point     %hoon  /tests/lib/inline-point
+/*  test-inline-lambda-no-arg  %hoon  /tests/lib/inline-lambda-no-arg
+/*  test-dec              %hoon  /tests/lib/dec
+/*  test-eval             %hoon  /tests/lib/eval
+/*  test-multi-limb       %hoon  /tests/lib/multi-limb
+/*  test-compose          %hoon  /tests/lib/compose
+/*  test-compose-cores    %hoon  /tests/lib/compose-cores
+:: /*  test-baby             %hoon  /tests/lib/baby
+/*  test-comparator       %hoon  /tests/lib/comparator
+::
+|%
 ++  list-jocks
   ^-  (list [term @t])
   :~  [%let-edit q.let-edit]
       [%let-inner-exp q.let-inner-exp]
-      [%call q.call]
+      :: [%call q.call]
       [%axis-call q.axis-call]
       [%inline-lambda-call q.inline-lambda-call]
       [%in-subj-call q.in-subj-call]
@@ -41,7 +66,7 @@
       [%multi-limb q.multi-limb]
       [%compose q.compose]
       [%compose-cores q.compose-cores]
-      [%baby q.baby]
+      :: [%baby q.baby]
       [%comparator q.comparator]
       [%match-type q.match-type]
       [%match-case q.match-case]
@@ -55,11 +80,11 @@
   (rash +.p parse-tokens:jock)
 ::
 ++  parse-all
-  ^-  (list (list token:jock))
+  ^-  (list (pair term (list token:jock)))
   %+  turn  list-jocks
   |=  [=term t=@t]
   ~|  term
-  (rash t parse-tokens:jock)
+  [term (rash t parse-tokens:jock)]
 ::
 ++  jeam
   |=  i=@
@@ -69,18 +94,18 @@
   (jeam:jock +.p)
 ::
 ++  jeam-all
-  ^-  (list jock:jock)
+  ^-  (list (pair term jock:jock))
   %+  turn  list-jocks
   |=  [=term t=@t]
   ~|  term
-  (jeam:jock t)
+  [term (jeam:jock t)]
 ::
 ++  mint-all
-  ^-  (list *)
+  ^-  (list (pair term *))
   %+  turn  list-jocks
   |=  [=term t=@t]
   ~|  term
-  (mint:jock t)
+  [term (mint:jock t)]
 ::
 ++  mint
   |=  i=@
@@ -88,6 +113,31 @@
   =/  p  (snag i list-jocks)
   :-  -.p
   (mint:jock +.p)
+::
+++  test-all
+  ^-  (list ?)
+  =|  i=@
+  =/  len  (lent test-jocks)
+  =|  lis=(list ?)
+  |-
+  ?:  =(i len)
+    (flop lis)
+  =/  res=(unit *)
+    %-  mole
+    |.
+    =/  arm  (snag i test-jocks)
+    ~&  ["{<i>}" `@tas`-.arm `tape`(zing (turn +.arm |=(=tank ~(ram re tank))))]
+    +.arm
+  =.  lis
+    [?=(^ res) lis]
+  $(i +(i))
+::
+:: ++  test
+::   |=  i=@
+::   ^-  [term *]
+::   =/  p  (snag i test-jocks)
+::   ~&  test-tokenize:p
+::   ~
 ::
 ++  exec
   |=  i=@
@@ -108,7 +158,9 @@
     %-  mole
     |.
     =/  nok  (mint i)
-    .*(%jock +.nok)
+    =/  jok  .*(%jock +.nok)
+    ~&  [i `@tas`-.nok jok]
+    jok
   =.  lis
     [?=(^ res) lis]
   $(i +(i))

@@ -39,7 +39,8 @@ enum Command {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = TestCli::parse();
-    let mut kernel = boot::setup(KERNEL_JAM, Some(cli.boot), &[])?;
+    let nockapp = boot::setup(KERNEL_JAM, Some(cli.boot), &[], "jock")?;
+    let mut kernel = nockapp.kernel;
 
     let poke = match cli.command {
         Command::TestN { n } => {

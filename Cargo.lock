@@ -125,9 +125,21 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "37bf3594c4c988a53154954629820791dde498571819ae4ca50ca811e060cc95"
 
 [[package]]
+name = "arrayref"
+version = "0.3.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "76a2e8124351fda1ef8aaaa3bbd7ebbcb486bbcd4225aca0aa0d84bb2db8fecb"
+
+[[package]]
+name = "arrayvec"
+version = "0.7.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7c02d123df017efcdfbd739ef81735b36c5ba83ec3c59c80a9d7ecc718f92e50"
+
+[[package]]
 name = "assert_no_alloc"
 version = "1.1.2"
-source = "git+https://github.com/zorp-corp/sword.git?rev=92f4f40cf7af714538b8766de6f7792eaa103cbd#92f4f40cf7af714538b8766de6f7792eaa103cbd"
+source = "git+https://github.com/zorp-corp/sword.git?rev=29cc8d897c8cb7a70e5baf52c9b83f5ef04fe509#29cc8d897c8cb7a70e5baf52c9b83f5ef04fe509"
 
 [[package]]
 name = "async-trait"
@@ -300,6 +312,20 @@ dependencies = [
  "radium",
  "tap",
  "wyz",
+]
+
+[[package]]
+name = "blake3"
+version = "1.5.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e9ec96fe9a81b5e365f9db71fe00edc4fe4ca2cc7dcb7861f0603012a7caa210"
+dependencies = [
+ "arrayref",
+ "arrayvec",
+ "cc",
+ "cfg-if",
+ "constant_time_eq",
+ "serde",
 ]
 
 [[package]]
@@ -486,6 +512,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d3fd119d74b830634cea2a0f58bbd0d54540518a14397557951e79340abc28c0"
 
 [[package]]
+name = "constant_time_eq"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7c74b8349d32d297c9134b8c88677813a227df8f779daa29bfc29c183fe3dca6"
+
+[[package]]
 name = "core-foundation-sys"
 version = "0.8.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -573,7 +605,7 @@ checksum = "22ec99545bb0ed0ea7bb9b8e1e9122ea386ff8a48c0922e43f36d45ab09e0e80"
 [[package]]
 name = "crown"
 version = "0.1.0"
-source = "git+https://github.com/zorp-corp/nockapp?rev=503a5afd0a969fb1d2c240ffc1793a694407072b#503a5afd0a969fb1d2c240ffc1793a694407072b"
+source = "git+https://github.com/zorp-corp/nockapp?rev=57f9d9f0d5cbd8bf0b88cd8c8a108c1f551e33d8#57f9d9f0d5cbd8bf0b88cd8c8a108c1f551e33d8"
 dependencies = [
  "anyhow",
  "assert_no_alloc",
@@ -581,6 +613,7 @@ dependencies = [
  "axum",
  "bincode",
  "bitvec",
+ "blake3",
  "byteorder",
  "bytes",
  "clap 4.5.20",
@@ -595,8 +628,10 @@ dependencies = [
  "tempfile",
  "thiserror",
  "tokio",
+ "tokio-util",
  "tracing",
  "tracing-subscriber",
+ "tracing-test",
  "yaque",
 ]
 
@@ -1015,7 +1050,7 @@ dependencies = [
 [[package]]
 name = "ibig"
 version = "0.3.6"
-source = "git+https://github.com/zorp-corp/sword.git?rev=92f4f40cf7af714538b8766de6f7792eaa103cbd#92f4f40cf7af714538b8766de6f7792eaa103cbd"
+source = "git+https://github.com/zorp-corp/sword.git?rev=29cc8d897c8cb7a70e5baf52c9b83f5ef04fe509#29cc8d897c8cb7a70e5baf52c9b83f5ef04fe509"
 dependencies = [
  "cfg-if",
  "num-traits",
@@ -1282,7 +1317,7 @@ dependencies = [
 [[package]]
 name = "murmur3"
 version = "0.5.2"
-source = "git+https://github.com/zorp-corp/sword.git?rev=92f4f40cf7af714538b8766de6f7792eaa103cbd#92f4f40cf7af714538b8766de6f7792eaa103cbd"
+source = "git+https://github.com/zorp-corp/sword.git?rev=29cc8d897c8cb7a70e5baf52c9b83f5ef04fe509#29cc8d897c8cb7a70e5baf52c9b83f5ef04fe509"
 
 [[package]]
 name = "nom"
@@ -1799,7 +1834,7 @@ checksum = "13c2bddecc57b384dee18652358fb23172facb8a2c51ccc10d74c157bdea3292"
 [[package]]
 name = "sword"
 version = "0.1.0"
-source = "git+https://github.com/zorp-corp/sword.git?rev=92f4f40cf7af714538b8766de6f7792eaa103cbd#92f4f40cf7af714538b8766de6f7792eaa103cbd"
+source = "git+https://github.com/zorp-corp/sword.git?rev=29cc8d897c8cb7a70e5baf52c9b83f5ef04fe509#29cc8d897c8cb7a70e5baf52c9b83f5ef04fe509"
 dependencies = [
  "assert_no_alloc",
  "autotools",
@@ -1823,12 +1858,13 @@ dependencies = [
  "sword_guard",
  "sword_macros",
  "sword_pma",
+ "thiserror",
 ]
 
 [[package]]
 name = "sword_crypto"
 version = "0.1.0"
-source = "git+https://github.com/zorp-corp/sword.git?rev=92f4f40cf7af714538b8766de6f7792eaa103cbd#92f4f40cf7af714538b8766de6f7792eaa103cbd"
+source = "git+https://github.com/zorp-corp/sword.git?rev=29cc8d897c8cb7a70e5baf52c9b83f5ef04fe509#29cc8d897c8cb7a70e5baf52c9b83f5ef04fe509"
 dependencies = [
  "aes",
  "aes-siv",
@@ -1844,7 +1880,7 @@ dependencies = [
 [[package]]
 name = "sword_guard"
 version = "0.1.0"
-source = "git+https://github.com/zorp-corp/sword.git?rev=92f4f40cf7af714538b8766de6f7792eaa103cbd#92f4f40cf7af714538b8766de6f7792eaa103cbd"
+source = "git+https://github.com/zorp-corp/sword.git?rev=29cc8d897c8cb7a70e5baf52c9b83f5ef04fe509#29cc8d897c8cb7a70e5baf52c9b83f5ef04fe509"
 dependencies = [
  "bindgen",
  "cc",
@@ -1853,7 +1889,7 @@ dependencies = [
 [[package]]
 name = "sword_macros"
 version = "0.1.0"
-source = "git+https://github.com/zorp-corp/sword.git?rev=92f4f40cf7af714538b8766de6f7792eaa103cbd#92f4f40cf7af714538b8766de6f7792eaa103cbd"
+source = "git+https://github.com/zorp-corp/sword.git?rev=29cc8d897c8cb7a70e5baf52c9b83f5ef04fe509#29cc8d897c8cb7a70e5baf52c9b83f5ef04fe509"
 dependencies = [
  "quote",
  "syn 1.0.109",
@@ -1862,7 +1898,7 @@ dependencies = [
 [[package]]
 name = "sword_pma"
 version = "0.1.0"
-source = "git+https://github.com/zorp-corp/sword.git?rev=92f4f40cf7af714538b8766de6f7792eaa103cbd#92f4f40cf7af714538b8766de6f7792eaa103cbd"
+source = "git+https://github.com/zorp-corp/sword.git?rev=29cc8d897c8cb7a70e5baf52c9b83f5ef04fe509#29cc8d897c8cb7a70e5baf52c9b83f5ef04fe509"
 dependencies = [
  "bindgen",
  "cc",
@@ -1992,6 +2028,7 @@ dependencies = [
  "libc",
  "mio 1.0.2",
  "pin-project-lite",
+ "signal-hook-registry",
  "socket2",
  "tokio-macros",
  "windows-sys 0.52.0",
@@ -2006,6 +2043,19 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.82",
+]
+
+[[package]]
+name = "tokio-util"
+version = "0.7.12"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "61e7c3654c13bcd040d4a03abee2c75b1d14a37b423cf5a813ceae1cc903ec6a"
+dependencies = [
+ "bytes",
+ "futures-core",
+ "futures-sink",
+ "pin-project-lite",
+ "tokio",
 ]
 
 [[package]]
@@ -2096,6 +2146,27 @@ dependencies = [
  "tracing",
  "tracing-core",
  "tracing-log",
+]
+
+[[package]]
+name = "tracing-test"
+version = "0.2.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "557b891436fe0d5e0e363427fc7f217abf9ccd510d5136549847bdcbcd011d68"
+dependencies = [
+ "tracing-core",
+ "tracing-subscriber",
+ "tracing-test-macro",
+]
+
+[[package]]
+name = "tracing-test-macro"
+version = "0.2.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "04659ddb06c87d233c566112c1c9c5b9e98256d9af50ec3bc9c8327f873a7568"
+dependencies = [
+ "quote",
+ "syn 2.0.82",
 ]
 
 [[package]]
