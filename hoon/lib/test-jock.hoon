@@ -168,14 +168,17 @@
   (mint:jock +.p)
 ::
 ++  test-all
-  ^-  tape
+  ^-  (list ?)
   =|  i=@
   =/  len  (lent test-jocks)
+  =|  lis=(list ?)
   |-
   ?:  =(i len)
-    "All tests passed successfully!"
+    (flop lis)
   =/  [tag=@tas tan=tang]  (snag i test-jocks)
   ~&  ["{<i>}" tag `tape`(zing (turn tan |=(=tank ~(ram re tank))))]
+  =.  lis
+    [?=(~ tan) lis]
   $(i +(i))
 ::
 :: ++  test
