@@ -45,6 +45,7 @@
       %'('  %')'  %'{'  %'}'  %'['  %']'
       %'='  %'<'  %'>'
       %'+'  %'-'  %'*'  %'/'
+      %'~'
   ==
 ::
 +$  jatom
@@ -110,6 +111,7 @@
         %'('  %')'  %'{'  %'}'  %'['  %']'
         %'='  %'<'  %'>'
         %'+'  %'-'  %'*'  %'/'
+        %'~'
     ==
   ++  tagged-punctuator  (stag %punctuator punctuator)
   ::
@@ -195,6 +197,7 @@
       [%limb p=(list jlimb)]
       [%symbol p=jatom-type q=@]
       [%fork p=jype q=jype]
+      [%stay p=jype]
       [%untyped ~]
   ==
 ::
@@ -239,6 +242,7 @@
   ?:  =(~ tokens)
     [jock tokens]
   ::  check if we end in a comment
+  ::  TODO we shouldn't ever get to these lines since we check in punctuator
   ?.  (has-punctuator -.tokens %'/')
     [jock tokens]
   =.  tokens  +.tokens
@@ -317,21 +321,22 @@
     ~|("expect start-punctuator. token: {<-.first>}" !!)
   =.  tokens  +.tokens
   ?+    +.first  ~|(tokens !!)
+  ::  Regular cell  []
       %'['
     (match-pair-inner-jock [[%punctuator %'['] tokens])
-  ::
+  ::  Increment
       %'+'
     =^  jock  tokens
       (match-block [tokens %'(' %')'] match-inner-jock)
     ::  TODO: check if we're in a compare
     [[%increment jock] tokens]
-  ::
+  ::  Type union
       %'?'
     =^  jock  tokens
       (match-block [tokens %'(' %')'] match-inner-jock)
     ::  TODO: check if we're in a compare
     [[%cell-check jock] tokens]
-  ::
+  ::  Subject call  $(foo)
       %'$'
     ?.  (has-punctuator -.tokens %'(')
       [[%call [%limb [%axis 0] ~] ~] tokens]
@@ -340,7 +345,7 @@
     =^  arg  tokens
       (match-block [tokens %'(' %')'] match-inner-jock)
     [[%call [%limb [%axis %0] ~] `arg] tokens]
-  ::
+  ::  Axis address  &1
       %'&'
     ::  TODO: check if we're in a compare
     =^  axis-lit  tokens
@@ -352,7 +357,7 @@
     =^  arg  tokens
       (match-block [tokens %'(' %')'] match-inner-jock)
     [[%call [%limb axis-lit ~] `arg] tokens]
-  ::
+  ::  Function call  foo(bar)
       %'('
     =^  lambda  tokens
       (match-lambda [[%punctuator %'('] tokens])
@@ -367,9 +372,9 @@
       (match-inner-jock tokens)
     ?>  (got-punctuator -.tokens %')')
     [[%call [%lambda lambda] `arg] +.tokens]
-  ::
+  ::  C-style comments  /* ... */
       %'/'
-    ?>  (got-punctuator -.tokens %'*')
+    ?>  (has-punctuator -.tokens %'*')
     =.  tokens  +.tokens
     |-
     ?~  tokens  !!
@@ -379,6 +384,28 @@
         (match-jock t.t.tokens)
       $(tokens t.tokens)
     $(tokens t.tokens)
+  ::  Null-terminated lists  ~[...]
+      %'~'
+    ?>  (has-punctuator -.tokens %'[')
+    =>  .(tokens `(list token)`+.tokens)
+    =^  jock-one  tokens
+      (match-inner-jock tokens)
+    =/  first=?  %.y
+    |-  ^-  [jock (list token)]
+    =^  jock-nex  tokens
+      (match-inner-jock tokens)
+    =/  pun  (has-punctuator -.tokens %']')
+    ?:  &(first pun)
+      [[jock-one jock-nex] +.tokens]
+    ?:  pun
+      [[jock-nex [%atom %number 0]] +.tokens]
+    ?:  first
+      =^  pairs  tokens
+        $(first %.n)
+      [[jock-one jock-nex pairs] tokens]
+    =^  pairs  tokens
+      $
+    [[jock-nex pairs] tokens]
   ==
 ::
 ++  match-axis
@@ -568,7 +595,7 @@
   ?:  (has-punctuator -.tokens %'*')
     [[%untyped ~]^nom +.tokens]
   ?:  (has-punctuator -.tokens %'@')
-    [[%atom %number]^nom +.tokens]
+    [[%atom %number]^nom +.tokens]    :: XXX seems like wrong structure
   ?:  (has-punctuator -.tokens %'?')
     [[%atom %loobean]^nom +.tokens]
   ?:  &(has-name (has-punctuator -.tokens %':'))
@@ -1253,6 +1280,7 @@
       %limb     $(j p:(~(get-limb jt jyp) p.p.j))
       %fork     $(j p.p.j)
       %symbol   [%1 q.p.j]
+      %stay     [%0 0]
     ::
         %core
       ?:  ?=(%| -.p.p.j)
