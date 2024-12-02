@@ -125,6 +125,9 @@
       [%test-comparator-tokens test-tokenize:test-comparator]
       [%test-comparator-jeam test-jeam:test-comparator]
       [%test-comparator-mint test-mint:test-comparator]
+      [%test-lists-tokens test-tokenize:test-lists]
+      [%test-lists-jeam test-jeam:test-lists]
+      [%test-lists-mint test-mint:test-lists]
   ==
 ::
 ++  parse
