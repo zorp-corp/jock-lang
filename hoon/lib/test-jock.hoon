@@ -39,7 +39,7 @@
 /*  test-compose-cores    %hoon  /tests/lib/compose-cores
 :: /*  test-baby             %hoon  /tests/lib/baby
 /*  test-comparator       %hoon  /tests/lib/comparator
-:: /*  test-lists            %hoon  /tests/lib/lists
+/*  test-lists            %hoon  /tests/lib/lists
 ::
 |%
 ++  list-jocks
