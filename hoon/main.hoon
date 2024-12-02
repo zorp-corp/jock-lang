@@ -42,9 +42,9 @@
   |^
   ~&  exec-all:test-jock
   ~&  test-all:test-jock
-  ~&  >  (snag 17 parse-all:test-jock)
-  ~&  >  (snag 17 jeam-all:test-jock)
-  ~&  >  (snag 17 mint-all:test-jock)
+  :: ~&  >  (snag 17 parse-all:test-jock)
+  :: ~&  >  (snag 17 jeam-all:test-jock)
+  :: ~&  >  (snag 17 mint-all:test-jock)
   :: ~&  >  dump-output
   ?-  -.c
     %test-n  [~ k]
