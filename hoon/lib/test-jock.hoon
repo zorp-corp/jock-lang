@@ -164,6 +164,7 @@
   ^-  [term *]
   =/  p  (snag i list-jocks)
   :-  -.p
+  ~&  >>  (mint:jock +.p)
   (mint:jock +.p)
 ::
 ++  test-all

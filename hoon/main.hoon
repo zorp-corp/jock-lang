@@ -37,11 +37,15 @@
   ~&  "poked at {<now^dat>}"
   =/  soft-cau  ((soft cause) dat)
   ?~  soft-cau
-   ~&  "could not mold poke type: {<dat>}"  !!
+  ~&  >>>  "could not mold poke type: {<dat>}"  !!
   =/  c=cause  u.soft-cau
   |^
-  ~&  exec-all:test-jock
-  ~&  test-all:test-jock
+  :: ~&  exec-all:test-jock
+  :: ~&  test-all:test-jock
+  :: ~&  dump-output
+  ~&  (mint:test-jock 5)
+  ~&  (exec:test-jock 5)
+  ~&  (jeam:test-jock 5)
   ?-  -.c
     %test-n  [~ k]
     %test-all  [~ k]
