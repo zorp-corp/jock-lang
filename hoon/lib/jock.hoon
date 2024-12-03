@@ -13,9 +13,6 @@
       ^-  *
       =/  jok  (jeam txt)
       =+  [nok jyp]=(~(mint cj [%atom %string]^%$) jok)
-      ~&  nok
-      ~&  jyp
-      ~&  " "
       nok
     --
 =>
@@ -120,6 +117,7 @@
         %'('  %')'  %'{'  %'}'  %'['  %']'
         %'='  %'<'  %'>'
         %'+'  %'-'  %'*'  %'/'  %'_'
+        %'~'
     ==
   ++  tagged-punctuator  (stag %punctuator punctuator)
   ::
@@ -318,6 +316,7 @@
     ~|("expect start-punctuator. token: {<-.first>}" !!)
   =.  tokens  +.tokens
   ?+    +.first  ~|(tokens !!)
+  ::  Regular cell  [1 2]
       %'['
     (match-pair-inner-jock [[%punctuator %'['] tokens])
   ::  Increment  +(0)
@@ -370,7 +369,7 @@
     [[%call [%lambda lambda] `arg] +.tokens]
   ::  C-style comments  /* ... */
       %'/'
-    ?>  (got-punctuator -.tokens %'*')
+    ?>  (has-punctuator -.tokens %'*')
     =.  tokens  +.tokens
     |-
     ?~  tokens  !!
