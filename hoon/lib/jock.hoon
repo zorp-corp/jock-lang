@@ -13,9 +13,6 @@
       ^-  *
       =/  jok  (jeam txt)
       =+  [nok jyp]=(~(mint cj [%atom %string]^%$) jok)
-      ~&  nok
-      ~&  jyp
-      ~&  " "
       nok
     --
 =>
