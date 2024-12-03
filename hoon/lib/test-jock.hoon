@@ -18,6 +18,7 @@
 /*  compose-cores         %jock  /lib/tests/compose-cores
 :: /*  baby                  %jock  /lib/tests/baby
 /*  comparator            %jock  /lib/tests/comparator
+/*  lists                 %jock  /lib/tests/lists
 /*  match-case            %jock  /lib/tests/match-case
 /*  match-type            %jock  /lib/tests/match-type
 ::
@@ -40,6 +41,7 @@
 /*  test-compose-cores    %hoon  /tests/lib/compose-cores
 :: /*  test-baby             %hoon  /tests/lib/baby
 /*  test-comparator       %hoon  /tests/lib/comparator
+/*  test-lists            %hoon  /tests/lib/lists
 :: /*  test-match-case       %hoon  /tests/lib/match-case
 :: /*  test-match-type       %hoon  /tests/lib/match-type
 ::
@@ -65,6 +67,7 @@
       [%compose-cores q.compose-cores]
       :: [%baby q.baby]
       [%comparator q.comparator]
+      [%lists q.lists]
       [%match-case q.match-case]
       [%match-type q.match-type]
  ==
@@ -128,6 +131,9 @@
       [%test-comparator-tokens test-tokenize:test-comparator]
       [%test-comparator-jeam test-jeam:test-comparator]
       [%test-comparator-mint test-mint:test-comparator]
+      [%test-lists-tokens test-tokenize:test-lists]
+      [%test-lists-jeam test-jeam:test-lists]
+      [%test-lists-mint test-mint:test-lists]
       :: [%test-match-case-tokens test-tokenize:test-match-case]
       :: [%test-match-case-jeam test-jeam:test-match-case]
       :: [%test-match-case-mint test-mint:test-match-case]
