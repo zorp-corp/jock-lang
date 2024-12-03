@@ -27,3 +27,4 @@ make release
 ./target/release/jock-testing test-all
 ```
 
+This will execute all of the supplied programs, then run unit tests over each of the compilation steps in producing each program's Nock.
