@@ -1,5 +1,4 @@
 /+  jock,
-    sequent,
     test-jock,
     *wrapper
 =>
