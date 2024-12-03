@@ -18,6 +18,8 @@
 /*  compose-cores         %jock  /lib/tests/compose-cores
 :: /*  baby                  %jock  /lib/tests/baby
 /*  comparator            %jock  /lib/tests/comparator
+/*  match-case            %jock  /lib/tests/match-case
+/*  match-type            %jock  /lib/tests/match-type
 ::
 /*  test-let-edit         %hoon  /tests/lib/let-edit
 /*  test-let-inner-exp    %hoon  /tests/lib/let-inner-exp
@@ -38,6 +40,8 @@
 /*  test-compose-cores    %hoon  /tests/lib/compose-cores
 :: /*  test-baby             %hoon  /tests/lib/baby
 /*  test-comparator       %hoon  /tests/lib/comparator
+:: /*  test-match-case       %hoon  /tests/lib/match-case
+:: /*  test-match-type       %hoon  /tests/lib/match-type
 ::
 |%
 ++  list-jocks
@@ -61,6 +65,8 @@
       [%compose-cores q.compose-cores]
       :: [%baby q.baby]
       [%comparator q.comparator]
+      [%match-case q.match-case]
+      [%match-type q.match-type]
  ==
 ::
 ++  test-jocks
@@ -122,6 +128,12 @@
       [%test-comparator-tokens test-tokenize:test-comparator]
       [%test-comparator-jeam test-jeam:test-comparator]
       [%test-comparator-mint test-mint:test-comparator]
+      :: [%test-match-case-tokens test-tokenize:test-match-case]
+      :: [%test-match-case-jeam test-jeam:test-match-case]
+      :: [%test-match-case-mint test-mint:test-match-case]
+      :: [%test-match-type-tokens test-tokenize:test-match-type]
+      :: [%test-match-type-jeam test-jeam:test-match-type]
+      :: [%test-match-type-mint test-mint:test-match-type]
   ==
 ::
 ++  parse
@@ -164,7 +176,6 @@
   ^-  [term *]
   =/  p  (snag i list-jocks)
   :-  -.p
-  ~&  >>  (mint:jock +.p)
   (mint:jock +.p)
 ::
 ++  test-all
@@ -179,7 +190,6 @@
     %-  mole
     |.
     =/  arm  (snag i test-jocks)
-    ~&  ["{<i>}" `@tas`-.arm `tape`(zing (turn +.arm |=(=tank ~(ram re tank))))]
     +.arm
   =.  lis
     [?=(^ res) lis]
@@ -196,7 +206,6 @@
   |=  i=@
   ^-  *
   =/  nok  (mint i)
-  ~&  nok
   .*(%jock +.nok)
 ::
 ++  exec-all
@@ -212,7 +221,7 @@
     |.
     =/  nok  (mint i)
     =/  jok  .*(%jock +.nok)
-    ~&  [i `@tas`-.nok jok]
+    :: ~&  [i `@tas`-.nok jok]
     jok
   =.  lis
     [?=(^ res) lis]

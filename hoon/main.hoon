@@ -40,37 +40,35 @@
   ~&  >>>  "could not mold poke type: {<dat>}"  !!
   =/  c=cause  u.soft-cau
   |^
-  :: ~&  exec-all:test-jock
-  :: ~&  test-all:test-jock
+  ~&  exec-all:test-jock
+  ~&  test-all:test-jock
   :: ~&  dump-output
-  ~&  (mint:test-jock 5)
-  ~&  (exec:test-jock 5)
-  ~&  (jeam:test-jock 5)
   ?-  -.c
     %test-n  [~ k]
     %test-all  [~ k]
   ==
   ++  dump-output
-    |-  !!
-    :: ~&  >  " - parsing - "
-    :: ~&  =|  results=(list tank)
-    ::     =/  pa  parse-all:test-jock
-    ::     |-
-    ::     ?~  pa  results
-    ::     $(pa t.pa, results `(list tank)`[(crip "{<i.pa>}") results])
-    :: ~&  >  " - jeaming - "
-    :: ~&  =|  results=(list tank)
-    ::     =/  pa  jeam-all:test-jock
-    ::     |-
-    ::     ?~  pa  results
-    ::     $(pa t.pa, results `(list tank)`[(crip "{<i.pa>}") results])
-    :: ~&  >  " - minting - "
-    :: ~&  =|  results=(list tank)
-    ::     =/  pa  mint-all:test-jock
-    ::     |-
-    ::     ?~  pa  results
-    ::     $(pa t.pa, results `(list tank)`[(crip "{<i.pa>}") results])
-    :: ~&  >  " "
+    |-
+    ~&  >  " - parsing - "
+    ~&  =|  results=(list tank)
+        =/  pa  parse-all:test-jock
+        |-
+        ?~  pa  results
+        $(pa t.pa, results `(list tank)`[(crip "{<i.pa>}") results])
+    ~&  >  " - jeaming - "
+    ~&  =|  results=(list tank)
+        =/  pa  jeam-all:test-jock
+        |-
+        ?~  pa  results
+        $(pa t.pa, results `(list tank)`[(crip "{<i.pa>}") results])
+    ~&  >  " - minting - "
+    ~&  =|  results=(list tank)
+        =/  pa  mint-all:test-jock
+        |-
+        ?~  pa  results
+        $(pa t.pa, results `(list tank)`[(crip "{<i.pa>}") results])
+    ~&  >  " "
+    ~
   --
 --
 
