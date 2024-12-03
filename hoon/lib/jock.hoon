@@ -806,12 +806,12 @@
   |=  =tokens
   ^-  @
   ?~  tokens  ~|("expect literal. token: ~" !!)
-  ?.  ?=(?(%literal %symbol) -.i.tokens)
+  ?.  ?=(%literal -.i.tokens)
     ~|("expect literal or symbol. token: {<-.i.tokens>}" !!)
   =/  p=jatom  +.i.tokens
   ?.  ?=(%number -.-.p)
     ~|("expect number or symbol. token: {<-.p>}" !!)
-  -.+.p
+  +.-.p
 ::
 ++  got-name
   |=  =token
@@ -1421,8 +1421,9 @@
       ::  default case:  %atom, %core, %limb
         ~|((crip "hunt: can't match {<`@tas`-.-.jype>}") !!)
       ::
-      ::   %symbol
-      :: [%5 [%1 q.p.jype] %0 axis]
+        %atom
+      ?>  +.+.-.jype
+      [%5 [%1 q.p.jype] %0 axis]
       ::
         %fork
       ~|('hunt: can\'t match fork' !!)

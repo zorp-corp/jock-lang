@@ -12,7 +12,7 @@
 ++  test-jeam
   %+  expect-eq:test
     !>  ^-  jock:jock
-        [%let type=[p=[%untyped ~] name=%a] val=[%let type=[p=[%untyped ~] name=%b] val=[%atom p=[%number 3] q=%.n] next=[%atom p=[%number 3] q=%.n]] next=[%limb p=~[[%name p=%a]]]]
+        [%let type=[p=[%none ~] name=%a] val=[%let type=[p=[%none ~] name=%b] val=[%atom p=[%number 3] q=%.n] next=[%atom p=[%number 3] q=%.n]] next=[%limb p=~[[%name p=%a]]]]
     !>  (jeam:jock text)
 ::
 ++  test-mint

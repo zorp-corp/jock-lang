@@ -3,7 +3,7 @@
 ::
 |%
 ++  text
-  'let a: ? = true;\0a\0aa = false;\0a\0aa\0a\0a'
+  'let a: @ = 3;\0a\0amatch case a {\0a  1 -> 2;\0a  2 -> 4;\0a  3 -> 8;\0a  4 -> 16;\0a  _ -> 0;\0a}'
 ++  test-tokenize
   %+  expect-eq:test
     !>  ~[[%keyword %let] [%name %a] [%punctuator %':'] [%punctuator %'@'] [%punctuator %'='] [%literal [%number 3]] [%punctuator %';'] [%keyword %match] [%keyword %case] [%name %a] [%punctuator %'{'] [%literal [%number 1]] [%punctuator %'-'] [%punctuator %'>'] [%literal [%number 2]] [%punctuator %';'] [%literal [%number 2]] [%punctuator %'-'] [%punctuator %'>'] [%literal [%number 4]] [%punctuator %';'] [%literal [%number 3]] [%punctuator %'-'] [%punctuator %'>'] [%literal [%number 8]] [%punctuator %';'] [%literal [%number 4]] [%punctuator %'-'] [%punctuator %'>'] [%literal [%number 16]] [%punctuator %';'] [%punctuator %'_'] [%punctuator %'-'] [%punctuator %'>'] [%literal [%number 0]] [%punctuator %';'] [%punctuator %'}']]
@@ -11,8 +11,9 @@
 ::
 ++  test-jeam
   %+  expect-eq:test
-    !>  ^-  jock:jock
-        [%let type=[p=[%atom p=%number] name=%a] val=[%atom p=[%number 3]] next=[%cases value=[%limb p=~[[%name p=%a]]] cases=[n=[p=[%atom p=[%number 3]] q=[%atom p=[%number 8]]] l=[n=[p=[%atom p=[%number 1]] q=[%atom p=[%number 2]]] l=[[p=[%atom p=[%number 4]] q=[%atom p=[%number 16]]]] r=~] r=[n=[p=[%atom p=[%number 2]] q=[%atom p=[%number 4]]] l=~ r=~]] default=[~ [%atom p=[%number 0]]]]]
+    !>  ^-  jock:jock  *jock:jock
+        :: [%let type=[p=[%atom p=%number q=%.n] name=%a] val=[%atom p=[%number 3] q=%.n] next=[%cases value=[%limb p=~[[%name p=%a]]] cases=[n=[p=[%atom p=[%number 3] q=%.n] q=[%atom p=[%number 8] q=%.n]] l=[n=[p=[%atom p=[%number 1] q=%.n] q=[%atom p=[%number 2] q=%.n]] l=[[p=[%atom p=[%number 4] q=%.n] q=[%atom p=[%number 16] q=%.n]]] r=~] r=[n=[p=[%atom p=[%number 2] q=%.n] q=[%atom p=[%number 4] q=%.n]] l=~ r=~]] default=[~ [%atom p=[%number 0] q=%.n]]]]
+        :: TODO depends on getting map representation right here
     !>  (jeam:jock text)
 ::
 ++  test-mint

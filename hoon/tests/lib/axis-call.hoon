@@ -12,7 +12,7 @@
 ++  test-jeam
   %+  expect-eq:test
     !>  ^-  jock:jock
-        [%let type=[p=[%core p=[%.y p=[inp=[~ [p=[%atom p=%number] name=%c]] out=[p=[%atom p=%number] name=%$]]] q=~] name=%a] val=[%lambda p=[arg=[inp=[~ [p=[%atom p=%number] name=%b]] out=[p=[%atom p=%number] name=%$]] body=[%increment val=[%limb p=~[[%name p=%b]]]] payload=~]] next=[%call func=[%limb p=~[[%axis p=2]]] arg=[~ [%atom p=[%number 17]]]]]
+        [%let type=[p=[%core p=[%.y p=[inp=[~ [p=[%atom p=%number q=%.n] name=%c]] out=[p=[%atom p=%number q=%.n] name=%$]]] q=~] name=%a] val=[%lambda p=[arg=[inp=[~ [p=[%atom p=%number q=%.n] name=%b]] out=[p=[%atom p=%number q=%.n] name=%$]] body=[%increment val=[%limb p=~[[%name p=%b]]]] payload=~]] next=[%call func=[%limb p=~[[%axis p=2]]] arg=[~ [%atom p=[%number 17] q=%.n]]]]
     !>  (jeam:jock text)
 ::
 ++  test-mint
