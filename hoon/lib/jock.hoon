@@ -1405,9 +1405,9 @@
     ::
         %none      [%1 0]
     ::
-        %ring      $(j p.p.j)
+        :: %ring      $(j p.p.j)
     ::
-        :: %font      [%0 0]
+        %font      [%0 0]
     ==
   ::
   :: +hunt-type: make a $nock to test whether jock nests in jype
