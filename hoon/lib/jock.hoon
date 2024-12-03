@@ -208,12 +208,18 @@
       name=term
   ==
 ::
-+$  jype-leaf
++$  base-jype-leaf
   $%  [%atom p=jatom-type q=?(%.y %.n)]
       [%core p=core-body q=(unit jype)]
       [%limb p=(list jlimb)]
       [%fork p=jype q=jype]
       [%none ~]
+  ==
+::
++$  jype-leaf
+  $%  base-jype-leaf
+      [%ring p=base-jype-leaf q=jype]
+      [%font p=(unit jlimb)]
   ==
 ::
 +$  core-body  (each lambda-argument (map term jype))
@@ -1381,12 +1387,9 @@
     |=  j=jype
     ^-  nock
     ?^  -<.j    [$(j p.j) $(j q.j)]
-    ?-  -.p.j
-      %atom     [%1 0]
-      %none     [%1 0]
-      %limb     $(j p:(~(get-limb jt jyp) p.p.j))
-      %fork     $(j p.p.j)
-      :: %symbol   [%1 q.p.j]
+    ?+    -.p.j  [%0 0]
+    ::
+        %atom      [%1 0]
     ::
         %core
       ?:  ?=(%| -.p.p.j)
@@ -1394,6 +1397,17 @@
       ?~  inp.p.p.p.j
         [%0 0]
       [[%1 $(j u.inp.p.p.p.j)] [%0 0]]
+    ::
+        %limb
+      $(j p:(~(get-limb jt jyp) p.p.j))
+    ::
+        %fork      $(j p.p.j)
+    ::
+        %none      [%1 0]
+    ::
+        %ring      $(j p.p.j)
+    ::
+        :: %font      [%0 0]
     ==
   ::
   :: +hunt-type: make a $nock to test whether jock nests in jype
