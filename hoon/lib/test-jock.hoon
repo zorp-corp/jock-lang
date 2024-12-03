@@ -18,6 +18,7 @@
 /*  compose-cores         %jock  /lib/tests/compose-cores
 :: /*  baby                  %jock  /lib/tests/baby
 /*  comparator            %jock  /lib/tests/comparator
+/*  lists                 %jock  /lib/tests/lists
 ::
 /*  test-let-edit         %hoon  /tests/lib/let-edit
 /*  test-let-inner-exp    %hoon  /tests/lib/let-inner-exp
@@ -38,6 +39,7 @@
 /*  test-compose-cores    %hoon  /tests/lib/compose-cores
 :: /*  test-baby             %hoon  /tests/lib/baby
 /*  test-comparator       %hoon  /tests/lib/comparator
+/*  test-lists            %hoon  /tests/lib/lists
 ::
 |%
 ++  list-jocks
@@ -61,6 +63,7 @@
       [%compose-cores q.compose-cores]
       :: [%baby q.baby]
       [%comparator q.comparator]
+      [%lists q.lists]
  ==
 ::
 ++  test-jocks
@@ -122,6 +125,9 @@
       [%test-comparator-tokens test-tokenize:test-comparator]
       [%test-comparator-jeam test-jeam:test-comparator]
       [%test-comparator-mint test-mint:test-comparator]
+      [%test-lists-tokens test-tokenize:test-lists]
+      [%test-lists-jeam test-jeam:test-lists]
+      [%test-lists-mint test-mint:test-lists]
   ==
 ::
 ++  parse

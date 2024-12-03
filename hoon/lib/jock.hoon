@@ -50,6 +50,7 @@
       %'('  %')'  %'{'  %'}'  %'['  %']'
       %'='  %'<'  %'>'
       %'+'  %'-'  %'*'  %'/'  %'_'
+      %'~'
   ==
 ::
 +$  jatom
@@ -319,7 +320,7 @@
   ?+    +.first  ~|(tokens !!)
       %'['
     (match-pair-inner-jock [[%punctuator %'['] tokens])
-  ::
+  ::  Increment  +(0)
       %'+'
     =^  jock  tokens
       (match-block [tokens %'(' %')'] match-inner-jock)
@@ -340,7 +341,7 @@
     =^  arg  tokens
       (match-block [tokens %'(' %')'] match-inner-jock)
     [[%call [%limb [%axis %0] ~] `arg] tokens]
-  ::
+  ::  Axis address  &1
       %'&'
     ::  TODO: check if we're in a compare
     =^  axis-lit  tokens
@@ -352,7 +353,7 @@
     =^  arg  tokens
       (match-block [tokens %'(' %')'] match-inner-jock)
     [[%call [%limb axis-lit ~] `arg] tokens]
-  ::
+  ::  Function call  foo(bar)
       %'('
     =^  lambda  tokens
       (match-lambda [[%punctuator %'('] tokens])
@@ -367,7 +368,7 @@
       (match-inner-jock tokens)
     ?>  (got-punctuator -.tokens %')')
     [[%call [%lambda lambda] `arg] +.tokens]
-  ::
+  ::  C-style comments  /* ... */
       %'/'
     ?>  (got-punctuator -.tokens %'*')
     =.  tokens  +.tokens
@@ -379,6 +380,28 @@
         (match-jock t.t.tokens)
       $(tokens t.tokens)
     $(tokens t.tokens)
+  ::  Null-terminated lists  ~[1 2 3]
+      %'~'
+    ?>  (has-punctuator -.tokens %'[')
+    =>  .(tokens `(list token)`+.tokens)
+    =^  jock-one  tokens
+      (match-inner-jock tokens)
+    =/  first=?  %.y
+    |-  ^-  [jock (list token)]
+    =^  jock-nex  tokens
+      (match-inner-jock tokens)
+    =/  pun  (has-punctuator -.tokens %']')
+    ?:  &(first pun)
+      [[jock-one jock-nex] +.tokens]
+    ?:  pun
+      [[jock-nex [%atom %number 0]] +.tokens]
+    ?:  first
+      =^  pairs  tokens
+        $(first %.n)
+      [[jock-one jock-nex pairs] tokens]
+    =^  pairs  tokens
+      $
+    [[jock-nex pairs] tokens]
   ==
 ::
 ++  match-axis
