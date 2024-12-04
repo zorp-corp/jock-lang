@@ -369,6 +369,11 @@
     %punctuator  (match-start-punctuator tokens)
   ==
 ::
+:: ++  match-inner-list
+::   |=  =tokens
+::   ^-  [jock (list token)]
+
+::
 ++  match-start-punctuator
   |=  =tokens
   ^-  [jock (list token)]
@@ -429,33 +434,29 @@
       (match-inner-jock tokens)
     ?>  (got-punctuator -.tokens %')')
     [[%call [%lambda lambda] `arg] +.tokens]
-  ::  C-style comments  /* ... */
-      %'/'
-    ?>  (has-punctuator -.tokens %'*')
-    =.  tokens  +.tokens
-    |-
-    ?~  tokens  !!
-    ?:  (has-punctuator i.tokens %'*')
-      ?~  t.tokens  !!
-      ?:  (has-punctuator i.t.tokens %'/')
-        (match-jock t.t.tokens)
-      $(tokens t.tokens)
-    $(tokens t.tokens)
   ::  Null-terminated lists  ~[1 2 3]
       %'~'
-    ?>  (has-punctuator -.tokens %'[')
-    =>  .(tokens `(list token)`+.tokens)
+    ?>  (got-punctuator -.tokens %'[')
+    =.  tokens  +.tokens
+    ::  retrieve first element
     =^  jock-one  tokens
       (match-inner-jock tokens)
+    ::  Case ~[one]
+    ?:  (has-punctuator -.tokens %']')
+      [[jock-one [%atom [%number 0] %.n]] +.tokens]
     =/  first=?  %.y
+    ::  else proceed until reaching the end
     |-  ^-  [jock (list token)]
     =^  jock-nex  tokens
       (match-inner-jock tokens)
     =/  pun  (has-punctuator -.tokens %']')
+    ::  Case ~[one two]
     ?:  &(first pun)
       [[jock-one jock-nex] +.tokens]
+    ::  Append null at end of list
     ?:  pun
       [[jock-nex [%atom [%number 0] %.n]] +.tokens]
+    ::  Case ~[one two .. end]
     ?:  first
       =^  pairs  tokens
         $(first %.n)

@@ -19,6 +19,7 @@
 :: /*  baby                  %jock  /lib/tests/baby
 /*  comparator            %jock  /lib/tests/comparator
 /*  lists                 %jock  /lib/tests/lists
+/*  lists-nested          %jock  /lib/tests/lists-nested
 /*  match-case            %jock  /lib/tests/match-case
 /*  match-type            %jock  /lib/tests/match-type
 ::
@@ -42,6 +43,7 @@
 :: /*  test-baby             %hoon  /tests/lib/baby
 /*  test-comparator       %hoon  /tests/lib/comparator
 /*  test-lists            %hoon  /tests/lib/lists
+/*  test-lists-nested     %hoon  /tests/lib/lists-nested
 /*  test-match-case       %hoon  /tests/lib/match-case
 /*  test-match-type       %hoon  /tests/lib/match-type
 ::
@@ -68,6 +70,7 @@
       :: [%baby q.baby]
       [%comparator q.comparator]
       [%lists q.lists]
+      [%lists-nested q.lists-nested]
       [%match-case q.match-case]
       [%match-type q.match-type]
  ==
@@ -134,6 +137,9 @@
       [%test-lists-tokens test-tokenize:test-lists]
       [%test-lists-jeam test-jeam:test-lists]
       [%test-lists-mint test-mint:test-lists]
+      [%test-lists-nested-tokens test-tokenize:test-lists-nested]
+      [%test-lists-nested-jeam test-jeam:test-lists-nested]
+      [%test-lists-nested-mint test-mint:test-lists-nested]
       [%test-match-case-tokens test-tokenize:test-match-case]
       [%test-match-case-jeam test-jeam:test-match-case]
       [%test-match-case-mint test-mint:test-match-case]
