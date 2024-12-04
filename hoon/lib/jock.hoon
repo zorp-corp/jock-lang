@@ -256,7 +256,7 @@
 +$  jype-leaf
   $%  base-jype-leaf
       ::  %ring is a recursive type with a base case
-      [%ring p=base-jype-leaf q=jype]
+      [%ring p=[%atom p=jatom-type q=?(%.y %.n)] q=jype]
       ::  %link is a reference to an existing type, or self if null
       [%link p=(unit jlimb)]
   ==
@@ -439,7 +439,8 @@
       %'~'
     ?>  (got-punctuator -.tokens %'[')
     =.  tokens  +.tokens
-    =/  jyp=jype  [%ring [%atom %number %.n] [%link ~]^%$]^%$
+    =/  jyp=jype
+      [%ring [%atom %number %.n] [[%atom %number %.n]^%$ [%link ~]^%$]^%$]^%$
     ::  retrieve first element
     =^  jock-one  tokens
       (match-inner-jock tokens)
