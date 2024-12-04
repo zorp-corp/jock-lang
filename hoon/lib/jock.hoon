@@ -162,9 +162,15 @@
 ::
 ::  2: jock abstract syntax tree and parser
 ::
-::  The jock abstract syntax tree (AST) is produced from the token list.  The
-::  jype, which consists of type information, is generated alongside the jock.
-::  The jype is critical in yielding the final Nock subject from +mint.
+::  The jock abstract syntax tree (AST) is produced from the token list.  A jock
+::  represents what will compile to executable Nock expressions.
+::
+::  The jype, which consists of type information, is generated alongside the
+::  jock.  The jype is critical in yielding the final Nock subject from +mint.
+::
+::  The jlimb is a reference to a known limb in the current subject.
+::
+::  Ultimately all cases in the Jock AST resolve as one of jock, jype, or jlimb.
 ::
 |%
 +|  %ast
@@ -194,12 +200,23 @@
   ==
 ::
 +$  if-expression
-  [%if cond=jock then=jock after=after-if-expression]
+  $:  %if
+      cond=jock
+      then=jock
+      after=after-if-expression
+  ==
 ::
 +$  else-if-expression
-  [%else-if cond=jock then=jock after=after-if-expression]
+  $:  %else-if
+      cond=jock
+      then=jock
+      after=after-if-expression
+  ==
 ::
-+$  else-expression  [%else then=jock]
++$  else-expression
+  $:  %else
+      then=jock
+  ==
 ::
 +$  after-if-expression
   $%  else-if-expression
@@ -250,22 +267,27 @@
       %hexadecimal
       %loobean
   ==
-::  Jype core executable content, either a direct lambda or a regular core
+::  Jype core executable, either a direct lambda or a regular core
 +$  core-body  (each lambda-argument (map term jype))
-::  
+::  Lambda executable
 +$  lambda
   $+  lambda
-  $:  arg=lambda-argument
+  $:  ::  Argument type
+      arg=lambda-argument
+      ::  Executable body (battery)
       body=jock
+      ::  Supplied [sample context], if applicable
       payload=(unit jock)
   ==
-::
+::  Lambda input argument pair
 +$  lambda-argument
   $+  lambda-argument
-  $:  inp=(unit jype)
+  $:  ::  Sample type, if any
+      inp=(unit jype)
+      ::  Expected output type
       out=jype
   ==
-::
+::  Arm lookups
 +$  jlimb
   $%  ::  Arm or leg name
       [%name p=term]
@@ -284,7 +306,6 @@
       ::  TODO: check if we're in a compare
       (match-literal tokens)
     ::
-      :: %symbol      (match-symbol tokens)
       %name        (match-start-name tokens)
       %keyword     (match-keyword tokens)
       %punctuator  (match-start-punctuator tokens)
