@@ -19,7 +19,15 @@
 ::
 ::  1: tokenizer
 ::
+::  The tokenizer is a simple state machine that reads a string of text and
+::  produces a list of tokens.  The tokens are classified as keywords,
+::  punctuators, literals, and names.  The tokenizer is implemented as a
+::  function that takes a string of text and returns a list of tokens.  It is
+::  agnostic to whitespace.  Comments are ignored at the parser level.
+::
 |%
++|  %tokenizer
+::
 +$  keyword
   $+  keyword
   $?  %let
@@ -154,7 +162,13 @@
 ::
 ::  2: jock abstract syntax tree and parser
 ::
+::  The jock abstract syntax tree (AST) is produced from the token list.  The
+::  jype, which consists of type information, is generated alongside the jock.
+::  The jype is critical in yielding the final Nock subject from +mint.
+::
 |%
++|  %ast
+::
 +$  jock
   $+  jock
   $^  [p=jock q=jock]
@@ -201,29 +215,34 @@
       %'<='
       %'>='
   ==
-::
+::  Jype type base types
 +$  jype
   $+  jype
   $:  $^([p=jype q=jype] p=jype-leaf)
       name=term
   ==
-::
+::  Jype bottomed-out types
 +$  base-jype-leaf
-  $%  [%atom p=jatom-type q=?(%.y %.n)]
+  $%  ::  %atom is a basic numeric type with constant flag (%.y = constant)
+      [%atom p=jatom-type q=?(%.y %.n)]
+      ::  %core is a callable function with arguments and returns
       [%core p=core-body q=(unit jype)]
+      ::  %limb is a reference to a limb in the current core
       [%limb p=(list jlimb)]
+      ::  %fork is a branch point (as in an if-else)
       [%fork p=jype q=jype]
+      ::  %none is a null type (as for undetermined variable labels)
       [%none ~]
   ==
-::
+::  Jype types including recursion and references
 +$  jype-leaf
   $%  base-jype-leaf
+      ::  %ring is a recursive type with a base case
       [%ring p=base-jype-leaf q=jype]
-      [%font p=(unit jlimb)]
+      ::  %link is a reference to an existing type, or self if null
+      [%link p=(unit jlimb)]
   ==
-::
-+$  core-body  (each lambda-argument (map term jype))
-::
+::  Jype atom base types; corresponds to jatom tags
 +$  jatom-type
   $+  jatom-type
   $?  %string
@@ -231,19 +250,28 @@
       %hexadecimal
       %loobean
   ==
-::
-+$  jlimb
-  $%  [%name p=term]
-      [%axis p=@]
-  ==
-::
+::  Jype core executable content, either a direct lambda or a regular core
++$  core-body  (each lambda-argument (map term jype))
+::  
 +$  lambda
   $+  lambda
-  [arg=lambda-argument body=jock payload=(unit jock)]
+  $:  arg=lambda-argument
+      body=jock
+      payload=(unit jock)
+  ==
 ::
 +$  lambda-argument
   $+  lambda-argument
-  [inp=(unit jype) out=jype]
+  $:  inp=(unit jype)
+      out=jype
+  ==
+::
++$  jlimb
+  $%  ::  Arm or leg name
+      [%name p=term]
+      ::  Numeric axis
+      [%axis p=@]
+  ==
 ::
 ++  match-jock
   |=  =tokens
@@ -1386,8 +1414,8 @@
   ++  type-to-default
     |=  j=jype
     ^-  nock
-    ?^  -<.j    [$(j p.j) $(j q.j)]
-    ?+    -.p.j  [%0 0]
+    ?^  -.-.j    [$(j p.j) $(j q.j)]
+    ?-    -.p.j
     ::
         %atom      [%1 0]
     ::
@@ -1405,9 +1433,10 @@
     ::
         %none      [%1 0]
     ::
-        :: %ring      $(j p.p.j)
+        :: %ring      $(j `base-jype-leaf`p.p.j)
+        %ring      $(j q.p.j)  :: TODO seems like we should be able to get to base case but it's blocked on some nest-fail type issue
     ::
-        %font      [%0 0]
+        %link      [%0 0]
     ==
   ::
   :: +hunt-type: make a $nock to test whether jock nests in jype
