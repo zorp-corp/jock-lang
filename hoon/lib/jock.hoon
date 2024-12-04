@@ -195,6 +195,7 @@
       [%compare a=jock comp=comparator b=jock]
       [%lambda p=lambda]
       [%limb p=(list jlimb)]
+      [%type type=jype val=jock]
       [%atom p=jatom]
       [%crash ~]
   ==
@@ -438,11 +439,14 @@
       %'~'
     ?>  (got-punctuator -.tokens %'[')
     =.  tokens  +.tokens
+    =/  jyp=jype  [%ring [%atom %number %.n] [%link ~]^%$]^%$
     ::  retrieve first element
     =^  jock-one  tokens
       (match-inner-jock tokens)
     ::  Case ~[one]
     ?:  (has-punctuator -.tokens %']')
+      ~&  [[%type jyp [jock-one [%atom [%number 0] %.n]]] +.tokens]
+      :: [[%type jyp [jock-one [%atom [%number 0] %.n]]] +.tokens]
       [[jock-one [%atom [%number 0] %.n]] +.tokens]
     =/  first=?  %.y
     ::  else proceed until reaching the end
@@ -1386,6 +1390,10 @@
         [%8 input-default [%1 body] [%0 1]]
       :_  (lam-j arg.p.j `q.u.pay)
       [%8 input-default [%1 body] p.u.pay]
+    ::
+        %type
+      ~|  %type
+      [[%0 0] jyp]
     ::
         %atom
       ~|  [%atom +.-.+.j]
