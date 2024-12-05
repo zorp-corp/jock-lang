@@ -674,6 +674,7 @@
       %crash
     [[%crash ~] tokens]
   ==
+::  Match tokens into jype information.
 ::
 ++  match-jype
   |=  =tokens
@@ -682,18 +683,16 @@
     ~|("expect jype. token: ~" !!)
   =/  has-name  ?=(^ (get-name -.tokens))
   =/  nom  (fall (get-name -.tokens) %$)
-  =?  tokens  has-name
-    +.tokens
-  ?:  (has-punctuator -.tokens %'*')
-    [[%none ~]^nom +.tokens]
-  ?:  (has-punctuator -.tokens %'@')
-    [[%atom %number %.n]^nom +.tokens]
-  ?:  (has-punctuator -.tokens %'?')
-    [[%atom %loobean %.n]^nom +.tokens]
+  ::  Strip name
+  =?  tokens  has-name  +.tokens
+  ::  Subject resolution
+  ::    Match within subject resolution (:).
   ?:  &(has-name (has-punctuator -.tokens %':'))
     =^  jype  tokens
       (match-jype +.tokens)
     [jype(name nom) tokens]
+  ::  Cell
+  ::    Match within cell ([]).
   ?:  (has-punctuator -.tokens %'[')
     =^  r=(pair jype jype)  tokens
       %+  match-block  [tokens %'[' %']']
@@ -703,30 +702,59 @@
       ::  TODO: support implicit right-association
       [[jype-one jype-two] tokens]
     [[p.r q.r]^nom tokens]
+  ::  Match the associated value into the jype.
   =^  jype-leaf  tokens
     (match-jype-leaf tokens)
   [jype-leaf^nom tokens]
+::  Match tokens into terminal jype information.
 ::
 ++  match-jype-leaf
   |=  =tokens
   ^-  [jype-leaf (list token)]
   ?:  =(~ tokens)  ~|("expect jype-leaf. token: ~" !!)
-  ?^  nom=(get-name -.tokens)
-    [[%limb name+u.nom ~] +.tokens]
-  ?:  (has-punctuator -.tokens %'&')
-    =^  axis-lit  tokens
-      (match-axis tokens)
-    [[%limb axis-lit ~] tokens]
-  ?:  (has-punctuator -.tokens %'*')
-    [[%none ~] +.tokens]
+  ::  %atom
+  ::  [%atom p=jatom-type q=?(%.y %.n)]
+  ::    Match on atom type (@ atom).
   ?:  (has-punctuator -.tokens %'@')
+    ::  TODO resolve deeper on type aura
     [[%atom %number %.n] +.tokens]
+  ::    Match on loobean type (? loobean).
   ?:  (has-punctuator -.tokens %'?')
     [[%atom %loobean %.n] +.tokens]
+  ::  Match on no type (* noun).
+  ?:  (has-punctuator -.tokens %'*')
+    [[%none ~] +.tokens]
+  ::  %core
+  ::  [%core p=core-body q=(unit jype)]
+  ::    Match on function invocation (foo(bar)).
   ?:  (has-punctuator -.tokens %'(')
     =^  lambda-argument  tokens
       (match-lambda-argument tokens)
     [[%core %&^lambda-argument ~] tokens]
+  ::  %limb
+  ::  [%limb p=(list jlimb)]
+  ::    Match on limb lookup.
+  ?^  nom=(get-name -.tokens)
+    [[%limb name+u.nom ~] +.tokens]
+  ::    Match on axis (& axis).
+  ?:  (has-punctuator -.tokens %'&')
+    =^  axis-lit  tokens
+      (match-axis tokens)
+    [[%limb axis-lit ~] tokens]
+  ::  %fork
+  ::  [%fork p=jype q=jype]
+  ::    No action; fall-through.  TODO check
+  ::  %ring
+  ::  [%ring p=[%atom p=jatom-type q=?(%.y %.n)] q=jype]
+  ::    Match on recursive type with base case.
+  ::  %link
+  ::  [%link p=(unit jlimb)]
+  :: ?:  
+  :: ?^  nom=(get-name -.tokens)
+  ::   [[%limb name+u.nom ~] +.tokens]
+  ::    Match on reference to existing type by limb.
+  ::  Else untyped (as variable name).
+  ::  [%none ~]
   [[%none ~] tokens]
 ::
 ++  match-lambda
@@ -1412,26 +1440,30 @@
         %type
       ~|  %type
       :-  :-  %1
-          :: val.j  :: this works by itself as a punt if you need to compile
+          val.j  :: this works by itself as a punt if you need to compile
           ::  unpack structure into Nock, validating type all the while
-          %-  list-to-tuple
-          =/  vals=^  (tuple-to-list val.j)
-          =|  knox=(list nock)
-          |-  ^-  (list nock)
-          ?:  =(~ vals)  `(list nock)`knox
-          =/  val  -.vals
-          =+  [val val-jyp]=$(j val.j)
-          =/  nesting-type
-            (~(unify jt type.j) val-jyp)
-          ?~  nesting-type
-            ~|  '%type: value type does not nest in declared type'
-            ~|  [val+val.jyp typ+type.jyp]
-            !!
-          :: (~(cons jt u.nested-type) jyp)
-          %=  $
-            vals  +.vals
-            knox  `(list nock)`[`nock`[%1 val] knox]
-          ==
+          :: the basic concept:
+          :: 1. unpack the jock in the container
+          :: 2. for each jock, validate that it nests in the declared type
+          :: 3. produce the appropriate [nock jype] pair
+          :: %-  list-to-tuple
+          :: =/  vals=^  (tuple-to-list val.j)
+          :: =|  knox=(list nock)
+          :: |-  ^-  (list nock)
+          :: ?:  =(~ vals)  `(list nock)`knox
+          :: =/  val  -.vals
+          :: =+  [val val-jyp]=$(j val.j)
+          :: =/  nesting-type
+          ::   (~(unify jt type.j) val-jyp)
+          :: ?~  nesting-type
+          ::   ~|  '%type: value type does not nest in declared type'
+          ::   ~|  [val+val.jyp typ+type.jyp]
+          ::   !!
+          :: :: (~(cons jt u.nested-type) jyp)
+          :: %=  $
+          ::   vals  +.vals
+          ::   knox  `(list nock)`[`nock`[%1 val] knox]
+          :: ==
       jyp
     ::
         %atom
@@ -1578,6 +1610,12 @@
   ?~  +.a
     -.a
   [-.a $(a +.a)]
+:: ++  list-to-tuple
+::     |=  lis=(list @)
+::     ::  address of [a_{k-1} ~] (final nontrivial tail of list)
+::     =+  (dec (bex (lent lis)))
+::     .*  lis
+::     [10 [- [0 (mul 2 -)]] [0 1]]
 ::
 ++  tuple-to-list
   |*  a=^  !!
