@@ -674,6 +674,7 @@
       %crash
     [[%crash ~] tokens]
   ==
+::
 ::  Match tokens into jype information.
 ::
 ++  match-jype
@@ -681,31 +682,30 @@
   ^-  [jype (list token)]
   ?:  =(~ tokens)
     ~|("expect jype. token: ~" !!)
+  ::  Store name and strip it from token list
   =/  has-name  ?=(^ (get-name -.tokens))
   =/  nom  (fall (get-name -.tokens) %$)
-  ::  Strip name
   =?  tokens  has-name  +.tokens
-  ::  Subject resolution
-  ::    Match within subject resolution (:).
+  ::  Type-qualified name  b:a
   ?:  &(has-name (has-punctuator -.tokens %':'))
-    =^  jype  tokens
+    =^  jyp  tokens
       (match-jype +.tokens)
-    [jype(name nom) tokens]
-  ::  Cell
-  ::    Match within cell ([]).
+    [jyp(name nom) tokens]
+  ::  Cell  [a b]
   ?:  (has-punctuator -.tokens %'[')
     =^  r=(pair jype jype)  tokens
       %+  match-block  [tokens %'[' %']']
       |=  =^tokens
-      =^  jype-one  tokens  (match-jype tokens)
-      =^  jype-two  tokens  (match-jype tokens)
-      ::  TODO: support implicit right-association
-      [[jype-one jype-two] tokens]
-    [[p.r q.r]^nom tokens]
-  ::  Match the associated value into the jype.
-  =^  jype-leaf  tokens
+      =^  jyp-one  tokens  (match-jype tokens)
+      =^  jyp-two  tokens  (match-jype tokens)
+      ::  TODO: support implicit right-association  (what's a good test case?)
+      [[jyp-one jyp-two] tokens]
+    [[[p.r q.r] nom] tokens]
+  ::  Otherwise, match the leaf into the jype and return it with name.
+  =^  jyp-leaf  tokens
     (match-jype-leaf tokens)
-  [jype-leaf^nom tokens]
+  [[jyp-leaf nom] tokens]
+::
 ::  Match tokens into terminal jype information.
 ::
 ++  match-jype-leaf
@@ -713,46 +713,34 @@
   ^-  [jype-leaf (list token)]
   ?:  =(~ tokens)  ~|("expect jype-leaf. token: ~" !!)
   ::  %atom
-  ::  [%atom p=jatom-type q=?(%.y %.n)]
-  ::    Match on atom type (@ atom).
+  ::    Match on atom type  a:@
   ?:  (has-punctuator -.tokens %'@')
     ::  TODO resolve deeper on type aura
     [[%atom %number %.n] +.tokens]
-  ::    Match on loobean type (? loobean).
+  ::    Match on loobean type  a:?
   ?:  (has-punctuator -.tokens %'?')
     [[%atom %loobean %.n] +.tokens]
-  ::  Match on no type (* noun).
+  ::  Match on no type  a:*
   ?:  (has-punctuator -.tokens %'*')
     [[%none ~] +.tokens]
   ::  %core
-  ::  [%core p=core-body q=(unit jype)]
-  ::    Match on function invocation (foo(bar)).
+  ::    Match on lambda definition  (a:@ -> @)
   ?:  (has-punctuator -.tokens %'(')
     =^  lambda-argument  tokens
       (match-lambda-argument tokens)
-    [[%core %&^lambda-argument ~] tokens]
-  ::  %limb
-  ::  [%limb p=(list jlimb)]
+    [[%core [%& lambda-argument] ~] tokens]
+  ::  %limb (fallthrough)
   ::    Match on limb lookup.
   ?^  nom=(get-name -.tokens)
-    [[%limb name+u.nom ~] +.tokens]
+    [[%limb ~[name+u.nom]] +.tokens]
   ::    Match on axis (& axis).
   ?:  (has-punctuator -.tokens %'&')
     =^  axis-lit  tokens
       (match-axis tokens)
-    [[%limb axis-lit ~] tokens]
+    [[%limb ~[axis-lit]] tokens]
+  ::    Cases for %ring and %link resolve via %limb.
   ::  %fork
-  ::  [%fork p=jype q=jype]
   ::    No action; fall-through.  TODO check
-  ::  %ring
-  ::  [%ring p=[%atom p=jatom-type q=?(%.y %.n)] q=jype]
-  ::    Match on recursive type with base case.
-  ::  %link
-  ::  [%link p=(unit jlimb)]
-  :: ?:  
-  :: ?^  nom=(get-name -.tokens)
-  ::   [[%limb name+u.nom ~] +.tokens]
-  ::    Match on reference to existing type by limb.
   ::  Else untyped (as variable name).
   ::  [%none ~]
   [[%none ~] tokens]
@@ -985,7 +973,7 @@
   [arm-axis=@ core-axis=@]
 ::
 ++  jt
-  |_  t=jype
+  |_  jyp=jype
   ++  get-limb
     |=  lis=(list jlimb)
     ^-  (pair jype (list jwing))
@@ -995,7 +983,7 @@
     ?:  =(~ lis)  !!
     |-
     ?~  lis
-      :-  t
+      :-  jyp
       ?:  =(ret 1)
         ?~  res  ret^~
         (flop res)
@@ -1007,11 +995,11 @@
       `+.i.lis
     ?~  axi  !!
     ?^  u.axi
-      ?~  new-t=(type-at-axis (peg +.u.axi -.u.axi))
-        ~|  no-type-at-axis+[axi t]
+      ?~  new-jyp=(type-at-axis (peg +.u.axi -.u.axi))
+        ~|  no-type-at-axis+[axi jyp]
         !!
-      $(lis t.lis, t u.new-t, res [u.axi res])
-    ?~  new-t=(type-at-axis u.axi)
+      $(lis t.lis, jyp u.new-jyp, res [u.axi res])
+    ?~  new-jyp=(type-at-axis u.axi)
       !!
     ?^  ret
       ::  TODO: in order to support additional limbs
@@ -1020,59 +1008,59 @@
       !!
     =.  ret  (peg ret u.axi)
     ?>  (lth ret (bex 63))
-    $(lis t.lis, t u.new-t)
+    $(lis t.lis, jyp u.new-jyp)
     ::
     ++  type-at-axis
       |=  axi=@
       ^-  (unit jype)
       ?:  =(axi 1)
-        `t
+        `jyp
       =/  axi-lis  (flop (snip (rip 0 axi)))
       ~|  type-at-axis+axi-lis
       |-   ^-  (unit jype)
-      ?~  axi-lis  `t(name %$)
-      ?@  -<.t
-        ?:  =(~ t.axi-lis)  `t
-        ?.  ?=(%core -.p.t)
-          ~|  t
+      ?~  axi-lis  `jyp(name %$)
+      ?@  -<.jyp
+        ?:  =(~ t.axi-lis)  `jyp
+        ?.  ?=(%core -.p.jyp)
+          ~|  jyp
           !!
-        $(t (~(call-core jt untyped-j) p.t))
+        $(jyp (~(call-core jt untyped-j) p.jyp))
       ?:  =(0 i.axi-lis)
-        $(axi-lis t.axi-lis, t p.t)
-      $(axi-lis t.axi-lis, t q.t)
+        $(axi-lis t.axi-lis, jyp p.jyp)
+      $(axi-lis t.axi-lis, jyp q.jyp)
     ::
     ++  axis-at-name
       |=  nom=term
       =/  axi=jwing  [0 1]
       |-  ^-  (unit jwing)
-      ?:  =(name.t nom)
+      ?:  =(name.jyp nom)
         ?:  =(-.axi 0)
           `+.axi
         `axi
-      ?@  -<.t
-        ?.  ?=(%core -.p.t)
+      ?@  -<.jyp
+        ?.  ?=(%core -.p.jyp)
           ~
-        ?:  ?=(%& -.p.p.t)
-          $(t (~(call-core jt untyped-j) p.t))
+        ?:  ?=(%& -.p.p.jyp)
+          $(jyp (~(call-core jt untyped-j) p.jyp))
         ?.  =(-.axi 0)  ~
-        =/  bat  $(t (~(call-core jt untyped-j) p.t(q ~)), -.axi 1)
+        =/  bat  $(jyp (~(call-core jt untyped-j) p.jyp(q ~)), -.axi 1)
         ?~  bat
-          ?~  q.p.t
+          ?~  q.p.jyp
             ~
-          $(t u.q.p.t, +.axi +((mul +.axi 2)))
-        ?~  q.p.t
+          $(jyp u.q.p.jyp, +.axi +((mul +.axi 2)))
+        ?~  q.p.jyp
           bat
         `[(peg 2 -.u.bat) +.axi]
-      ?:  !=(name.t %$)  ~
+      ?:  !=(name.jyp %$)  ~
       =/  l
         ?:  =(-.axi 0)
-          $(t p.t, +.axi (mul +.axi 2))
-        $(t p.t, -.axi (mul -.axi 2))
+          $(jyp p.jyp, +.axi (mul +.axi 2))
+        $(jyp p.jyp, -.axi (mul -.axi 2))
       ?~  l
         =/  r
           ?:  =(-.axi 0)
-            $(t q.t, +.axi +((mul +.axi 2)))
-          $(t q.t, -.axi +((mul -.axi 2)))
+            $(jyp q.jyp, +.axi +((mul +.axi 2)))
+          $(jyp q.jyp, -.axi +((mul -.axi 2)))
         r
       l
     --
@@ -1081,16 +1069,16 @@
     |.  ^-  (unit [jype @])
     =/  axi  1
     |-  ^-  (unit [jype @])
-    ?@  -<.t
-      ?.  ?=(%core -.p.t)
+    ?@  -<.jyp
+      ?.  ?=(%core -.p.jyp)
         ~
-      ?.  ?=(%& -.p.p.t)
+      ?.  ?=(%& -.p.p.jyp)
         ~
-      `[t axi]
-    =/  l  $(t p.t, axi (mul axi 2))
+      `[jyp axi]
+    =/  l  $(jyp p.jyp, axi (mul axi 2))
     ~|  [%l l]
     ?~  l
-      =/  r  $(t q.t, axi +((mul axi 2)))
+      =/  r  $(jyp q.jyp, axi +((mul axi 2)))
       ~|  [%r r]
       r
     l
@@ -1129,32 +1117,32 @@
   ++  cons
     |=  q=jype
     ^-  jype
-    [t q]^%$
+    [jyp q]^%$
   ::
   ++  unify
     |=  v=jype
     ^-  (unit jype)
-    ?^  -<.t
+    ?^  -<.jyp
       ?@  -<.v
         ?:  =(%none -.p.v)
-          `t
+          `jyp
         ~
-      =+  [p q]=[(~(unify jt p.t) p.v) (~(unify jt q.t) q.v)]
+      =+  [p q]=[(~(unify jt p.jyp) p.v) (~(unify jt q.jyp) q.v)]
       ?:  ?|(?=(~ p) ?=(~ q))
         ~
-      `[[u.p u.q] name.t]
+      `[[u.p u.q] name.jyp]
     ?^  -<.v
-      ?:  =(%none -.p.t)
-        `v(name name.t)
+      ?:  =(%none -.p.jyp)
+        `v(name name.jyp)
       ~
     :-  ~
-    :_  name.t
-    ?:  =(%none -.p.t)
+    :_  name.jyp
+    ?:  =(%none -.p.jyp)
       p.v
     ?:  =(%none -.p.v)
-      p.t
-    ?>  =(-.p.t -.p.v)
-    p.t
+      p.jyp
+    ?>  =(-.p.jyp -.p.v)
+    p.jyp
   --
 ::
 ++  cj
