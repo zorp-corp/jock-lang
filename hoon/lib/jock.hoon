@@ -444,31 +444,42 @@
     ::  retrieve first element
     =^  jock-one  tokens
       (match-inner-jock tokens)
+    :: ~&  >  :^  'token: '  jock-one  -:tokens  +:tokens
     ::  Case ~[one]
     ?:  (has-punctuator -.tokens %']')
-      ~&  [[%type jyp [jock-one [%atom [%number 0] %.n]]] +.tokens]
-      :: [[%type jyp [jock-one [%atom [%number 0] %.n]]] +.tokens]
-      [[jock-one [%atom [%number 0] %.n]] +.tokens]
+      :: ~&  >>  :-  'zero'  [jock-one [%atom [%number 0] %.n]]
+      :_  +.tokens
+      [%type jyp [jock-one [%atom [%number 0] %.n]]]
     =/  first=?  %.y
     ::  else proceed until reaching the end
     |-  ^-  [jock (list token)]
     =^  jock-nex  tokens
       (match-inner-jock tokens)
-    =/  pun  (has-punctuator -.tokens %']')
-    ::  Case ~[one two]
-    ?:  &(first pun)
-      [[jock-one jock-nex] +.tokens]
-    ::  Append null at end of list
-    ?:  pun
-      [[jock-nex [%atom [%number 0] %.n]] +.tokens]
-    ::  Case ~[one two .. end]
+    ::  First round
     ?:  first
+      ::  ~[one two]
+      ?:  (has-punctuator -.tokens %']')
+        :: ~&  >>  :-  'first / ]'  [jock-one jock-nex]
+        :_  +.tokens
+        [%type jyp [jock-one jock-nex]]
+      ::  otherwise consume next entries ~[one two .. end]
       =^  pairs  tokens
         $(first %.n)
-      [[jock-one jock-nex pairs] tokens]
+      :: ~&  >>  :-  'first    '  [jock-one jock-nex pairs]
+      :_  tokens
+      [%type jyp [jock-one jock-nex pairs]]
+    ::
+    ?:  (has-punctuator -.tokens %']')
+      :: ~&  >>  :-  '        ]'  -.tokens
+      ::  append null at end of list
+      :_  +.tokens
+      [jock-nex [%atom [%number 0] %.n]]
+    ::  Case ~[one two .. end]
     =^  pairs  tokens
       $
-    [[jock-nex pairs] tokens]
+    :: ~&  >>  :-  '         '  [jock-nex pairs]
+    :_  tokens
+    [jock-nex pairs]
   ==
 ::
 ++  match-axis
@@ -848,7 +859,7 @@
       =^  jock  tokens  `[jock (list token)]`(match-jock `(list token)`+.+.+.tokens)
       ?>  (got-punctuator -.tokens %';')
       =.  tokens  +.tokens
-      ?>  (has-punctuator -.tokens %'}')  :: no trailing tokens in case block
+      ?>  (got-punctuator -.tokens %'}')  :: no trailing tokens in case block
       =.  fall  `jock
       [[(malt duo) fall] tokens]
     :: regular case
@@ -910,6 +921,12 @@
 --
 ::
 ::  3: compile jock -> nock
+::
+::  The compilation stage accepts a jock and returns a pair of nock and jype.
+::  (Note that this order is reversed from that of Hoon's +mint).  Static type
+::  validation takes place as a natural consequence of resolving the jype and
+::  constructing the Nock expression.  By convention, we denote the Nock rules
+::  as %constants.
 ::
 |%
 +$  nock
@@ -1394,7 +1411,28 @@
     ::
         %type
       ~|  %type
-      [[%0 0] jyp]
+      :-  :-  %1
+          :: val.j  :: this works by itself as a punt if you need to compile
+          ::  unpack structure into Nock, validating type all the while
+          %-  list-to-tuple
+          =/  vals=^  (tuple-to-list val.j)
+          =|  knox=(list nock)
+          |-  ^-  (list nock)
+          ?:  =(~ vals)  `(list nock)`knox
+          =/  val  -.vals
+          =+  [val val-jyp]=$(j val.j)
+          =/  nesting-type
+            (~(unify jt type.j) val-jyp)
+          ?~  nesting-type
+            ~|  '%type: value type does not nest in declared type'
+            ~|  [val+val.jyp typ+type.jyp]
+            !!
+          :: (~(cons jt u.nested-type) jyp)
+          %=  $
+            vals  +.vals
+            knox  `(list nock)`[`nock`[%1 val] knox]
+          ==
+      jyp
     ::
         %atom
       ~|  [%atom +.-.+.j]
@@ -1533,4 +1571,16 @@
       [%5 [%1 `@`+.p.jock] %0 axis]
     ==
   --
+::
+++  list-to-tuple
+  |*  a=(list)
+  ?~  a  !!
+  ?~  +.a
+    -.a
+  [-.a $(a +.a)]
+::
+++  tuple-to-list
+  |*  a=^  !!
+  :: ?~  +.a  ~
+  :: [-.a $(a +.a)]
 --
