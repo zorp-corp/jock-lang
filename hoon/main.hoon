@@ -41,7 +41,13 @@
   =/  c=cause  u.soft-cau
   |^
   ~&  exec-all:test-jock
-  ~&  test-all:test-jock
+  :: ~&  test-all:test-jock
+  :: ~&  (parse:test-jock 21)
+  :: ~&  (jeam:test-jock 21)
+  :: ~&  (mint:test-jock 21)
+  ~&  (parse:test-jock 18)
+  ~&  (jeam:test-jock 18)
+  ~&  (mint:test-jock 18)
   :: ~&  dump-output
   ?-  -.c
     %test-n  [~ k]
