@@ -13,6 +13,8 @@
       ^-  *
       =/  jok  (jeam txt)
       =+  [nok jyp]=(~(mint cj [%atom %string %.n]^%$) jok)
+      ~&  :-  'nok'  nok
+      ~&  :-  'jyp'  jyp
       nok
     --
 =>
@@ -195,8 +197,8 @@
       [%compare a=jock comp=comparator b=jock]
       [%lambda p=lambda]
       [%limb p=(list jlimb)]
-      [%type type=jype val=jock]
       [%atom p=jatom]
+      [%list type=jype-leaf val=(list jock)]
       [%crash ~]
   ==
 ::
@@ -334,7 +336,6 @@
     ::  TODO: check if we're in a compare
     (match-literal tokens)
   ::
-    :: %symbol      (match-symbol tokens)
     %name        (match-start-name tokens)
     %punctuator  (match-start-punctuator tokens)
   ==
@@ -365,7 +366,6 @@
     [[jock-nex pairs] tokens]
   ?+  -.i.tokens  !!
     %literal     (match-literal tokens)
-    :: %symbol      (match-symbol tokens)
     %name        (match-start-name tokens)
     %punctuator  (match-start-punctuator tokens)
   ==
@@ -439,8 +439,8 @@
       %'~'
     ?>  (got-punctuator -.tokens %'[')
     =.  tokens  +.tokens
-    =/  jyp=jype
-      [%ring [%atom %number %.n] [[%atom %number %.n]^%$ [%link ~]^%$]^%$]^%$
+    =/  jok=jock
+      *[%list type=jype-leaf val=(list jock)]
     ::  retrieve first element
     =^  jock-one  tokens
       (match-inner-jock tokens)
@@ -449,7 +449,13 @@
     ?:  (has-punctuator -.tokens %']')
       :: ~&  >>  :-  'zero'  [jock-one [%atom [%number 0] %.n]]
       :_  +.tokens
-      [%type jyp [jock-one [%atom [%number 0] %.n]]]
+      =.  jok
+        ^-  jock
+        :+  %list
+          type=;;(jype-leaf -.+.jok)
+        val=`(list jock)`~[[jock-one [%atom [%number 0] %.n]]]
+      :: [%list jok [jock-one [%atom [%number 0] %.n] ~]]
+      jok
     =/  first=?  %.y
     ::  else proceed until reaching the end
     |-  ^-  [jock (list token)]
@@ -461,19 +467,41 @@
       ?:  (has-punctuator -.tokens %']')
         :: ~&  >>  :-  'first / ]'  [jock-one jock-nex]
         :_  +.tokens
-        [%type jyp [jock-one jock-nex]]
+        =.  jok
+          ^-  jock
+          :+  %list
+            type=;;(jype-leaf -.+.jok)
+          val=`(list jock)`~[[jock-one jock-nex]]
+        :: =.  val.jok  [val.jok [jock-one jock-nex ~]]
+        :: [%list jok [jock-one jock-nex]]
+        jok
       ::  otherwise consume next entries ~[one two .. end]
       =^  pairs  tokens
         $(first %.n)
       :: ~&  >>  :-  'first    '  [jock-one jock-nex pairs]
       :_  tokens
-      [%type jyp [jock-one jock-nex pairs]]
+        :: :_  +.tokens
+        =.  jok
+          ^-  jock
+          :+  %list
+            type=;;(jype-leaf -.+.jok)
+          val=`(list jock)`~[[jock-one jock-nex pairs]]
+      :: =.  val.jok  [jock-one jock-nex pairs]
+      :: [%list jok [jock-one jock-nex pairs]]
+      jok
     ::
     ?:  (has-punctuator -.tokens %']')
       :: ~&  >>  :-  '        ]'  -.tokens
       ::  append null at end of list
       :_  +.tokens
-      [jock-nex [%atom [%number 0] %.n]]
+        =.  jok
+          ^-  jock
+          :+  %list
+            type=;;(jype-leaf -.+.jok)
+          val=`(list jock)`(snoc ;;((list jock) +.+.jok) [%atom [%number 0] %.n])
+      :: =.  val.jok  [val.jok [%atom [%number 0] %.n] ~]
+      :: [jock-nex [%atom [%number 0] %.n] ~]
+      jok
     ::  Case ~[one two .. end]
     =^  pairs  tokens
       $
@@ -969,7 +997,9 @@
   [%core [%& arg] payload]^%$
 ::
 ++  jwing
+  ::  leg (Nock 0)
   $@  @
+  ::  arm (Nock 9)
   [arm-axis=@ core-axis=@]
 ::
 ++  jt
@@ -993,7 +1023,7 @@
       ?:  ?=(%name -.i.lis)
         (axis-at-name +.i.lis)
       `+.i.lis
-    ?~  axi  !!
+    ?~  axi  ~|  'limb not found'  !!
     ?^  u.axi
       ?~  new-jyp=(type-at-axis (peg +.u.axi -.u.axi))
         ~|  no-type-at-axis+[axi jyp]
@@ -1421,12 +1451,12 @@
       =+  [body body-jyp]=$(j body.p.j, jyp lam-jyp)
       ?~  pay
         :_  (lam-j arg.p.j `jyp)
-        [%8 input-default [%1 body] [%0 1]]
+        [%8 input-default [%1 body] [%0 1]]  ::  XXX why autocons [0 1]?
       :_  (lam-j arg.p.j `q.u.pay)
       [%8 input-default [%1 body] p.u.pay]
     ::
-        %type
-      ~|  %type
+        %list
+      ~|  %list
       :-  :-  %1
           val.j  :: this works by itself as a punt if you need to compile
           ::  unpack structure into Nock, validating type all the while
