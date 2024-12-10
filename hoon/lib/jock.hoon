@@ -449,10 +449,11 @@
       ^-  jock
       :+  %list
         typ
-      `(list jock)`~[[jock-one [%atom [%number 0] %.n]]]
+      `(list jock)`~[jock-one [%atom [%number 0] %.n]]
     =/  first=?  %.y
     ::  else proceed until reaching the end
-    |-  ^-  [jock (list token)]
+    ^-  [jock (list token)]
+    |-
     =^  jock-nex  tokens
       (match-inner-jock tokens)
     ::  First round
@@ -463,28 +464,31 @@
         ^-  jock
         :+  %list
           typ
-        `(list jock)`~[[jock-one jock-nex]]
-      ::  otherwise consume next entries ~[one two .. end]
-      =^  pairs  tokens
+        `(list jock)`~[jock-one jock-nex [%atom [%number 0] %.n]]
+      ::  otherwise consume next entries
+      =^  items  tokens
         $(first %.n)
       :_  tokens
         ^-  jock
         :+  %list
           typ
-        `(list jock)`~[[jock-one jock-nex pairs]]
+        :: `(list jock)`~[jock-one jock-nex items [%atom [%number 0] %.n]]
+        ^-  (list jock)
+        (snoc (weld ~[jock-one jock-nex] items) [%atom [%number 0] %.n])
     ::
     ?:  (has-punctuator -.tokens %']')
       ::  append null at end of list
       :_  +.tokens
         ^-  jock
         ::  return a tuple not a list in this case
-        [jock-nex [%atom [%number 0] %.n]]
+        :: [jock-nex [%atom [%number 0] %.n]]
+        jock-nex
     ::  Case ~[one two .. end]
-    =^  pairs  tokens
+    =^  items  tokens
       $
     :_  tokens
     ::  return a tuple not a list in this case
-    [jock-nex pairs]
+    [jock-nex items]
   ==
 ::
 ++  match-axis
@@ -1431,35 +1435,60 @@
         [%8 input-default [%1 body] [%0 1]]  ::  XXX why autocons [0 1]?
       :_  (lam-j arg.p.j `q.u.pay)
       [%8 input-default [%1 body] p.u.pay]
-    ::
+    ::  [%list type=jype-leaf val=(list jock)]
         %list
       ~|  %list
-      :-  :-  %1
-          val.j  :: this works by itself as a punt if you need to compile
-          ::  unpack structure into Nock, validating type all the while
-          :: the basic concept:
-          :: 1. unpack the jock in the container
-          :: 2. for each jock, validate that it nests in the declared type
-          :: 3. produce the appropriate [nock jype] pair
-          :: %-  list-to-tuple
-          :: =/  vals=^  (tuple-to-list val.j)
-          :: =|  knox=(list nock)
-          :: |-  ^-  (list nock)
-          :: ?:  =(~ vals)  `(list nock)`knox
-          :: =/  val  -.vals
-          :: =+  [val val-jyp]=$(j val.j)
-          :: =/  nesting-type
-          ::   (~(unify jt type.j) val-jyp)
-          :: ?~  nesting-type
-          ::   ~|  '%type: value type does not nest in declared type'
-          ::   ~|  [val+val.jyp typ+type.jyp]
-          ::   !!
-          :: :: (~(cons jt u.nested-type) jyp)
-          :: %=  $
-          ::   vals  +.vals
-          ::   knox  `(list nock)`[`nock`[%1 val] knox]
-          :: ==
-      jyp
+      :: :-  :: :-  %1
+      :: val.j  :: this works by itself as a punt if you need to compile
+      ::  unpack structure into Nock, validating type all the while
+      :: the basic concept:
+      :: 1. unpack the jocks in the container
+      :: 2. for each jock, validate that it nests in the container's declared type
+      :: 3. produce the appropriate [nock jype] pair
+      :: =/  typ  type.j
+      =/  vals=(list jock)  val.j
+      ?:  =(~ vals)  ~|  'list: no value'  !!
+      =/  first=?  %.y
+      =|  nok=nock
+      :_  jyp
+      |-  ^-  nock
+      ?~  vals  `nock`nok
+      ~&  >  -.vals
+      =+  [val val-jyp]=^$(j -.vals)
+      =/  inferred-type
+        (~(unify jt type.j^%$) val-jyp)
+      ?~  inferred-type
+        ~|  '%list: value type does not nest in declared type'
+        ~|  ['have:' val-jyp 'need:' type.j]
+        !!
+      ?:  first
+        %=  $
+          nok   [%1 val]
+          vals  +.vals
+        ==
+      %=  $
+        nok   [nok val]
+        vals  +.vals
+      ==
+      :: %-  list-to-tuple
+      :: =/  vals=^  (tuple-to-list val.j)
+      :: =|  knox=(list nock)
+      :: |-  ^-  (list nock)
+      :: ?:  =(~ vals)  `(list nock)`knox
+      :: =/  val  -.vals
+      :: =+  [val val-jyp]=$(j val.j)
+      :: =/  nesting-type
+      ::   (~(unify jt type.j) val-jyp)
+      :: ?~  nesting-type
+      ::   ~|  '%type: value type does not nest in declared type'
+      ::   ~|  [val+val.jyp typ+type.jyp]
+      ::   !!
+      :: :: (~(cons jt u.nested-type) jyp)
+      :: %=  $
+      ::   vals  +.vals
+      ::   knox  `(list nock)`[`nock`[%1 val] knox]
+      :: ==
+      :: jyp
     ::
         %atom
       ~|  [%atom +.-.+.j]
@@ -1598,22 +1627,4 @@
       [%5 [%1 `@`+.p.jock] %0 axis]
     ==
   --
-::
-++  list-to-tuple
-  |*  a=(list)
-  ?~  a  !!
-  ?~  +.a
-    -.a
-  [-.a $(a +.a)]
-:: ++  list-to-tuple
-::     |=  lis=(list @)
-::     ::  address of [a_{k-1} ~] (final nontrivial tail of list)
-::     =+  (dec (bex (lent lis)))
-::     .*  lis
-::     [10 [- [0 (mul 2 -)]] [0 1]]
-::
-++  tuple-to-list
-  |*  a=^  !!
-  :: ?~  +.a  ~
-  :: [-.a $(a +.a)]
 --
