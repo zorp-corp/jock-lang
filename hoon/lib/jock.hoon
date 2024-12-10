@@ -440,54 +440,23 @@
     ?>  (got-punctuator -.tokens %'[')
     =.  tokens  +.tokens
     =/  typ=jype-leaf  [%atom %number %.n]
-    ::  retrieve first element
+    ::  ~[one
     =^  jock-one  tokens
       (match-inner-jock tokens)
-    ::  Case ~[one]
+    =/  acc=(list jock)
+      [jock-one ~]
+    |-  ^-  [jock (list token)]
     ?:  (has-punctuator -.tokens %']')
+      ::  ...]
       :_  +.tokens
       ^-  jock
       :+  %list
         typ
-      `(list jock)`~[jock-one [%atom [%number 0] %.n]]
-    =/  first=?  %.y
-    ::  else proceed until reaching the end
-    |-  ^-  [jock (list token)]
+      (snoc acc [%atom [%number 0] %.n])
+    ::  ~[...]
     =^  jock-nex  tokens
       (match-inner-jock tokens)
-    ::  First round
-    ?:  first
-      ::  ~[one two]
-      ?:  (has-punctuator -.tokens %']')
-        :_  +.tokens
-        ^-  jock
-        :+  %list
-          typ
-        `(list jock)`~[jock-one jock-nex [%atom [%number 0] %.n]]
-      ::  otherwise consume next entries
-      =^  items  tokens
-        $(first %.n)
-      :_  tokens
-        ^-  jock
-        :+  %list
-          typ
-        `(list jock)`~[jock-one jock-nex items [%atom [%number 0] %.n]]
-        :: ^-  (list jock)
-        :: (snoc (weld ~[jock-one jock-nex] items) [%atom [%number 0] %.n])
-    ::
-    ?:  (has-punctuator -.tokens %']')
-      ::  append null at end of list
-      :_  +.tokens
-        ^-  jock
-        ::  return a tuple not a list in this case
-        :: [jock-nex [%atom [%number 0] %.n]]
-        jock-nex
-    ::  Case ~[one two .. end]
-    =^  items  tokens
-      $
-    :_  tokens
-    ::  return a tuple not a list in this case
-    [jock-nex items]
+    $(acc (snoc acc jock-nex))
   ==
 ::
 ++  match-axis
@@ -1445,14 +1414,9 @@
       :: 2. for each jock, validate that it nests in the container's declared type
       :: 3. produce the appropriate [nock jype] pair
       :: =/  typ  type.j
+      |^
       =/  vals=(list jock)  val.j
       ?:  =(~ vals)  ~|  'list: no value'  !!
-      =/  first=?  %.y
-      =|  nok=nock
-      :_  jyp
-      |-  ^-  nock
-      ?~  vals  `nock`nok
-      ~&  >  -.vals
       =+  [val val-jyp]=^$(j -.vals)
       =/  inferred-type
         (~(unify jt type.j^%$) val-jyp)
@@ -1460,15 +1424,37 @@
         ~|  '%list: value type does not nest in declared type'
         ~|  ['have:' val-jyp 'need:' type.j]
         !!
-      ?:  first
-        %=  $
-          nok   [%1 val]
-          vals  +.vals
-        ==
+      =/  nok=(list nock)  ~[val]
+      =.  vals  +.vals
+      :_  jyp
+      |-  ^-  nock
+      ?~  vals  ;;(nock (list-to-tuple (flop nok)))
+      =+  [val val-jyp]=^^$(j -.vals)
+      ~&  :+  %nock  val  nok
+      =/  inferred-type
+        (~(unify jt type.j^%$) val-jyp)
+      ?~  inferred-type
+        ~|  '%list: value type does not nest in declared type'
+        ~|  ['have:' val-jyp 'need:' type.j]
+        !!
       %=  $
-        nok   [nok val]
+        nok   [val nok]
         vals  +.vals
       ==
+      ++  list-to-tuple
+        |*  a=(list)
+        ?~  a  !!
+        ::  address of [a_{k-1} ~] (final nontrivial tail of list)
+        =+  (dec (bex (lent a)))
+        .*  a
+        [10 [- [0 (mul 2 -)]] [0 1]]
+      :: ++  list-to-tuple
+      ::     |=  lis=(list @)
+      ::     ::  address of [a_{k-1} ~] (final nontrivial tail of list)
+      ::     =+  (dec (bex (lent lis)))
+      ::     .*  lis
+      ::     [10 [- [0 (mul 2 -)]] [0 1]]
+      --
       :: %-  list-to-tuple
       :: =/  vals=^  (tuple-to-list val.j)
       :: =|  knox=(list nock)
