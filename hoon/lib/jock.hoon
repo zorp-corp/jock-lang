@@ -448,9 +448,8 @@
       :_  +.tokens
       ^-  jock
       :+  %list
-        :: TODO replace ;; with a clever ?= case on jok
         typ
-      val=`(list jock)`~[[jock-one [%atom [%number 0] %.n]]]
+      `(list jock)`~[[jock-one [%atom [%number 0] %.n]]]
     =/  first=?  %.y
     ::  else proceed until reaching the end
     |-  ^-  [jock (list token)]
@@ -464,7 +463,7 @@
         ^-  jock
         :+  %list
           typ
-        val=`(list jock)`~[[jock-one jock-nex]]
+        `(list jock)`~[[jock-one jock-nex]]
       ::  otherwise consume next entries ~[one two .. end]
       =^  pairs  tokens
         $(first %.n)
@@ -472,7 +471,7 @@
         ^-  jock
         :+  %list
           typ
-        val=`(list jock)`~[[jock-one jock-nex pairs]]
+        `(list jock)`~[[jock-one jock-nex pairs]]
     ::
     ?:  (has-punctuator -.tokens %']')
       ::  append null at end of list
