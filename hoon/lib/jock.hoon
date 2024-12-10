@@ -439,23 +439,18 @@
       %'~'
     ?>  (got-punctuator -.tokens %'[')
     =.  tokens  +.tokens
-    =/  jok=jock
-      *[%list type=jype-leaf val=(list jock)]
+    =/  typ=jype-leaf  [%atom %number %.n]
     ::  retrieve first element
     =^  jock-one  tokens
       (match-inner-jock tokens)
-    :: ~&  >  :^  'token: '  jock-one  -:tokens  +:tokens
     ::  Case ~[one]
     ?:  (has-punctuator -.tokens %']')
-      :: ~&  >>  :-  'zero'  [jock-one [%atom [%number 0] %.n]]
       :_  +.tokens
-      =.  jok
-        ^-  jock
-        :+  %list
-          type=;;(jype-leaf -.+.jok)
-        val=`(list jock)`~[[jock-one [%atom [%number 0] %.n]]]
-      :: [%list jok [jock-one [%atom [%number 0] %.n] ~]]
-      jok
+      ^-  jock
+      :+  %list
+        :: TODO replace ;; with a clever ?= case on jok
+        typ
+      val=`(list jock)`~[[jock-one [%atom [%number 0] %.n]]]
     =/  first=?  %.y
     ::  else proceed until reaching the end
     |-  ^-  [jock (list token)]
@@ -465,48 +460,31 @@
     ?:  first
       ::  ~[one two]
       ?:  (has-punctuator -.tokens %']')
-        :: ~&  >>  :-  'first / ]'  [jock-one jock-nex]
         :_  +.tokens
-        =.  jok
-          ^-  jock
-          :+  %list
-            type=;;(jype-leaf -.+.jok)
-          val=`(list jock)`~[[jock-one jock-nex]]
-        :: =.  val.jok  [val.jok [jock-one jock-nex ~]]
-        :: [%list jok [jock-one jock-nex]]
-        jok
+        ^-  jock
+        :+  %list
+          typ
+        val=`(list jock)`~[[jock-one jock-nex]]
       ::  otherwise consume next entries ~[one two .. end]
       =^  pairs  tokens
         $(first %.n)
-      :: ~&  >>  :-  'first    '  [jock-one jock-nex pairs]
       :_  tokens
-        :: :_  +.tokens
-        =.  jok
-          ^-  jock
-          :+  %list
-            type=;;(jype-leaf -.+.jok)
-          val=`(list jock)`~[[jock-one jock-nex pairs]]
-      :: =.  val.jok  [jock-one jock-nex pairs]
-      :: [%list jok [jock-one jock-nex pairs]]
-      jok
+        ^-  jock
+        :+  %list
+          typ
+        val=`(list jock)`~[[jock-one jock-nex pairs]]
     ::
     ?:  (has-punctuator -.tokens %']')
-      :: ~&  >>  :-  '        ]'  -.tokens
       ::  append null at end of list
       :_  +.tokens
-        =.  jok
-          ^-  jock
-          :+  %list
-            type=;;(jype-leaf -.+.jok)
-          val=`(list jock)`(snoc ;;((list jock) +.+.jok) [%atom [%number 0] %.n])
-      :: =.  val.jok  [val.jok [%atom [%number 0] %.n] ~]
-      :: [jock-nex [%atom [%number 0] %.n] ~]
-      jok
+        ^-  jock
+        ::  return a tuple not a list in this case
+        [jock-nex [%atom [%number 0] %.n]]
     ::  Case ~[one two .. end]
     =^  pairs  tokens
       $
-    :: ~&  >>  :-  '         '  [jock-nex pairs]
     :_  tokens
+    ::  return a tuple not a list in this case
     [jock-nex pairs]
   ==
 ::
