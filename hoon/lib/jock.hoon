@@ -452,8 +452,7 @@
       `(list jock)`~[jock-one [%atom [%number 0] %.n]]
     =/  first=?  %.y
     ::  else proceed until reaching the end
-    ^-  [jock (list token)]
-    |-
+    |-  ^-  [jock (list token)]
     =^  jock-nex  tokens
       (match-inner-jock tokens)
     ::  First round
@@ -472,9 +471,9 @@
         ^-  jock
         :+  %list
           typ
-        :: `(list jock)`~[jock-one jock-nex items [%atom [%number 0] %.n]]
-        ^-  (list jock)
-        (snoc (weld ~[jock-one jock-nex] items) [%atom [%number 0] %.n])
+        `(list jock)`~[jock-one jock-nex items [%atom [%number 0] %.n]]
+        :: ^-  (list jock)
+        :: (snoc (weld ~[jock-one jock-nex] items) [%atom [%number 0] %.n])
     ::
     ?:  (has-punctuator -.tokens %']')
       ::  append null at end of list
