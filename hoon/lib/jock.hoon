@@ -242,7 +242,7 @@
       name=term
   ==
 ::  Jype bottomed-out types
-+$  base-jype-leaf
++$  jype-leaf
   $%  ::  %atom is a basic numeric type with constant flag (%.y = constant)
       [%atom p=jatom-type q=?(%.y %.n)]
       ::  %core is a callable function with arguments and returns
@@ -253,14 +253,6 @@
       [%fork p=jype q=jype]
       ::  %none is a null type (as for undetermined variable labels)
       [%none ~]
-  ==
-::  Jype types including recursion and references
-+$  jype-leaf
-  $%  base-jype-leaf
-      ::  %ring is a recursive type with a base case
-      [%ring p=[%atom p=jatom-type q=?(%.y %.n)] q=jype]
-      ::  %link is a reference to an existing type, or self if null
-      [%link p=(unit jlimb)]
   ==
 ::  Jype atom base types; corresponds to jatom tags
 +$  jatom-type
@@ -715,7 +707,6 @@
     =^  axis-lit  tokens
       (match-axis tokens)
     [[%limb ~[axis-lit]] tokens]
-  ::    Cases for %ring and %link resolve via %limb.
   ::  %fork
   ::    No action; fall-through.  TODO check
   ::  Else untyped (as variable name).
@@ -810,14 +801,6 @@
   ?.  ?=(%literal -.-.tokens)
     ~|("expect literal. token: {<-.-.tokens>}" !!)
   [[%atom +.-.tokens] +.tokens]
-::
-:: ++  match-symbol
-::   |=  =tokens
-::   ^-  [[%symbol jatom] (list token)]
-::   ?~  tokens  ~|("expect symbol. token: ~" !!)
-::   ?.  ?=(%symbol -.-.tokens)
-::     ~|("expect symbol. token: {<-.-.tokens>}" !!)
-::   [[%symbol +.-.tokens] +.tokens]
 ::
 ++  match-name
   |=  =tokens
@@ -1400,20 +1383,12 @@
       =+  [body body-jyp]=$(j body.p.j, jyp lam-jyp)
       ?~  pay
         :_  (lam-j arg.p.j `jyp)
-        [%8 input-default [%1 body] [%0 1]]  ::  XXX why autocons [0 1]?
+        [%8 input-default [%1 body] [%0 1]]  ::  XXX autocons [0 1] for subject
       :_  (lam-j arg.p.j `q.u.pay)
       [%8 input-default [%1 body] p.u.pay]
-    ::  [%list type=jype-leaf val=(list jock)]
+    ::
         %list
       ~|  %list
-      :: :-  :: :-  %1
-      :: val.j  :: this works by itself as a punt if you need to compile
-      ::  unpack structure into Nock, validating type all the while
-      :: the basic concept:
-      :: 1. unpack the jocks in the container
-      :: 2. for each jock, validate that it nests in the container's declared type
-      :: 3. produce the appropriate [nock jype] pair
-      :: =/  typ  type.j
       |^
       =/  vals=(list jock)  val.j
       ?:  =(~ vals)  ~|  'list: no value'  !!
@@ -1429,8 +1404,8 @@
       :_  jyp
       |-  ^-  nock
       ?~  vals  ;;(nock (list-to-tuple (flop nok)))
+      ::  for each jock, validate that it nests in the container's declared type
       =+  [val val-jyp]=^^$(j -.vals)
-      ~&  :+  %nock  val  nok
       =/  inferred-type
         (~(unify jt type.j^%$) val-jyp)
       ?~  inferred-type
@@ -1448,32 +1423,7 @@
         =+  (dec (bex (lent a)))
         .*  a
         [10 [- [0 (mul 2 -)]] [0 1]]
-      :: ++  list-to-tuple
-      ::     |=  lis=(list @)
-      ::     ::  address of [a_{k-1} ~] (final nontrivial tail of list)
-      ::     =+  (dec (bex (lent lis)))
-      ::     .*  lis
-      ::     [10 [- [0 (mul 2 -)]] [0 1]]
       --
-      :: %-  list-to-tuple
-      :: =/  vals=^  (tuple-to-list val.j)
-      :: =|  knox=(list nock)
-      :: |-  ^-  (list nock)
-      :: ?:  =(~ vals)  `(list nock)`knox
-      :: =/  val  -.vals
-      :: =+  [val val-jyp]=$(j val.j)
-      :: =/  nesting-type
-      ::   (~(unify jt type.j) val-jyp)
-      :: ?~  nesting-type
-      ::   ~|  '%type: value type does not nest in declared type'
-      ::   ~|  [val+val.jyp typ+type.jyp]
-      ::   !!
-      :: :: (~(cons jt u.nested-type) jyp)
-      :: %=  $
-      ::   vals  +.vals
-      ::   knox  `(list nock)`[`nock`[%1 val] knox]
-      :: ==
-      :: jyp
     ::
         %atom
       ~|  [%atom +.-.+.j]
@@ -1542,11 +1492,6 @@
         %fork      $(j p.p.j)
     ::
         %none      [%1 0]
-    ::
-        :: %ring      $(j `base-jype-leaf`p.p.j)
-        %ring      $(j q.p.j)  :: TODO seems like we should be able to get to base case but it's blocked on some nest-fail type issue
-    ::
-        %link      [%0 0]
     ==
   ::
   :: +hunt-type: make a $nock to test whether jock nests in jype
