@@ -77,6 +77,7 @@
       [%punctuator punctuator]
       [%literal jatom]
       [%name term]
+      [%type cord]
   ==
 ::
 +$  tokens  (list token)
@@ -116,8 +117,13 @@
       vex
     [p=p.vex q=[~ u=[p=[p.u.q.vex gob] q=q.u.q.vex]]]
   ::
-  ++  name               sym
-  ++  tagged-name        (stag %name name)
+  ++  name               sym                              :: term
+  ++  tagged-name        (stag %name name)                :: [%name term]
+  ++  alu                %+  cook                         :: Ulll
+                             |=(a=tape (rap 3 ^-((list @) a)))
+                         ;~(plug hig (star low))
+  ++  type               alu                              :: Cord
+  ++  tagged-type        (stag %type type)                :: [%type 'Cord']
   ::
   ++  keyword
     %-  perk
@@ -147,6 +153,7 @@
         tagged-punctuator
         tagged-literal
         tagged-name
+        tagged-type
     ==
   ::
   ++  tokens  (star ;~(pose token ;~(pfix gav token)))
@@ -304,6 +311,7 @@
       %name        (match-start-name tokens)
       %keyword     (match-keyword tokens)
       %punctuator  (match-start-punctuator tokens)
+      %type        !!  ::(match-metatype tokens)  :: shouldn't reach this way
     ==
   [jock tokens]
 ::
@@ -330,6 +338,7 @@
   ::
     %name        (match-start-name tokens)
     %punctuator  (match-start-punctuator tokens)
+    %type        !!  ::(match-metatype tokens)  :: shouldn't reach this way
   ==
 ::
 ++  match-pair-inner-jock
@@ -360,6 +369,7 @@
     %literal     (match-literal tokens)
     %name        (match-start-name tokens)
     %punctuator  (match-start-punctuator tokens)
+    %type        !!  ::(match-metatype tokens)  :: shouldn't reach this way
   ==
 ::
 :: ++  match-inner-list
@@ -431,7 +441,7 @@
       %'~'
     ?>  (got-punctuator -.tokens %'[')
     =.  tokens  +.tokens
-    =/  typ=jype-leaf  [%atom %number %.n]
+    =/  typ=jype-leaf  [%none ~]
     ::  ~[one
     =^  jock-one  tokens
       (match-inner-jock tokens)
@@ -513,6 +523,18 @@
     ::  TODO: check if we're in a compare
     [[%call [%limb limbs] `arg] +.tokens]
   [[%limb limbs] tokens]
+::
+++  match-metatype
+  |=  =tokens
+  ^-  [jype (list token)]
+  ?:  =(~ tokens)  ~|("expect expression starting with type. token: ~" !!)
+  ?:  !=(%type -.-.tokens)
+    ~|("expect type. token: {<-.tokens>}" !!)
+  ?>  (got-punctuator -.+.tokens %'{')
+  =^  jyp  tokens
+    (match-jype `(list token)`+.+.tokens)
+  ?>  (got-punctuator -.tokens %'}')
+  [jyp +.tokens]
 ::
 ++  match-keyword
   |=  =tokens
@@ -657,6 +679,10 @@
   =?  tokens  has-name  +.tokens
   ::  Type-qualified name  b:a
   ?:  &(has-name (has-punctuator -.tokens %':'))
+    ?:  =(%type -.-.+.tokens)
+      =^  jyp  tokens
+        (match-metatype `(list token)`+.tokens)
+      [jyp(name nom) tokens]
     =^  jyp  tokens
       (match-jype +.tokens)
     [jyp(name nom) tokens]
@@ -1127,9 +1153,10 @@
       =.  jyp
         =/  inferred-type
           (~(unify jt type.j) val-jyp)
+        ~&  :^  %inferred-type  [val val-jyp]  type.j  inferred-type
         ?~  inferred-type
           ~|  '%let: value type does not nest in declared type'
-          ~|  [val+val-jyp typ+type.j]
+          ~|  ['have:' val-jyp 'need:' type.j]
           !!
         (~(cons jt u.inferred-type) jyp)
       ~|  %let-next
@@ -1395,6 +1422,7 @@
       =+  [val val-jyp]=^$(j -.vals)
       =/  inferred-type
         (~(unify jt type.j^%$) val-jyp)
+      ~&  >  :^  %inferred-type  val-jyp  type.j  inferred-type
       ?~  inferred-type
         ~|  '%list: value type does not nest in declared type'
         ~|  ['have:' val-jyp 'need:' type.j]
@@ -1403,11 +1431,13 @@
       =.  vals  +.vals
       :_  jyp
       |-  ^-  nock
+      ~&  >>>  nok
       ?~  vals  ;;(nock (list-to-tuple (flop nok)))
       ::  for each jock, validate that it nests in the container's declared type
       =+  [val val-jyp]=^^$(j -.vals)
       =/  inferred-type
         (~(unify jt type.j^%$) val-jyp)
+      ~&  >  :^  %inferred-type  [val val-jyp]  type.j  inferred-type
       ?~  inferred-type
         ~|  '%list: value type does not nest in declared type'
         ~|  ['have:' val-jyp 'need:' type.j]
@@ -1495,7 +1525,7 @@
     ==
   ::
   :: +hunt-type: make a $nock to test whether jock nests in jype
-  :: We check only four cases:  %none and %symbol to
+  :: We check only four cases:  %none and constant %atom to
   :: bottom out, and %fork and nothing (cell) to continue.
   :: TODO: provide atom type and aura nesting for convenience
   ++  hunt-type
