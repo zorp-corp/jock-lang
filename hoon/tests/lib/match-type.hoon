@@ -3,16 +3,17 @@
 ::
 |%
 ++  text
-  'let a: ? = true;\0a\0aa = false;\0a\0aa\0a\0a'
+  'let a: @ = 3;\0a\0amatch type a {\0a  %1 -> 2;\0a  %2 -> 4;\0a  %3 -> 8;\0a  %4 -> 16;\0a  _ -> 0;\0a}\0a'
 ++  test-tokenize
   %+  expect-eq:test
-    !>  ~[[%keyword %let] [%name %a] [%punctuator %':'] [%punctuator %'@'] [%punctuator %'='] [%literal [%number 3]] [%punctuator %';'] [%keyword %match] [%keyword %type] [%name %a] [%punctuator %'{'] [%symbol [%number 1]] [%punctuator %'-'] [%punctuator %'>'] [%literal [%number 2]] [%punctuator %';'] [%symbol [%number 2]] [%punctuator %'-'] [%punctuator %'>'] [%literal [%number 4]] [%punctuator %';'] [%symbol [%number 3]] [%punctuator %'-'] [%punctuator %'>'] [%literal [%number 8]] [%punctuator %';'] [%symbol [%number 4]] [%punctuator %'-'] [%punctuator %'>'] [%literal [%number 16]] [%punctuator %';'] [%punctuator %'_'] [%punctuator %'-'] [%punctuator %'>'] [%literal [%number 0]] [%punctuator %';'] [%punctuator %'}']]
+    !>  ~[[%keyword %let] [%name %a] [%punctuator %':'] [%punctuator %'@'] [%punctuator %'='] [%literal [%number 3]] [%punctuator %';'] [%keyword %match] [%keyword %type] [%name %a] [%punctuator %'{'] [%atom [%number 1]] [%punctuator %'-'] [%punctuator %'>'] [%literal [%number 2]] [%punctuator %';'] [%atom [%number 2]] [%punctuator %'-'] [%punctuator %'>'] [%literal [%number 4]] [%punctuator %';'] [%atom [%number 3]] [%punctuator %'-'] [%punctuator %'>'] [%literal [%number 8]] [%punctuator %';'] [%atom [%number 4]] [%punctuator %'-'] [%punctuator %'>'] [%literal [%number 16]] [%punctuator %';'] [%punctuator %'_'] [%punctuator %'-'] [%punctuator %'>'] [%literal [%number 0]] [%punctuator %';'] [%punctuator %'}']]
     !>  (rash text parse-tokens:jock)
 ::
 ++  test-jeam
   %+  expect-eq:test
-    !>  ^-  jock:jock
-        [%let type=[p=[%atom p=%number] name=%a] val=[%atom p=[%number 3]] next=[%match value=[%limb p=~[[%name p=%a]]] cases=[n=[p=[%symbol p=[%number 2]] q=[%atom p=[%number 4]]] l=[n=[p=[%symbol p=[%number 3]] q=[%atom p=[%number 8]]] l=~ r=~] r=[n=[p=[%symbol p=[%number 1]] q=[%atom p=[%number 2]]] l=[[p=[%symbol p=[%number 4]] q=[%atom p=[%number 16]]]] r=~]] default=[~ [%atom p=[%number 0]]]]]
+    !>  ^-  jock:jock  *jock:jock
+        :: [%let type=[p=[%atom p=%number q=%.n] name=%a] val=[%atom p=[%number 3]] next=[%match value=[%limb p=~[[%name p=%a]]] cases=[n=[p=[%atom p=[%number 2] q=%.y] q=[%atom p=[%number 4] q=%.n]] l=[n=[p=[%atom p=[%number 3] q=%.y] q=[%atom p=[%number 8] q=%.n]] l=~ r=~] r=[n=[p=[%atom p=[%number 1] q=%.y] q=[%atom p=[%number 2] q=%.n]] l=[[p=[%atom p=[%number 4] q=%.y] q=[%atom p=[%number 16] q=%.n]]] r=~]] default=[~ [%atom p=[%number 0] q=%.n]]]]
+        :: TODO depends on getting map representation right here
     !>  (jeam:jock text)
 ::
 ++  test-mint
