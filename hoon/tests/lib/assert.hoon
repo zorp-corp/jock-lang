@@ -12,7 +12,7 @@
 ++  test-jeam
   %+  expect-eq:test
     !>  ^-  jock:jock
-        [%let type=[p=[%atom p=%number] name=%a] val=[%atom p=[%number 5]] next=[%let type=[p=[%atom p=%number] name=%b] val=[%atom p=[%number 0]] next=[%assert cond=[%compare a=[%limb p=~[[%name p=%a]]] comp=%'!=' b=[%atom p=[%number 0]]] then=[%let type=[p=[%untyped ~] name=%c] val=[%cell-check val=[p=[%limb p=~[[%name p=%a]]] q=[%limb p=~[[%name p=%a]]]]] next=[%loop next=[%if cond=[%compare a=[%limb p=~[[%name p=%a]]] comp=%'==' b=[%increment val=[%limb p=~[[%name p=%b]]]]] then=[%limb p=~[[%name p=%b]]] after=[%else then=[%edit limb=~[[%name p=%b]] val=[%increment val=[%limb p=~[[%name p=%b]]]] next=[%call func=[%limb p=~[[%axis p=0]]] arg=~]]]]]]]]]
+        [%let type=[p=[%atom p=%number q=%.n] name=%a] val=[%atom p=[%number 5] q=%.n] next=[%let type=[p=[%atom p=%number q=%.n] name=%b] val=[%atom p=[%number 0] q=%.n] next=[%assert cond=[%compare a=[%limb p=~[[%name p=%a]]] comp=%'!=' b=[%atom p=[%number 0] q=%.n]] then=[%let type=[p=[%none ~] name=%c] val=[%cell-check val=[p=[%limb p=~[[%name p=%a]]] q=[%limb p=~[[%name p=%a]]]]] next=[%loop next=[%if cond=[%compare a=[%limb p=~[[%name p=%a]]] comp=%'==' b=[%increment val=[%limb p=~[[%name p=%b]]]]] then=[%limb p=~[[%name p=%b]]] after=[%else then=[%edit limb=~[[%name p=%b]] val=[%increment val=[%limb p=~[[%name p=%b]]]] next=[%call func=[%limb p=~[[%axis p=0]]] arg=~]]]]]]]]]
     !>  (jeam:jock text)
 ::
 ++  test-mint
