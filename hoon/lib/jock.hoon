@@ -697,6 +697,10 @@
       [[jyp-one jyp-two] tokens]
     [[[p.r q.r] nom] tokens]
   ::  Otherwise, match the leaf into the jype and return it with name.
+  ?:  =(%type -.-.+.tokens)
+    =^  jyp  tokens
+      (match-metatype `(list token)`+.tokens)
+    [jyp(name nom) tokens]
   =^  jyp-leaf  tokens
     (match-jype-leaf tokens)
   [[jyp-leaf nom] tokens]
@@ -831,7 +835,6 @@
 ++  match-name
   |=  =tokens
   ^-  [[%limb (list jlimb)] (list token)]
-  ?~  tokens  ~|("expect name. token: ~" !!)
   ?.  ?=(%name -.-.tokens)
     ~|("expect name. token: {<-.-.tokens>}" !!)
   [[%limb [%name +.-.tokens]~] +.tokens]
@@ -1110,16 +1113,16 @@
   ++  unify
     |=  v=jype
     ^-  (unit jype)
-    ?^  -<.jyp
-      ?@  -<.v
+    ?^  -.-.jyp
+      ?@  -.-.v
         ?:  =(%none -.p.v)
           `jyp
         ~
       =+  [p q]=[(~(unify jt p.jyp) p.v) (~(unify jt q.jyp) q.v)]
-      ?:  ?|(?=(~ p) ?=(~ q))
+      ?:  |(?=(~ p) ?=(~ q))
         ~
       `[[u.p u.q] name.jyp]
-    ?^  -<.v
+    ?^  -.-.v
       ?:  =(%none -.p.jyp)
         `v(name name.jyp)
       ~
@@ -1153,7 +1156,6 @@
       =.  jyp
         =/  inferred-type
           (~(unify jt type.j) val-jyp)
-        ~&  :^  %inferred-type  [val val-jyp]  type.j  inferred-type
         ?~  inferred-type
           ~|  '%let: value type does not nest in declared type'
           ~|  ['have:' val-jyp 'need:' type.j]
@@ -1422,22 +1424,21 @@
       =+  [val val-jyp]=^$(j -.vals)
       =/  inferred-type
         (~(unify jt type.j^%$) val-jyp)
-      ~&  >  :^  %inferred-type  val-jyp  type.j  inferred-type
       ?~  inferred-type
         ~|  '%list: value type does not nest in declared type'
         ~|  ['have:' val-jyp 'need:' type.j]
         !!
       =/  nok=(list nock)  ~[val]
       =.  vals  +.vals
-      :_  jyp
+      :_  val-jyp
       |-  ^-  nock
-      ~&  >>>  nok
-      ?~  vals  ;;(nock (list-to-tuple (flop nok)))
+      ::  if the next element ends the list, then we are at the closing ~
+      ?~  +.vals
+        ;;(nock (list-to-tuple (flop nok)))
       ::  for each jock, validate that it nests in the container's declared type
       =+  [val val-jyp]=^^$(j -.vals)
       =/  inferred-type
         (~(unify jt type.j^%$) val-jyp)
-      ~&  >  :^  %inferred-type  [val val-jyp]  type.j  inferred-type
       ?~  inferred-type
         ~|  '%list: value type does not nest in declared type'
         ~|  ['have:' val-jyp 'need:' type.j]
