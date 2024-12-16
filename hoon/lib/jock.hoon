@@ -1474,19 +1474,23 @@
         %set
       ~|  %set
       :: |^
-      :: =/  vals=(set jock)  val.j
-      :: ?:  =(~ vals)  ~|  'set: no value'  !!
-      :: =+  [val val-jyp]=^$(j -.vals)
-      :: =/  inferred-type
-      ::   (~(unify jt type.j^%$) val-jyp)
-      :: ?~  inferred-type
-      ::   ~|  '%set: value type does not nest in declared type'
-      ::   ~|  ['have:' val-jyp 'need:' type.j]
-      ::   !!
-      :: =/  nok=(list nock)  ~[val]
-
-
-      [[%0 0] *jype]
+      =/  vals=(set jock)  val.j
+      ?:  =(~ vals)  ~|  'set: no value'  !!
+      =+  [val val-jyp]=$(j -.vals)
+      =/  inferred-type
+        (~(unify jt type.j^%$) val-jyp)
+      ?~  inferred-type
+        ~|  '%set: value type does not nest in declared type'
+        ~|  ['have:' val-jyp 'need:' type.j]
+        !!
+      ::  In order to build the jype in the right shape, we have to
+      ::  traverse the tree noun in order.
+      =/  nok=(list nock)  ~[val]
+      :: =.  vals  +.vals
+      ~&  val-jyp+val-jyp
+      :_  val-jyp
+      [%1 `*`val]
+      :: [[%0 0] *jype]
     ::
         %atom
       ~|  [%atom +.-.+.j]
