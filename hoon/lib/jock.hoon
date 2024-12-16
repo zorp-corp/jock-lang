@@ -13,8 +13,6 @@
       ^-  *
       =/  jok  (jeam txt)
       =+  [nok jyp]=(~(mint cj [%atom %string %.n]^%$) jok)
-      :: ~&  :-  'nok'  nok
-      :: ~&  :-  'jyp'  jyp
       nok
     --
 =>
@@ -530,10 +528,10 @@
   ?:  =(~ tokens)  ~|("expect expression starting with type. token: ~" !!)
   ?:  !=(%type -.-.tokens)
     ~|("expect type. token: {<-.tokens>}" !!)
-  ?>  (got-punctuator -.+.tokens %'{')
+  ?>  (got-punctuator -.+.tokens %'(')
   =^  jyp  tokens
     (match-jype `(list token)`+.+.tokens)
-  ?>  (got-punctuator -.tokens %'}')
+  ?>  (got-punctuator -.tokens %')')
   [jyp +.tokens]
 ::
 ++  match-keyword
