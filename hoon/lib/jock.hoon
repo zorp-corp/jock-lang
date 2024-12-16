@@ -204,6 +204,7 @@
       [%limb p=(list jlimb)]
       [%atom p=jatom]
       [%list type=jype-leaf val=(list jock)]
+      [%set type=jype-leaf val=(set jock)]
       [%crash ~]
   ==
 ::
@@ -370,11 +371,6 @@
     %type        !!  ::(match-metatype tokens)  :: shouldn't reach this way
   ==
 ::
-:: ++  match-inner-list
-::   |=  =tokens
-::   ^-  [jock (list token)]
-
-::
 ++  match-start-punctuator
   |=  =tokens
   ^-  [jock (list token)]
@@ -435,28 +431,48 @@
       (match-inner-jock tokens)
     ?>  (got-punctuator -.tokens %')')
     [[%call [%lambda lambda] `arg] +.tokens]
-  ::  Null-terminated lists  ~[1 2 3]
+  ::  Null-terminated list  ~[1 2 3]
       %'~'
-    ?>  (got-punctuator -.tokens %'[')
+    ?:  (has-punctuator -.tokens %'[')
+      =.  tokens  +.tokens
+      ::  ~[one
+      =^  jock-one  tokens
+        (match-inner-jock tokens)
+      =/  acc=(list jock)
+        [jock-one ~]
+      |-  ^-  [jock (list token)]
+      ?:  (has-punctuator -.tokens %']')
+        ::  ...]
+        :_  +.tokens
+        ^-  jock
+        :+  %list
+          [%none ~]
+        (snoc acc [%atom [%number 0] %.n])
+      ::  ~[...]
+      =^  jock-nex  tokens
+        (match-inner-jock tokens)
+      $(acc (snoc acc jock-nex))
+  ::  Set  ~{1 2 3}
+      :: %'{'
+    ?>  (got-punctuator -.tokens %'{')
     =.  tokens  +.tokens
-    =/  typ=jype-leaf  [%none ~]
-    ::  ~[one
+    ::  ~{one
     =^  jock-one  tokens
       (match-inner-jock tokens)
-    =/  acc=(list jock)
-      [jock-one ~]
+    =/  acc=(set jock)
+      (sy jock-one ~)
     |-  ^-  [jock (list token)]
-    ?:  (has-punctuator -.tokens %']')
-      ::  ...]
+    ?:  (has-punctuator -.tokens %'}')
+      ::  ...}
       :_  +.tokens
       ^-  jock
-      :+  %list
-        typ
-      (snoc acc [%atom [%number 0] %.n])
-    ::  ~[...]
+      :+  %set
+        [%none ~]
+      acc
+    ::  ~{...}
     =^  jock-nex  tokens
       (match-inner-jock tokens)
-    $(acc (snoc acc jock-nex))
+    $(acc (~(put in acc) jock-nex))
   ==
 ::
 ++  match-axis
@@ -526,11 +542,11 @@
   |=  =tokens
   ^-  [jype (list token)]
   ?:  =(~ tokens)  ~|("expect expression starting with type. token: ~" !!)
-  ?:  !=(%type -.-.tokens)
+  ?:  !=(%type -<.tokens)
     ~|("expect type. token: {<-.tokens>}" !!)
   ?>  (got-punctuator -.+.tokens %'(')
   =^  jyp  tokens
-    (match-jype `(list token)`+.+.tokens)
+    (match-jype `(list token)`+>.tokens)
   ?>  (got-punctuator -.tokens %')')
   [jyp +.tokens]
 ::
@@ -695,7 +711,7 @@
       [[jyp-one jyp-two] tokens]
     [[[p.r q.r] nom] tokens]
   ::  Otherwise, match the leaf into the jype and return it with name.
-  ?:  =(%type -.-.+.tokens)
+  ?:  =(%type -<.+.tokens)
     =^  jyp  tokens
       (match-metatype `(list token)`+.tokens)
     [jyp(name nom) tokens]
@@ -1112,7 +1128,7 @@
     |=  v=jype
     ^-  (unit jype)
     ?^  -.-.jyp
-      ?@  -.-.v
+      ?@  -<.v
         ?:  =(%none -.p.v)
           `jyp
         ~
@@ -1120,7 +1136,7 @@
       ?:  |(?=(~ p) ?=(~ q))
         ~
       `[[u.p u.q] name.jyp]
-    ?^  -.-.v
+    ?^  -<.v
       ?:  =(%none -.p.jyp)
         `v(name name.jyp)
       ~
@@ -1445,14 +1461,32 @@
         nok   [val nok]
         vals  +.vals
       ==
+      ::
       ++  list-to-tuple
         |*  a=(list)
         ?~  a  !!
         ::  address of [a_{k-1} ~] (final nontrivial tail of list)
         =+  (dec (bex (lent a)))
         .*  a
-        [10 [- [0 (mul 2 -)]] [0 1]]
+        [%10 [- [%0 (mul 2 -)]] [%0 1]]
       --
+    ::
+        %set
+      ~|  %set
+      :: |^
+      :: =/  vals=(set jock)  val.j
+      :: ?:  =(~ vals)  ~|  'set: no value'  !!
+      :: =+  [val val-jyp]=^$(j -.vals)
+      :: =/  inferred-type
+      ::   (~(unify jt type.j^%$) val-jyp)
+      :: ?~  inferred-type
+      ::   ~|  '%set: value type does not nest in declared type'
+      ::   ~|  ['have:' val-jyp 'need:' type.j]
+      ::   !!
+      :: =/  nok=(list nock)  ~[val]
+
+
+      [[%0 0] *jype]
     ::
         %atom
       ~|  [%atom +.-.+.j]

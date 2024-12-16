@@ -23,6 +23,7 @@
 /*  match-case            %jock  /lib/tests/match-case
 /*  match-type            %jock  /lib/tests/match-type
 /*  example-atom          %jock  /lib/tests/example-atom
+/*  sets                  %jock  /lib/tests/sets
 ::
 /*  test-let-edit         %hoon  /tests/lib/let-edit
 /*  test-let-inner-exp    %hoon  /tests/lib/let-inner-exp
@@ -76,6 +77,7 @@
       [%match-case q.match-case]
       [%match-type q.match-type]
       [%example-atom q.example-atom]
+      [%sets q.sets]
  ==
 ::
 ++  test-jocks
@@ -152,6 +154,9 @@
       :: [%test-example-atom-tokens test-tokenize:test-example-atom]
       :: [%test-example-atom-jeam test-jeam:test-example-atom]
       :: [%test-example-atom-mint test-mint:test-example-atom]
+      :: [%test-sets-tokens test-tokenize:test-sets]
+      :: [%test-sets-jeam test-jeam:test-sets]
+      :: [%test-sets-mint test-mint:test-sets]
   ==
 ::
 ++  parse
