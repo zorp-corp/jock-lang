@@ -1,6 +1,7 @@
 /+  jock,
     test
 ::
+!:
 |%
 ++  text
   'let dec = (a:@  -> @) {\0a  let b = 0;\0a  loop;\0a  if a == +(b) {\0a    b\0a  } else {\0a    b = +(b);\0a    recur\0a  }\0a};\0a\0adec(5)\0a\0a'
@@ -12,7 +13,7 @@
 ++  test-jeam
   %+  expect-eq:test
     !>  ^-  jock:jock
-        [%let type=[p=[%untyped ~] name=%dec] val=[%lambda p=[arg=[inp=[~ [p=[%atom p=%number] name=%a]] out=[p=[%atom p=%number] name=%$]] body=[%let type=[p=[%untyped ~] name=%b] val=[%atom p=[%number 0]] next=[%loop next=[%if cond=[%compare a=[%limb p=~[[%name p=%a]]] comp=%'==' b=[%increment val=[%limb p=~[[%name p=%b]]]]] then=[%limb p=~[[%name p=%b]]] after=[%else then=[%edit limb=~[[%name p=%b]] val=[%increment val=[%limb p=~[[%name p=%b]]]] next=[%call func=[%limb p=~[[%axis p=0]]] arg=~]]]]]] payload=~]] next=[%call func=[%limb p=~[[%name p=%dec]]] arg=[~ [%atom p=[%number 5]]]]]
+        [%let type=[p=[%none ~] name=%dec] val=[%lambda p=[arg=[inp=[~ [p=[%atom p=%number q=%.n] name=%a]] out=[p=[%atom p=%number q=%.n] name=%$]] body=[%let type=[p=[%none ~] name=%b] val=[%atom p=[%number 0] q=%.n] next=[%loop next=[%if cond=[%compare a=[%limb p=~[[%name p=%a]]] comp=%'==' b=[%increment val=[%limb p=~[[%name p=%b]]]]] then=[%limb p=~[[%name p=%b]]] after=[%else then=[%edit limb=~[[%name p=%b]] val=[%increment val=[%limb p=~[[%name p=%b]]]] next=[%call func=[%limb p=~[[%axis p=0]]] arg=~]]]]]] payload=~]] next=[%call func=[%limb p=~[[%name p=%dec]]] arg=[~ [%atom p=[%number 5] q=%.n]]]]
     !>  (jeam:jock text)
 ::
 ++  test-mint

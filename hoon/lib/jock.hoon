@@ -12,14 +12,24 @@
       |=  txt=@
       ^-  *
       =/  jok  (jeam txt)
-      =+  [nok jyp]=(~(mint cj [%atom %string]^%$) jok)
+      =+  [nok jyp]=(~(mint cj [%atom %string %.n]^%$) jok)
+      :: ~&  :-  'nok'  nok
+      :: ~&  :-  'jyp'  jyp
       nok
     --
 =>
 ::
 ::  1: tokenizer
 ::
+::  The tokenizer is a simple state machine that reads a string of text and
+::  produces a list of tokens.  The tokens are classified as keywords,
+::  punctuators, literals, and names.  The tokenizer is implemented as a
+::  function that takes a string of text and returns a list of tokens.  It is
+::  agnostic to whitespace.  Comments are ignored at the parser level.
+::
 |%
++|  %tokenizer
+::
 +$  keyword
   $+  keyword
   $?  %let
@@ -52,18 +62,19 @@
 ::
 +$  jatom
   $+  jatom
-  $~  [%loobean %.n]
-  $%  [%string term]
-      [%number @ud]
-      [%hexadecimal @ux]
-      [%loobean ?]
+  $~  [[%loobean %.n] %.n]
+  $:  $%  [%string term]
+          [%number @ud]
+          [%hexadecimal @ux]
+          [%loobean ?]
+      ==
+    ?(%.y %.n)
   ==
 ::
 +$  token
   $+  token
   $%  [%keyword keyword]
       [%punctuator punctuator]
-      [%symbol jatom]
       [%literal jatom]
       [%name term]
   ==
@@ -93,9 +104,17 @@
   ::
   ++  string             (stag %string (ifix [soq soq] sym))
   ++  literal            ;~(pose loobean hexadecimal number string)
-  ++  tagged-literal     (stag %literal literal)
+  ++  tagged-literal     (stag %literal (hart literal %.n))
   ++  symbol             ;~(pfix cen ;~(pose loobean hexadecimal number string))
-  ++  tagged-symbol      (stag %symbol symbol)
+  ++  tagged-symbol      (stag %literal (hart symbol %.y))
+  ::  add a suffix label
+  ++  hart
+    |*  [sef=rule gob=*]
+    |=  tub=nail
+    =+  vex=(sef tub)
+    ?~  q.vex
+      vex
+    [p=p.vex q=[~ u=[p=[p.u.q.vex gob] q=q.u.q.vex]]]
   ::
   ++  name               sym
   ++  tagged-name        (stag %name name)
@@ -145,7 +164,19 @@
 ::
 ::  2: jock abstract syntax tree and parser
 ::
+::  The jock abstract syntax tree (AST) is produced from the token list.  A jock
+::  represents what will compile to executable Nock expressions.
+::
+::  The jype, which consists of type information, is generated alongside the
+::  jock.  The jype is critical in yielding the final Nock subject from +mint.
+::
+::  The jlimb is a reference to a known limb in the current subject.
+::
+::  Ultimately all cases in the Jock AST resolve as one of jock, jype, or jlimb.
+::
 |%
++|  %ast
+::
 +$  jock
   $+  jock
   $^  [p=jock q=jock]
@@ -166,18 +197,29 @@
       [%compare a=jock comp=comparator b=jock]
       [%lambda p=lambda]
       [%limb p=(list jlimb)]
-      [%atom p=jatom]  :: XXX would be okay to combine these to a hard/soft type
-      [%symbol p=jatom]
+      [%atom p=jatom]
+      [%list type=jype-leaf val=(list jock)]
       [%crash ~]
   ==
 ::
 +$  if-expression
-  [%if cond=jock then=jock after=after-if-expression]
+  $:  %if
+      cond=jock
+      then=jock
+      after=after-if-expression
+  ==
 ::
 +$  else-if-expression
-  [%else-if cond=jock then=jock after=after-if-expression]
+  $:  %else-if
+      cond=jock
+      then=jock
+      after=after-if-expression
+  ==
 ::
-+$  else-expression  [%else then=jock]
++$  else-expression
+  $:  %else
+      then=jock
+  ==
 ::
 +$  after-if-expression
   $%  else-if-expression
@@ -193,24 +235,26 @@
       %'<='
       %'>='
   ==
-::
+::  Jype type base types
 +$  jype
   $+  jype
   $:  $^([p=jype q=jype] p=jype-leaf)
       name=term
   ==
-::
+::  Jype bottomed-out types
 +$  jype-leaf
-  $%  [%atom p=jatom-type]
+  $%  ::  %atom is a basic numeric type with constant flag (%.y = constant)
+      [%atom p=jatom-type q=?(%.y %.n)]
+      ::  %core is a callable function with arguments and returns
       [%core p=core-body q=(unit jype)]
+      ::  %limb is a reference to a limb in the current core
       [%limb p=(list jlimb)]
-      [%symbol p=jatom-type q=@]
+      ::  %fork is a branch point (as in an if-else)
       [%fork p=jype q=jype]
-      [%untyped ~]
+      ::  %none is a null type (as for undetermined variable labels)
+      [%none ~]
   ==
-::
-+$  core-body  (each lambda-argument (map term jype))
-::
+::  Jype atom base types; corresponds to jatom tags
 +$  jatom-type
   $+  jatom-type
   $?  %string
@@ -218,19 +262,33 @@
       %hexadecimal
       %loobean
   ==
-::
-+$  jlimb
-  $%  [%name p=term]
-      [%axis p=@]
-  ==
-::
+::  Jype core executable, either a direct lambda or a regular core
++$  core-body  (each lambda-argument (map term jype))
+::  Lambda executable
 +$  lambda
   $+  lambda
-  [arg=lambda-argument body=jock payload=(unit jock)]
-::
+  $:  ::  Argument type
+      arg=lambda-argument
+      ::  Executable body (battery)
+      body=jock
+      ::  Supplied [sample context], if applicable
+      payload=(unit jock)
+  ==
+::  Lambda input argument pair
 +$  lambda-argument
   $+  lambda-argument
-  [inp=(unit jype) out=jype]
+  $:  ::  Sample type, if any
+      inp=(unit jype)
+      ::  Expected output type
+      out=jype
+  ==
+::  Arm lookups
++$  jlimb
+  $%  ::  Arm or leg name
+      [%name p=term]
+      ::  Numeric axis
+      [%axis p=@]
+  ==
 ::
 ++  match-jock
   |=  =tokens
@@ -243,7 +301,6 @@
       ::  TODO: check if we're in a compare
       (match-literal tokens)
     ::
-      %symbol      (match-symbol tokens)
       %name        (match-start-name tokens)
       %keyword     (match-keyword tokens)
       %punctuator  (match-start-punctuator tokens)
@@ -271,7 +328,6 @@
     ::  TODO: check if we're in a compare
     (match-literal tokens)
   ::
-    %symbol      (match-symbol tokens)
     %name        (match-start-name tokens)
     %punctuator  (match-start-punctuator tokens)
   ==
@@ -302,7 +358,6 @@
     [[jock-nex pairs] tokens]
   ?+  -.i.tokens  !!
     %literal     (match-literal tokens)
-    %symbol      (match-symbol tokens)
     %name        (match-start-name tokens)
     %punctuator  (match-start-punctuator tokens)
   ==
@@ -367,40 +422,28 @@
       (match-inner-jock tokens)
     ?>  (got-punctuator -.tokens %')')
     [[%call [%lambda lambda] `arg] +.tokens]
-  ::  C-style comments  /* ... */
-      %'/'
-    ?>  (has-punctuator -.tokens %'*')
-    =.  tokens  +.tokens
-    |-
-    ?~  tokens  !!
-    ?:  (has-punctuator i.tokens %'*')
-      ?~  t.tokens  !!
-      ?:  (has-punctuator i.t.tokens %'/')
-        (match-jock t.t.tokens)
-      $(tokens t.tokens)
-    $(tokens t.tokens)
   ::  Null-terminated lists  ~[1 2 3]
       %'~'
-    ?>  (has-punctuator -.tokens %'[')
-    =>  .(tokens `(list token)`+.tokens)
+    ?>  (got-punctuator -.tokens %'[')
+    =.  tokens  +.tokens
+    =/  typ=jype-leaf  [%atom %number %.n]
+    ::  ~[one
     =^  jock-one  tokens
       (match-inner-jock tokens)
-    =/  first=?  %.y
+    =/  acc=(list jock)
+      [jock-one ~]
     |-  ^-  [jock (list token)]
+    ?:  (has-punctuator -.tokens %']')
+      ::  ...]
+      :_  +.tokens
+      ^-  jock
+      :+  %list
+        typ
+      (snoc acc [%atom [%number 0] %.n])
+    ::  ~[...]
     =^  jock-nex  tokens
       (match-inner-jock tokens)
-    =/  pun  (has-punctuator -.tokens %']')
-    ?:  &(first pun)
-      [[jock-one jock-nex] +.tokens]
-    ?:  pun
-      [[jock-nex [%atom %number 0]] +.tokens]
-    ?:  first
-      =^  pairs  tokens
-        $(first %.n)
-      [[jock-one jock-nex pairs] tokens]
-    =^  pairs  tokens
-      $
-    [[jock-nex pairs] tokens]
+    $(acc (snoc acc jock-nex))
   ==
 ::
 ++  match-axis
@@ -596,59 +639,74 @@
     [[%crash ~] tokens]
   ==
 ::
+::  Match tokens into jype information.
+::
 ++  match-jype
   |=  =tokens
   ^-  [jype (list token)]
   ?:  =(~ tokens)
     ~|("expect jype. token: ~" !!)
+  ::  Store name and strip it from token list
   =/  has-name  ?=(^ (get-name -.tokens))
   =/  nom  (fall (get-name -.tokens) %$)
-  =?  tokens  has-name
-    +.tokens
-  ?:  (has-punctuator -.tokens %'*')
-    [[%untyped ~]^nom +.tokens]
-  ?:  (has-punctuator -.tokens %'@')
-    [[%atom %number]^nom +.tokens]
-  ?:  (has-punctuator -.tokens %'?')
-    [[%atom %loobean]^nom +.tokens]
+  =?  tokens  has-name  +.tokens
+  ::  Type-qualified name  b:a
   ?:  &(has-name (has-punctuator -.tokens %':'))
-    =^  jype  tokens
+    =^  jyp  tokens
       (match-jype +.tokens)
-    [jype(name nom) tokens]
+    [jyp(name nom) tokens]
+  ::  Cell  [a b]
   ?:  (has-punctuator -.tokens %'[')
     =^  r=(pair jype jype)  tokens
       %+  match-block  [tokens %'[' %']']
       |=  =^tokens
-      =^  jype-one  tokens  (match-jype tokens)
-      =^  jype-two  tokens  (match-jype tokens)
-      ::  TODO: support implicit right-association
-      [[jype-one jype-two] tokens]
-    [[p.r q.r]^nom tokens]
-  =^  jype-leaf  tokens
+      =^  jyp-one  tokens  (match-jype tokens)
+      =^  jyp-two  tokens  (match-jype tokens)
+      ::  TODO: support implicit right-association  (what's a good test case?)
+      [[jyp-one jyp-two] tokens]
+    [[[p.r q.r] nom] tokens]
+  ::  Otherwise, match the leaf into the jype and return it with name.
+  =^  jyp-leaf  tokens
     (match-jype-leaf tokens)
-  [jype-leaf^nom tokens]
+  [[jyp-leaf nom] tokens]
+::
+::  Match tokens into terminal jype information.
 ::
 ++  match-jype-leaf
   |=  =tokens
   ^-  [jype-leaf (list token)]
   ?:  =(~ tokens)  ~|("expect jype-leaf. token: ~" !!)
-  ?^  nom=(get-name -.tokens)
-    [[%limb name+u.nom ~] +.tokens]
-  ?:  (has-punctuator -.tokens %'&')
-    =^  axis-lit  tokens
-      (match-axis tokens)
-    [[%limb axis-lit ~] tokens]
-  ?:  (has-punctuator -.tokens %'*')
-    [[%untyped ~] +.tokens]
+  ::  %atom
+  ::    Match on atom type  a:@
   ?:  (has-punctuator -.tokens %'@')
-    [[%atom %number] +.tokens]
+    ::  TODO resolve deeper on type aura
+    [[%atom %number %.n] +.tokens]
+  ::    Match on loobean type  a:?
   ?:  (has-punctuator -.tokens %'?')
-    [[%atom %loobean] +.tokens]
+    [[%atom %loobean %.n] +.tokens]
+  ::  Match on no type  a:*
+  ?:  (has-punctuator -.tokens %'*')
+    [[%none ~] +.tokens]
+  ::  %core
+  ::    Match on lambda definition  (a:@ -> @)
   ?:  (has-punctuator -.tokens %'(')
     =^  lambda-argument  tokens
       (match-lambda-argument tokens)
-    [[%core %&^lambda-argument ~] tokens]
-  [[%untyped ~] tokens]
+    [[%core [%& lambda-argument] ~] tokens]
+  ::  %limb (fallthrough)
+  ::    Match on limb lookup.
+  ?^  nom=(get-name -.tokens)
+    [[%limb ~[name+u.nom]] +.tokens]
+  ::    Match on axis (& axis).
+  ?:  (has-punctuator -.tokens %'&')
+    =^  axis-lit  tokens
+      (match-axis tokens)
+    [[%limb ~[axis-lit]] tokens]
+  ::  %fork
+  ::    No action; fall-through.  TODO check
+  ::  Else untyped (as variable name).
+  ::  [%none ~]
+  [[%none ~] tokens]
 ::
 ++  match-lambda
   |=  =tokens
@@ -739,14 +797,6 @@
     ~|("expect literal. token: {<-.-.tokens>}" !!)
   [[%atom +.-.tokens] +.tokens]
 ::
-++  match-symbol
-  |=  =tokens
-  ^-  [[%symbol jatom] (list token)]
-  ?~  tokens  ~|("expect symbol. token: ~" !!)
-  ?.  ?=(%symbol -.-.tokens)
-    ~|("expect symbol. token: {<-.-.tokens>}" !!)
-  [[%symbol +.-.tokens] +.tokens]
-::
 ++  match-name
   |=  =tokens
   ^-  [[%limb (list jlimb)] (list token)]
@@ -780,7 +830,7 @@
       =^  jock  tokens  `[jock (list token)]`(match-jock `(list token)`+.+.+.tokens)
       ?>  (got-punctuator -.tokens %';')
       =.  tokens  +.tokens
-      ?>  (has-punctuator -.tokens %'}')  :: no trailing tokens in case block
+      ?>  (got-punctuator -.tokens %'}')  :: no trailing tokens in case block
       =.  fall  `jock
       [[(malt duo) fall] tokens]
     :: regular case
@@ -799,12 +849,12 @@
   |=  =tokens
   ^-  @
   ?~  tokens  ~|("expect literal. token: ~" !!)
-  ?.  ?=(?(%literal %symbol) -.i.tokens)
+  ?.  ?=(%literal -.i.tokens)
     ~|("expect literal or symbol. token: {<-.i.tokens>}" !!)
   =/  p=jatom  +.i.tokens
-  ?.  ?=(%number -.p)
+  ?.  ?=(%number -.-.p)
     ~|("expect number or symbol. token: {<-.p>}" !!)
-  +.p
+  +.-.p
 ::
 ++  got-name
   |=  =token
@@ -843,6 +893,12 @@
 ::
 ::  3: compile jock -> nock
 ::
+::  The compilation stage accepts a jock and returns a pair of nock and jype.
+::  (Note that this order is reversed from that of Hoon's +mint).  Static type
+::  validation takes place as a natural consequence of resolving the jype and
+::  constructing the Nock expression.  By convention, we denote the Nock rules
+::  as %constants.
+::
 |%
 +$  nock
   $+  nock
@@ -861,18 +917,20 @@
       [%0 p=@]                                  ::  axis select
   ==
 ::
-++  untyped-j  [%untyped ~]^%$
+++  untyped-j  [%none ~]^%$
 ++  lam-j
   |=  [arg=lambda-argument payload=(unit jype)]
   ^-  jype
   [%core [%& arg] payload]^%$
 ::
 ++  jwing
+  ::  leg (Nock 0)
   $@  @
+  ::  arm (Nock 9)
   [arm-axis=@ core-axis=@]
 ::
 ++  jt
-  |_  t=jype
+  |_  jyp=jype
   ++  get-limb
     |=  lis=(list jlimb)
     ^-  (pair jype (list jwing))
@@ -882,7 +940,7 @@
     ?:  =(~ lis)  !!
     |-
     ?~  lis
-      :-  t
+      :-  jyp
       ?:  =(ret 1)
         ?~  res  ret^~
         (flop res)
@@ -892,13 +950,13 @@
       ?:  ?=(%name -.i.lis)
         (axis-at-name +.i.lis)
       `+.i.lis
-    ?~  axi  !!
+    ?~  axi  ~|  'limb not found'  !!
     ?^  u.axi
-      ?~  new-t=(type-at-axis (peg +.u.axi -.u.axi))
-        ~|  no-type-at-axis+[axi t]
+      ?~  new-jyp=(type-at-axis (peg +.u.axi -.u.axi))
+        ~|  no-type-at-axis+[axi jyp]
         !!
-      $(lis t.lis, t u.new-t, res [u.axi res])
-    ?~  new-t=(type-at-axis u.axi)
+      $(lis t.lis, jyp u.new-jyp, res [u.axi res])
+    ?~  new-jyp=(type-at-axis u.axi)
       !!
     ?^  ret
       ::  TODO: in order to support additional limbs
@@ -907,59 +965,59 @@
       !!
     =.  ret  (peg ret u.axi)
     ?>  (lth ret (bex 63))
-    $(lis t.lis, t u.new-t)
+    $(lis t.lis, jyp u.new-jyp)
     ::
     ++  type-at-axis
       |=  axi=@
       ^-  (unit jype)
       ?:  =(axi 1)
-        `t
+        `jyp
       =/  axi-lis  (flop (snip (rip 0 axi)))
       ~|  type-at-axis+axi-lis
       |-   ^-  (unit jype)
-      ?~  axi-lis  `t(name %$)
-      ?@  -<.t
-        ?:  =(~ t.axi-lis)  `t
-        ?.  ?=(%core -.p.t)
-          ~|  t
+      ?~  axi-lis  `jyp(name %$)
+      ?@  -<.jyp
+        ?:  =(~ t.axi-lis)  `jyp
+        ?.  ?=(%core -.p.jyp)
+          ~|  jyp
           !!
-        $(t (~(call-core jt untyped-j) p.t))
+        $(jyp (~(call-core jt untyped-j) p.jyp))
       ?:  =(0 i.axi-lis)
-        $(axi-lis t.axi-lis, t p.t)
-      $(axi-lis t.axi-lis, t q.t)
+        $(axi-lis t.axi-lis, jyp p.jyp)
+      $(axi-lis t.axi-lis, jyp q.jyp)
     ::
     ++  axis-at-name
       |=  nom=term
       =/  axi=jwing  [0 1]
       |-  ^-  (unit jwing)
-      ?:  =(name.t nom)
+      ?:  =(name.jyp nom)
         ?:  =(-.axi 0)
           `+.axi
         `axi
-      ?@  -<.t
-        ?.  ?=(%core -.p.t)
+      ?@  -<.jyp
+        ?.  ?=(%core -.p.jyp)
           ~
-        ?:  ?=(%& -.p.p.t)
-          $(t (~(call-core jt untyped-j) p.t))
+        ?:  ?=(%& -.p.p.jyp)
+          $(jyp (~(call-core jt untyped-j) p.jyp))
         ?.  =(-.axi 0)  ~
-        =/  bat  $(t (~(call-core jt untyped-j) p.t(q ~)), -.axi 1)
+        =/  bat  $(jyp (~(call-core jt untyped-j) p.jyp(q ~)), -.axi 1)
         ?~  bat
-          ?~  q.p.t
+          ?~  q.p.jyp
             ~
-          $(t u.q.p.t, +.axi +((mul +.axi 2)))
-        ?~  q.p.t
+          $(jyp u.q.p.jyp, +.axi +((mul +.axi 2)))
+        ?~  q.p.jyp
           bat
         `[(peg 2 -.u.bat) +.axi]
-      ?:  !=(name.t %$)  ~
+      ?:  !=(name.jyp %$)  ~
       =/  l
         ?:  =(-.axi 0)
-          $(t p.t, +.axi (mul +.axi 2))
-        $(t p.t, -.axi (mul -.axi 2))
+          $(jyp p.jyp, +.axi (mul +.axi 2))
+        $(jyp p.jyp, -.axi (mul -.axi 2))
       ?~  l
         =/  r
           ?:  =(-.axi 0)
-            $(t q.t, +.axi +((mul +.axi 2)))
-          $(t q.t, -.axi +((mul -.axi 2)))
+            $(jyp q.jyp, +.axi +((mul +.axi 2)))
+          $(jyp q.jyp, -.axi +((mul -.axi 2)))
         r
       l
     --
@@ -968,16 +1026,16 @@
     |.  ^-  (unit [jype @])
     =/  axi  1
     |-  ^-  (unit [jype @])
-    ?@  -<.t
-      ?.  ?=(%core -.p.t)
+    ?@  -<.jyp
+      ?.  ?=(%core -.p.jyp)
         ~
-      ?.  ?=(%& -.p.p.t)
+      ?.  ?=(%& -.p.p.jyp)
         ~
-      `[t axi]
-    =/  l  $(t p.t, axi (mul axi 2))
+      `[jyp axi]
+    =/  l  $(jyp p.jyp, axi (mul axi 2))
     ~|  [%l l]
     ?~  l
-      =/  r  $(t q.t, axi +((mul axi 2)))
+      =/  r  $(jyp q.jyp, axi +((mul axi 2)))
       ~|  [%r r]
       r
     l
@@ -1016,32 +1074,32 @@
   ++  cons
     |=  q=jype
     ^-  jype
-    [t q]^%$
+    [jyp q]^%$
   ::
   ++  unify
     |=  v=jype
     ^-  (unit jype)
-    ?^  -<.t
+    ?^  -<.jyp
       ?@  -<.v
-        ?:  =(%untyped -.p.v)
-          `t
+        ?:  =(%none -.p.v)
+          `jyp
         ~
-      =+  [p q]=[(~(unify jt p.t) p.v) (~(unify jt q.t) q.v)]
+      =+  [p q]=[(~(unify jt p.jyp) p.v) (~(unify jt q.jyp) q.v)]
       ?:  ?|(?=(~ p) ?=(~ q))
         ~
-      `[[u.p u.q] name.t]
+      `[[u.p u.q] name.jyp]
     ?^  -<.v
-      ?:  =(%untyped -.p.t)
-        `v(name name.t)
+      ?:  =(%none -.p.jyp)
+        `v(name name.jyp)
       ~
     :-  ~
-    :_  name.t
-    ?:  =(%untyped -.p.t)
+    :_  name.jyp
+    ?:  =(%none -.p.jyp)
       p.v
-    ?:  =(%untyped -.p.v)
-      p.t
-    ?>  =(-.p.t -.p.v)
-    p.t
+    ?:  =(%none -.p.v)
+      p.jyp
+    ?>  =(-.p.jyp -.p.v)
+    p.jyp
   --
 ::
 ++  cj
@@ -1094,7 +1152,7 @@
         %cell-check
       ~|  %cell-check
       =^  val  jyp  $(j val.j)
-      [[%3 val] [%atom %loobean]^%$]
+      [[%3 val] [%atom %loobean %.n]^%$]
     ::
         %compose
       ~|  %compose-p
@@ -1266,7 +1324,7 @@
       ==
     ::
         %compare
-      :_  [%atom %loobean]^%$
+      :_  [%atom %loobean %.n]^%$
       ?-    comp.j
           %'=='
         =+  [a a-jyp]=$(j a.j)
@@ -1320,19 +1378,52 @@
       =+  [body body-jyp]=$(j body.p.j, jyp lam-jyp)
       ?~  pay
         :_  (lam-j arg.p.j `jyp)
-        [%8 input-default [%1 body] [%0 1]]
+        [%8 input-default [%1 body] [%0 1]]  ::  XXX autocons [0 1] for subject
       :_  (lam-j arg.p.j `q.u.pay)
       [%8 input-default [%1 body] p.u.pay]
     ::
-        %atom
-      ~|  [%atom +>.j]
-      :-  [%1 +>.j]
-      [^-(jype-leaf [%atom +<.j]) %$]
+        %list
+      ~|  %list
+      |^
+      =/  vals=(list jock)  val.j
+      ?:  =(~ vals)  ~|  'list: no value'  !!
+      =+  [val val-jyp]=^$(j -.vals)
+      =/  inferred-type
+        (~(unify jt type.j^%$) val-jyp)
+      ?~  inferred-type
+        ~|  '%list: value type does not nest in declared type'
+        ~|  ['have:' val-jyp 'need:' type.j]
+        !!
+      =/  nok=(list nock)  ~[val]
+      =.  vals  +.vals
+      :_  jyp
+      |-  ^-  nock
+      ?~  vals  ;;(nock (list-to-tuple (flop nok)))
+      ::  for each jock, validate that it nests in the container's declared type
+      =+  [val val-jyp]=^^$(j -.vals)
+      =/  inferred-type
+        (~(unify jt type.j^%$) val-jyp)
+      ?~  inferred-type
+        ~|  '%list: value type does not nest in declared type'
+        ~|  ['have:' val-jyp 'need:' type.j]
+        !!
+      %=  $
+        nok   [val nok]
+        vals  +.vals
+      ==
+      ++  list-to-tuple
+        |*  a=(list)
+        ?~  a  !!
+        ::  address of [a_{k-1} ~] (final nontrivial tail of list)
+        =+  (dec (bex (lent a)))
+        .*  a
+        [10 [- [0 (mul 2 -)]] [0 1]]
+      --
     ::
-        %symbol
-      ~|  [%symbol +>.j]
-      :-  [%1 +>.j]
-      [^-(jype-leaf [%symbol +<.j +>.j]) %$]
+        %atom
+      ~|  [%atom +.-.+.j]
+      :-  [%1 +.-.+.j]
+      [^-(jype-leaf [%atom -.-.+.j +.+.j]) %$]
     ::
         %crash
       ~|  %crash
@@ -1378,13 +1469,10 @@
   ++  type-to-default
     |=  j=jype
     ^-  nock
-    ?^  -<.j    [$(j p.j) $(j q.j)]
-    ?-  -.p.j
-      %atom     [%1 0]
-      %untyped  [%1 0]
-      %limb     $(j p:(~(get-limb jt jyp) p.p.j))
-      %fork     $(j p.p.j)
-      %symbol   [%1 q.p.j]
+    ?^  -.-.j    [$(j p.j) $(j q.j)]
+    ?-    -.p.j
+    ::
+        %atom      [%1 0]
     ::
         %core
       ?:  ?=(%| -.p.p.j)
@@ -1392,10 +1480,17 @@
       ?~  inp.p.p.p.j
         [%0 0]
       [[%1 $(j u.inp.p.p.p.j)] [%0 0]]
+    ::
+        %limb
+      $(j p:(~(get-limb jt jyp) p.p.j))
+    ::
+        %fork      $(j p.p.j)
+    ::
+        %none      [%1 0]
     ==
   ::
   :: +hunt-type: make a $nock to test whether jock nests in jype
-  :: We check only four cases:  %untyped and %symbol to
+  :: We check only four cases:  %none and %symbol to
   :: bottom out, and %fork and nothing (cell) to continue.
   :: TODO: provide atom type and aura nesting for convenience
   ++  hunt-type
@@ -1419,13 +1514,14 @@
       ::  default case:  %atom, %core, %limb
         ~|((crip "hunt: can't match {<`@tas`-.-.jype>}") !!)
       ::
-        %symbol
+        %atom
+      ?>  +.+.-.jype
       [%5 [%1 q.p.jype] %0 axis]
       ::
         %fork
       ~|('hunt: can\'t match fork' !!)
       ::
-        %untyped
+        %none
       ~|('hunt: can\'t match untyped' !!)
     ==
   ::

@@ -1,7 +1,7 @@
 /+  jock
 /*  let-edit              %jock  /lib/tests/let-edit
 /*  let-inner-exp         %jock  /lib/tests/let-inner-exp
-:: /*  call                  %jock  /lib/tests/call
+/*  call                  %jock  /lib/tests/call
 /*  axis-call             %jock  /lib/tests/axis-call
 /*  inline-lambda-call    %jock  /lib/tests/inline-lambda-call
 /*  in-subj-call          %jock  /lib/tests/in-subj-call
@@ -19,12 +19,14 @@
 :: /*  baby                  %jock  /lib/tests/baby
 /*  comparator            %jock  /lib/tests/comparator
 /*  lists                 %jock  /lib/tests/lists
+/*  lists-nested          %jock  /lib/tests/lists-nested
 /*  match-case            %jock  /lib/tests/match-case
 /*  match-type            %jock  /lib/tests/match-type
+/*  example-atom          %jock  /lib/tests/example-atom
 ::
 /*  test-let-edit         %hoon  /tests/lib/let-edit
 /*  test-let-inner-exp    %hoon  /tests/lib/let-inner-exp
-:: /*  test-call             %hoon  /tests/lib/call
+/*  test-call             %hoon  /tests/lib/call
 /*  test-axis-call        %hoon  /tests/lib/axis-call
 /*  test-inline-lambda-call  %hoon  /tests/lib/inline-lambda-call
 /*  test-in-subj-call     %hoon  /tests/lib/in-subj-call
@@ -42,15 +44,17 @@
 :: /*  test-baby             %hoon  /tests/lib/baby
 /*  test-comparator       %hoon  /tests/lib/comparator
 /*  test-lists            %hoon  /tests/lib/lists
-:: /*  test-match-case       %hoon  /tests/lib/match-case
-:: /*  test-match-type       %hoon  /tests/lib/match-type
+/*  test-lists-nested     %hoon  /tests/lib/lists-nested
+/*  test-match-case       %hoon  /tests/lib/match-case
+/*  test-match-type       %hoon  /tests/lib/match-type
+:: /*  test-example-atom     %hoon  /tests/lib/example-atom
 ::
 |%
 ++  list-jocks
   ^-  (list [term @t])
   :~  [%let-edit q.let-edit]
       [%let-inner-exp q.let-inner-exp]
-      :: [%call q.call]
+      [%call q.call]
       [%axis-call q.axis-call]
       [%inline-lambda-call q.inline-lambda-call]
       [%in-subj-call q.in-subj-call]
@@ -68,8 +72,10 @@
       :: [%baby q.baby]
       [%comparator q.comparator]
       [%lists q.lists]
+      [%lists-nested q.lists-nested]
       [%match-case q.match-case]
       [%match-type q.match-type]
+      [%example-atom q.example-atom]
  ==
 ::
 ++  test-jocks
@@ -80,9 +86,9 @@
       [%test-let-inner-exp-tokens test-tokenize:test-let-inner-exp]
       [%test-let-inner-exp-jeam test-jeam:test-let-inner-exp]
       [%test-let-inner-exp-mint test-mint:test-let-inner-exp]
-      :: [%test-call-tokens test-tokenize:test-call]
-      :: [%test-call-jeam test-jeam:test-call]
-      :: [%test-call-mint test-mint:test-call]
+      [%test-call-tokens test-tokenize:test-call]
+      [%test-call-jeam test-jeam:test-call]
+      [%test-call-mint test-mint:test-call]
       [%test-axis-call-tokens test-tokenize:test-axis-call]
       [%test-axis-call-jeam test-jeam:test-axis-call]
       [%test-axis-call-mint test-mint:test-axis-call]
@@ -134,12 +140,18 @@
       [%test-lists-tokens test-tokenize:test-lists]
       [%test-lists-jeam test-jeam:test-lists]
       [%test-lists-mint test-mint:test-lists]
-      :: [%test-match-case-tokens test-tokenize:test-match-case]
-      :: [%test-match-case-jeam test-jeam:test-match-case]
-      :: [%test-match-case-mint test-mint:test-match-case]
-      :: [%test-match-type-tokens test-tokenize:test-match-type]
-      :: [%test-match-type-jeam test-jeam:test-match-type]
-      :: [%test-match-type-mint test-mint:test-match-type]
+      [%test-lists-nested-tokens test-tokenize:test-lists-nested]
+      [%test-lists-nested-jeam test-jeam:test-lists-nested]
+      [%test-lists-nested-mint test-mint:test-lists-nested]
+      [%test-match-case-tokens test-tokenize:test-match-case]
+      [%test-match-case-jeam test-jeam:test-match-case]
+      [%test-match-case-mint test-mint:test-match-case]
+      [%test-match-type-tokens test-tokenize:test-match-type]
+      [%test-match-type-jeam test-jeam:test-match-type]
+      [%test-match-type-mint test-mint:test-match-type]
+      :: [%test-example-atom-tokens test-tokenize:test-example-atom]
+      :: [%test-example-atom-jeam test-jeam:test-example-atom]
+      :: [%test-example-atom-mint test-mint:test-example-atom]
   ==
 ::
 ++  parse
