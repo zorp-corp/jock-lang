@@ -1436,6 +1436,7 @@
       =/  vals=(list jock)  val.j
       ?:  =(~ vals)  ~|  'list: no value'  !!
       =+  [val val-jyp]=^$(j -.vals)
+      ::  XXX right now this means the val-jyp is %none and will be overridden
       =/  inferred-type
         (~(unify jt type.j^%$) val-jyp)
       ?~  inferred-type
