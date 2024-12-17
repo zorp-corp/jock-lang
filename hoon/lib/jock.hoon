@@ -299,7 +299,6 @@
 ++  match-jock
   |=  =tokens
   ^-  [jock (list token)]
-  ~&  jock+tokens
   ?:  =(~ tokens)
     ~|("expect jock. token: ~" !!)
   =^  jock  tokens
