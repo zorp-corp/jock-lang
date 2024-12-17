@@ -343,7 +343,7 @@
   |=  =tokens
   ^-  [jock (list token)]
   ?~  tokens  ~|("expect jock. token: ~" !!)
-  ?:  (has-punctuator -.tokens %'[')
+  ?:  (has-punctuator -.tokens %'(')
     =>  .(tokens `(list token)`+.tokens)
     =^  jock-one  tokens
       (match-inner-jock tokens)
@@ -351,7 +351,7 @@
     |-  ^-  [jock (list token)]
     =^  jock-nex  tokens
       (match-inner-jock tokens)
-    =/  pun  (has-punctuator -.tokens %']')
+    =/  pun  (has-punctuator -.tokens %')')
     ?:  &(first pun)
       [[jock-one jock-nex] +.tokens]
     ?:  pun
@@ -379,9 +379,6 @@
     ~|("expect start-punctuator. token: {<-.first>}" !!)
   =.  tokens  +.tokens
   ?+    +.first  ~|(tokens !!)
-  ::  Regular cell  [1 2]
-      %'['
-    (match-pair-inner-jock [[%punctuator %'['] tokens])
   ::  Increment  +(0)
       %'+'
     =^  jock  tokens
@@ -434,10 +431,14 @@
     =^  jock-nex  tokens
       (match-inner-jock tokens)
     $(acc (~(put in acc) jock-nex))
-  ::  Function call  foo(bar)
+  ::  Tuple or call
       %'('
+    ?.  (has-punctuator -.tokens %'~')
+      ::  Regular tuple cell  (1 2)
+      (match-pair-inner-jock [[%punctuator %'('] tokens])
+    ::  Function call  foo(bar)
     =^  lambda  tokens
-      (match-lambda [[%punctuator %'('] tokens])
+      (match-lambda [[%punctuator %'('] +.tokens])
     ?:  =(~ tokens)
       [[%lambda lambda] tokens]
     ?.  (has-punctuator -.tokens %'(')
@@ -449,9 +450,9 @@
       (match-inner-jock tokens)
     ?>  (got-punctuator -.tokens %')')
     [[%call [%lambda lambda] `arg] +.tokens]
-  ::  Null-terminated list  ~[1 2 3]
-      %'~'
-    ?>  (has-punctuator -.tokens %'[')
+  ::  Null-terminated list  [1 2 3]
+      %'['
+    :: ?>  (has-punctuator -.tokens %'[')
     =.  tokens  +.tokens
     ::  ~[one
     =^  jock-one  tokens
@@ -697,10 +698,10 @@
     =^  jyp  tokens
       (match-jype +.tokens)
     [jyp(name nom) tokens]
-  ::  Cell  [a b]
-  ?:  (has-punctuator -.tokens %'[')
+  ::  Tuple cell  (a b)
+  ?:  (has-punctuator -.tokens %'(')
     =^  r=(pair jype jype)  tokens
-      %+  match-block  [tokens %'[' %']']
+      %+  match-block  [tokens %'(' %')']
       |=  =^tokens
       =^  jyp-one  tokens  (match-jype tokens)
       =^  jyp-two  tokens  (match-jype tokens)
