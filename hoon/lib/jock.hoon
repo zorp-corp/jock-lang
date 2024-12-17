@@ -55,7 +55,7 @@
       %'('  %')'  %'{'  %'}'  %'['  %']'
       %'='  %'<'  %'>'
       %'+'  %'-'  %'*'  %'/'  %'_'
-      %'~'
+      %'~'  %'«'  %'»'
   ==
 ::
 +$  jatom
@@ -140,7 +140,7 @@
         %'('  %')'  %'{'  %'}'  %'['  %']'
         %'='  %'<'  %'>'
         %'+'  %'-'  %'*'  %'/'  %'_'
-        %'~'
+        %'~'  %'«'  %'»'
     ==
   ++  tagged-punctuator  (stag %punctuator punctuator)
   ::
@@ -299,10 +299,11 @@
 ++  match-jock
   |=  =tokens
   ^-  [jock (list token)]
+  ~&  jock+tokens
   ?:  =(~ tokens)
     ~|("expect jock. token: ~" !!)
   =^  jock  tokens
-    ?-    -.-.tokens
+    ?-    -<.tokens
         %literal
       ::  TODO: check if we're in a compare
       (match-literal tokens)
@@ -325,10 +326,9 @@
       ==
     (match-jock tokens)
   ?:  (has-punctuator -.tokens %'{')
-    =>  .(tokens `(list token)`tokens)
+    =>  .(tokens `(list token)`tokens)  :: static list typing
     =^  jock  tokens
-      (match-jock +.tokens)
-    ?>  (got-punctuator -.tokens %'}')
+      (match-jock tokens)
     [jock +.tokens]
   ?+    -.i.tokens  !!
       %literal
@@ -416,6 +416,25 @@
     =^  arg  tokens
       (match-block [tokens %'(' %')'] match-inner-jock)
     [[%call [%limb axis-lit ~] `arg] tokens]
+  ::  Set  {1 2 3}
+      %'{'
+    ::  {one
+    =^  jock-one  tokens
+      (match-inner-jock tokens)
+    =/  acc=(set jock)
+      (sy jock-one ~)
+    |-  ^-  [jock (list token)]
+    ?:  (has-punctuator -.tokens %'}')
+      ::  ...}
+      :_  tokens  :: don't strip '}', done in +match-inner-jock
+      ^-  jock
+      :+  %set
+        [%none ~]
+      acc
+    ::  {...}
+    =^  jock-nex  tokens
+      (match-inner-jock tokens)
+    $(acc (~(put in acc) jock-nex))
   ::  Function call  foo(bar)
       %'('
     =^  lambda  tokens
@@ -433,46 +452,25 @@
     [[%call [%lambda lambda] `arg] +.tokens]
   ::  Null-terminated list  ~[1 2 3]
       %'~'
-    ?:  (has-punctuator -.tokens %'[')
-      =.  tokens  +.tokens
-      ::  ~[one
-      =^  jock-one  tokens
-        (match-inner-jock tokens)
-      =/  acc=(list jock)
-        [jock-one ~]
-      |-  ^-  [jock (list token)]
-      ?:  (has-punctuator -.tokens %']')
-        ::  ...]
-        :_  +.tokens
-        ^-  jock
-        :+  %list
-          [%none ~]
-        (snoc acc [%atom [%number 0] %.n])
-      ::  ~[...]
-      =^  jock-nex  tokens
-        (match-inner-jock tokens)
-      $(acc (snoc acc jock-nex))
-  ::  Set  ~{1 2 3}
-      :: %'{'
-    ?>  (got-punctuator -.tokens %'{')
+    ?>  (has-punctuator -.tokens %'[')
     =.  tokens  +.tokens
-    ::  ~{one
+    ::  ~[one
     =^  jock-one  tokens
       (match-inner-jock tokens)
-    =/  acc=(set jock)
-      (sy jock-one ~)
+    =/  acc=(list jock)
+      [jock-one ~]
     |-  ^-  [jock (list token)]
-    ?:  (has-punctuator -.tokens %'}')
-      ::  ...}
+    ?:  (has-punctuator -.tokens %']')
+      ::  ...]
       :_  +.tokens
       ^-  jock
-      :+  %set
+      :+  %list
         [%none ~]
-      acc
-    ::  ~{...}
+      (snoc acc [%atom [%number 0] %.n])
+    ::  ~[...]
     =^  jock-nex  tokens
       (match-inner-jock tokens)
-    $(acc (~(put in acc) jock-nex))
+    $(acc (snoc acc jock-nex))
   ==
 ::
 ++  match-axis
@@ -843,14 +841,14 @@
   ^-  [[%atom jatom] (list token)]
   ?~  tokens  ~|("expect literal. token: ~" !!)
   ?.  ?=(%literal -.-.tokens)
-    ~|("expect literal. token: {<-.-.tokens>}" !!)
+    ~|("expect literal. token: {<-<.tokens>}" !!)
   [[%atom +.-.tokens] +.tokens]
 ::
 ++  match-name
   |=  =tokens
   ^-  [[%limb (list jlimb)] (list token)]
   ?.  ?=(%name -.-.tokens)
-    ~|("expect name. token: {<-.-.tokens>}" !!)
+    ~|("expect name. token: {<-<.tokens>}" !!)
   [[%limb [%name +.-.tokens]~] +.tokens]
 ::
 ++  match-block
