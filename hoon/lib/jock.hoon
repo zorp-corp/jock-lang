@@ -362,11 +362,6 @@
     %punctuator  (match-start-punctuator tokens)
   ==
 ::
-:: ++  match-inner-list
-::   |=  =tokens
-::   ^-  [jock (list token)]
-
-::
 ++  match-start-punctuator
   |=  =tokens
   ^-  [jock (list token)]
