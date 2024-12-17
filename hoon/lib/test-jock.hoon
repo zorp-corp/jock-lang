@@ -49,6 +49,7 @@
 /*  test-match-case       %hoon  /tests/lib/match-case
 /*  test-match-type       %hoon  /tests/lib/match-type
 :: /*  test-example-atom     %hoon  /tests/lib/example-atom
+/*  test-sets             %hoon  /tests/lib/sets
 ::
 |%
 ++  list-jocks
@@ -154,9 +155,9 @@
       :: [%test-example-atom-tokens test-tokenize:test-example-atom]
       :: [%test-example-atom-jeam test-jeam:test-example-atom]
       :: [%test-example-atom-mint test-mint:test-example-atom]
-      :: [%test-sets-tokens test-tokenize:test-sets]
-      :: [%test-sets-jeam test-jeam:test-sets]
-      :: [%test-sets-mint test-mint:test-sets]
+      [%test-sets-tokens test-tokenize:test-sets]
+      [%test-sets-jeam test-jeam:test-sets]
+      [%test-sets-mint test-mint:test-sets]
   ==
 ::
 ++  parse
