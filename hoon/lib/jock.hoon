@@ -1444,7 +1444,7 @@
         !!
       =/  nok=(list nock)  ~[val]
       =.  vals  +.vals
-      :_  val-jyp
+      :_  u.inferred-type
       |-  ^-  nock
       ::  if the next element ends the list, then we are at the closing ~
       ?~  +.vals
@@ -1474,23 +1474,34 @@
         %set
       ~|  %set
       :: |^
-      =/  vals=(set jock)  val.j
+      =/  vals=(list jock)  ~(tap in val.j)
       ?:  =(~ vals)  ~|  'set: no value'  !!
       =+  [val val-jyp]=$(j -.vals)
+      ::  XXX right now this means the val-jyp is %none and will be overridden
       =/  inferred-type
         (~(unify jt type.j^%$) val-jyp)
       ?~  inferred-type
         ~|  '%set: value type does not nest in declared type'
         ~|  ['have:' val-jyp 'need:' type.j]
         !!
-      ::  In order to build the jype in the right shape, we have to
-      ::  traverse the tree noun in order.
-      =/  nok=(list nock)  ~[val]
-      :: =.  vals  +.vals
-      ~&  val-jyp+val-jyp
-      :_  val-jyp
-      [%1 `*`val]
-      :: [[%0 0] *jype]
+      ::  At this point, we have a (set jock), not a (set *) of the values
+      =/  res=(set *)  (~(put in *(set *)) val)
+      =.  vals  +.vals
+      :_  u.inferred-type
+      |-  ^-  nock
+      ?~  vals
+        [%1 `*`res]
+      =+  [val val-jyp]=^$(j -.vals)
+      =/  inferred-type
+        (~(unify jt type.j^%$) val-jyp)
+      ?~  inferred-type
+        ~|  '%set: value type does not nest in declared type'
+        ~|  ['have:' val-jyp 'need:' type.j]
+        !!
+      %=  $
+        res   (~(put in res) val)
+        vals  +.vals
+      ==
     ::
         %atom
       ~|  [%atom +.-.+.j]
