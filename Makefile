@@ -65,7 +65,7 @@ build-dev-debug: ## Fast to compile, slow to execute. Builds all projects
 .PHONY: build-release
 build-release: ## Slowest to compile, fastest to execute. Builds all projects
 	@set -e; \
-	./choo hoon/main.hoon hoon; \
+	./choo --log-level trace hoon/main.hoon hoon; \
 	cp out.jam assets/jocktest.jam; \
 	cargo build $(PROFILE_RELEASE)
 

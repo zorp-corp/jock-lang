@@ -10,19 +10,21 @@
   =>
   |%
   +$  inner-state  inner
-  +$  outer-state  [desk-hash=(unit @uvI) internal=inner]
+  +$  outer-state
+    $%  [%0 desk-hash=(unit @uvI) internal=inner]
+    ==
   +$  outer-fort
     $_  ^|
     |_  outer-state
     ++  load
       |~  arg=*
-      [*(list *) **]
+      **
     ++  peek
       |~  arg=path
       *(unit (unit *))
     ++  poke
-      |*  [num=@ ovum=*]
-      [*(list *) *outer-state]
+      |~  [num=@ ovum=*]
+      *[(list *) *]
     ++  wish
       |~  txt=@
       **
@@ -32,8 +34,8 @@
     $_  ^|
     |_  state=inner-state
     ++  load
-      |~  arg=*
-      [*(list *) **]
+      |~  arg=inner-state
+      *inner-state
     ++  peek
       |~  arg=path
       *(unit (unit *))
@@ -47,20 +49,21 @@
   |=  hash=@uvI
   =<  .(desk-hash.outer `hash)
   |_  outer=outer-state
+  +*  inner-fort  ~(. inner internal.outer)
   ++  load
-    |=  arg=*
-    ^-  [(list *) *]
-    (load:inner arg)
+    |=  arg=outer-state
+    =/  new-internal  (load:inner-fort internal.arg)
+    ..load(internal.outer new-internal)
   ::
   ++  peek
     |=  arg=path
     ^-  (unit (unit *))
-    (peek:inner arg)
+    (peek:inner-fort arg)
   ::
   ++  wish
     |=  txt=@
     ^-  *
-    (slap !>(~) (ream txt))
+    q:(slap !>(~) (ream txt))
   ::
   ++  poke
     |=  [num=@ ovum=*]
@@ -80,9 +83,10 @@
         ~&  "could not mold poke type: {<ovum>}"
         =+  (road |.(;;(^^ovum ovum)))
         ~^..poke
+      ~!  :-  'here'  input.u.ovum
+      ~&  >>>  input.u.ovum
       =^  effects  internal.outer
-        (poke:inner input.u.ovum)
-      =.  state.inner  internal.outer
+        (poke:inner-fort input.u.ovum)
       [effects ..poke(internal.outer internal.outer)]
     ==
   --

@@ -1127,7 +1127,7 @@
   ++  unify
     |=  v=jype
     ^-  (unit jype)
-    ?^  -.-.jyp
+    ?^  -<.jyp
       ?@  -<.v
         ?:  =(%none -.p.v)
           `jyp
@@ -1505,9 +1505,9 @@
       ==
     ::
         %atom
-      ~|  [%atom +.-.+.j]
-      :-  [%1 +.-.+.j]
-      [^-(jype-leaf [%atom -.-.+.j +.+.j]) %$]
+      ~|  [%atom +<+.j]
+      :-  [%1 +<+.j]
+      [^-(jype-leaf [%atom +<-.j +>.j]) %$]
     ::
         %crash
       ~|  %crash

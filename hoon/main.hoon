@@ -1,10 +1,9 @@
 /+  jock,
-    sequent,
     test-jock,
     *wrapper
 =>
 |%
-+$  test-state  ~
++$  test-state  [%0 ~]
 ++  moat  (keep test-state)
 +$  cause
   $%  [%test-n n=@]
@@ -19,9 +18,9 @@
 ::  +load: upgrade from previous state
 ::
 ++  load
-  |=  arg=*
-  ^-  [(list *) *]
-  !!
+  |=  arg=test-state
+  ^-  test-state
+  arg
 ::
 ::  +peek: external inspect
 ::
@@ -32,19 +31,20 @@
 ::  +poke: external apply
 ::
 ++  poke
-  |=  [eny=@ our=@ux now=@da dat=*]
+  :: |=  [eny=@ our=@ux now=@da dat=*]
+  |=  input:moat
   ^-  [(list effect) test-state]
-  ~&  "poked at {<now^dat>}"
-  =/  soft-cau  ((soft cause) dat)
+  ~&  "poked at {<now^cause>}"
+  =/  soft-cau  ((soft ^cause) cause)
   ?~  soft-cau
-  ~&  >>>  "could not mold poke type: {<dat>}"  !!
-  =/  c=cause  u.soft-cau
+  ~&  >>>  "could not mold poke type: {<cause>}"  !!
+  =/  c=^cause  u.soft-cau
   |^
-  :: ~&  exec-all:test-jock
+  ~&  exec-all:test-jock
   :: ~&  test-all:test-jock
-  ~&  (parse:test-jock 19)
-  ~&  (jeam:test-jock 19)
-  ~&  (mint:test-jock 19)
+  :: ~&  (parse:test-jock 19)
+  :: ~&  (jeam:test-jock 19)
+  :: ~&  (mint:test-jock 19)
   ~&  (parse:test-jock 23)
   ~&  (jeam:test-jock 23)
   ~&  (mint:test-jock 23)
