@@ -329,6 +329,7 @@
     =^  jock  tokens
       (match-jock tokens)
     [jock +.tokens]
+  ~&  tokens+tokens
   ?+    -.i.tokens  !!
       %literal
     ::  TODO: check if we're in a compare
