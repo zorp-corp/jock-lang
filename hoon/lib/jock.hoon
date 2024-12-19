@@ -52,7 +52,7 @@
 +$  punctuator
   $+  punctuator
   $?  %'.'  %';'  %','  %':'  %'&'  %'$'
-      %'@'  %'?'  %'!'  %' ('
+      %'@'  %'?'  %'!'  %'(('  %'))'
       %'('  %')'  %'{'  %'}'  %'['  %']'
       %'='  %'<'  %'>'
       %'+'  %'-'  %'*'  %'/'  %'_'
@@ -123,6 +123,12 @@
                          ;~(plug hig (star low))
   ++  type               alu                              :: Cord
   ++  tagged-type        (stag %type type)                :: [%type 'Cord']
+  ::  The goal is to parse a function call into the pseudo-punctuator 'name('.
+  ::  This only happens if there is a term immediately preceding the '('.,
+  ::  e.g. foo(bar)  ->  'foo(' 'bar' ')'
+  ++  tagged-function  %+  cook
+                        |=([p=@ q=@] [[%name p] [%punctuator %'((']])
+                      ;~(plug sym (just '('))
   ::
   ++  keyword
     %-  perk
@@ -137,7 +143,7 @@
   ++  punctuator
     %-  perk
     :~  %'.'  %';'  %','  %':'  %'&'  %'$'
-        %'@'  %'?'  %'!'  %' ('
+        %'@'  %'?'  %'!'  %'(('  %'))'
         %'('  %')'  %'{'  %'}'  %'['  %']'
         %'='  %'<'  %'>'
         %'+'  %'-'  %'*'  %'/'  %'_'
@@ -149,6 +155,7 @@
     ;~  pose
         tagged-keyword
         tagged-symbol
+        tagged-function
         tagged-punctuator
         tagged-literal
         tagged-name
