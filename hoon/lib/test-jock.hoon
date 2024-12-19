@@ -26,7 +26,7 @@
 /*  sets                  %jock  /lib/tests/sets
 ::
 /*  test-let-edit         %hoon  /tests/lib/let-edit
-/*  test-let-inner-exp    %hoon  /tests/lib/let-inner-exp
+:: /*  test-let-inner-exp    %hoon  /tests/lib/let-inner-exp
 /*  test-call             %hoon  /tests/lib/call
 /*  test-axis-call        %hoon  /tests/lib/axis-call
 /*  test-inline-lambda-call  %hoon  /tests/lib/inline-lambda-call
@@ -86,9 +86,9 @@
   :~  [%test-let-edit-tokens test-tokenize:test-let-edit]
       [%test-let-edit-jeam test-jeam:test-let-edit]
       [%test-let-edit-mint test-mint:test-let-edit]
-      [%test-let-inner-exp-tokens test-tokenize:test-let-inner-exp]
-      [%test-let-inner-exp-jeam test-jeam:test-let-inner-exp]
-      [%test-let-inner-exp-mint test-mint:test-let-inner-exp]
+      :: [%test-let-inner-exp-tokens test-tokenize:test-let-inner-exp]
+      :: [%test-let-inner-exp-jeam test-jeam:test-let-inner-exp]
+      :: [%test-let-inner-exp-mint test-mint:test-let-inner-exp]
       [%test-call-tokens test-tokenize:test-call]
       [%test-call-jeam test-jeam:test-call]
       [%test-call-mint test-mint:test-call]

@@ -31,6 +31,7 @@
 +$  keyword
   $+  keyword
   $?  %let
+      %func
       %if
       %else
       %crash
@@ -51,11 +52,11 @@
 +$  punctuator
   $+  punctuator
   $?  %'.'  %';'  %','  %':'  %'&'  %'$'
-      %'@'  %'?'  %'!'
+      %'@'  %'?'  %'!'  %' ('
       %'('  %')'  %'{'  %'}'  %'['  %']'
       %'='  %'<'  %'>'
       %'+'  %'-'  %'*'  %'/'  %'_'
-      %'~'  %'«'  %'»'
+      %'~'
   ==
 ::
 +$  jatom
@@ -125,7 +126,7 @@
   ::
   ++  keyword
     %-  perk
-    :~  %let  %if  %else  %crash  %assert
+    :~  %let  %func  %if  %else  %crash  %assert
         %object  %compose  %loop  %defer
         %recur  %match  %eval  %with  %this
         %type  %case
@@ -136,11 +137,11 @@
   ++  punctuator
     %-  perk
     :~  %'.'  %';'  %','  %':'  %'&'  %'$'
-        %'@'  %'?'  %'!'
+        %'@'  %'?'  %'!'  %' ('
         %'('  %')'  %'{'  %'}'  %'['  %']'
         %'='  %'<'  %'>'
         %'+'  %'-'  %'*'  %'/'  %'_'
-        %'~'  %'«'  %'»'
+        %'~'
     ==
   ++  tagged-punctuator  (stag %punctuator punctuator)
   ::
@@ -186,6 +187,7 @@
   $+  jock
   $^  [p=jock q=jock]
   $%  [%let type=jype val=jock next=jock]
+      [%func type=jype val=jock next=jock]
       [%edit limb=(list jlimb) val=jock next=jock]
       [%increment val=jock]
       [%cell-check val=jock]
@@ -329,7 +331,6 @@
     =^  jock  tokens
       (match-jock tokens)
     [jock +.tokens]
-  ~&  tokens+tokens
   ?+    -.i.tokens  !!
       %literal
     ::  TODO: check if we're in a compare
@@ -434,7 +435,8 @@
     $(acc (~(put in acc) jock-nex))
   ::  Tuple or call
       %'('
-    ?.  (has-punctuator -.tokens %'~')
+    ~&  here+tokens
+    ?.  (has-punctuator -.tokens %'~')  :: XXX kludge to distinguish from call
       ::  Regular tuple cell  (1 2)
       (match-pair-inner-jock [[%punctuator %'('] tokens])
     ::  Function call  foo(bar)
@@ -566,8 +568,19 @@
       (match-inner-jock +.tokens)
     ?>  (got-punctuator -.tokens %';')
     =^  jock  tokens
-      (match-jock +.tokens)
+      (match-inner-jock +.tokens)
     [[%let jype val jock] tokens]
+  ::
+      %func
+    =^  jype  tokens
+      (match-jype tokens)
+    ?>  (got-punctuator -.tokens %'=')
+    =^  val  tokens
+      (match-inner-jock +.tokens)
+    ?>  (got-punctuator -.tokens %';')
+    =^  jock  tokens
+      (match-jock +.tokens)
+    [[%func jype val jock] tokens]
   ::
       %if
     =^  cond  tokens
@@ -684,6 +697,7 @@
 ++  match-jype
   |=  =tokens
   ^-  [jype (list token)]
+  ~&  tokens+tokens
   ?:  =(~ tokens)
     ~|("expect jype. token: ~" !!)
   ::  Store name and strip it from token list
@@ -700,7 +714,9 @@
       (match-jype +.tokens)
     [jyp(name nom) tokens]
   ::  Tuple cell  (a b)
-  ?:  (has-punctuator -.tokens %'(')
+  ?:  ?&  (has-punctuator -.tokens %'(')
+          !(has-punctuator -<.tokens %'~')
+      ==
     =^  r=(pair jype jype)  tokens
       %+  match-block  [tokens %'(' %')']
       |=  =^tokens
@@ -1175,6 +1191,21 @@
           !!
         (~(cons jt u.inferred-type) jyp)
       ~|  %let-next
+      =+  [nex nex-jyp]=$(j next.j)
+      [[%8 val nex] nex-jyp]
+    ::
+        %func
+      ~|  %func-value
+      =+  [val val-jyp]=$(j val.j)
+      =.  jyp
+        =/  inferred-type
+          (~(unify jt type.j) val-jyp)
+        ?~  inferred-type
+          ~|  '%func: value type does not nest in declared type'
+          ~|  ['have:' val-jyp 'need:' type.j]
+          !!
+        (~(cons jt u.inferred-type) jyp)
+      ~|  %func-next
       =+  [nex nex-jyp]=$(j next.j)
       [[%8 val nex] nex-jyp]
     ::

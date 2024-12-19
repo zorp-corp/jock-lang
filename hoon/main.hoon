@@ -42,12 +42,12 @@
   |^
   ~&  exec-all:test-jock
   :: ~&  test-all:test-jock
-  :: ~&  (parse:test-jock 19)
-  :: ~&  (jeam:test-jock 19)
-  :: ~&  (mint:test-jock 19)
   ~&  (parse:test-jock 1)
   ~&  (jeam:test-jock 1)
   ~&  (mint:test-jock 1)
+  ~&  (parse:test-jock 2)
+  ~&  (jeam:test-jock 2)
+  ~&  (mint:test-jock 2)
   :: ~&  dump-output
   ?-  -.c
     %test-n  [~ k]
