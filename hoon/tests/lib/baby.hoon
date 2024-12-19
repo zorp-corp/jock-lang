@@ -3,10 +3,10 @@
 ::
 |%
 ++  text
-  'compose with 0; object {\0a  load = crash\0a  peek = crash\0a  poke = (a:* -> [* &1]) {\0a    [a &1]\0a  }\0a  wish = crash\0a};\0a\0apoke(3)\0a'
+  'compose with 0; object {\0a  load = crash\0a  peek = crash\0a  poke = (a:* -> (* &1)) {\0a    (a &1)\0a  }\0a  wish = crash\0a};\0a\0apoke(3)\0a'
 ++  test-tokenize
   %+  expect-eq:test
-    !>  ~[[%keyword %compose] [%keyword %with] [%literal [%number 0]] [%punctuator %';'] [%keyword %object] [%punctuator %'{'] [%name %load] [%punctuator %'='] [%keyword %crash] [%name %peek] [%punctuator %'='] [%keyword %crash] [%name %poke] [%punctuator %'='] [%punctuator %'('] [%name %a] [%punctuator %':'] [%punctuator %'*'] [%punctuator %'-'] [%punctuator %'>'] [%punctuator %'['] [%punctuator %'*'] [%punctuator %'&'] [%literal [%number 1]] [%punctuator %']'] [%punctuator %')'] [%punctuator %'{'] [%punctuator %'['] [%name %a] [%punctuator %'&'] [%literal [%number 1]] [%punctuator %']'] [%punctuator %'}'] [%name %wish] [%punctuator %'='] [%keyword %crash] [%punctuator %'}'] [%punctuator %';'] [%name %poke] [%punctuator %'('] [%literal [%number 3]] [%punctuator %')']]
+    !>  ~[[%keyword %compose] [%keyword %with] [%literal [%number 0]] [%punctuator %';'] [%keyword %object] [%punctuator %'{'] [%name %load] [%punctuator %'='] [%keyword %crash] [%name %peek] [%punctuator %'='] [%keyword %crash] [%name %poke] [%punctuator %'='] [%punctuator %'('] [%name %a] [%punctuator %':'] [%punctuator %'*'] [%punctuator %'-'] [%punctuator %'>'] [%punctuator %'('] [%punctuator %'*'] [%punctuator %'&'] [%literal [%number 1]] [%punctuator %')'] [%punctuator %')'] [%punctuator %'{'] [%punctuator %'('] [%name %a] [%punctuator %'&'] [%literal [%number 1]] [%punctuator %')'] [%punctuator %'}'] [%name %wish] [%punctuator %'='] [%keyword %crash] [%punctuator %'}'] [%punctuator %';'] [%name %poke] [%punctuator %'('] [%literal [%number 3]] [%punctuator %')']]
     !>  (rash text parse-tokens:jock)
 ::
 ++  test-jeam

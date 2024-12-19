@@ -3,10 +3,10 @@
 ::
 |%
 ++  text
-  '\0alet a = {\0a    eval [42 55] [0 2]\0a};\0a\0aa\0a\0a'
+  '\0alet a = {\0a    eval (42 55) (0 2)\0a};\0a\0aa\0a\0a'
 ++  test-tokenize
   %+  expect-eq:test
-    !>  ~[[%keyword %let] [%name %a] [%punctuator %'='] [%punctuator %'{'] [%keyword %eval] [%punctuator %'['] [%literal [%number 42]] [%literal [%number 55]] [%punctuator %']'] [%punctuator %'['] [%literal [%number 0]] [%literal [%number 2]] [%punctuator %']'] [%punctuator %'}'] [%punctuator %';'] [%name %a]]
+    !>  ~[[%keyword %let] [%name %a] [%punctuator %'='] [%punctuator %'{'] [%keyword %eval] [%punctuator %'['] [%literal [%number 42]] [%literal [%number 55]] [%punctuator %')'] [%punctuator %'['] [%literal [%number 0]] [%literal [%number 2]] [%punctuator %')'] [%punctuator %'}'] [%punctuator %';'] [%name %a]]
     !>  (rash text parse-tokens:jock)
 ::
 ++  test-jeam

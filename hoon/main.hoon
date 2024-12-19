@@ -45,9 +45,9 @@
   :: ~&  (parse:test-jock 19)
   :: ~&  (jeam:test-jock 19)
   :: ~&  (mint:test-jock 19)
-  ~&  (parse:test-jock 23)
-  ~&  (jeam:test-jock 23)
-  ~&  (mint:test-jock 23)
+  ~&  (parse:test-jock 1)
+  ~&  (jeam:test-jock 1)
+  ~&  (mint:test-jock 1)
   :: ~&  dump-output
   ?-  -.c
     %test-n  [~ k]

@@ -58,7 +58,7 @@ build-parallel: ## profiling profile with parallel feature enabled
 .PHONY: build
 build-dev-debug: ## Fast to compile, slow to execute. Builds all projects
 	@set -e; \
-	./choo hoon/main.hoon hoon; \
+	./choo --new --log-level trace hoon/main.hoon hoon; \
 	cp out.jam assets/jocktest.jam; \
 	cargo build
 

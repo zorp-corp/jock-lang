@@ -6,7 +6,7 @@
   '\0alet a: [p:@ q:[k:@ v:@]] = [52 30 45];\0a\0av.q.a\0a'
 ++  test-tokenize
   %+  expect-eq:test
-    !>  ~[[%keyword %let] [%name %a] [%punctuator %':'] [%punctuator %'['] [%name %p] [%punctuator %':'] [%punctuator %'@'] [%name %q] [%punctuator %':'] [%punctuator %'['] [%name %k] [%punctuator %':'] [%punctuator %'@'] [%name %v] [%punctuator %':'] [%punctuator %'@'] [%punctuator %']'] [%punctuator %']'] [%punctuator %'='] [%punctuator %'['] [%literal [%number 52]] [%literal [%number 30]] [%literal [%number 45]] [%punctuator %']'] [%punctuator %';'] [%name %v] [%punctuator %'.'] [%name %q] [%punctuator %'.'] [%name %a]]
+    !>  ~[[%keyword %let] [%name %a] [%punctuator %':'] [%punctuator %'('] [%name %p] [%punctuator %':'] [%punctuator %'@'] [%name %q] [%punctuator %':'] [%punctuator %'('] [%name %k] [%punctuator %':'] [%punctuator %'@'] [%name %v] [%punctuator %':'] [%punctuator %'@'] [%punctuator %')'] [%punctuator %')'] [%punctuator %'='] [%punctuator %'('] [%literal [%number 52]] [%literal [%number 30]] [%literal [%number 45]] [%punctuator %')'] [%punctuator %';'] [%name %v] [%punctuator %'.'] [%name %q] [%punctuator %'.'] [%name %a]]
     !>  (rash text parse-tokens:jock)
 ::
 ++  test-jeam

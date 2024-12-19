@@ -3,10 +3,10 @@
 ::
 |%
 ++  text
-  'let a = 17;\0a\0alet b = ([b:@ c:&1] -> @) {\0a  if c == 18 {\0a    +(b)\0a  } else {\0a    b\0a  }\0a}([23 &1]);\0a\0a&1\0a\0a'
+  'let a = 17;\0a\0alet b = ((b:@ c:&1) -> @) {\0a  if c == 18 {\0a    +(b)\0a  } else {\0a    b\0a  }\0a}((23 &1));\0a\0a&1\0a\0a'
 ++  test-tokenize
   %+  expect-eq:test
-    !>  ~[[%keyword %let] [%name %a] [%punctuator %'='] [%literal [%number 17]] [%punctuator %';'] [%keyword %let] [%name %b] [%punctuator %'='] [%punctuator %'('] [%punctuator %'['] [%name %b] [%punctuator %':'] [%punctuator %'@'] [%name %c] [%punctuator %':'] [%punctuator %'&'] [%literal [%number 1]] [%punctuator %']'] [%punctuator %'-'] [%punctuator %'>'] [%punctuator %'@'] [%punctuator %')'] [%punctuator %'{'] [%keyword %if] [%name %c] [%punctuator %'='] [%punctuator %'='] [%literal [%number 18]] [%punctuator %'{'] [%punctuator %'+'] [%punctuator %'('] [%name %b] [%punctuator %')'] [%punctuator %'}'] [%keyword %else] [%punctuator %'{'] [%name %b] [%punctuator %'}'] [%punctuator %'}'] [%punctuator %'('] [%punctuator %'['] [%literal [%number 23]] [%punctuator %'&'] [%literal [%number 1]] [%punctuator %']'] [%punctuator %')'] [%punctuator %';'] [%punctuator %'&'] [%literal [%number 1]]]
+    !>  ~[[%keyword %let] [%name %a] [%punctuator %'='] [%literal [%number 17]] [%punctuator %';'] [%keyword %let] [%name %b] [%punctuator %'='] [%punctuator %'('] [%punctuator %'('] [%name %b] [%punctuator %':'] [%punctuator %'@'] [%name %c] [%punctuator %':'] [%punctuator %'&'] [%literal [%number 1]] [%punctuator %')'] [%punctuator %'-'] [%punctuator %'>'] [%punctuator %'@'] [%punctuator %')'] [%punctuator %'{'] [%keyword %if] [%name %c] [%punctuator %'='] [%punctuator %'='] [%literal [%number 18]] [%punctuator %'{'] [%punctuator %'+'] [%punctuator %'('] [%name %b] [%punctuator %')'] [%punctuator %'}'] [%keyword %else] [%punctuator %'{'] [%name %b] [%punctuator %'}'] [%punctuator %'}'] [%punctuator %'('] [%punctuator %'('] [%literal [%number 23]] [%punctuator %'&'] [%literal [%number 1]] [%punctuator %')'] [%punctuator %')'] [%punctuator %';'] [%punctuator %'&'] [%literal [%number 1]]]
     !>  (rash text parse-tokens:jock)
 ::
 ++  test-jeam

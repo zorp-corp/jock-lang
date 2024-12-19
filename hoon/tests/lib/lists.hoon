@@ -3,10 +3,10 @@
 ::
 |%
 ++  text
-  'let d = ~[11];\0alet c = ~[9 10];\0alet b = ~[6 7 8];\0alet a = ~[1 2 3 4 5];\0a\0a[a b c d]'
+  'let d = [11];\0alet c = [9 10];\0alet b = [6 7 8];\0alet a = [1 2 3 4 5];\0a\0a(a b c d)'
 ++  test-tokenize
   %+  expect-eq:test
-    !>  ~[[%keyword %let] [%name %d] [%punctuator %'='] [%punctuator %'~'] [%punctuator %'['] [%literal [[%number 11] %.n]] [%punctuator %']'] [%punctuator %';'] [%keyword %let] [%name %c] [%punctuator %'='] [%punctuator %'~'] [%punctuator %'['] [%literal [[%number 9] %.n]] [%literal [[%number 10] %.n]] [%punctuator %']'] [%punctuator %';'] [%keyword %let] [%name %b] [%punctuator %'='] [%punctuator %'~'] [%punctuator %'['] [%literal [[%number 6] %.n]] [%literal [[%number 7] %.n]] [%literal [[%number 8] %.n]] [%punctuator %']'] [%punctuator %';'] [%keyword %let] [%name %a] [%punctuator %'='] [%punctuator %'~'] [%punctuator %'['] [%literal [[%number 1] %.n]] [%literal [[%number 2] %.n]] [%literal [[%number 3] %.n]] [%literal [[%number 4] %.n]] [%literal [[%number 5] %.n]] [%punctuator %']'] [%punctuator %';'] [%punctuator %'['] [%name %a] [%name %b] [%name %c] [%name %d] [%punctuator %']']]
+    !>  ~[[%keyword %let] [%name %d] [%punctuator %'='] [%punctuator %'['] [%literal [[%number 11] %.n]] [%punctuator %']'] [%punctuator %';'] [%keyword %let] [%name %c] [%punctuator %'='] [%punctuator %'['] [%literal [[%number 9] %.n]] [%literal [[%number 10] %.n]] [%punctuator %']'] [%punctuator %';'] [%keyword %let] [%name %b] [%punctuator %'='] [%punctuator %'['] [%literal [[%number 6] %.n]] [%literal [[%number 7] %.n]] [%literal [[%number 8] %.n]] [%punctuator %']'] [%punctuator %';'] [%keyword %let] [%name %a] [%punctuator %'='] [%punctuator %'['] [%literal [[%number 1] %.n]] [%literal [[%number 2] %.n]] [%literal [[%number 3] %.n]] [%literal [[%number 4] %.n]] [%literal [[%number 5] %.n]] [%punctuator %']'] [%punctuator %';'] [%punctuator %'('] [%name %a] [%name %b] [%name %c] [%name %d] [%punctuator %')']]
     !>  (rash text parse-tokens:jock)
 ::
 ++  test-jeam

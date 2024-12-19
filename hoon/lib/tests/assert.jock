@@ -2,7 +2,7 @@ let a: @ = 5;
 let b: @ = 0;
 
 assert a != 0;
-let c = ?([a a]);
+let c = ?((a a));
 loop;
 
 if a == +(b) {

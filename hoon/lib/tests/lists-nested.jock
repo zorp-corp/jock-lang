@@ -1,11 +1,11 @@
-let a:List(@) = ~[1];
+let a:List(@) = [1];
 
-let b:List(@) = ~[1 2];
+let b:List(@) = [1 2];
 
-let c:List(@) = ~[1 2 3];
+let c:List(@) = [1 2 3];
 
-let d:List([@ @]) = ~[[1 2] [3 4]];
+let d:List((@ @)) = [(1 2) (3 4)];
 
-let e:List([@ List(@)]) = ~[[1 ~[2]] [3 ~[4 5]]];
+let e:List((@ List(@))) = [(1 [2]) (3 [4 5])];
 
-[a b c d e]
+(a b c d e)
