@@ -2,7 +2,7 @@
     ++  jeam
       |=  txt=@
       ^-  jock
-      =+  [jok tokens]=(match-jock (rash txt parse-tokens))
+      =+  [jok tokens]=(match-jock (decouple (rash txt parse-tokens)))
       ?.  ?=(~ tokens)
         ~|  'jeam: must parse to a single jock'
         !!
@@ -49,8 +49,8 @@
       %case
   ==
 ::
-+$  punctuator
-  $+  punctuator
++$  jpunc
+  $+  jpunc
   $?  %'.'  %';'  %','  %':'  %'&'  %'$'
       %'@'  %'?'  %'!'  %'(('  %'))'
       %'('  %')'  %'{'  %'}'  %'['  %']'
@@ -73,10 +73,15 @@
 +$  token
   $+  token
   $%  [%keyword keyword]
-      [%punctuator punctuator]
+      [%punctuator jpunc]
       [%literal jatom]
       [%name term]
       [%type cord]
+  ==
++$  joken
+  $+  joken
+  $%  [%double p=token q=token]
+      token
   ==
 ::
 +$  tokens  (list token)
@@ -123,11 +128,15 @@
                          ;~(plug hig (star low))
   ++  type               alu                              :: Cord
   ++  tagged-type        (stag %type type)                :: [%type 'Cord']
-  ::  The goal is to parse a function call into the pseudo-punctuator 'name('.
-  ::  This only happens if there is a term immediately preceding the '('.,
-  ::  e.g. foo(bar)  ->  'foo(' 'bar' ')'
+  ::  The goal is to parse a function call into the pseudo-punctuator '(('.
+  ::  This only happens if there is a term immediately preceding the '(',
+  ::    e.g. foo(bar)  ->  'foo' '((' 'bar' ')'
   ++  tagged-function  %+  cook
-                        |=([p=@ q=@] [[%name p] [%punctuator %'((']])
+                        |=  [p=@ q=@]
+                        ^-  joken
+                        :+  %double
+                          [%name p]
+                        [%punctuator `jpunc`%'((']
                       ;~(plug sym (just '('))
   ::
   ++  keyword
@@ -167,10 +176,20 @@
 ::
 ++  parse-tokens
   |=  =nail
-  ^-  (like tokens)
+  ^-  (like (list joken))
   %.  nail
   %-  full
   (ifix [gae gae] tokens:tokenize)
+::  Convert any double token parses into proper list elements.
+++  decouple
+  |=  p=(list joken)
+  ^-  (list token)
+  =|  r=(list token)
+  |-
+  ?~  p  (flop r)
+  ?:  ?=([%double p=token q=token] i.p)
+    $(p t.p, r `(list token)`[`token`p.i.p `token`q.i.p r])
+  $(p t.p, r [i.p r])
 --
 ::
 =>
@@ -721,9 +740,7 @@
       (match-jype +.tokens)
     [jyp(name nom) tokens]
   ::  Tuple cell  (a b)
-  ?:  ?&  (has-punctuator -.tokens %'(')
-          !(has-punctuator -<.tokens %'~')
-      ==
+  ?:  (has-punctuator -.tokens %'(')
     =^  r=(pair jype jype)  tokens
       %+  match-block  [tokens %'(' %')']
       |=  =^tokens
@@ -876,7 +893,7 @@
   [[%limb [%name +.-.tokens]~] +.tokens]
 ::
 ++  match-block
-  |*  [[=tokens start=punctuator end=punctuator] gate=$-(tokens [* tokens])]
+  |*  [[=tokens start=jpunc end=jpunc] gate=$-(tokens [* tokens])]
   ?>  (got-punctuator -.tokens start)
   =^  output  tokens
     (gate +.tokens)
@@ -940,7 +957,7 @@
   [~ +.token]
 ::
 ++  got-punctuator
-  |=  [=token punc=punctuator]
+  |=  [=token punc=jpunc]
   ^-  ?
   ?.  ?=(%punctuator -.token)
     ~|("expect punctuator. token: {<-.token>}" !!)
@@ -949,7 +966,7 @@
   %.y
 ::
 ++  has-punctuator
-  |=  [=token punc=punctuator]
+  |=  [=token punc=jpunc]
   ^-  ?
   ?.  ?=(%punctuator -.token)  %.n
   =(+.token punc)
