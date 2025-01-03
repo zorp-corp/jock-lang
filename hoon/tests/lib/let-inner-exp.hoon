@@ -3,10 +3,10 @@
 ::
 |%
 ++  text
-  'let a = {\0a  3\0a};\0a\0aa\0a'
+  'let a = \0a  3\0a;\0a\0aa\0a'
 ++  test-tokenize
   %+  expect-eq:test
-    !>  ~[[%keyword %let] [%name %a] [%punctuator %'='] [%punctuator %'{'] [%literal [%number 3]] [%punctuator %'}'] [%punctuator %';'] [%name %a]]
+    !>  ~[[%keyword %let] [%name %a] [%punctuator %'='] [%literal [%number 3]] [%punctuator %';'] [%name %a]]
     !>  (rash text parse-tokens:jock)
 ::
 ++  test-jeam

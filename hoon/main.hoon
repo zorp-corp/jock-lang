@@ -40,14 +40,17 @@
   ~&  >>>  "could not mold poke type: {<dat>}"  !!
   =/  c=cause  u.soft-cau
   |^
-  ~&  exec-all:test-jock
+  :: ~&  exec-all:test-jock
   :: ~&  test-all:test-jock
-  ~&  (parse:test-jock 1)
-  ~&  (jeam:test-jock 1)
-  ~&  (mint:test-jock 1)
-  ~&  (parse:test-jock 2)
-  ~&  (jeam:test-jock 2)
-  ~&  (mint:test-jock 2)
+  ~&  (parse:test-jock 0)
+  ~&  (jeam:test-jock 0)
+  ~&  (mint:test-jock 0)
+  :: ~&  (parse:test-jock 1)
+  :: ~&  (jeam:test-jock 1)
+  :: ~&  (mint:test-jock 1)
+  :: ~&  (parse:test-jock 2)
+  :: ~&  (jeam:test-jock 2)
+  :: ~&  (mint:test-jock 2)
   :: ~&  dump-output
   ?-  -.c
     %test-n  [~ k]

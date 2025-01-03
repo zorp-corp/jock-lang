@@ -162,13 +162,13 @@
 ::
 ++  parse
   |=  i=@
-  ^-  (list token:jock)
+  ^-  (list joken:jock)
   =/  p  (snag i list-jocks)
   ~|  -.p
   (rash +.p parse-tokens:jock)
 ::
 ++  parse-all
-  ^-  (list (pair term (list token:jock)))
+  ^-  (list (pair term (list joken:jock)))
   %+  turn  list-jocks
   |=  [=term t=@t]
   ~|  term
