@@ -209,7 +209,7 @@
   $+  jock
   $^  [p=jock q=jock]
   $%  [%let type=jype val=jock next=jock]
-      [%func type=jype val=jock next=jock]
+      [%func body=lambda next=jock]
       [%edit limb=(list jlimb) val=jock next=jock]
       [%increment val=jock]
       [%cell-check val=jock]
@@ -595,12 +595,18 @@
   ::
       %func
     ~&  >  'here in func'
-    =^  jype  jokens
-      (match-signature jokens)
+    =^  arg  jokens
+      (match-jype jokens)
     ~&  'here'
-    ~&  jype
-    ?>  (got-punctuator -.jokens %'=')
-    =^  val  jokens
+    ~&  arg
+    ?>  (got-punctuator -.jokens %'-')
+    ?>  (got-punctuator <+.jokens %'>')
+    =.  jokens  +>.jokens
+    =^  ret  jokens
+      (match-jype jokens)
+    ~&  'here'
+    ~&  ret
+    =^  bod  jokens
       (match-inner-jock +.jokens)
     ?>  (got-punctuator -.jokens %';')
     =^  jock  jokens
