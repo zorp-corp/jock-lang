@@ -1,4 +1,9 @@
 =<  |%
+    ++  tokenize
+      |=  txt=@
+      ^-  jokens
+      (rash txt parse-tokens)
+    ::
     ++  jeam
       |=  txt=@
       ^-  jock
@@ -32,6 +37,7 @@
   $+  keyword
   $?  %let
       %func
+      %lambda
       %if
       %else
       %crash
@@ -135,7 +141,7 @@
   ++  tagged-keyword     (stag %keyword keyword)
   ++  keyword
     %-  perk
-    :~  %let  %func  %if  %else  %crash  %assert
+    :~  %let  %func  %lambda  %if  %else  %crash  %assert
         %object  %compose  %loop  %defer
         %recur  %match  %eval  %with  %this
         %type  %case
@@ -146,7 +152,7 @@
                            ^-  ^joken
                            ?.  &(fun =([%punctuator %'('] joken))
                              joken
-                           =.  fun  %.n
+                          ::  =.  fun  %.n
                            [%punctuator `jpunc`%'((']
                          (stag %punctuator punctuator)
   ++  punctuator
@@ -209,7 +215,7 @@
   $+  jock
   $^  [p=jock q=jock]
   $%  [%let type=jype val=jock next=jock]
-      [%func body=lambda next=jock]
+      [%func type=jype body=jock next=jock]
       [%edit limb=(list jlimb) val=jock next=jock]
       [%increment val=jock]
       [%cell-check val=jock]
@@ -281,6 +287,10 @@
       [%limb p=(list jlimb)]
       ::  %fork is a branch point (as in an if-else)
       [%fork p=jype q=jype]
+      ::  %list
+      [%list type=jype]
+      ::  %set
+      [%set type=jype]
       ::  %none is a null type (as for undetermined variable labels)
       [%none ~]
   ==
@@ -431,10 +441,10 @@
       (match-axis [[%punctuator %'&'] jokens])
     ?:  =(~ jokens)
       [[%limb axis-lit ~] jokens]
-    ?.  (has-punctuator -.jokens %'(')
+    ?.  (has-punctuator -.jokens %'((')
       [[%limb axis-lit ~] jokens]
     =^  arg  jokens
-      (match-block [jokens %'(' %')'] match-inner-jock)
+      (match-block [jokens %'((' %')'] match-inner-jock)
     [[%call [%limb axis-lit ~] `arg] jokens]
   ::  Set  {1 2 3}
       %'{'
@@ -446,7 +456,7 @@
     |-  ^-  [jock (list joken)]
     ?:  (has-punctuator -.jokens %'}')
       ::  ...}
-      :_  jokens  :: don't strip '}', done in +match-inner-jock
+      :_  +.jokens  :: strip '}'
       ^-  jock
       :+  %set
         [%none ~]
@@ -455,18 +465,16 @@
     =^  jock-nex  jokens
       (match-inner-jock jokens)
     $(acc (~(put in acc) jock-nex))
-  ::  Tuple or call
+  ::  Tuple
       %'('
-    ~&  here+jokens
-    ?.  (has-punctuator -.jokens %'~')  :: XXX kludge to distinguish from call
-      ::  Regular tuple cell  (1 2)
-      (match-pair-inner-jock [[%punctuator %'('] jokens])
-    ::  Function call  foo(bar)
+    (match-pair-inner-jock [[%punctuator %'('] jokens])
+  ::  Call
+      %'(('
     =^  lambda  jokens
-      (match-lambda [[%punctuator %'('] +.jokens])
+      (match-lambda [[%punctuator %'(('] +.jokens])
     ?:  =(~ jokens)
       [[%lambda lambda] jokens]
-    ?.  (has-punctuator -.jokens %'(')
+    ?.  (has-punctuator -.jokens %'((')
       [[%lambda lambda] jokens]
     =.  jokens  +.jokens
     ?:  (has-punctuator -.jokens %')')
@@ -477,9 +485,8 @@
     [[%call [%lambda lambda] `arg] +.jokens]
   ::  Null-terminated list  [1 2 3]
       %'['
-    :: ?>  (has-punctuator -.jokens %'[')
     =.  jokens  +.jokens
-    ::  ~[one
+    ::  [one
     =^  jock-one  jokens
       (match-inner-jock jokens)
     =/  acc=(list jock)
@@ -492,7 +499,7 @@
       :+  %list
         [%none ~]
       (snoc acc [%atom p=[%number 0] q=%.n])
-    ::  ~[...]
+    ::  [...]
     =^  jock-nex  jokens
       (match-inner-jock jokens)
     $(acc (snoc acc jock-nex))
@@ -512,7 +519,7 @@
   ?~  jokens  ~|("expect expression starting with name. joken: ~" !!)
   ::  - %name (';' is is the next joken)
   ::  - %edit ('=' is the next joken)
-  ::  - %call ('(' is the next joken)
+  ::  - %call ('((' is the next joken)
   ::  - %compare ('==' or '<' or '>' or '!' is next)
   ?.  ?=(%name -.i.jokens)
     ~|("expect name. joken: {<-.i.jokens>}" !!)
@@ -551,7 +558,7 @@
     =^  inner-two  jokens
       (match-inner-jock jokens)
     [[%compare [%limb limbs] comparator inner-two] jokens]
-  ?:  (has-punctuator -.jokens %'(')
+  ?:  (has-punctuator -.jokens %'((')
     |-
     =.  jokens  +.jokens
     =^  arg  jokens
@@ -567,11 +574,20 @@
   ?:  =(~ jokens)  ~|("expect expression starting with type. joken: ~" !!)
   ?:  !=(%type -<.jokens)
     ~|("expect type. joken: {<-.jokens>}" !!)
-  ?>  (got-punctuator -.+.jokens %'(')
+  =/  type
+    ?:  =([%type 'List'] -.jokens)
+      %list
+    ?:  =([%type 'Set'] -.jokens)
+      %set
+    !!  ::  TODO generalize
+  =.  jokens  +.jokens
   =^  jyp  jokens
-    (match-jype `(list joken)`+>.jokens)
-  ?>  (got-punctuator -.jokens %')')
-  [jyp +.jokens]
+    (match-block [jokens %'(' %')'] match-jype)
+  :: ?>  (got-punctuator -.+.jokens %'(')
+  :: =^  jyp  jokens
+  ::   (match-jype `(list joken)`+>.jokens)
+  :: ?>  (got-punctuator -.jokens %')')
+  [`jype`[;;(jype-leaf [type jyp]) %$] jokens]
 ::
 ++  match-keyword
   |=  =jokens
@@ -593,26 +609,51 @@
       (match-inner-jock +.jokens)
     [[%let jype val jock] jokens]
   ::
+  ::  func a(b:@) -> @ { +(b) };
+  ::  [%func name=jype body=jock next=jock]
       %func
-    ~&  >  'here in func'
-    =^  arg  jokens
+    =^  type  jokens
       (match-jype jokens)
-    ~&  'here'
-    ~&  arg
+    =^  inp  jokens
+      (match-block [jokens %'((' %')'] match-jype)
     ?>  (got-punctuator -.jokens %'-')
-    ?>  (got-punctuator <+.jokens %'>')
+    ?>  (got-punctuator +<.jokens %'>')
     =.  jokens  +>.jokens
-    =^  ret  jokens
+    =^  out  jokens
       (match-jype jokens)
-    ~&  'here'
-    ~&  ret
-    =^  bod  jokens
-      (match-inner-jock +.jokens)
+    =^  body  jokens
+      (match-block [jokens %'{' %'}'] match-inner-jock)
+    ::  Fork between a lambda closure and a function definition.
     ?>  (got-punctuator -.jokens %';')
-    =^  jock  jokens
-      (match-jock +.jokens)
-    [[%func jype val jock] jokens]
+    =^  next  jokens
+      (match-inner-jock +.jokens)
+    =.  type
+      :-  [%core [%& [`inp out]] ~]
+      name.type
+    =.  body
+      :-  %lambda
+      [[`inp out] body ~]
+    [[%func type body next] jokens]
   ::
+  ::  lambda (b:@) -> @ {+(b)}(23);
+  ::  [%lambda p=lambda]
+      %lambda
+    =^  lambda  jokens
+      (match-lambda [[%punctuator %'('] +.jokens])
+    ?:  =(~ jokens)
+      [[%lambda lambda] jokens]
+    ?.  (has-punctuator -.jokens %'(')
+      [[%lambda lambda] jokens]
+    =.  jokens  +.jokens
+    ?:  (has-punctuator -.jokens %')')
+      [[%call [%lambda lambda] ~] +.jokens]
+    =^  arg  jokens
+      (match-inner-jock jokens)
+    ?>  (got-punctuator -.jokens %')')
+    [[%call [%lambda lambda] `arg] +.jokens]
+  ::
+  ::  if (a < b) { +(a) } else { +(b) }
+  ::  [%if cond=jock then=jock after-if=after-if-expression]
       %if
     =^  cond  jokens
       (match-inner-jock jokens)
@@ -728,7 +769,6 @@
 ++  match-jype
   |=  =jokens
   ^-  [jype (list joken)]
-  ~&  jokens+jokens
   ?:  =(~ jokens)
     ~|("expect jype. joken: ~" !!)
   ::  Store name and strip it from joken list
@@ -736,9 +776,7 @@
   =/  nom  (fall (get-name -.jokens) %$)
   =?  jokens  has-name  +.jokens
   ::  Type-qualified name  b:a
-  ~&  'here2'
   ?:  &(has-name (has-punctuator -.jokens %':'))
-    ~&  -.+.jokens
     ?:  =(%type -.-.+.jokens)
       =^  jyp  jokens
         (match-metatype `(list joken)`+.jokens)
@@ -757,9 +795,9 @@
       [[jyp-one jyp-two] jokens]
     [[[p.r q.r] nom] jokens]
   ::  Otherwise, match the leaf into the jype and return it with name.
-  ?:  =(%type -<.+.jokens)
+  ?:  =(%type -.-.jokens)
     =^  jyp  jokens
-      (match-metatype `(list joken)`+.jokens)
+      (match-metatype `(list joken)`jokens)
     [jyp(name nom) jokens]
   =^  jyp-leaf  jokens
     (match-jype-leaf jokens)
@@ -783,7 +821,7 @@
   ?:  (has-punctuator -.jokens %'*')
     [[%none ~] +.jokens]
   ::  %core
-  ::    Match on lambda definition  (a:@ -> @)
+  ::    Match on lambda definition  (a:@) -> @
   ?:  (has-punctuator -.jokens %'(')
     =^  lambda-argument  jokens
       (match-lambda-argument jokens)
@@ -803,36 +841,6 @@
   ::  [%none ~]
   [[%none ~] jokens]
 ::
-++  match-signature
-  |=  =jokens
-  ^-  [jype (list joken)]
-  ~&  >  'here4'
-  ?:  =(~ jokens)
-    ~|("expect jype. joken: ~" !!)
-  ::  Store name and strip it from joken list
-  =/  has-name  ?=(^ (get-name -.jokens))
-  =/  nom  (fall (get-name -.jokens) %$)
-  =?  jokens  has-name  +.jokens
-  ::  Type-qualified name  b:a
-  ~&  'here2'
-  ?:  &(has-name (has-punctuator -.jokens %':'))
-    ~&  -.+.jokens
-    ?:  =(%type -.-.+.jokens)
-      =^  jyp  jokens
-        (match-metatype `(list joken)`+.jokens)
-      [jyp(name nom) jokens]
-    =^  jyp  jokens
-      (match-signature +.jokens)
-    [jyp(name nom) jokens]
-  =^  jyp-leaf  jokens
-    ::  %core
-    ::    Match on lambda definition  (a:@ -> @)
-    ?>  (got-punctuator -.jokens %'(')
-    =^  lambda-argument  jokens
-      (match-lambda-argument jokens)
-    [[%core [%& lambda-argument] ~] jokens]
-  [[jyp-leaf nom] jokens]
-::
 ++  match-lambda
   |=  =jokens
   ^-  [lambda (list joken)]
@@ -847,13 +855,11 @@
   |=  =jokens
   ^-  [lambda-argument (list joken)]
   ?:  =(~ jokens)  ~|("expect lambda-argument. joken: ~" !!)
-  %+  match-block  [jokens %'(' %')']
-  |=  =^jokens
   ^-  [lambda-argument (list joken)]
   =^  inp  jokens
-    (match-jype jokens)
+    (match-block [jokens %'(' %')'] match-jype)
   ?>  (got-punctuator -.jokens %'-')
-  ?>  (got-punctuator -.+.jokens %'>')
+  ?>  (got-punctuator +<.jokens %'>')
   =^  out  jokens
     (match-jype +.+.jokens)
   [[`inp out] jokens]
@@ -1256,8 +1262,7 @@
       [[%8 val nex] nex-jyp]
     ::
         %func
-      ~|  %func-value
-      =+  [val val-jyp]=$(j val.j)
+      =+  [val val-jyp]=$(j body.j)
       =.  jyp
         =/  inferred-type
           (~(unify jt type.j) val-jyp)
@@ -1513,7 +1518,6 @@
       ~|  %enter-lambda-body
       ::  TODO: wtf?
       =/  lam-jyp  (lam-j arg.p.j ?~(pay `jyp `q.u.pay))
-      ::=/  lam-jyp  (lam-j arg.p.j `jyp)
       =+  [body body-jyp]=$(j body.p.j, jyp lam-jyp)
       ?~  pay
         :_  (lam-j arg.p.j `jyp)
@@ -1660,6 +1664,10 @@
       $(j p:(~(get-limb jt jyp) p.p.j))
     ::
         %fork      $(j p.p.j)
+    ::
+        %list      [%1 0]
+    ::
+        %set       [%1 0]
     ::
         %none      [%1 0]
     ==
