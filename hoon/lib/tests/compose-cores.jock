@@ -1,10 +1,10 @@
-let g = (a:@ -> @) {
+func g(a:@) -> @ {
   29
 };
 
 compose
   with this; object {
-    b = (c:@ -> @) {
+    b = lambda (c:@) -> @ {
       g(5)
     }
     c = 89

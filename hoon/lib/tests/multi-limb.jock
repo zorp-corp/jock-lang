@@ -1,4 +1,3 @@
-
 let a: (p:@ q:(k:@ v:@)) = (52 30 45);
 
-v.q.a
+(v.q.a)  // reduces to v.q.a, so also testing tuple-of-one

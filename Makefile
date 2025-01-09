@@ -44,7 +44,7 @@ release-test-all:
 .PHONY: build-dev-fast
 build-dev-fast: ## Slower to compile, faster to execute. Builds all projects
 	@set -e; \
-	./choo hoon/main.hoon hoon; \
+	RUST_LOG=TRACE ./choo hoon/main.hoon hoon; \
 	mv out.jam assets/jocktest.jam; \
 	cargo build $(PROFILE_DEV_FAST)
 
@@ -58,14 +58,14 @@ build-parallel: ## profiling profile with parallel feature enabled
 .PHONY: build
 build-dev-debug: ## Fast to compile, slow to execute. Builds all projects
 	@set -e; \
-	./choo --new --log-level trace hoon/main.hoon hoon; \
+	RUST_LOG=TRACE ./choo --new --log-level trace hoon/main.hoon hoon; \
 	mv out.jam assets/jocktest.jam; \
 	cargo build
 
 .PHONY: build-release
 build-release: ## Slowest to compile, fastest to execute. Builds all projects
 	@set -e; \
-	./choo hoon/main.hoon hoon; \
+	RUST_LOG=TRACE ./choo hoon/main.hoon hoon; \
 	mv out.jam assets/jocktest.jam; \
 	cargo build $(PROFILE_RELEASE)
 
@@ -77,3 +77,10 @@ update-choo:
 .PHONY: choo-version
 choo-version:
 	@echo "Latest choo version: $(CHOO_TAG)"
+
+.PHONY: clean
+clean: ## Clean all projects
+	@set -e; \
+	rm -f assets/jocktest.jam; \
+	rm -rf .data.choo/ \
+	cargo clean
