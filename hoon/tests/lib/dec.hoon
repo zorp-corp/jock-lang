@@ -2,6 +2,7 @@
 /+  jock,
     test
 ::
+!:
 |%
 ++  text
   'func dec(a:@) -> @ {\0a  let b = 0;\0a  loop;\0a  if a == +(b) {\0a    b\0a  } else {\0a    b = +(b);\0a    recur\0a  }\0a};\0a\0adec(5)'
