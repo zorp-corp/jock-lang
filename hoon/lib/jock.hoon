@@ -1,14 +1,14 @@
 =<  |%
     ++  tokenize
       |=  txt=@
-      ^-  jokens
+      ^-  tokens
       (rash txt parse-tokens)
     ::
     ++  jeam
       |=  txt=@
       ^-  jock
-      =+  [jok jokens]=(match-jock (rash txt parse-tokens))
-      ?.  ?=(~ jokens)
+      =+  [jok tokens]=(match-jock (rash txt parse-tokens))
+      ?.  ?=(~ tokens)
         ~|  'jeam: must parse to a single jock'
         !!
       jok
@@ -75,8 +75,8 @@
     q=?(%.y %.n)
   ==
 ::
-+$  joken
-  $+  joken
++$  token
+  $+  token
   $%  [%keyword keyword]
       [%punctuator jpunc]
       [%literal jatom]
@@ -84,7 +84,7 @@
       [%type cord]
   ==
 ::
-+$  jokens  (list joken)
++$  tokens  (list token)
 ::
 ++  val   %+  cold  ~
           ;~  plug  fas  fas
@@ -146,10 +146,10 @@
     ==
   ::
   ++  tagged-punctuator  %+  cook
-                           |=  =joken
-                           ^-  ^joken
-                           ?.  &(fun =([%punctuator %'('] joken))
-                             joken
+                           |=  =token
+                           ^-  ^token
+                           ?.  &(fun =([%punctuator %'('] token))
+                             token
                           ::  =.  fun  %.n
                            [%punctuator `jpunc`%'((']
                          (stag %punctuator punctuator)
@@ -172,12 +172,12 @@
   :: +$  upcast  [term *]
   ++  tokens
     ;~  pose
-        (knee *(list joken) |.(~+(;~(plug tagged-keyword ;~(pfix gav tokens(fun %.n))))))
-        (knee *(list joken) |.(~+(;~(plug tagged-symbol ;~(pfix gav tokens(fun %.n))))))
-        (knee *(list joken) |.(~+(;~(plug tagged-literal ;~(pfix gav tokens(fun %.n))))))
-        (knee *(list joken) |.(~+(;~(plug tagged-name ;~(pfix gav tokens(fun %.y))))))
-        (knee *(list joken) |.(~+(;~(plug tagged-punctuator ;~(pfix gav tokens(fun %.n))))))
-        (knee *(list joken) |.(~+(;~(plug tagged-type ;~(pfix gav tokens(fun %.n))))))
+        (knee *(list token) |.(~+(;~(plug tagged-keyword ;~(pfix gav tokens(fun %.n))))))
+        (knee *(list token) |.(~+(;~(plug tagged-symbol ;~(pfix gav tokens(fun %.n))))))
+        (knee *(list token) |.(~+(;~(plug tagged-literal ;~(pfix gav tokens(fun %.n))))))
+        (knee *(list token) |.(~+(;~(plug tagged-name ;~(pfix gav tokens(fun %.y))))))
+        (knee *(list token) |.(~+(;~(plug tagged-punctuator ;~(pfix gav tokens(fun %.n))))))
+        (knee *(list token) |.(~+(;~(plug tagged-type ;~(pfix gav tokens(fun %.n))))))
         (easy ~)
     ==
   ::
@@ -185,7 +185,7 @@
 ::
 ++  parse-tokens
   |=  =nail
-  ^-  (like (list joken))
+  ^-  (like (list token))
   %.  nail
   %-  full
   (ifix [gae gae] tokens:tokenize)
@@ -195,7 +195,7 @@
 ::
 ::  2: jock abstract syntax tree and parser
 ::
-::  The jock abstract syntax tree (AST) is produced from the joken list.  A jock
+::  The jock abstract syntax tree (AST) is produced from the token list.  A jock
 ::  represents what will compile to executable Nock expressions.
 ::
 ::  The jype, which consists of type information, is generated alongside the
@@ -328,370 +328,365 @@
   ==
 ::
 ++  match-jock
-  |=  =jokens
-  ^-  [jock (list joken)]
-  ?:  =(~ jokens)
-    ~|("expect jock. joken: ~" !!)
-  =^  jock  jokens
-    ?-    -<.jokens
+  |=  =tokens
+  ^-  [jock (list token)]
+  ?:  =(~ tokens)
+    ~|("expect jock. token: ~" !!)
+  =^  jock  tokens
+    ?-    -<.tokens
         %literal
       ::  TODO: check if we're in a compare
-      (match-literal jokens)
+      (match-literal tokens)
     ::
-      %name        (match-start-name jokens)
-      %keyword     (match-keyword jokens)
-      %punctuator  (match-start-punctuator jokens)
-      %type        !!  ::(match-metatype jokens)  :: shouldn't reach this way
+      %name        (match-start-name tokens)
+      %keyword     (match-keyword tokens)
+      %punctuator  (match-start-punctuator tokens)
+      %type        !!  ::(match-metatype tokens)  :: shouldn't reach this way
     ==
-  [jock jokens]
+  [jock tokens]
 ::
 ++  match-inner-jock
-  |=  =jokens
-  ^-  [jock (list joken)]
-  ?~  jokens  ~|("expect inner-jock. joken: ~" !!)
-  ?:  ?|  (has-keyword -.jokens %object)
-          (has-keyword -.jokens %with)
-          (has-keyword -.jokens %this)
-          (has-keyword -.jokens %crash)
+  |=  =tokens
+  ^-  [jock (list token)]
+  ?~  tokens  ~|("expect inner-jock. token: ~" !!)
+  ?:  ?|  (has-keyword -.tokens %object)
+          (has-keyword -.tokens %with)
+          (has-keyword -.tokens %this)
+          (has-keyword -.tokens %crash)
       ==
-    (match-jock jokens)
-  :: ?:  (has-punctuator -.jokens %'{')
-  ::   =>  .(jokens `(list joken)`jokens)  :: static list typing
-  ::   =^  jock  jokens
-  ::     (match-jock jokens)
-  ::   [jock +.jokens]
-  ~&  inner-jock+[jokens]
-  ?+    -.i.jokens  !!
+    (match-jock tokens)
+  :: ?:  (has-punctuator -.tokens %'{')
+  ::   =>  .(tokens `(list token)`tokens)  :: static list typing
+  ::   =^  jock  tokens
+  ::     (match-jock tokens)
+  ::   [jock +.tokens]
+  ?+    -.i.tokens  !!
       %literal
     ::  TODO: check if we're in a compare
-    (match-literal jokens)
+    (match-literal tokens)
   ::
-    %name        (match-start-name jokens)
-    %punctuator  (match-start-punctuator jokens)
-    %type        !!  ::(match-metatype jokens)  :: shouldn't reach this way
+    %name        (match-start-name tokens)
+    %punctuator  (match-start-punctuator tokens)
+    %type        !!  ::(match-metatype tokens)  :: shouldn't reach this way
   ==
 ::
 ++  match-jock-args
-  |=  =jokens
-  ^-  [jock (list joken)]
-  ?:  =(~ jokens)  ~|("expect inner-jock. joken: ~" !!)
-  :: =>  .(jokens `(list joken)`jokens)  :: static list typing
-  =^  jock  jokens
-    (match-jock jokens)
-  [jock +.jokens]
+  |=  =tokens
+  ^-  [jock (list token)]
+  ?:  =(~ tokens)  ~|("expect inner-jock. token: ~" !!)
+  :: =>  .(tokens `(list token)`tokens)  :: static list typing
+  =^  jock  tokens
+    (match-jock tokens)
+  [jock +.tokens]
 ::
 ++  match-pair-inner-jock
-  |=  =jokens
-  ^-  [jock (list joken)]
-  ?~  jokens  ~|("expect jock. joken: ~" !!)
-  ~&  match-pair-inner-jock+[jokens]
-  ?:  (has-punctuator -.jokens %'(')
-    =>  .(jokens `(list joken)`+.jokens)
-    =^  jock-one  jokens
-      (match-inner-jock jokens)
-    ~&  jock-one+jock-one
-    ?:  (has-punctuator -.jokens %')')
-      [jock-one +.jokens]
+  |=  =tokens
+  ^-  [jock (list token)]
+  ?~  tokens  ~|("expect jock. token: ~" !!)
+  ?:  (has-punctuator -.tokens %'(')
+    =>  .(tokens `(list token)`+.tokens)
+    =^  jock-one  tokens
+      (match-inner-jock tokens)
+    ?:  (has-punctuator -.tokens %')')
+      [jock-one +.tokens]
     =/  first=?  %.y
-    |-  ^-  [jock (list joken)]
-    =^  jock-nex  jokens
-      (match-inner-jock jokens)
-    ~&  jock-nex+[jock-nex jokens]
-    =/  pun  (has-punctuator -.jokens %')')
+    |-  ^-  [jock (list token)]
+    =^  jock-nex  tokens
+      (match-inner-jock tokens)
+    =/  pun  (has-punctuator -.tokens %')')
     ?:  &(first pun)
-      [[jock-one jock-nex] +.jokens]
+      [[jock-one jock-nex] +.tokens]
     ?:  pun
-      [jock-nex +.jokens]
+      [jock-nex +.tokens]
     ?:  first
-      =^  pairs  jokens
+      =^  pairs  tokens
         $(first %.n)
-      [[jock-one jock-nex pairs] jokens]
-    ~&  fallthrough+jokens
-    =^  pairs  jokens
+      [[jock-one jock-nex pairs] tokens]
+    =^  pairs  tokens
       $
-    [[jock-nex pairs] jokens]
-  ?+  -.i.jokens  !!
-    %literal     (match-literal jokens)
-    %name        (match-start-name jokens)
-    %punctuator  (match-start-punctuator jokens)
-    %type        !!  ::(match-metatype jokens)  :: shouldn't reach this way
+    [[jock-nex pairs] tokens]
+  ?+  -.i.tokens  !!
+    %literal     (match-literal tokens)
+    %name        (match-start-name tokens)
+    %punctuator  (match-start-punctuator tokens)
+    %type        !!  ::(match-metatype tokens)  :: shouldn't reach this way
   ==
 ::
 ++  match-start-punctuator
-  |=  =jokens
-  ^-  [jock (list joken)]
-  ?:  =(~ jokens)  ~|("expect jock. joken: ~" !!)
-  =/  first=joken  -.jokens
+  |=  =tokens
+  ^-  [jock (list token)]
+  ?:  =(~ tokens)  ~|("expect jock. token: ~" !!)
+  =/  first=token  -.tokens
   ?.  ?=(%punctuator -.first)
-    ~|("expect start-punctuator. joken: {<-.first>}" !!)
-  =.  jokens  +.jokens
-  ?+    +.first  ~|(jokens !!)
+    ~|("expect start-punctuator. token: {<-.first>}" !!)
+  =.  tokens  +.tokens
+  ?+    +.first  ~|(tokens !!)
   ::  Increment  +(0)
       %'+'
-    =^  jock  jokens
-      (match-block [jokens %'(' %')'] match-inner-jock)
+    =^  jock  tokens
+      (match-block [tokens %'(' %')'] match-inner-jock)
     ::  TODO: check if we're in a compare
-    [[%increment jock] jokens]
+    [[%increment jock] tokens]
   ::
       %'?'
-    =^  jock  jokens
-      (match-block [jokens %'(' %')'] match-inner-jock)
+    =^  jock  tokens
+      (match-block [tokens %'(' %')'] match-inner-jock)
     ::  TODO: check if we're in a compare
-    [[%cell-check jock] jokens]
+    [[%cell-check jock] tokens]
   ::
       %'$'
-    ?.  (has-punctuator -.jokens %'(')
-      [[%call [%limb [%axis 0] ~] ~] jokens]
-    ?:  (has-punctuator -.jokens %')')
-      [[%call [%limb [%axis 0] ~] ~] +.+.jokens]
-    =^  arg  jokens
-      (match-block [jokens %'(' %')'] match-inner-jock)
-    [[%call [%limb [%axis %0] ~] `arg] jokens]
+    ?.  (has-punctuator -.tokens %'(')
+      [[%call [%limb [%axis 0] ~] ~] tokens]
+    ?:  (has-punctuator -.tokens %')')
+      [[%call [%limb [%axis 0] ~] ~] +.+.tokens]
+    =^  arg  tokens
+      (match-block [tokens %'(' %')'] match-inner-jock)
+    [[%call [%limb [%axis %0] ~] `arg] tokens]
   ::  Axis address  &1
       %'&'
     ::  TODO: check if we're in a compare
-    =^  axis-lit  jokens
-      (match-axis [[%punctuator %'&'] jokens])
-    ?:  =(~ jokens)
-      [[%limb axis-lit ~] jokens]
-    ?.  (has-punctuator -.jokens %'(')  ::  XXX not '(' because of parser
-      [[%limb axis-lit ~] jokens]
-    =^  arg  jokens
-      (match-block [jokens %'(' %')'] match-inner-jock)  ::  XXX not '('
-    [[%call [%limb axis-lit ~] `arg] jokens]
+    =^  axis-lit  tokens
+      (match-axis [[%punctuator %'&'] tokens])
+    ?:  =(~ tokens)
+      [[%limb axis-lit ~] tokens]
+    ?.  (has-punctuator -.tokens %'(')  ::  XXX not '(' because of parser
+      [[%limb axis-lit ~] tokens]
+    =^  arg  tokens
+      (match-block [tokens %'(' %')'] match-inner-jock)  ::  XXX not '('
+    [[%call [%limb axis-lit ~] `arg] tokens]
   ::  Set  {1 2 3}
       %'{'
     ::  {one
-    =^  jock-one  jokens
-      (match-inner-jock jokens)
+    =^  jock-one  tokens
+      (match-inner-jock tokens)
     =/  acc=(set jock)
       (sy jock-one ~)
-    |-  ^-  [jock (list joken)]
-    ?:  (has-punctuator -.jokens %'}')
+    |-  ^-  [jock (list token)]
+    ?:  (has-punctuator -.tokens %'}')
       ::  ...}
-      :_  +.jokens  :: strip '}'
+      :_  +.tokens  :: strip '}'
       ^-  jock
       :+  %set
         [%none ~]
       acc
     ::  {...}
-    =^  jock-nex  jokens
-      (match-inner-jock jokens)
+    =^  jock-nex  tokens
+      (match-inner-jock tokens)
     $(acc (~(put in acc) jock-nex))
   ::  Tuple
       %'('
-    (match-pair-inner-jock [[%punctuator %'('] jokens])
+    (match-pair-inner-jock [[%punctuator %'('] tokens])
   ::  Call
       %'(('
-    =^  lambda  jokens
-      (match-lambda [[%punctuator %'(('] +.jokens])
-    ?:  =(~ jokens)
-      [[%lambda lambda] jokens]
-    ?.  (has-punctuator -.jokens %'((')
-      [[%lambda lambda] jokens]
-    =.  jokens  +.jokens
-    ?:  (has-punctuator -.jokens %')')
+    =^  lambda  tokens
+      (match-lambda [[%punctuator %'(('] +.tokens])
+    ?:  =(~ tokens)
+      [[%lambda lambda] tokens]
+    ?.  (has-punctuator -.tokens %'((')
+      [[%lambda lambda] tokens]
+    =.  tokens  +.tokens
+    ?:  (has-punctuator -.tokens %')')
       :: no argument
-      [[%call [%lambda lambda] ~] +.jokens]
-    =^  arg  jokens
+      [[%call [%lambda lambda] ~] +.tokens]
+    =^  arg  tokens
       :: match arbitrary number of arguments
-      (match-pair-inner-jock [[%punctuator %'('] jokens])
-    ?>  (got-punctuator -.jokens %')')
-    [[%call [%lambda lambda] `arg] +.jokens]
+      (match-pair-inner-jock [[%punctuator %'('] tokens])
+    ?>  (got-punctuator -.tokens %')')
+    [[%call [%lambda lambda] `arg] +.tokens]
   ::  Null-terminated list  [1 2 3]
       %'['
     ::  [one
-    =^  jock-one  jokens
-      (match-inner-jock jokens)
+    =^  jock-one  tokens
+      (match-inner-jock tokens)
     =/  acc=(list jock)
       [jock-one ~]
-    |-  ^-  [jock (list joken)]
-    ?:  (has-punctuator -.jokens %']')
+    |-  ^-  [jock (list token)]
+    ?:  (has-punctuator -.tokens %']')
       ::  ...]
-      :_  +.jokens
+      :_  +.tokens
       ^-  jock
       :+  %list
         [%none ~]
       (snoc acc [%atom p=[%number 0] q=%.n])
     ::  [...]
-    =^  jock-nex  jokens
-      (match-inner-jock jokens)
+    =^  jock-nex  tokens
+      (match-inner-jock tokens)
     $(acc (snoc acc jock-nex))
   ==
 ::
 ++  match-axis
-  |=  =jokens
-  ^-  [[%axis @] (list joken)]
-  ?>  (got-punctuator -.jokens %'&')
-  =.  jokens  +.jokens
-  =/  num=@  (got-jatom-number jokens)
-  [[%axis num] +.jokens]
+  |=  =tokens
+  ^-  [[%axis @] (list token)]
+  ?>  (got-punctuator -.tokens %'&')
+  =.  tokens  +.tokens
+  =/  num=@  (got-jatom-number tokens)
+  [[%axis num] +.tokens]
 ::
 ++  match-start-name
-  |=  =jokens
-  ^-  [jock (list joken)]
-  ?~  jokens  ~|("expect expression starting with name. joken: ~" !!)
-  ::  - %name (';' is is the next joken)
-  ::  - %edit ('=' is the next joken)
-  ::  - %call ('((' is the next joken)
+  |=  =tokens
+  ^-  [jock (list token)]
+  ?~  tokens  ~|("expect expression starting with name. token: ~" !!)
+  ::  - %name (';' is is the next token)
+  ::  - %edit ('=' is the next token)
+  ::  - %call ('((' is the next token)
   ::  - %compare ('==' or '<' or '>' or '!' is next)
-  ?.  ?=(%name -.i.jokens)
-    ~|("expect name. joken: {<-.i.jokens>}" !!)
+  ?.  ?=(%name -.i.tokens)
+    ~|("expect name. token: {<-.i.tokens>}" !!)
   =/  name=term
-    (got-name i.jokens)
-  =>  .(jokens t.jokens)
+    (got-name i.tokens)
+  =>  .(tokens t.tokens)
   =/  limbs=(list jlimb)  [%name name]~
-  ?:  =(~ jokens)
-    [[%limb limbs] jokens]
-  ?:  ?=(^ (get-name -.jokens))
-    [[%limb limbs] jokens]
+  ?:  =(~ tokens)
+    [[%limb limbs] tokens]
+  ?:  ?=(^ (get-name -.tokens))
+    [[%limb limbs] tokens]
   |-
-  ?:  =(~ jokens)
-    [[%limb limbs] jokens]
-  ?^  nom=(get-name -.jokens)
-    $(jokens +.jokens, limbs [[%name u.nom] limbs])
-  ?:  (has-punctuator -.jokens %'.')
-    $(jokens +.jokens)
-  ?:  (has-punctuator -.jokens %'=')
-    ?:  (has-punctuator -.+.jokens %'=')
-      =^  b  jokens
-        (match-inner-jock +.+.jokens)
-      [[%compare [%limb limbs] %'==' b] jokens]
-    =^  val  jokens
-      (match-inner-jock +.jokens)
-    ?>  (got-punctuator -.jokens %';')
-    =^  jock  jokens
-      (match-jock +.jokens)
-    [[%edit limbs val jock] jokens]
-  ?:  ?|  (has-punctuator -.jokens %'<')
-          (has-punctuator -.jokens %'>')
-          (has-punctuator -.jokens %'!')
+  ?:  =(~ tokens)
+    [[%limb limbs] tokens]
+  ?^  nom=(get-name -.tokens)
+    $(tokens +.tokens, limbs [[%name u.nom] limbs])
+  ?:  (has-punctuator -.tokens %'.')
+    $(tokens +.tokens)
+  ?:  (has-punctuator -.tokens %'=')
+    ?:  (has-punctuator -.+.tokens %'=')
+      =^  b  tokens
+        (match-inner-jock +.+.tokens)
+      [[%compare [%limb limbs] %'==' b] tokens]
+    =^  val  tokens
+      (match-inner-jock +.tokens)
+    ?>  (got-punctuator -.tokens %';')
+    =^  jock  tokens
+      (match-jock +.tokens)
+    [[%edit limbs val jock] tokens]
+  ?:  ?|  (has-punctuator -.tokens %'<')
+          (has-punctuator -.tokens %'>')
+          (has-punctuator -.tokens %'!')
       ==
-    =^  comparator  jokens
-      (match-comparator jokens)
-    =^  inner-two  jokens
-      (match-inner-jock jokens)
-    [[%compare [%limb limbs] comparator inner-two] jokens]
-  ?:  (has-punctuator -.jokens %'((')
+    =^  comparator  tokens
+      (match-comparator tokens)
+    =^  inner-two  tokens
+      (match-inner-jock tokens)
+    [[%compare [%limb limbs] comparator inner-two] tokens]
+  ?:  (has-punctuator -.tokens %'((')
     |-
-    =.  jokens  +.jokens
-    =^  arg  jokens
-      (match-inner-jock jokens)
-    ?>  (got-punctuator -.jokens %')')
+    =.  tokens  +.tokens
+    =^  arg  tokens
+      (match-inner-jock tokens)
+    ?>  (got-punctuator -.tokens %')')
     ::  TODO: check if we're in a compare
-    [[%call [%limb limbs] `arg] +.jokens]
-  [[%limb limbs] jokens]
+    [[%call [%limb limbs] `arg] +.tokens]
+  [[%limb limbs] tokens]
 ::
 ++  match-metatype
-  |=  =jokens
-  ^-  [jype (list joken)]
-  ?:  =(~ jokens)  ~|("expect expression starting with type. joken: ~" !!)
-  ?:  !=(%type -<.jokens)
-    ~|("expect type. joken: {<-.jokens>}" !!)
+  |=  =tokens
+  ^-  [jype (list token)]
+  ?:  =(~ tokens)  ~|("expect expression starting with type. token: ~" !!)
+  ?:  !=(%type -<.tokens)
+    ~|("expect type. token: {<-.tokens>}" !!)
   =/  type
-    ?:  =([%type 'List'] -.jokens)
+    ?:  =([%type 'List'] -.tokens)
       %list
-    ?:  =([%type 'Set'] -.jokens)
+    ?:  =([%type 'Set'] -.tokens)
       %set
     !!  ::  TODO generalize
-  =.  jokens  +.jokens
-  =^  jyp  jokens
-    (match-block [jokens %'(' %')'] match-jype)
-  :: ?>  (got-punctuator -.+.jokens %'(')
-  :: =^  jyp  jokens
-  ::   (match-jype `(list joken)`+>.jokens)
-  :: ?>  (got-punctuator -.jokens %')')
-  [`jype`[;;(jype-leaf [type jyp]) %$] jokens]
+  =.  tokens  +.tokens
+  =^  jyp  tokens
+    (match-block [tokens %'(' %')'] match-jype)
+  :: ?>  (got-punctuator -.+.tokens %'(')
+  :: =^  jyp  tokens
+  ::   (match-jype `(list token)`+>.tokens)
+  :: ?>  (got-punctuator -.tokens %')')
+  [`jype`[;;(jype-leaf [type jyp]) %$] tokens]
 ::
 ++  match-keyword
-  |=  =jokens
-  ^-  [jock (list joken)]
-  ?:  =(~ jokens)  ~|("expect keyword. joken: ~" !!)
-  =^  first=joken  jokens
-    [-.jokens +.jokens]
+  |=  =tokens
+  ^-  [jock (list token)]
+  ?:  =(~ tokens)  ~|("expect keyword. token: ~" !!)
+  =^  first=token  tokens
+    [-.tokens +.tokens]
   ?.  ?=(%keyword -.first)
-    ~|("expect keyword. joken: {<-.first>}" !!)
+    ~|("expect keyword. token: {<-.first>}" !!)
   ?+    +.first  !!
       %let
-    =^  jype  jokens
-      (match-jype jokens)
-    ?>  (got-punctuator -.jokens %'=')
-    =^  val  jokens
-      (match-jock +.jokens)
-    ?>  (got-punctuator -.jokens %';')
-    =^  jock  jokens
-      (match-jock +.jokens)
-    [[%let jype val jock] jokens]
+    =^  jype  tokens
+      (match-jype tokens)
+    ?>  (got-punctuator -.tokens %'=')
+    =^  val  tokens
+      (match-jock +.tokens)
+    ?>  (got-punctuator -.tokens %';')
+    =^  jock  tokens
+      (match-jock +.tokens)
+    [[%let jype val jock] tokens]
   ::
   ::  func a(b:@) -> @ { +(b) };
   ::  [%func name=jype body=jock next=jock]
       %func
-    =^  type  jokens
-      (match-jype jokens)
-    =^  inp  jokens
-      (match-block [jokens %'((' %')'] match-jype)
-    ?>  (got-punctuator -.jokens %'-')
-    ?>  (got-punctuator +<.jokens %'>')
-    =.  jokens  +>.jokens
-    =^  out  jokens
-      (match-jype jokens)
-    =^  body  jokens
-      (match-block [jokens %'{' %'}'] match-jock)
+    =^  type  tokens
+      (match-jype tokens)
+    =^  inp  tokens
+      (match-block [tokens %'((' %')'] match-jype)
+    ?>  (got-punctuator -.tokens %'-')
+    ?>  (got-punctuator +<.tokens %'>')
+    =.  tokens  +>.tokens
+    =^  out  tokens
+      (match-jype tokens)
+    =^  body  tokens
+      (match-block [tokens %'{' %'}'] match-jock)
     ::  Fork between a lambda closure and a function definition.
-    ?>  (got-punctuator -.jokens %';')
-    =^  next  jokens
-      (match-jock +.jokens)
+    ?>  (got-punctuator -.tokens %';')
+    =^  next  tokens
+      (match-jock +.tokens)
     =.  type
       :-  [%core [%& [`inp out]] ~]
       name.type
     =.  body
       :-  %lambda
       [[`inp out] body ~]
-    [[%func type body next] jokens]
+    [[%func type body next] tokens]
   ::
   ::  lambda (b:@) -> @ {+(b)}(23);
   ::  [%lambda p=lambda]
       %lambda
-    =^  lambda  jokens
-      (match-lambda [[%punctuator %'('] +.jokens])
-    ?:  =(~ jokens)
-      [[%lambda lambda] jokens]
-    ?.  (has-punctuator -.jokens %'(')
-      [[%lambda lambda] jokens]
-    =.  jokens  +.jokens
-    ?:  (has-punctuator -.jokens %')')
-      [[%call [%lambda lambda] ~] +.jokens]
-    =^  arg  jokens
-      (match-pair-inner-jock [[%punctuator %'('] jokens])
+    =^  lambda  tokens
+      (match-lambda [[%punctuator %'('] +.tokens])
+    ?:  =(~ tokens)
+      [[%lambda lambda] tokens]
+    ?.  (has-punctuator -.tokens %'(')
+      [[%lambda lambda] tokens]
+    =.  tokens  +.tokens
+    ?:  (has-punctuator -.tokens %')')
+      [[%call [%lambda lambda] ~] +.tokens]
+    =^  arg  tokens
+      (match-pair-inner-jock [[%punctuator %'('] tokens])
     :: %')' consumed by +match-pair-inner-jock
-    [[%call [%lambda lambda] `arg] jokens]
+    [[%call [%lambda lambda] `arg] tokens]
   ::
   ::  if (a < b) { +(a) } else { +(b) }
   ::  [%if cond=jock then=jock after-if=after-if-expression]
       %if
-    =^  cond  jokens
-      (match-inner-jock jokens)
-    =^  then  jokens
-      (match-block [jokens %'{' %'}'] match-jock)
-    =^  after-if  jokens
-      (match-after-if-expression jokens)
-    [[%if cond then after-if] jokens]
+    =^  cond  tokens
+      (match-inner-jock tokens)
+    =^  then  tokens
+      (match-block [tokens %'{' %'}'] match-jock)
+    =^  after-if  tokens
+      (match-after-if-expression tokens)
+    [[%if cond then after-if] tokens]
   ::
       %assert
-    =^  cond  jokens
-      (match-inner-jock jokens)
-    ?>  (got-punctuator -.jokens %';')
-    =^  then  jokens
-      (match-jock +.jokens)
-    [[%assert cond then] jokens]
+    =^  cond  tokens
+      (match-inner-jock tokens)
+    ?>  (got-punctuator -.tokens %';')
+    =^  then  tokens
+      (match-jock +.tokens)
+    [[%assert cond then] tokens]
   ::
       %with
-    =^  payload=jock  jokens
-      (match-inner-jock jokens)
-    ?>  (got-punctuator -.jokens %';')
-    =^  obj-or-lambda=jock  jokens
-      (match-jock +.jokens)
-    :_  jokens
+    =^  payload=jock  tokens
+      (match-inner-jock tokens)
+    ?>  (got-punctuator -.tokens %';')
+    =^  obj-or-lambda=jock  tokens
+      (match-jock +.tokens)
+    :_  tokens
     ^-  jock
     ?+  -.obj-or-lambda  !!
       %object  obj-or-lambda(q `payload)
@@ -699,344 +694,344 @@
     ==
   ::
       %object
-    =/  has-name  ?=(^ (get-name -.jokens))
-    =/  cor-name  (fall (get-name -.jokens) %$)
-    =?  jokens  has-name
-      +.jokens
-    ?>  (got-punctuator -.jokens %'{')
-    =.  jokens  +.jokens
-    =^  core  jokens
+    =/  has-name  ?=(^ (get-name -.tokens))
+    =/  cor-name  (fall (get-name -.tokens) %$)
+    =?  tokens  has-name
+      +.tokens
+    ?>  (got-punctuator -.tokens %'{')
+    =.  tokens  +.tokens
+    =^  core  tokens
       =|  core=(map term jock)
       |-
-      ?:  (has-punctuator -.jokens %'}')
-        [core +.jokens]
+      ?:  (has-punctuator -.tokens %'}')
+        [core +.tokens]
       =/  name=term
-        (got-name -.jokens)
-      ?>  (got-punctuator +<.jokens %'=')
-      =^  jock  jokens
-        (match-jock +>.jokens)
-        :: (match-inner-jock +>.jokens)
+        (got-name -.tokens)
+      ?>  (got-punctuator +<.tokens %'=')
+      =^  jock  tokens
+        (match-jock +>.tokens)
+        :: (match-inner-jock +>.tokens)
       $(core (~(put by core) name jock))
-    :_  jokens
+    :_  tokens
     [%object cor-name core ~]
   ::
       %compose
-    =^  p  jokens
-      (match-inner-jock jokens)
-    ?>  (got-punctuator -.jokens %';')
-    =^  q  jokens
-      (match-jock +.jokens)
-    :_  jokens
+    =^  p  tokens
+      (match-inner-jock tokens)
+    ?>  (got-punctuator -.tokens %';')
+    =^  q  tokens
+      (match-jock +.tokens)
+    :_  tokens
     [%compose p q]
   ::
       %match
   :: [%match value=jock cases=(map jock jock) default=(unit jock)]
   :: [%cases value=jock cases=(map jock jock) default=(unit jock)]
-    ?:  (has-keyword -.jokens %case)
-      =^  value  jokens
-        (match-inner-jock +.jokens)
-      =^  pairs  jokens
-        (match-block [jokens %'{' %'}'] match-match)
-      :_  jokens
+    ?:  (has-keyword -.tokens %case)
+      =^  value  tokens
+        (match-inner-jock +.tokens)
+      =^  pairs  tokens
+        (match-block [tokens %'{' %'}'] match-match)
+      :_  tokens
       [%cases value -.pairs +.pairs]
-    ?>  (has-keyword -.jokens %type)
-    =^  value  jokens
-      (match-inner-jock +.jokens)
-    =^  pairs  jokens
-      (match-block [jokens %'{' %'}'] match-match)
-    :_  jokens
+    ?>  (has-keyword -.tokens %type)
+    =^  value  tokens
+      (match-inner-jock +.tokens)
+    =^  pairs  tokens
+      (match-block [tokens %'{' %'}'] match-match)
+    :_  tokens
     [%match value -.pairs +.pairs]
   ::
       ?(%loop %defer)
-    ?>  (got-punctuator -.jokens %';')
-    =^  jock  jokens
-      (match-jock +.jokens)
-    :_  jokens
+    ?>  (got-punctuator -.tokens %';')
+    =^  jock  tokens
+      (match-jock +.tokens)
+    :_  tokens
     ?:(?=(%loop +.first) [+.first jock] [+.first jock])
   ::
       %recur
-    ?.  (has-punctuator -.jokens %'(')
-      [[%call [%limb [%axis 0] ~] ~] jokens]
-    ?:  (has-punctuator -.+.jokens %')')
-      [[%call [%limb [%axis 0] ~] ~] +.+.jokens]
-    =^  arg  jokens
-      (match-inner-jock +.jokens)
-    ?>  (got-punctuator -.jokens %')')
-    [[%call [%limb [%axis %0] ~] `arg] +.jokens]
+    ?.  (has-punctuator -.tokens %'(')
+      [[%call [%limb [%axis 0] ~] ~] tokens]
+    ?:  (has-punctuator -.+.tokens %')')
+      [[%call [%limb [%axis 0] ~] ~] +.+.tokens]
+    =^  arg  tokens
+      (match-inner-jock +.tokens)
+    ?>  (got-punctuator -.tokens %')')
+    [[%call [%limb [%axis %0] ~] `arg] +.tokens]
   ::
       %this
-    [[%limb [%axis 1] ~] jokens]
+    [[%limb [%axis 1] ~] tokens]
   ::
       %eval
-    =^  p  jokens
-      (match-inner-jock jokens)
-    =^  q  jokens
-      (match-jock jokens)
-    :_  jokens
+    =^  p  tokens
+      (match-inner-jock tokens)
+    =^  q  tokens
+      (match-jock tokens)
+    :_  tokens
     [%eval p q]
   ::
       %crash
-    [[%crash ~] jokens]
+    [[%crash ~] tokens]
   ==
 ::
-::  Match jokens into jype information.
+::  Match tokens into jype information.
 ::
 ++  match-jype
-  |=  =jokens
-  ^-  [jype (list joken)]
-  ?:  =(~ jokens)
-    ~|("expect jype. joken: ~" !!)
-  ::  Store name and strip it from joken list
-  =/  has-name  ?=(^ (get-name -.jokens))
-  =/  nom  (fall (get-name -.jokens) %$)
-  =?  jokens  has-name  +.jokens
+  |=  =tokens
+  ^-  [jype (list token)]
+  ?:  =(~ tokens)
+    ~|("expect jype. token: ~" !!)
+  ::  Store name and strip it from token list
+  =/  has-name  ?=(^ (get-name -.tokens))
+  =/  nom  (fall (get-name -.tokens) %$)
+  =?  tokens  has-name  +.tokens
   ::  Type-qualified name  b:a
-  ?:  &(has-name (has-punctuator -.jokens %':'))
-    ?:  =(%type -.-.+.jokens)
-      =^  jyp  jokens
-        (match-metatype `(list joken)`+.jokens)
-      [jyp(name nom) jokens]
-    =^  jyp  jokens
-      (match-jype +.jokens)
-    [jyp(name nom) jokens]
+  ?:  &(has-name (has-punctuator -.tokens %':'))
+    ?:  =(%type -.-.+.tokens)
+      =^  jyp  tokens
+        (match-metatype `(list token)`+.tokens)
+      [jyp(name nom) tokens]
+    =^  jyp  tokens
+      (match-jype +.tokens)
+    [jyp(name nom) tokens]
   ::  Tuple cell  (a b)
-  ?:  (has-punctuator -.jokens %'(')
-    =^  r=(pair jype (unit jype))  jokens
-      %+  match-block  [jokens %'(' %')']
-      |=  =^jokens
-      =^  jyp-one  jokens  (match-jype jokens)
-      ?:  (has-punctuator -.jokens %')')
+  ?:  (has-punctuator -.tokens %'(')
+    =^  r=(pair jype (unit jype))  tokens
+      %+  match-block  [tokens %'(' %')']
+      |=  =^tokens
+      =^  jyp-one  tokens  (match-jype tokens)
+      ?:  (has-punctuator -.tokens %')')
         ::  short-circuit if single element in cell
-        [[jyp-one ~] jokens]
-      =^  jyp-two  jokens  (match-jype jokens)
+        [[jyp-one ~] tokens]
+      =^  jyp-two  tokens  (match-jype tokens)
       ::  TODO: support implicit right-association  (what's a good test case?)
-      [[jyp-one `jyp-two] jokens]
-    [?~(q.r `jype`p.r `jype`[[p.r u.q.r] nom]) jokens]
+      [[jyp-one `jyp-two] tokens]
+    [?~(q.r `jype`p.r `jype`[[p.r u.q.r] nom]) tokens]
   ::  Otherwise, match the leaf into the jype and return it with name.
-  ?:  =(%type -.-.jokens)
-    =^  jyp  jokens
-      (match-metatype `(list joken)`jokens)
-    [jyp(name nom) jokens]
-  =^  jyp-leaf  jokens
-    (match-jype-leaf jokens)
-  [[jyp-leaf nom] jokens]
+  ?:  =(%type -.-.tokens)
+    =^  jyp  tokens
+      (match-metatype `(list token)`tokens)
+    [jyp(name nom) tokens]
+  =^  jyp-leaf  tokens
+    (match-jype-leaf tokens)
+  [[jyp-leaf nom] tokens]
 ::
-::  Match jokens into terminal jype information.
+::  Match tokens into terminal jype information.
 ::
 ++  match-jype-leaf
-  |=  =jokens
-  ^-  [jype-leaf (list joken)]
-  ?:  =(~ jokens)  ~|("expect jype-leaf. joken: ~" !!)
+  |=  =tokens
+  ^-  [jype-leaf (list token)]
+  ?:  =(~ tokens)  ~|("expect jype-leaf. token: ~" !!)
   ::  %atom
   ::    Match on atom type  a:@
-  ?:  (has-punctuator -.jokens %'@')
+  ?:  (has-punctuator -.tokens %'@')
     ::  TODO resolve deeper on type aura
-    [[%atom %number %.n] +.jokens]
+    [[%atom %number %.n] +.tokens]
   ::    Match on loobean type  a:?
-  ?:  (has-punctuator -.jokens %'?')
-    [[%atom %loobean %.n] +.jokens]
+  ?:  (has-punctuator -.tokens %'?')
+    [[%atom %loobean %.n] +.tokens]
   ::  Match on no type  a:*
-  ?:  (has-punctuator -.jokens %'*')
-    [[%none ~] +.jokens]
+  ?:  (has-punctuator -.tokens %'*')
+    [[%none ~] +.tokens]
   ::  %core
   ::    Match on lambda definition  (a:@) -> @
-  ?:  (has-punctuator -.jokens %'(')
-    =^  lambda-argument  jokens
-      (match-lambda-argument jokens)
-    [[%core [%& lambda-argument] ~] jokens]
+  ?:  (has-punctuator -.tokens %'(')
+    =^  lambda-argument  tokens
+      (match-lambda-argument tokens)
+    [[%core [%& lambda-argument] ~] tokens]
   ::  %limb (fallthrough)
   ::    Match on limb lookup.
-  ?^  nom=(get-name -.jokens)
-    [[%limb ~[name+u.nom]] +.jokens]
+  ?^  nom=(get-name -.tokens)
+    [[%limb ~[name+u.nom]] +.tokens]
   ::    Match on axis (& axis).
-  ?:  (has-punctuator -.jokens %'&')
-    =^  axis-lit  jokens
-      (match-axis jokens)
-    [[%limb ~[axis-lit]] jokens]
+  ?:  (has-punctuator -.tokens %'&')
+    =^  axis-lit  tokens
+      (match-axis tokens)
+    [[%limb ~[axis-lit]] tokens]
   ::  %fork
   ::    No action; fall-through.  TODO check
   ::  Else untyped (as variable name).
   ::  [%none ~]
-  [[%none ~] jokens]
+  [[%none ~] tokens]
 ::
 ++  match-lambda
-  |=  =jokens
-  ^-  [lambda (list joken)]
-  ?:  =(~ jokens)  ~|("expect lambda. joken: ~" !!)
-  =^  lambda-argument  jokens
-    (match-lambda-argument jokens)
-  =^  body  jokens
-    (match-block [jokens %'{' %'}'] match-jock)
-  [[lambda-argument body ~] jokens]
+  |=  =tokens
+  ^-  [lambda (list token)]
+  ?:  =(~ tokens)  ~|("expect lambda. token: ~" !!)
+  =^  lambda-argument  tokens
+    (match-lambda-argument tokens)
+  =^  body  tokens
+    (match-block [tokens %'{' %'}'] match-jock)
+  [[lambda-argument body ~] tokens]
 ::
 ++  match-lambda-argument
-  |=  =jokens
-  ^-  [lambda-argument (list joken)]
-  ?:  =(~ jokens)  ~|("expect lambda-argument. joken: ~" !!)
-  ^-  [lambda-argument (list joken)]
-  =^  inp  jokens
-    (match-block [jokens %'(' %')'] match-jype)
-  ?>  (got-punctuator -.jokens %'-')
-  ?>  (got-punctuator +<.jokens %'>')
-  =^  out  jokens
-    (match-jype +.+.jokens)
-  [[`inp out] jokens]
+  |=  =tokens
+  ^-  [lambda-argument (list token)]
+  ?:  =(~ tokens)  ~|("expect lambda-argument. token: ~" !!)
+  ^-  [lambda-argument (list token)]
+  =^  inp  tokens
+    (match-block [tokens %'(' %')'] match-jype)
+  ?>  (got-punctuator -.tokens %'-')
+  ?>  (got-punctuator +<.tokens %'>')
+  =^  out  tokens
+    (match-jype +.+.tokens)
+  [[`inp out] tokens]
 ::
 ++  match-comparator
-  |=  =jokens
-  ^-  [comparator (list joken)]
+  |=  =tokens
+  ^-  [comparator (list token)]
   =>  |%
       ++  mini  ?(%'<' %'>' %'=' %'!')
       ++  comp  (perk %'<' %'>' %'=' %'!' ~)
       --
-  ?~  jokens  ~|("expect comparator. joken: ~" !!)
-  ?.  ?=(%punctuator -.i.jokens)
-    ~|("expect punctuator. joken: {<-.i.jokens>}" !!)
+  ?~  tokens  ~|("expect comparator. token: ~" !!)
+  ?.  ?=(%punctuator -.i.tokens)
+    ~|("expect punctuator. token: {<-.i.tokens>}" !!)
   =/  cm1=(unit mini)
-    (rust (trip +.i.jokens) (full comp))
+    (rust (trip +.i.tokens) (full comp))
   ?~  cm1
-    ~|("match-comparator failed: {<i.jokens>}" !!)
-  ?~  t.jokens
-    [;;(comparator u.cm1) t.jokens]
-  ?.  ?=(%punctuator -.i.t.jokens)
-    [;;(comparator u.cm1) t.jokens]
+    ~|("match-comparator failed: {<i.tokens>}" !!)
+  ?~  t.tokens
+    [;;(comparator u.cm1) t.tokens]
+  ?.  ?=(%punctuator -.i.t.tokens)
+    [;;(comparator u.cm1) t.tokens]
   =/  cm2=(unit mini)
-    (rust (trip +.i.t.jokens) (full comp))
+    (rust (trip +.i.t.tokens) (full comp))
   ?~  cm2
-    [;;(comparator u.cm1) t.jokens]
+    [;;(comparator u.cm1) t.tokens]
   =/  final  (cat 3 u.cm1 u.cm2)
-  [;;(comparator final) t.t.jokens]
+  [;;(comparator final) t.t.tokens]
 ::
 ++  match-after-if-expression
-  |=  =jokens
-  ^-  (pair after-if-expression (list joken))
-  ?~  jokens
-    ~|("expect after-if. joken: ~" !!)
-  ?.  ?=(%keyword -.-.jokens)
-    ~|("expect keyword. joken: {<-.i.jokens>}" !!)
-  ?.  =(%else +.-.jokens)
-    ~|("expect %else. joken: {<+.-.jokens>}" !!)
-  =>  .(jokens `(list joken)`+.jokens)
-  ?:  =(~ jokens)
-    ~|("expect more. jokens: ~" !!)
-  ?:  (has-punctuator -.jokens %'{')
-    =^  else  jokens
-      (match-block [jokens %'{' %'}'] match-jock)
-    [[%else else] jokens]
-  ?.  (has-keyword -.jokens %if)
-    ~|("expect %if. joken: {<+.-.jokens>}" !!)
-  (match-else-if +.jokens)
+  |=  =tokens
+  ^-  (pair after-if-expression (list token))
+  ?~  tokens
+    ~|("expect after-if. token: ~" !!)
+  ?.  ?=(%keyword -.-.tokens)
+    ~|("expect keyword. token: {<-.i.tokens>}" !!)
+  ?.  =(%else +.-.tokens)
+    ~|("expect %else. token: {<+.-.tokens>}" !!)
+  =>  .(tokens `(list token)`+.tokens)
+  ?:  =(~ tokens)
+    ~|("expect more. tokens: ~" !!)
+  ?:  (has-punctuator -.tokens %'{')
+    =^  else  tokens
+      (match-block [tokens %'{' %'}'] match-jock)
+    [[%else else] tokens]
+  ?.  (has-keyword -.tokens %if)
+    ~|("expect %if. token: {<+.-.tokens>}" !!)
+  (match-else-if +.tokens)
 ::
 ++  match-else-if
-  |=  =jokens
-  ^-  [else-if-expression (list joken)]
-  =^  cond  jokens
-    (match-inner-jock jokens)
-  =^  then  jokens
-    (match-block [jokens %'{' %'}'] match-jock)
-  =^  after-if  jokens
-    (match-after-if-expression jokens)
-  [[%else-if cond then after-if] jokens]
+  |=  =tokens
+  ^-  [else-if-expression (list token)]
+  =^  cond  tokens
+    (match-inner-jock tokens)
+  =^  then  tokens
+    (match-block [tokens %'{' %'}'] match-jock)
+  =^  after-if  tokens
+    (match-after-if-expression tokens)
+  [[%else-if cond then after-if] tokens]
 ::
 ++  match-literal
-  |=  =jokens
-  ^-  [[%atom jatom] (list joken)]
-  ?~  jokens  ~|("expect literal. joken: ~" !!)
-  ?.  ?=(%literal -.-.jokens)
-    ~|("expect literal. joken: {<-<.jokens>}" !!)
-  [[%atom +.-.jokens] +.jokens]
+  |=  =tokens
+  ^-  [[%atom jatom] (list token)]
+  ?~  tokens  ~|("expect literal. token: ~" !!)
+  ?.  ?=(%literal -.-.tokens)
+    ~|("expect literal. token: {<-<.tokens>}" !!)
+  [[%atom +.-.tokens] +.tokens]
 ::
 ++  match-name
-  |=  =jokens
-  ^-  [[%limb (list jlimb)] (list joken)]
-  ?.  ?=(%name -.-.jokens)
-    ~|("expect name. joken: {<-<.jokens>}" !!)
-  [[%limb [%name +.-.jokens]~] +.jokens]
+  |=  =tokens
+  ^-  [[%limb (list jlimb)] (list token)]
+  ?.  ?=(%name -.-.tokens)
+    ~|("expect name. token: {<-<.tokens>}" !!)
+  [[%limb [%name +.-.tokens]~] +.tokens]
 ::
 ++  match-block
-  |*  [[=jokens start=jpunc end=jpunc] gate=$-(jokens [* jokens])]
-  ?>  (got-punctuator -.jokens start)
-  =^  output  jokens
-    (gate +.jokens)
-  ?>  (got-punctuator -.jokens end)
-  [output +.jokens]
+  |*  [[=tokens start=jpunc end=jpunc] gate=$-(tokens [* tokens])]
+  ?>  (got-punctuator -.tokens start)
+  =^  output  tokens
+    (gate +.tokens)
+  ?>  (got-punctuator -.tokens end)
+  [output +.tokens]
 ::
 ++  match-match
-  |=  =jokens
-  ^-  [[(map jock jock) (unit jock)] (list joken)]
-  ?:  =(~ jokens)  ~|("expect map. joken: ~" !!)
+  |=  =tokens
+  ^-  [[(map jock jock) (unit jock)] (list token)]
+  ?:  =(~ tokens)  ~|("expect map. token: ~" !!)
   =|  fall=(unit jock)
-  =^  cf=[(map jock jock) (unit jock)]  jokens
+  =^  cf=[(map jock jock) (unit jock)]  tokens
     =|  duo=(list (pair jock jock))
-    |-  ^-  [[(map jock jock) (unit jock)] (list joken)]
-    ?:  (has-punctuator -.jokens %'}')
-      [[(malt duo) fall] jokens]
+    |-  ^-  [[(map jock jock) (unit jock)] (list token)]
+    ?:  (has-punctuator -.tokens %'}')
+      [[(malt duo) fall] tokens]
     :: default case, must be last
-    ?:  (has-punctuator -.jokens %'_')
-      ?>  (got-punctuator -.+.jokens %'-')
-      ?>  (got-punctuator -.+.+.jokens %'>')
-      =^  jock  jokens  `[jock (list joken)]`(match-jock `(list joken)`+.+.+.jokens)
-      ?>  (got-punctuator -.jokens %';')
-      =.  jokens  +.jokens
-      ?>  (got-punctuator -.jokens %'}')  :: no trailing jokens in case block
+    ?:  (has-punctuator -.tokens %'_')
+      ?>  (got-punctuator -.+.tokens %'-')
+      ?>  (got-punctuator -.+.+.tokens %'>')
+      =^  jock  tokens  `[jock (list token)]`(match-jock `(list token)`+.+.+.tokens)
+      ?>  (got-punctuator -.tokens %';')
+      =.  tokens  +.tokens
+      ?>  (got-punctuator -.tokens %'}')  :: no trailing tokens in case block
       =.  fall  `jock
-      [[(malt duo) fall] jokens]
+      [[(malt duo) fall] tokens]
     :: regular case
-    =^  jock-1  jokens  (match-jock jokens)
-    ?>  (got-punctuator -.jokens %'-')
-    ?>  (got-punctuator -.+.jokens %'>')
-    =^  jock-2  jokens  (match-jock +.+.jokens)
-    ?>  (got-punctuator -.jokens %';')
-    =.  jokens  +.jokens
+    =^  jock-1  tokens  (match-jock tokens)
+    ?>  (got-punctuator -.tokens %'-')
+    ?>  (got-punctuator -.+.tokens %'>')
+    =^  jock-2  tokens  (match-jock +.+.tokens)
+    ?>  (got-punctuator -.tokens %';')
+    =.  tokens  +.tokens
     $(duo [[jock-1 jock-2] duo])
   =/  cases  -.cf
   =/  fall  +.cf
-  [[cases fall] jokens]
+  [[cases fall] tokens]
 ::
 ++  got-jatom-number
-  |=  =jokens
+  |=  =tokens
   ^-  @
-  ?~  jokens  ~|("expect literal. joken: ~" !!)
-  ?.  ?=(%literal -.i.jokens)
-    ~|("expect literal or symbol. joken: {<-.i.jokens>}" !!)
-  =/  p=jatom  +.i.jokens
+  ?~  tokens  ~|("expect literal. token: ~" !!)
+  ?.  ?=(%literal -.i.tokens)
+    ~|("expect literal or symbol. token: {<-.i.tokens>}" !!)
+  =/  p=jatom  +.i.tokens
   ?.  ?=(%number -.-.p)
-    ~|("expect number or symbol. joken: {<-.p>}" !!)
+    ~|("expect number or symbol. token: {<-.p>}" !!)
   +.-.p
 ::
 ++  got-name
-  |=  =joken
+  |=  =token
   ^-  term
-  ?.  ?=(%name -.joken)
-    ~|("expect name. joken: {<-.joken>}" !!)
-  +.joken
+  ?.  ?=(%name -.token)
+    ~|("expect name. token: {<-.token>}" !!)
+  +.token
 ::
 ++  get-name
-  |=  =joken
+  |=  =token
   ^-  (unit term)
-  ?.  ?=(%name -.joken)  ~
-  [~ +.joken]
+  ?.  ?=(%name -.token)  ~
+  [~ +.token]
 ::
 ++  got-punctuator
-  |=  [=joken punc=jpunc]
+  |=  [=token punc=jpunc]
   ^-  ?
-  ?.  ?=(%punctuator -.joken)
-    ~|("expect punctuator. joken: {<-.joken>}" !!)
-  ?.  =(+.joken punc)
-    ~|("expect punctuator {<+.joken>} to be {<punc>}" !!)
+  ?.  ?=(%punctuator -.token)
+    ~|("expect punctuator. token: {<-.token>}" !!)
+  ?.  =(+.token punc)
+    ~|("expect punctuator {<+.token>} to be {<punc>}" !!)
   %.y
 ::
 ++  has-punctuator
-  |=  [=joken punc=jpunc]
+  |=  [=token punc=jpunc]
   ^-  ?
-  ?.  ?=(%punctuator -.joken)  %.n
-  =(+.joken punc)
+  ?.  ?=(%punctuator -.token)  %.n
+  =(+.token punc)
 ::
 ++  has-keyword
-  |=  [=joken key=keyword]
+  |=  [=token key=keyword]
   ^-  ?
-  ?.  ?=(%keyword -.joken)  %.n
-  =(+.joken key)
+  ?.  ?=(%keyword -.token)  %.n
+  =(+.token key)
 --
 ::
 ::  3: compile jock -> nock
