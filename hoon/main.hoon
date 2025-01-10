@@ -32,14 +32,13 @@
 ::  +poke: external apply
 ::
 ++  poke
-  :: |=  [eny=@ our=@ux now=@da dat=*]
   |=  input:moat
   ^-  [(list effect) test-state]
   ~&  "poked at {<now^cause>}"
   =/  soft-cau  ((soft ^cause) cause)
   ?~  soft-cau
-  ~&  >>>  "could not mold poke type: {<dat>}"  !!
-  =/  c=cause  u.soft-cau
+  ~&  >>>  "could not mold poke type: {<cause>}"  !!
+  =/  c=^cause  u.soft-cau
   ?-    -.c
       %test-n
     ~&  -:(snag n.c list-jocks:test-jock)
