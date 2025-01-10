@@ -1,20 +1,19 @@
+::  /lib/tests/let-edit
 /+  jock,
     test
 ::
 |%
 ++  text
-  'let a: ? = true;\0a\0aa = false;\0a\0aa\0a\0a'
+  'let a: ? = true;\0a\0aa = false;\0a\0aa'
 ++  test-tokenize
   %+  expect-eq:test
-    !>  ~[[%keyword %let] [%name %a] [%punctuator %':'] [%punctuator %'?'] [%punctuator %'='] [%literal [%loobean %.y]] [%punctuator %';'] [%name %a] [%punctuator %'='] [%literal [%loobean %.n]] [%punctuator %';'] [%name %a]]
+    !>  ~[[%keyword %let] [%name %a] [%punctuator %':'] [%punctuator %'?'] [%punctuator %'='] [%literal [[%loobean p=%.y] q=%.n]] [%punctuator %';'] [%name %a] [%punctuator %'='] [%literal [[%loobean p=%.n] q=%.n]] [%punctuator %';'] [%name %a]]
     !>  (rash text parse-tokens:jock)
 ::
 ++  test-jeam
   %+  expect-eq:test
     !>  ^-  jock:jock
-     :: [%let type=[p=[%atom p=%loobean q=%.n] name=%a] val=[%atom p=[%loobean %.y] q=%.n] next=[%edit limb=~[[%name p=%a]] val=[%atom p=[%loobean %.n] q=%.n] next=[%limb p=~[[%name p=%a]]]]]
-        [%let type=[p=[%atom p=%loobean q=%.n] name=%a] val=[%atom p=[[%loobean %.y] %.n]] next=[%edit limb=~[[%name p=%a]] val=[%atom p=[[%loobean %.n] %.n]] next=[%limb p=~[[%name p=%a]]]]]
-     :: [%let type=[p=[%atom p=%loobean q=%.n] name=%a] val=[%limb p=~[[%name p=%true]]] next=[%edit limb=~[[%name p=%a]] val=[%limb p=~[[%name p=%false]]] next=[%limb p=~[[%name p=%a]]]]]
+        [%let type=[p=[%atom p=%loobean q=%.n] name=%a] val=[%atom p=[[%loobean p=%.y] q=%.n]] next=[%edit limb=~[[%name p=%a]] val=[%atom p=[[%loobean p=%.n] q=%.n]] next=[%limb p=~[[%name p=%a]]]]]
     !>  (jeam:jock text)
 ::
 ++  test-mint

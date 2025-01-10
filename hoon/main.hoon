@@ -9,6 +9,7 @@
 +$  cause
   $%  [%test-n n=@]
       [%test-all ~]
+      [%exec-all ~]
   ==
 +$  effect  ~
 --
@@ -46,8 +47,13 @@
     ~&  (jeam:test-jock n.c)
     ~&  (mint:test-jock n.c)
     [~ k]
-      %test-all
+  ::
+      %exec-all
     ~&  exec-all:test-jock
+    [~ k]
+  ::
+      %test-all
+    ~&  test-all:test-jock
     [~ k]
   ==
 --

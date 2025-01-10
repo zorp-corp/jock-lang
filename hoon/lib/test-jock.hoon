@@ -26,7 +26,7 @@
 /*  sets                  %jock  /lib/tests/sets
 ::
 /*  test-let-edit         %hoon  /tests/lib/let-edit
-:: /*  test-let-inner-exp    %hoon  /tests/lib/let-inner-exp
+/*  test-let-inner-exp    %hoon  /tests/lib/let-inner-exp
 /*  test-call             %hoon  /tests/lib/call
 /*  test-axis-call        %hoon  /tests/lib/axis-call
 /*  test-inline-lambda-call  %hoon  /tests/lib/inline-lambda-call
@@ -48,7 +48,7 @@
 /*  test-lists-nested     %hoon  /tests/lib/lists-nested
 /*  test-match-case       %hoon  /tests/lib/match-case
 /*  test-match-type       %hoon  /tests/lib/match-type
-:: /*  test-example-atom     %hoon  /tests/lib/example-atom
+/*  test-example-atom     %hoon  /tests/lib/example-atom
 /*  test-sets             %hoon  /tests/lib/sets
 ::
 |%
@@ -60,7 +60,7 @@
       [%axis-call q.axis-call]                        :: 3
       [%inline-lambda-call q.inline-lambda-call]      :: 4
       [%inline-lambda-no-arg q.inline-lambda-no-arg]  :: 5
-      [%in-subj-call q.in-subj-call]                  :: 6*
+      [%in-subj-call q.in-subj-call]                  :: 6
       [%if-else q.if-else]                            :: 7
       [%if-elseif-else q.if-elseif-else]              :: 8
       [%assert q.assert]                              :: 9
@@ -72,7 +72,7 @@
       [%compose q.compose]                            :: 15
       [%compose-cores q.compose-cores]                :: 16
       :: [%baby q.baby]
-      [%comparator q.comparator]                      :: 17*
+      [%comparator q.comparator]                      :: 17
       [%lists q.lists]                                :: 18
       [%lists-nested q.lists-nested]                  :: 19
       [%match-case q.match-case]                      :: 20
@@ -86,9 +86,9 @@
   :~  [%test-let-edit-tokens test-tokenize:test-let-edit]
       [%test-let-edit-jeam test-jeam:test-let-edit]
       [%test-let-edit-mint test-mint:test-let-edit]
-      :: [%test-let-inner-exp-tokens test-tokenize:test-let-inner-exp]
-      :: [%test-let-inner-exp-jeam test-jeam:test-let-inner-exp]
-      :: [%test-let-inner-exp-mint test-mint:test-let-inner-exp]
+      [%test-let-inner-exp-tokens test-tokenize:test-let-inner-exp]
+      [%test-let-inner-exp-jeam test-jeam:test-let-inner-exp]
+      [%test-let-inner-exp-mint test-mint:test-let-inner-exp]
       [%test-call-tokens test-tokenize:test-call]
       [%test-call-jeam test-jeam:test-call]
       [%test-call-mint test-mint:test-call]
@@ -152,9 +152,9 @@
       [%test-match-type-tokens test-tokenize:test-match-type]
       [%test-match-type-jeam test-jeam:test-match-type]
       [%test-match-type-mint test-mint:test-match-type]
-      :: [%test-example-atom-tokens test-tokenize:test-example-atom]
-      :: [%test-example-atom-jeam test-jeam:test-example-atom]
-      :: [%test-example-atom-mint test-mint:test-example-atom]
+      [%test-example-atom-tokens test-tokenize:test-example-atom]
+      [%test-example-atom-jeam test-jeam:test-example-atom]
+      [%test-example-atom-mint test-mint:test-example-atom]
       [%test-sets-tokens test-tokenize:test-sets]
       [%test-sets-jeam test-jeam:test-sets]
       [%test-sets-mint test-mint:test-sets]
@@ -214,17 +214,11 @@
     %-  mole
     |.
     =/  arm  (snag i test-jocks)
+    ~&  [i -.arm]
     +.arm
   =.  lis
     [?=(^ res) lis]
   $(i +(i))
-::
-:: ++  test
-::   |=  i=@
-::   ^-  [term *]
-::   =/  p  (snag i test-jocks)
-::   ~&  test-tokenize:p
-::   ~
 ::
 ++  exec
   |=  i=@
@@ -245,7 +239,6 @@
     |.
     =/  nok  (mint i)
     =/  jok  .*(%jock +.nok)
-    :: ~&  [i `@tas`-.nok jok]
     jok
   =.  lis
     [?=(^ res) lis]
