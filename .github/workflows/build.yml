@@ -9,7 +9,7 @@ env:
   RUST_BACKTRACE: short
   RUSTFLAGS: "-D warnings -W unreachable-pub -W rust-2021-compatibility"
   RUSTUP_MAX_RETRIES: 10
-  CHOO_VERSION: "0.1.5"
+  CHOO_VERSION: "0.1.6"
 
 on:
   pull_request:
@@ -80,7 +80,6 @@ jobs:
       if: ${{ (steps.restore-hoon.outputs.cache-hit != 'true' ) }}
       run: |
         RUST_LOG=TRACE ./choo hoon/main.hoon hoon
-        ls
         mv out.jam assets/jocktest.jam
     - name: Save Hoon cache
       if: ${{ (steps.restore-hoon.outputs.cache-hit != 'true' ) }}
