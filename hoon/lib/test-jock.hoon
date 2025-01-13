@@ -48,37 +48,37 @@
 /*  test-lists-nested     %hoon  /tests/lib/lists-nested
 /*  test-match-case       %hoon  /tests/lib/match-case
 /*  test-match-type       %hoon  /tests/lib/match-type
-:: /*  test-example-atom     %hoon  /tests/lib/example-atom
+/*  test-example-atom     %hoon  /tests/lib/example-atom
 /*  test-sets             %hoon  /tests/lib/sets
 ::
 |%
 ++  list-jocks
   ^-  (list [term @t])
-  :~  [%let-edit q.let-edit]
-      [%let-inner-exp q.let-inner-exp]
-      [%call q.call]
-      [%axis-call q.axis-call]
-      [%inline-lambda-call q.inline-lambda-call]
-      [%in-subj-call q.in-subj-call]
-      [%if-else q.if-else]
-      [%if-elseif-else q.if-elseif-else]
-      [%assert q.assert]
-      [%call-let-edit q.call-let-edit]
-      [%inline-point q.inline-point]
-      [%inline-lambda-no-arg q.inline-lambda-no-arg]
-      [%dec q.dec]
-      [%eval q.eval]
-      [%multi-limb q.multi-limb]
-      [%compose q.compose]
-      [%compose-cores q.compose-cores]
+  :~  [%let-edit q.let-edit]                          :: 0
+      [%let-inner-exp q.let-inner-exp]                :: 1
+      [%call q.call]                                  :: 2
+      [%axis-call q.axis-call]                        :: 3
+      [%inline-lambda-call q.inline-lambda-call]      :: 4
+      [%inline-lambda-no-arg q.inline-lambda-no-arg]  :: 5
+      [%in-subj-call q.in-subj-call]                  :: 6
+      [%if-else q.if-else]                            :: 7
+      [%if-elseif-else q.if-elseif-else]              :: 8
+      [%assert q.assert]                              :: 9
+      [%call-let-edit q.call-let-edit]                :: 10
+      [%inline-point q.inline-point]                  :: 11
+      [%dec q.dec]                                    :: 12
+      [%eval q.eval]                                  :: 13
+      [%multi-limb q.multi-limb]                      :: 14
+      [%compose q.compose]                            :: 15
+      [%compose-cores q.compose-cores]                :: 16
       :: [%baby q.baby]
-      [%comparator q.comparator]
-      [%lists q.lists]
-      [%lists-nested q.lists-nested]
-      [%match-case q.match-case]
-      [%match-type q.match-type]
-      [%example-atom q.example-atom]
-      [%sets q.sets]
+      [%comparator q.comparator]                      :: 17
+      [%lists q.lists]                                :: 18
+      [%lists-nested q.lists-nested]                  :: 19
+      [%match-case q.match-case]                      :: 20
+      [%match-type q.match-type]                      :: 21
+      [%example-atom q.example-atom]                  :: 22
+      [%sets q.sets]                                  :: 23
  ==
 ::
 ++  test-jocks
@@ -152,9 +152,9 @@
       [%test-match-type-tokens test-tokenize:test-match-type]
       [%test-match-type-jeam test-jeam:test-match-type]
       [%test-match-type-mint test-mint:test-match-type]
-      :: [%test-example-atom-tokens test-tokenize:test-example-atom]
-      :: [%test-example-atom-jeam test-jeam:test-example-atom]
-      :: [%test-example-atom-mint test-mint:test-example-atom]
+      [%test-example-atom-tokens test-tokenize:test-example-atom]
+      [%test-example-atom-jeam test-jeam:test-example-atom]
+      [%test-example-atom-mint test-mint:test-example-atom]
       [%test-sets-tokens test-tokenize:test-sets]
       [%test-sets-jeam test-jeam:test-sets]
       [%test-sets-mint test-mint:test-sets]
@@ -214,17 +214,11 @@
     %-  mole
     |.
     =/  arm  (snag i test-jocks)
+    ~&  [i -.arm]
     +.arm
   =.  lis
     [?=(^ res) lis]
   $(i +(i))
-::
-:: ++  test
-::   |=  i=@
-::   ^-  [term *]
-::   =/  p  (snag i test-jocks)
-::   ~&  test-tokenize:p
-::   ~
 ::
 ++  exec
   |=  i=@
@@ -245,7 +239,6 @@
     |.
     =/  nok  (mint i)
     =/  jok  .*(%jock +.nok)
-    :: ~&  [i `@tas`-.nok jok]
     jok
   =.  lis
     [?=(^ res) lis]

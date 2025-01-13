@@ -22,9 +22,10 @@ Then copy the `choo` executable to the root folder.
 To build and run Jock with tests:
 
 ```bash
-make release
+make build release
 
-./target/release/jock-testing test-all
+# run all codes in /lib/tests
+./target/release/jock-testing exec-all
+# run specific code in /lib/tests
+./target/release/jock-testing test-n 0
 ```
-
-This will execute all of the supplied programs, then run unit tests over each of the compilation steps in producing each program's Nock.

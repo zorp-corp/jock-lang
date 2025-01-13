@@ -26,13 +26,16 @@ struct TestCli {
 
 #[derive(Parser, Debug)]
 enum Command {
-    #[command(about = "Test n with optional override")]
+    #[command(about = "The name of the code to run")]
     TestN {
-        #[arg(help = "The number to test")]
+        #[arg(help = "The name of the code to run")]
         n: Option<u64>,
     },
-    #[command(about = "Test all with optional override")]
+    #[command(about = "Test all")]
     TestAll {
+    },
+    #[command(about = "Execute all")]
+    ExecAll {
     }
 }
 
@@ -49,6 +52,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
         Command::TestAll { } => {
             let tas = make_tas(kernel.serf.stack(), "test-all");
+            create_poke(&mut kernel, &[tas.as_noun(), D(0)])
+        }
+        Command::ExecAll { } => {
+            let tas = make_tas(kernel.serf.stack(), "exec-all");
             create_poke(&mut kernel, &[tas.as_noun(), D(0)])
         }
     };

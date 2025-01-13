@@ -1,18 +1,19 @@
+::  /lib/tests/axis-call
 /+  jock,
     test
 ::
 |%
 ++  text
-  'let a: (c: @ -> @) = (b:@ -> @) {\0a  +(b)\0a};\0a\0a&2(17)\0a'
+  'func a(b:@) -> @ {\0a  +(b)\0a};\0a\0a&2(17)'
 ++  test-tokenize
   %+  expect-eq:test
-    !>  ~[[%keyword %let] [%name %a] [%punctuator %':'] [%punctuator %'('] [%name %c] [%punctuator %':'] [%punctuator %'@'] [%punctuator %'-'] [%punctuator %'>'] [%punctuator %'@'] [%punctuator %')'] [%punctuator %'='] [%punctuator %'('] [%name %b] [%punctuator %':'] [%punctuator %'@'] [%punctuator %'-'] [%punctuator %'>'] [%punctuator %'@'] [%punctuator %')'] [%punctuator %'{'] [%punctuator %'+'] [%punctuator %'('] [%name %b] [%punctuator %')'] [%punctuator %'}'] [%punctuator %';'] [%punctuator %'&'] [%literal [%number 2]] [%punctuator %'('] [%literal [%number 17]] [%punctuator %')']]
+    !>  ~[[%keyword %func] [%name %a] [%punctuator %'(('] [%name %b] [%punctuator %':'] [%punctuator %'@'] [%punctuator %')'] [%punctuator %'-'] [%punctuator %'>'] [%punctuator %'@'] [%punctuator %'{'] [%punctuator %'+'] [%punctuator %'('] [%name %b] [%punctuator %')'] [%punctuator %'}'] [%punctuator %';'] [%punctuator %'&'] [%literal [[%number p=2] q=%.n]] [%punctuator %'('] [%literal [[%number p=17] q=%.n]] [%punctuator %')']]
     !>  (rash text parse-tokens:jock)
 ::
 ++  test-jeam
   %+  expect-eq:test
     !>  ^-  jock:jock
-        [%let type=[p=[%core p=[%.y p=[inp=[~ [p=[%atom p=%number q=%.n] name=%c]] out=[p=[%atom p=%number q=%.n] name=%$]]] q=~] name=%a] val=[%lambda p=[arg=[inp=[~ [p=[%atom p=%number q=%.n] name=%b]] out=[p=[%atom p=%number q=%.n] name=%$]] body=[%increment val=[%limb p=~[[%name p=%b]]]] payload=~]] next=[%call func=[%limb p=~[[%axis p=2]]] arg=[~ [%atom p=[%number 17] q=%.n]]]]
+        [%func type=[p=[%core p=[%.y p=[inp=[~ [p=[%atom p=%number q=%.n] name=%b]] out=[p=[%atom p=%number q=%.n] name=%$]]] q=~] name=%a] body=[%lambda p=[arg=[inp=[~ [p=[%atom p=%number q=%.n] name=%b]] out=[p=[%atom p=%number q=%.n] name=%$]] body=[%increment val=[%limb p=~[[%name p=%b]]]] payload=~]] next=[%call func=[%limb p=~[[%axis p=2]]] arg=[~ [%atom p=[[%number p=17] q=%.n]]]]]
     !>  (jeam:jock text)
 ::
 ++  test-mint

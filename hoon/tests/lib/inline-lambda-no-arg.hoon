@@ -1,12 +1,13 @@
+::  /lib/tests/inline-lambda-no-arg
 /+  jock,
     test
 ::
 |%
 ++  text
-  '(b:@ -> @) {\0a  +(b)\0a}()\0a\0a'
+  'lambda (b:@) -> @ {\0a  +(b)\0a}()'
 ++  test-tokenize
   %+  expect-eq:test
-    !>  ~[[%punctuator %'('] [%name %b] [%punctuator %':'] [%punctuator %'@'] [%punctuator %'-'] [%punctuator %'>'] [%punctuator %'@'] [%punctuator %')'] [%punctuator %'{'] [%punctuator %'+'] [%punctuator %'('] [%name %b] [%punctuator %')'] [%punctuator %'}'] [%punctuator %'('] [%punctuator %')']]
+    !>  ~[[%keyword %lambda] [%punctuator %'('] [%name %b] [%punctuator %':'] [%punctuator %'@'] [%punctuator %')'] [%punctuator %'-'] [%punctuator %'>'] [%punctuator %'@'] [%punctuator %'{'] [%punctuator %'+'] [%punctuator %'('] [%name %b] [%punctuator %')'] [%punctuator %'}'] [%punctuator %'('] [%punctuator %')']]
     !>  (rash text parse-tokens:jock)
 ::
 ++  test-jeam
