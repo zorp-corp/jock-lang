@@ -1,10 +1,10 @@
 [package]
 name = "jock-testing"
 version = "0.1.0"
-edition = "2021"
+edition = "2025"
 
 [dependencies]
-crown = { git = "https://github.com/zorp-corp/nockapp", rev="57f9d9f0d5cbd8bf0b88cd8c8a108c1f551e33d8" }
+crown = { git = "https://github.com/zorp-corp/nockapp", rev="10fd2c6e4e33f0ed60d90ba3f277b3a070abadf5" }
 sword = { git = "https://github.com/zorp-corp/sword.git", rev="29cc8d897c8cb7a70e5baf52c9b83f5ef04fe509" }
 sword_macros = { git = "https://github.com/zorp-corp/sword.git", rev="29cc8d897c8cb7a70e5baf52c9b83f5ef04fe509" }
 assert_no_alloc = { git = "https://github.com/zorp-corp/sword.git", rev="29cc8d897c8cb7a70e5baf52c9b83f5ef04fe509" }
