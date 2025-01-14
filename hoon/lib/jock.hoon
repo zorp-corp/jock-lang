@@ -38,6 +38,7 @@
   $?  %let
       %func
       %lambda
+      %protocol
       %if
       %else
       %crash
@@ -60,7 +61,7 @@
   $?  %'.'  %';'  %','  %':'  %'&'  %'$'
       %'@'  %'?'  %'!'  %'(('
       %'('  %')'  %'{'  %'}'  %'['  %']'
-      %'='  %'<'  %'>'
+      %'='  %'<'  %'>'  %'#'
       %'+'  %'-'  %'*'  %'/'  %'_'
   ==
 ::
@@ -139,7 +140,8 @@
   ++  tagged-keyword     (stag %keyword keyword)
   ++  keyword
     %-  perk
-    :~  %let  %func  %lambda  %if  %else  %crash  %assert
+    :~  %let  %func  %lambda  %protocol
+        %if  %else  %crash  %assert
         %object  %compose  %loop  %defer
         %recur  %match  %eval  %with  %this
         %type  %case
@@ -158,7 +160,7 @@
     :~  %'.'  %';'  %','  %':'  %'&'  %'$'
         %'@'  %'?'  %'!'  :: XXX exclude %'((' which is a pseudo-punctuator
         %'('  %')'  %'{'  %'}'  %'['  %']'
-        %'='  %'<'  %'>'
+        %'='  %'<'  %'>'  %'#'
         %'+'  %'-'  %'*'  %'/'  %'_'
     ==
   ::
@@ -213,6 +215,7 @@
   $^  [p=jock q=jock]
   $%  [%let type=jype val=jock next=jock]
       [%func type=jype body=jock next=jock]
+      [%protocol type=cord body=(list jype) next=jock]
       [%edit limb=(list jlimb) val=jock next=jock]
       [%increment val=jock]
       [%cell-check val=jock]
@@ -288,8 +291,8 @@
       [%list type=jype]
       ::  %set
       [%set type=jype]
-      ::  %none is a null type (as for undetermined variable labels)
-      [%none ~]
+      ::  %none is a null type (as for undetermined variable labels or protocols)
+      [%none p=(unit term)]
   ==
 ::  Jype atom base types; corresponds to jatom tags
 +$  jatom-type
@@ -330,6 +333,7 @@
 ++  match-jock
   |=  =tokens
   ^-  [jock (list token)]
+  ~&  on-my-way+tokens
   ?:  =(~ tokens)
     ~|("expect jock. token: ~" !!)
   =^  jock  tokens
@@ -397,6 +401,24 @@
     %punctuator  (match-start-punctuator tokens)
     %type        !!  ::(match-metatype tokens)  :: shouldn't reach this way
   ==
+::
+++  match-trait
+  |=  =tokens
+  ^-  [jype (list token)]
+  ?:  =(~ tokens)  ~|("expect trait. token: ~" !!)
+  =^  type  tokens
+    (match-jype tokens)
+  =^  inp=jype  tokens
+    (match-block [tokens %'((' %')'] match-jype)
+  ?>  (got-punctuator -.tokens %'-')
+  ?>  (got-punctuator +<.tokens %'>')
+  =.  tokens  +>.tokens
+  =^  out=jype  tokens
+    (match-jype tokens)
+  ?>  (got-punctuator -.tokens %';')
+  :_  +.tokens
+  :-  `jype-leaf`[%core [%& [`inp out]] ~]
+  name.type
 ::
 ++  match-start-punctuator
   |=  =tokens
@@ -643,6 +665,38 @@
     :: %')' consumed by +match-pair-inner-jock
     [[%call [%lambda lambda] `arg] tokens]
   ::
+  ::  protocol A { func add(#) -> #; func sub(#) -> #; };
+  ::  [%protocol type=jype-leaf body=(list jype) next=jock]
+      %protocol
+    ::  metatype label
+    =/  type  -.tokens
+    ?>  ?=(%type -.type)
+    ::  mask out reserved types
+    ?:  =([%type 'List'] type)  !!
+    ?:  =([%type 'Set'] type)   !!
+    ?:  =([%type 'Map'] type)   !!
+    =.  tokens  +.tokens
+    ?>  (got-punctuator -.tokens %'{')
+    =|  arg=(list jype)
+    =.  tokens  +.tokens
+    ~&  here+tokens
+    =^  body  tokens
+    |-
+    ?:  (has-punctuator -.tokens %'}')
+      ~&  (flop arg)
+      [(flop arg) +.tokens]
+    =^  jype  tokens
+      (match-trait +.tokens)
+    $(arg [jype arg])
+    ~&  >  'here!'
+    ?>  (got-punctuator -.tokens %';')
+    ~&  >  'here2!'
+    ~&  tokkens+tokens
+    =^  next  tokens
+      (match-jock +.tokens)
+    ~&  >>  `jock`[%protocol `cord`+.type `(list jype)`body `jock`next]
+    [`jock`[%protocol `cord`+.type `(list jype)`body `jock`next] +.tokens]
+  ::
   ::  if (a < b) { +(a) } else { +(b) }
   ::  [%if cond=jock then=jock after-if=after-if-expression]
       %if
@@ -802,6 +856,7 @@
 ++  match-jype-leaf
   |=  =tokens
   ^-  [jype-leaf (list token)]
+  ~&  tokens+tokens
   ?:  =(~ tokens)  ~|("expect jype-leaf. token: ~" !!)
   ::  %atom
   ::    Match on atom type  a:@
@@ -811,9 +866,12 @@
   ::    Match on loobean type  a:?
   ?:  (has-punctuator -.tokens %'?')
     [[%atom %loobean %.n] +.tokens]
-  ::  Match on no type  a:*
+  ::  Match on noun type  a:*
   ?:  (has-punctuator -.tokens %'*')
     [[%none ~] +.tokens]
+  ::  Match on trait placeholder type  #
+  ?:  (has-punctuator -.tokens %'#')
+    [[%none [~ %$]] +.tokens]
   ::  %core
   ::    Match on lambda definition  (a:@) -> @
   ?:  (has-punctuator -.tokens %'(')
@@ -1269,6 +1327,10 @@
       ~|  %func-next
       =+  [nex nex-jyp]=$(j next.j)
       [[%8 val nex] nex-jyp]
+    ::
+        %protocol
+      ~|  %protocol
+      [[%0 0] jyp]
     ::
         %edit
       =/  [typ=jype axi=@]

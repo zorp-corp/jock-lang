@@ -1,23 +1,23 @@
 ::  /lib/tests/let-edit
-/+  jock,
-    test
+/+  *jock,
+    *test
 ::
 |%
 ++  text
   'let a: ? = true;\0a\0aa = false;\0a\0aa'
 ++  test-tokenize
-  %+  expect-eq:test
+  %+  expect-eq
     !>  ~[[%keyword %let] [%name %a] [%punctuator %':'] [%punctuator %'?'] [%punctuator %'='] [%literal [[%loobean p=%.y] q=%.n]] [%punctuator %';'] [%name %a] [%punctuator %'='] [%literal [[%loobean p=%.n] q=%.n]] [%punctuator %';'] [%name %a]]
-    !>  (rash text parse-tokens:jock)
+    !>  (rash text parse-tokens)
 ::
 ++  test-jeam
-  %+  expect-eq:test
-    !>  ^-  jock:jock
+  %+  expect-eq
+    !>  ^-  jock
         [%let type=[p=[%atom p=%loobean q=%.n] name=%a] val=[%atom p=[[%loobean p=%.y] q=%.n]] next=[%edit limb=~[[%name p=%a]] val=[%atom p=[[%loobean p=%.n] q=%.n]] next=[%limb p=~[[%name p=%a]]]]]
-    !>  (jeam:jock text)
+    !>  (jeam text)
 ::
 ++  test-mint
-  %+  expect-eq:test
+  %+  expect-eq
     !>  [8 [1 0] 7 [10 [2 1 1] 0 1] 0 2]
-    !>  (mint:jock text)
+    !>  (mint text)
 --

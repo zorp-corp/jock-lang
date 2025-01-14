@@ -1,0 +1,26 @@
+protocol Arithmetic {
+  func add(#) -> #;
+  func sub(#) -> #;
+};
+
+5
+
+/*object Point: Arithmetic {
+  let p:(x:@ y:@);
+  func init(q:(x:@ y:@)) -> Point {
+    p.x = q.x;
+    p.y = q.y;
+  }
+  func add(q:Point) -> Point {
+    Point(((p.x + q.x) (p.y + q.y)))
+  };
+  func sub(q:Point) -> Point {
+    Point(((p.x - q.x) (p.y - q.y)))
+  };
+};
+
+let origin:Point = (0 0);
+let vector:Point = (1 2);
+
+origin.add(vector)
+*/
