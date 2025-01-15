@@ -79,7 +79,7 @@ jobs:
     - name: Build Jock Testing kernel
       if: ${{ (steps.restore-hoon.outputs.cache-hit != 'true' ) }}
       run: |
-        ./choo hoon/main.hoon hoon
+        RUST_LOG=TRACE ./choo hoon/main.hoon hoon
         mv out.jam assets/jocktest.jam
     - name: Save Hoon cache
       if: ${{ (steps.restore-hoon.outputs.cache-hit != 'true' ) }}
