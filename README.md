@@ -26,6 +26,9 @@ make build release
 
 # run all codes in /lib/tests
 ./target/release/jock-testing exec-all
+# - or -
+make release-test-all
+
 # run specific code in /lib/tests
 ./target/release/jock-testing test-n 0
 ```
