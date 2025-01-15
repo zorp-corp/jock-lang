@@ -1,7 +1,7 @@
 [package]
 name = "jock-testing"
 version = "0.1.0"
-edition = "2025"
+edition = "2021"
 
 [dependencies]
 crown = { git = "https://github.com/zorp-corp/nockapp", rev="10fd2c6e4e33f0ed60d90ba3f277b3a070abadf5" }
