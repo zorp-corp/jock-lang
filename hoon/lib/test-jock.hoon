@@ -26,31 +26,31 @@
 /*  sets                  %jock  /lib/tests/sets
 /*  protocol              %jock  /lib/tests/protocol
 ::
-:: /*  test-let-edit         %hoon  /tests/lib/let-edit
-:: /*  test-let-inner-exp    %hoon  /tests/lib/let-inner-exp
-:: /*  test-call             %hoon  /tests/lib/call
-:: /*  test-axis-call        %hoon  /tests/lib/axis-call
-:: /*  test-inline-lambda-call  %hoon  /tests/lib/inline-lambda-call
-:: /*  test-in-subj-call     %hoon  /tests/lib/in-subj-call
-:: /*  test-if-else          %hoon  /tests/lib/if-else
-:: /*  test-if-elseif-else   %hoon  /tests/lib/if-elseif-else
-:: /*  test-assert           %hoon  /tests/lib/assert
-:: /*  test-call-let-edit    %hoon  /tests/lib/call-let-edit
-:: /*  test-inline-point     %hoon  /tests/lib/inline-point
-:: /*  test-inline-lambda-no-arg  %hoon  /tests/lib/inline-lambda-no-arg
-:: /*  test-dec              %hoon  /tests/lib/dec
-:: /*  test-eval             %hoon  /tests/lib/eval
-:: /*  test-multi-limb       %hoon  /tests/lib/multi-limb
-:: /*  test-compose          %hoon  /tests/lib/compose
-:: /*  test-compose-cores    %hoon  /tests/lib/compose-cores
-:: :: /*  test-baby             %hoon  /tests/lib/baby
-:: /*  test-comparator       %hoon  /tests/lib/comparator
-:: /*  test-lists            %hoon  /tests/lib/lists
-:: /*  test-lists-nested     %hoon  /tests/lib/lists-nested
-:: /*  test-match-case       %hoon  /tests/lib/match-case
-:: /*  test-match-type       %hoon  /tests/lib/match-type
-:: /*  test-example-atom     %hoon  /tests/lib/example-atom
-:: /*  test-sets             %hoon  /tests/lib/sets
+/*  test-let-edit         %hoon  /tests/lib/let-edit
+/*  test-let-inner-exp    %hoon  /tests/lib/let-inner-exp
+/*  test-call             %hoon  /tests/lib/call
+/*  test-axis-call        %hoon  /tests/lib/axis-call
+/*  test-inline-lambda-call  %hoon  /tests/lib/inline-lambda-call
+/*  test-in-subj-call     %hoon  /tests/lib/in-subj-call
+/*  test-if-else          %hoon  /tests/lib/if-else
+/*  test-if-elseif-else   %hoon  /tests/lib/if-elseif-else
+/*  test-assert           %hoon  /tests/lib/assert
+/*  test-call-let-edit    %hoon  /tests/lib/call-let-edit
+/*  test-inline-point     %hoon  /tests/lib/inline-point
+/*  test-inline-lambda-no-arg  %hoon  /tests/lib/inline-lambda-no-arg
+/*  test-dec              %hoon  /tests/lib/dec
+/*  test-eval             %hoon  /tests/lib/eval
+/*  test-multi-limb       %hoon  /tests/lib/multi-limb
+/*  test-compose          %hoon  /tests/lib/compose
+/*  test-compose-cores    %hoon  /tests/lib/compose-cores
+:: /*  test-baby             %hoon  /tests/lib/baby
+/*  test-comparator       %hoon  /tests/lib/comparator
+/*  test-lists            %hoon  /tests/lib/lists
+/*  test-lists-nested     %hoon  /tests/lib/lists-nested
+/*  test-match-case       %hoon  /tests/lib/match-case
+/*  test-match-type       %hoon  /tests/lib/match-type
+/*  test-example-atom     %hoon  /tests/lib/example-atom
+/*  test-sets             %hoon  /tests/lib/sets
 ::
 |%
 ++  list-jocks
@@ -85,83 +85,82 @@
 ::
 ++  test-jocks
   ^-  (list [term tang])
-  ~
-  :: :~  [%test-let-edit-tokens test-tokenize:test-let-edit]
-  ::     [%test-let-edit-jeam test-jeam:test-let-edit]
-  ::     [%test-let-edit-mint test-mint:test-let-edit]
-  ::     [%test-let-inner-exp-tokens test-tokenize:test-let-inner-exp]
-  ::     [%test-let-inner-exp-jeam test-jeam:test-let-inner-exp]
-  ::     [%test-let-inner-exp-mint test-mint:test-let-inner-exp]
-  ::     [%test-call-tokens test-tokenize:test-call]
-  ::     [%test-call-jeam test-jeam:test-call]
-  ::     [%test-call-mint test-mint:test-call]
-  ::     [%test-axis-call-tokens test-tokenize:test-axis-call]
-  ::     [%test-axis-call-jeam test-jeam:test-axis-call]
-  ::     [%test-axis-call-mint test-mint:test-axis-call]
-  ::     [%test-inline-lambda-call-tokens test-tokenize:test-inline-lambda-call]
-  ::     [%test-inline-lambda-call-jeam test-jeam:test-inline-lambda-call]
-  ::     [%test-inline-lambda-call-mint test-mint:test-inline-lambda-call]
-  ::     [%test-in-subj-call-tokens test-tokenize:test-in-subj-call]
-  ::     [%test-in-subj-call-jeam test-jeam:test-in-subj-call]
-  ::     [%test-in-subj-call-mint test-mint:test-in-subj-call]
-  ::     [%test-if-else-tokens test-tokenize:test-if-else]
-  ::     [%test-if-else-jeam test-jeam:test-if-else]
-  ::     [%test-if-else-mint test-mint:test-if-else]
-  ::     [%test-if-elseif-else-tokens test-tokenize:test-if-elseif-else]
-  ::     [%test-if-elseif-else-jeam test-jeam:test-if-elseif-else]
-  ::     [%test-if-elseif-else-mint test-mint:test-if-elseif-else]
-  ::     [%test-assert-tokens test-tokenize:test-assert]
-  ::     [%test-assert-jeam test-jeam:test-assert]
-  ::     [%test-assert-mint test-mint:test-assert]
-  ::     [%test-call-let-edit-tokens test-tokenize:test-call-let-edit]
-  ::     [%test-call-let-edit-jeam test-jeam:test-call-let-edit]
-  ::     [%test-call-let-edit-mint test-mint:test-call-let-edit]
-  ::     [%test-inline-point-tokens test-tokenize:test-inline-point]
-  ::     [%test-inline-point-jeam test-jeam:test-inline-point]
-  ::     [%test-inline-point-mint test-mint:test-inline-point]
-  ::     [%test-inline-lambda-no-arg-tokens test-tokenize:test-inline-lambda-no-arg]
-  ::     [%test-inline-lambda-no-arg-jeam test-jeam:test-inline-lambda-no-arg]
-  ::     [%test-inline-lambda-no-arg-mint test-mint:test-inline-lambda-no-arg]
-  ::     [%test-dec-tokens test-tokenize:test-dec]
-  ::     [%test-dec-jeam test-jeam:test-dec]
-  ::     [%test-dec-mint test-mint:test-dec]
-  ::     [%test-eval-tokens test-tokenize:test-eval]
-  ::     [%test-eval-jeam test-jeam:test-eval]
-  ::     [%test-eval-mint test-mint:test-eval]
-  ::     [%test-multi-limb-tokens test-tokenize:test-multi-limb]
-  ::     [%test-multi-limb-jeam test-jeam:test-multi-limb]
-  ::     [%test-multi-limb-mint test-mint:test-multi-limb]
-  ::     [%test-compose-tokens test-tokenize:test-compose]
-  ::     [%test-compose-jeam test-jeam:test-compose]
-  ::     [%test-compose-mint test-mint:test-compose]
-  ::     [%test-compose-cores-tokens test-tokenize:test-compose-cores]
-  ::     [%test-compose-cores-jeam test-jeam:test-compose-cores]
-  ::     [%test-compose-cores-mint test-mint:test-compose-cores]
-  ::     :: [%test-baby-tokens test-tokenize:test-baby]
-  ::     :: [%test-baby-jeam test-jeam:test-baby]
-  ::     :: [%test-baby-mint test-mint:test-baby]
-  ::     [%test-comparator-tokens test-tokenize:test-comparator]
-  ::     [%test-comparator-jeam test-jeam:test-comparator]
-  ::     [%test-comparator-mint test-mint:test-comparator]
-  ::     [%test-lists-tokens test-tokenize:test-lists]
-  ::     [%test-lists-jeam test-jeam:test-lists]
-  ::     [%test-lists-mint test-mint:test-lists]
-  ::     [%test-lists-nested-tokens test-tokenize:test-lists-nested]
-  ::     [%test-lists-nested-jeam test-jeam:test-lists-nested]
-  ::     [%test-lists-nested-mint test-mint:test-lists-nested]
-  ::     [%test-match-case-tokens test-tokenize:test-match-case]
-  ::     [%test-match-case-jeam test-jeam:test-match-case]
-  ::     [%test-match-case-mint test-mint:test-match-case]
-  ::     [%test-match-type-tokens test-tokenize:test-match-type]
-  ::     [%test-match-type-jeam test-jeam:test-match-type]
-  ::     [%test-match-type-mint test-mint:test-match-type]
-  ::     [%test-example-atom-tokens test-tokenize:test-example-atom]
-  ::     [%test-example-atom-jeam test-jeam:test-example-atom]
-  ::     [%test-example-atom-mint test-mint:test-example-atom]
-  ::     [%test-sets-tokens test-tokenize:test-sets]
-  ::     [%test-sets-jeam test-jeam:test-sets]
-  ::     [%test-sets-mint test-mint:test-sets]
-  :: ==
+  :~  [%test-let-edit-tokens test-tokenize:test-let-edit]
+      [%test-let-edit-jeam test-jeam:test-let-edit]
+      [%test-let-edit-mint test-mint:test-let-edit]
+      [%test-let-inner-exp-tokens test-tokenize:test-let-inner-exp]
+      [%test-let-inner-exp-jeam test-jeam:test-let-inner-exp]
+      [%test-let-inner-exp-mint test-mint:test-let-inner-exp]
+      [%test-call-tokens test-tokenize:test-call]
+      [%test-call-jeam test-jeam:test-call]
+      [%test-call-mint test-mint:test-call]
+      [%test-axis-call-tokens test-tokenize:test-axis-call]
+      [%test-axis-call-jeam test-jeam:test-axis-call]
+      [%test-axis-call-mint test-mint:test-axis-call]
+      [%test-inline-lambda-call-tokens test-tokenize:test-inline-lambda-call]
+      [%test-inline-lambda-call-jeam test-jeam:test-inline-lambda-call]
+      [%test-inline-lambda-call-mint test-mint:test-inline-lambda-call]
+      [%test-in-subj-call-tokens test-tokenize:test-in-subj-call]
+      [%test-in-subj-call-jeam test-jeam:test-in-subj-call]
+      [%test-in-subj-call-mint test-mint:test-in-subj-call]
+      [%test-if-else-tokens test-tokenize:test-if-else]
+      [%test-if-else-jeam test-jeam:test-if-else]
+      [%test-if-else-mint test-mint:test-if-else]
+      [%test-if-elseif-else-tokens test-tokenize:test-if-elseif-else]
+      [%test-if-elseif-else-jeam test-jeam:test-if-elseif-else]
+      [%test-if-elseif-else-mint test-mint:test-if-elseif-else]
+      [%test-assert-tokens test-tokenize:test-assert]
+      [%test-assert-jeam test-jeam:test-assert]
+      [%test-assert-mint test-mint:test-assert]
+      [%test-call-let-edit-tokens test-tokenize:test-call-let-edit]
+      [%test-call-let-edit-jeam test-jeam:test-call-let-edit]
+      [%test-call-let-edit-mint test-mint:test-call-let-edit]
+      [%test-inline-point-tokens test-tokenize:test-inline-point]
+      [%test-inline-point-jeam test-jeam:test-inline-point]
+      [%test-inline-point-mint test-mint:test-inline-point]
+      [%test-inline-lambda-no-arg-tokens test-tokenize:test-inline-lambda-no-arg]
+      [%test-inline-lambda-no-arg-jeam test-jeam:test-inline-lambda-no-arg]
+      [%test-inline-lambda-no-arg-mint test-mint:test-inline-lambda-no-arg]
+      [%test-dec-tokens test-tokenize:test-dec]
+      [%test-dec-jeam test-jeam:test-dec]
+      [%test-dec-mint test-mint:test-dec]
+      [%test-eval-tokens test-tokenize:test-eval]
+      [%test-eval-jeam test-jeam:test-eval]
+      [%test-eval-mint test-mint:test-eval]
+      [%test-multi-limb-tokens test-tokenize:test-multi-limb]
+      [%test-multi-limb-jeam test-jeam:test-multi-limb]
+      [%test-multi-limb-mint test-mint:test-multi-limb]
+      [%test-compose-tokens test-tokenize:test-compose]
+      [%test-compose-jeam test-jeam:test-compose]
+      [%test-compose-mint test-mint:test-compose]
+      [%test-compose-cores-tokens test-tokenize:test-compose-cores]
+      [%test-compose-cores-jeam test-jeam:test-compose-cores]
+      [%test-compose-cores-mint test-mint:test-compose-cores]
+      :: [%test-baby-tokens test-tokenize:test-baby]
+      :: [%test-baby-jeam test-jeam:test-baby]
+      :: [%test-baby-mint test-mint:test-baby]
+      [%test-comparator-tokens test-tokenize:test-comparator]
+      [%test-comparator-jeam test-jeam:test-comparator]
+      [%test-comparator-mint test-mint:test-comparator]
+      [%test-lists-tokens test-tokenize:test-lists]
+      [%test-lists-jeam test-jeam:test-lists]
+      [%test-lists-mint test-mint:test-lists]
+      [%test-lists-nested-tokens test-tokenize:test-lists-nested]
+      [%test-lists-nested-jeam test-jeam:test-lists-nested]
+      [%test-lists-nested-mint test-mint:test-lists-nested]
+      [%test-match-case-tokens test-tokenize:test-match-case]
+      [%test-match-case-jeam test-jeam:test-match-case]
+      [%test-match-case-mint test-mint:test-match-case]
+      [%test-match-type-tokens test-tokenize:test-match-type]
+      [%test-match-type-jeam test-jeam:test-match-type]
+      [%test-match-type-mint test-mint:test-match-type]
+      [%test-example-atom-tokens test-tokenize:test-example-atom]
+      [%test-example-atom-jeam test-jeam:test-example-atom]
+      [%test-example-atom-mint test-mint:test-example-atom]
+      [%test-sets-tokens test-tokenize:test-sets]
+      [%test-sets-jeam test-jeam:test-sets]
+      [%test-sets-mint test-mint:test-sets]
+  ==
 ::
 ++  parse
   |=  i=@
