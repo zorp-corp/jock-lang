@@ -24,6 +24,7 @@
 /*  match-type            %jock  /lib/tests/match-type/jock
 /*  example-atom          %jock  /lib/tests/example-atom/jock
 /*  sets                  %jock  /lib/tests/sets/jock
+/*  protocol              %jock  /lib/tests/protocol/jock
 ::
 /*  test-let-edit         %hoon  /tests/lib/let-edit/hoon
 /*  test-let-inner-exp    %hoon  /tests/lib/let-inner-exp/hoon
