@@ -1,13 +1,13 @@
 [package]
 name = "jock-testing"
 version = "0.1.0"
-edition = "2025"
+edition = "2021"
 
 [dependencies]
-crown = { git = "https://github.com/zorp-corp/nockapp", rev="10fd2c6e4e33f0ed60d90ba3f277b3a070abadf5" }
-sword = { git = "https://github.com/zorp-corp/sword.git", rev="29cc8d897c8cb7a70e5baf52c9b83f5ef04fe509" }
-sword_macros = { git = "https://github.com/zorp-corp/sword.git", rev="29cc8d897c8cb7a70e5baf52c9b83f5ef04fe509" }
-assert_no_alloc = { git = "https://github.com/zorp-corp/sword.git", rev="29cc8d897c8cb7a70e5baf52c9b83f5ef04fe509" }
+crown = { git = "https://github.com/zorp-corp/nockapp", rev="d950678e86caa4642fde6432a8d02d1e04b8bcae" }
+sword = { git = "https://github.com/zorp-corp/sword.git", rev = "bcb2e7fba0e24d45d4887fae77389d7c5e86b507" }
+sword_macros = { git = "https://github.com/zorp-corp/sword.git", rev = "bcb2e7fba0e24d45d4887fae77389d7c5e86b507" }
+assert_no_alloc = { git = "https://github.com/zorp-corp/sword.git", rev = "bcb2e7fba0e24d45d4887fae77389d7c5e86b507" }
 clap = { version = "4.4.4", features = ["derive", "cargo", "color", "env"]}
 tokio = { version = "1.32", features = ["rt", "rt-multi-thread", "net", "macros", "io-util", "fs", "sync", "time"] }
 tracing = "0.1.40"
