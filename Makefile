@@ -31,7 +31,7 @@ release: build-release
 
 .PHONY: release-test-zero
 release-test-zero:
-	cargo run $(PROFILE_RELEASE) -- --new test-n 0
+	RUST_LOG=TRACE cargo run $(PROFILE_RELEASE) -- --new test-n 0
 
 .PHONY: release-test-all
 release-test-all:

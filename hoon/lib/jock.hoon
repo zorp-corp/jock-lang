@@ -215,7 +215,7 @@
   $^  [p=jock q=jock]
   $%  [%let type=jype val=jock next=jock]
       [%func type=jype body=jock next=jock]
-      [%protocol type=cord body=(list jype) next=jock]
+      [%protocol type=cord body=(map term jype) next=jock]
       [%edit limb=(list jlimb) val=jock next=jock]
       [%increment val=jock]
       [%cell-check val=jock]
@@ -333,7 +333,6 @@
 ++  match-jock
   |=  =tokens
   ^-  [jock (list token)]
-  ~&  on-my-way+tokens
   ?:  =(~ tokens)
     ~|("expect jock. token: ~" !!)
   =^  jock  tokens
@@ -352,14 +351,14 @@
 ++  match-inner-jock
   |=  =tokens
   ^-  [jock (list token)]
-  ?~  tokens  ~|("expect inner-jock. token: ~" !!)
+  ?:  =(~ tokens)  ~|("expect inner-jock. token: ~" !!)
   ?:  ?|  (has-keyword -.tokens %object)
           (has-keyword -.tokens %with)
           (has-keyword -.tokens %this)
           (has-keyword -.tokens %crash)
       ==
     (match-jock tokens)
-  ?+    -.i.tokens  !!
+  ?+    -<.tokens  !!
       %literal
     ::  TODO: check if we're in a compare
     (match-literal tokens)
@@ -372,7 +371,7 @@
 ++  match-pair-inner-jock
   |=  =tokens
   ^-  [jock (list token)]
-  ?~  tokens  ~|("expect jock. token: ~" !!)
+  ?:  =(~ tokens)  ~|("expect jock. token: ~" !!)
   ?:  (has-punctuator -.tokens %'(')
     =>  .(tokens `(list token)`+.tokens)
     =^  jock-one  tokens
@@ -395,7 +394,7 @@
     =^  pairs  tokens
       $
     [[jock-nex pairs] tokens]
-  ?+  -.i.tokens  !!
+  ?+  -<.tokens  !!
     %literal     (match-literal tokens)
     %name        (match-start-name tokens)
     %punctuator  (match-start-punctuator tokens)
@@ -533,28 +532,33 @@
 ++  match-start-name
   |=  =tokens
   ^-  [jock (list token)]
-  ?~  tokens  ~|("expect expression starting with name. token: ~" !!)
-  ::  - %name (';' is is the next token)
-  ::  - %edit ('=' is the next token)
-  ::  - %call ('((' is the next token)
-  ::  - %compare ('==' or '<' or '>' or '!' is next)
-  ?.  ?=(%name -.i.tokens)
-    ~|("expect name. token: {<-.i.tokens>}" !!)
+  ?:  =(~ tokens)  ~|("expect expression starting with name. token: ~" !!)
+  :: ?.  ?=(%name -<.tokens)
+  ::   ~|("expect name. token: {<-<.tokens>}" !!)
+  ::  How a name is parsed depends on the next symbol.
   =/  name=term
-    (got-name i.tokens)
-  =>  .(tokens t.tokens)
-  =/  limbs=(list jlimb)  [%name name]~
+    ~|  "expect name. token: {<-<.tokens>}" 
+    (got-name -.tokens)
+  =.  tokens  +.tokens
+  =/  limbs=(list jlimb)  ~[[%name name]]
+  ::  - %name (there is no next token, which is the end of the jock)
   ?:  =(~ tokens)
     [[%limb limbs] tokens]
+  ::  - %name (there is a wing with multiple entries)
   ?:  ?=(^ (get-name -.tokens))
+    [[%limb limbs] tokens]
+  ::  - %name (';' is the next token, which is consumed outside)
+  ?:  (has-punctuator -.tokens %';')
     [[%limb limbs] tokens]
   |-
   ?:  =(~ tokens)
     [[%limb limbs] tokens]
   ?^  nom=(get-name -.tokens)
     $(tokens +.tokens, limbs [[%name u.nom] limbs])
+  ::  - %name ('.' is the next token; there is a wing)
   ?:  (has-punctuator -.tokens %'.')
     $(tokens +.tokens)
+  ::  - %edit ('=' is the next token)
   ?:  (has-punctuator -.tokens %'=')
     ?:  (has-punctuator -.+.tokens %'=')
       =^  b  tokens
@@ -566,6 +570,7 @@
     =^  jock  tokens
       (match-jock +.tokens)
     [[%edit limbs val jock] tokens]
+  ::  - %compare ('==' or '<' or '>' or '!' is next)
   ?:  ?|  (has-punctuator -.tokens %'<')
           (has-punctuator -.tokens %'>')
           (has-punctuator -.tokens %'!')
@@ -575,6 +580,7 @@
     =^  inner-two  tokens
       (match-inner-jock tokens)
     [[%compare [%limb limbs] comparator inner-two] tokens]
+  ::  - %call ('((' is the next token)
   ?:  (has-punctuator -.tokens %'((')
     |-
     =.  tokens  +.tokens
@@ -666,7 +672,7 @@
     [[%call [%lambda lambda] `arg] tokens]
   ::
   ::  protocol A { func add(#) -> #; func sub(#) -> #; };
-  ::  [%protocol type=jype-leaf body=(list jype) next=jock]
+  ::  [%protocol type=jype-leaf body=(map jype jype) next=jock]
       %protocol
     ::  metatype label
     =/  type  -.tokens
@@ -677,25 +683,20 @@
     ?:  =([%type 'Map'] type)   !!
     =.  tokens  +.tokens
     ?>  (got-punctuator -.tokens %'{')
-    =|  arg=(list jype)
+    =|  arg=(map term jype)
     =.  tokens  +.tokens
-    ~&  here+tokens
     =^  body  tokens
     |-
     ?:  (has-punctuator -.tokens %'}')
-      ~&  (flop arg)
-      [(flop arg) +.tokens]
+      [arg +.tokens]
     =^  jype  tokens
       (match-trait +.tokens)
-    $(arg [jype arg])
-    ~&  >  'here!'
+    $(arg (~(put by arg) name.jype jype))
     ?>  (got-punctuator -.tokens %';')
-    ~&  >  'here2!'
-    ~&  tokkens+tokens
+    =.  tokens  +.tokens
     =^  next  tokens
-      (match-jock +.tokens)
-    ~&  >>  `jock`[%protocol `cord`+.type `(list jype)`body `jock`next]
-    [`jock`[%protocol `cord`+.type `(list jype)`body `jock`next] +.tokens]
+      (match-jock tokens)
+    [`jock`[%protocol `cord`+.type `(map term jype)`body `jock`next] tokens]
   ::
   ::  if (a < b) { +(a) } else { +(b) }
   ::  [%if cond=jock then=jock after-if=after-if-expression]
@@ -856,7 +857,6 @@
 ++  match-jype-leaf
   |=  =tokens
   ^-  [jype-leaf (list token)]
-  ~&  tokens+tokens
   ?:  =(~ tokens)  ~|("expect jype-leaf. token: ~" !!)
   ::  %atom
   ::    Match on atom type  a:@
@@ -923,31 +923,31 @@
       ++  mini  ?(%'<' %'>' %'=' %'!')
       ++  comp  (perk %'<' %'>' %'=' %'!' ~)
       --
-  ?~  tokens  ~|("expect comparator. token: ~" !!)
-  ?.  ?=(%punctuator -.i.tokens)
-    ~|("expect punctuator. token: {<-.i.tokens>}" !!)
+  ?:  =(~ tokens)  ~|("expect comparator. token: ~" !!)
+  ?.  ?=(%punctuator -<.tokens)
+    ~|("expect punctuator. token: {<-<.tokens>}" !!)
   =/  cm1=(unit mini)
-    (rust (trip +.i.tokens) (full comp))
+    (rust (trip ->.tokens) (full comp))
   ?~  cm1
-    ~|("match-comparator failed: {<i.tokens>}" !!)
-  ?~  t.tokens
-    [;;(comparator u.cm1) t.tokens]
-  ?.  ?=(%punctuator -.i.t.tokens)
-    [;;(comparator u.cm1) t.tokens]
+    ~|("match-comparator failed: {<-.tokens>}" !!)
+  ?:  =(~ +.tokens)
+    [;;(comparator u.cm1) +.tokens]
+  ?.  ?=(%punctuator +<-.tokens)
+    [;;(comparator u.cm1) +.tokens]
   =/  cm2=(unit mini)
-    (rust (trip +.i.t.tokens) (full comp))
+    (rust (trip +<+.tokens) (full comp))
   ?~  cm2
-    [;;(comparator u.cm1) t.tokens]
+    [;;(comparator u.cm1) +.tokens]
   =/  final  (cat 3 u.cm1 u.cm2)
-  [;;(comparator final) t.t.tokens]
+  [;;(comparator final) +>.tokens]
 ::
 ++  match-after-if-expression
   |=  =tokens
   ^-  (pair after-if-expression (list token))
-  ?~  tokens
+  ?:  =(~ tokens)
     ~|("expect after-if. token: ~" !!)
   ?.  ?=(%keyword -<.tokens)
-    ~|("expect keyword. token: {<-.i.tokens>}" !!)
+    ~|("expect keyword. token: {<-<.tokens>}" !!)
   ?.  =(%else ->.tokens)
     ~|("expect %else. token: {<->.tokens>}" !!)
   =>  .(tokens `(list token)`+.tokens)
@@ -975,7 +975,7 @@
 ++  match-literal
   |=  =tokens
   ^-  [[%atom jatom] (list token)]
-  ?~  tokens  ~|("expect literal. token: ~" !!)
+  ?:  =(~ tokens)  ~|("expect literal. token: ~" !!)
   ?.  ?=(%literal -<.tokens)
     ~|("expect literal. token: {<-<.tokens>}" !!)
   [[%atom ->.tokens] +.tokens]
@@ -1030,10 +1030,10 @@
 ++  got-jatom-number
   |=  =tokens
   ^-  @
-  ?~  tokens  ~|("expect literal. token: ~" !!)
-  ?.  ?=(%literal -.i.tokens)
-    ~|("expect literal or symbol. token: {<-.i.tokens>}" !!)
-  =/  p=jatom  +.i.tokens
+  ?:  =(~ tokens)  ~|("expect literal. token: ~" !!)
+  ?.  ?=(%literal -<.tokens)
+    ~|("expect literal or symbol. token: {<-<.tokens>}" !!)
+  =/  p=jatom  ->.tokens
   ?.  ?=(%number -<.p)
     ~|("expect number or symbol. token: {<-.p>}" !!)
   ->.p
@@ -1279,7 +1279,7 @@
     :_  name.jyp
     ?:  =(%none -.p.jyp)
       p.v
-    ?:  =(%none -.p.v)
+    ?:  =(%none -.p.v)  
       p.jyp
     ?>  =(-.p.jyp -.p.v)
     p.jyp
@@ -1330,7 +1330,17 @@
     ::
         %protocol
       ~|  %protocol
-      [[%0 0] jyp]
+      ~&  type+type.j
+      ~&  body+body.j
+      ~&  next+next.j
+      ~&  %+  turn
+            ~(tap by body.j)
+          |=  [k=term v=jype]
+          =/  res  (~(get-limb jt jyp) ~[[%name k]])
+          [k res]
+          :: |=([k=term v=jype] =+([val val-jyp]=^$(jyp v) [key+k val+val jyp+val-jyp]))
+      =+  [nex nex-jyp]=$(j next.j)
+      [nex nex-jyp]
     ::
         %edit
       =/  [typ=jype axi=@]
@@ -1656,8 +1666,8 @@
       ==
     ::
         %atom
-      ~|  [%atom +.-.+.j]
-      :-  [%1 +.-.+.j]
+      ~|  [%atom +<+.j]
+      :-  [%1 +<+.j]
       [^-(jype-leaf [%atom +<-.j +>.j]) %$]
     ::
         %crash

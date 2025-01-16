@@ -160,6 +160,9 @@
       [%test-sets-tokens test-tokenize:test-sets]
       [%test-sets-jeam test-jeam:test-sets]
       [%test-sets-mint test-mint:test-sets]
+      :: [%test-protocol-tokens test-tokenize:test-protocol]
+      :: [%test-protocol-jeam test-jeam:test-protocol]
+      :: [%test-protocol-mint test-mint:test-protocol]
   ==
 ::
 ++  parse
