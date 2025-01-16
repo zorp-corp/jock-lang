@@ -82,6 +82,7 @@
  ==
 ::
 ++  test-jocks
+  ~+
   ^-  (list [term tang])
   :~  [%test-let-edit-tokens test-tokenize:test-let-edit]
       [%test-let-edit-jeam test-jeam:test-let-edit]
@@ -210,14 +211,10 @@
   |-
   ?:  =(i len)
     (flop lis)
-  =/  res=(unit *)
-    %-  mole
-    |.
-    =/  arm  (snag i test-jocks)
-    ~&  [i -.arm]
-    +.arm
+  =/  [tag=@tas tan=tang]  (snag i test-jocks)
+  ~&  ["{<i>}" tag `tape`(zing (turn tan |=(=tank ~(ram re tank))))]
   =.  lis
-    [?=(^ res) lis]
+    [?=(~ tan) lis]
   $(i +(i))
 ::
 ++  exec
