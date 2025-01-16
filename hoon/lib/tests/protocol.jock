@@ -3,23 +3,23 @@ protocol Arithmetic {
   func sub(#) -> #;
 };
 
-5
-
-/*object Point: Arithmetic {
-  let p:(x:@ y:@);
-  func init(q:(x:@ y:@)) -> Point {
+object Point: Arithmetic {
+  p:(x:@ y:@);
+  init(q:(x:@ y:@)) -> Point {
     p.x = q.x;
     p.y = q.y;
   }
-  func add(q:Point) -> Point {
+  add(q:Point) -> Point {
     Point(((p.x + q.x) (p.y + q.y)))
   };
-  func sub(q:Point) -> Point {
+  sub(q:Point) -> Point {
     Point(((p.x - q.x) (p.y - q.y)))
   };
 };
 
-let origin:Point = (0 0);
+5;
+
+/*let origin:Point = (0 0);
 let vector:Point = (1 2);
 
 origin.add(vector)

@@ -215,7 +215,7 @@
   $^  [p=jock q=jock]
   $%  [%let type=jype val=jock next=jock]
       [%func type=jype body=jock next=jock]
-      [%protocol type=cord body=(map term jype) next=jock]
+      [%protocol type=jock body=(map term jype) next=jock]
       [%edit limb=(list jlimb) val=jock next=jock]
       [%increment val=jock]
       [%cell-check val=jock]
@@ -325,7 +325,7 @@
 ::  Arm lookups
 +$  jlimb
   $%  ::  Arm or leg name
-      [%name p=term]
+      [%name p=cord]
       ::  Numeric axis
       [%axis p=@]
   ==
@@ -672,7 +672,7 @@
     [[%call [%lambda lambda] `arg] tokens]
   ::
   ::  protocol A { func add(#) -> #; func sub(#) -> #; };
-  ::  [%protocol type=jype-leaf body=(map jype jype) next=jock]
+  ::  [%protocol type=jock body=(map jype jype) next=jock]
       %protocol
     ::  metatype label
     =/  type  -.tokens
@@ -696,7 +696,7 @@
     =.  tokens  +.tokens
     =^  next  tokens
       (match-jock tokens)
-    [`jock`[%protocol `cord`+.type `(map term jype)`body `jock`next] tokens]
+    [`jock`[%protocol `jock`[%limb ~[[%name +.type]]] `(map term jype)`body `jock`next] tokens]
   ::
   ::  if (a < b) { +(a) } else { +(b) }
   ::  [%if cond=jock then=jock after-if=after-if-expression]
@@ -733,8 +733,16 @@
       %object
     =/  has-name  ?=(^ (get-name -.tokens))
     =/  cor-name  (fall (get-name -.tokens) %$)
-    =?  tokens  has-name
-      +.tokens
+    ~&  name+cor-name
+    ~&  tokkens+[+.tokens]
+    =?  tokens  has-name  +.tokens
+    ~&  name+cor-name
+    ~&  tokens+tokens
+    =/  validated=?  (has-punctuator -.tokens %':')
+    =/  has-type  ?=(^ (get-name +<.tokens))
+    =/  cor-type  (fall (get-name +<.tokens) %$)
+    ~&  type+cor-type
+    =?  tokens  has-type  +>.tokens
     ?>  (got-punctuator -.tokens %'{')
     =.  tokens  +.tokens
     =^  core  tokens
@@ -1047,9 +1055,10 @@
 ::
 ++  get-name
   |=  =token
-  ^-  (unit term)
-  ?.  ?=(%name -.token)  ~
-  [~ +.token]
+  ^-  (unit cord)
+  ?.  |(?=(%name -.token) ?=(%type -.token))  ~
+  ?:  ?=(%name -.token)  [~ +.token]
+  ?>  ?=(%type -.token)  [~ +.token]
 ::
 ++  got-punctuator
   |=  [=token punc=jpunc]
@@ -1333,12 +1342,21 @@
       ~&  type+type.j
       ~&  body+body.j
       ~&  next+next.j
-      ~&  %+  turn
-            ~(tap by body.j)
-          |=  [k=term v=jype]
-          =/  res  (~(get-limb jt jyp) ~[[%name k]])
-          [k res]
-          :: |=([k=term v=jype] =+([val val-jyp]=^$(jyp v) [key+k val+val jyp+val-jyp]))
+      :: ~&  %+  turn
+      ::       ~(tap by body.j)
+      ::     |=  [k=term v=jype]
+      ::     :: =/  res  (~(get-limb jt jyp) ~[[%name k]])
+      ::     =+  [typ typ-jyp]=^$(j v)
+      ::     =.  jyp
+      ::       =/  inferred-type
+      ::         (~(unify jt type.j) typ-jyp)
+      ::       ?~  inferred-type
+      ::         ~|  '%protocol: body type does not nest in declared type'
+      ::         ~|  ['have:' typ-jyp 'need:' type.j]
+      ::         !!
+      ::       (~(cons jt u.inferred-type) jyp)
+      ::     [k res]
+      ::     :: |=([k=term v=jype] =+([val val-jyp]=^$(jyp v) [key+k val+val jyp+val-jyp]))
       =+  [nex nex-jyp]=$(j next.j)
       [nex nex-jyp]
     ::
