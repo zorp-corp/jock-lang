@@ -1,26 +1,22 @@
 protocol Arithmetic {
-  func add(#) -> #;
-  func sub(#) -> #;
+  add(#) -> #;
+  sub(#) -> #;
 };
 
-object Point: Arithmetic {
-  p:(x:@ y:@);
+type Point(x:@ y:@) implements Arithmetic {
   init(q:(x:@ y:@)) -> Point {
-    p.x = q.x;
-    p.y = q.y;
-  }
+    x = q.x;
+    y = q.y;
+  };
   add(q:Point) -> Point {
-    Point(((p.x + q.x) (p.y + q.y)))
+    new Point(((x + q.x) (y + q.y)));
   };
   sub(q:Point) -> Point {
-    Point(((p.x - q.x) (p.y - q.y)))
+    new Point(((x - q.x) (y - q.y)));
   };
 };
 
-5;
-
-/*let origin:Point = (0 0);
-let vector:Point = (1 2);
+let origin:Point = new Point(0 0);
+let vector:Point = new Point(1 2);
 
 origin.add(vector)
-*/

@@ -39,6 +39,8 @@
       %func
       %lambda
       %protocol
+      %type
+      %new
       %if
       %else
       %crash
@@ -140,7 +142,7 @@
   ++  tagged-keyword     (stag %keyword keyword)
   ++  keyword
     %-  perk
-    :~  %let  %func  %lambda  %protocol
+    :~  %let  %func  %lambda  %protocol  %type  %new
         %if  %else  %crash  %assert
         %object  %compose  %loop  %defer
         %recur  %match  %eval  %with  %this
@@ -216,6 +218,7 @@
   $%  [%let type=jype val=jock next=jock]
       [%func type=jype body=jock next=jock]
       [%protocol type=jock body=(map term jype) next=jock]
+      [%type name=jype arms=(map term jock) next=jock]
       [%edit limb=(list jlimb) val=jock next=jock]
       [%increment val=jock]
       [%cell-check val=jock]
@@ -275,7 +278,7 @@
 +$  jype
   $+  jype
   $:  $^([p=jype q=jype] p=jype-leaf)
-      name=term
+      name=cord
   ==
 ::  Jype bottomed-out types
 +$  jype-leaf
@@ -333,6 +336,7 @@
 ++  match-jock
   |=  =tokens
   ^-  [jock (list token)]
+  ~&  >>  match-jock+tokens
   ?:  =(~ tokens)
     ~|("expect jock. token: ~" !!)
   =^  jock  tokens
@@ -400,6 +404,27 @@
     %punctuator  (match-start-punctuator tokens)
     %type        !!  ::(match-metatype tokens)  :: shouldn't reach this way
   ==
+::  match jocks with no terminating jock (i.e. func bodies)
+++  match-jock-body
+  |=  [=tokens end=jpunc]
+  ^-  [jock (list token)]
+  ?:  =(~ tokens)
+    ~|("expect jock. token: ~" !!)
+  ?:  (has-punctuator -.tokens end)
+    ~&  %hello
+    !!
+  =^  jock  tokens
+    ?-    -<.tokens
+        %literal
+      ::  TODO: check if we're in a compare
+      (match-literal tokens)
+    ::
+      %name        (match-start-name tokens)
+      %keyword     (match-keyword tokens)
+      %punctuator  (match-start-punctuator tokens)
+      %type        !!  ::(match-metatype tokens)  :: shouldn't reach this way
+    ==
+  [jock tokens]
 ::
 ++  match-trait
   |=  =tokens
@@ -566,6 +591,7 @@
       [[%compare [%limb limbs] %'==' b] tokens]
     =^  val  tokens
       (match-inner-jock +.tokens)
+    ~&  match-start-name+tokens
     ?>  (got-punctuator -.tokens %';')
     =^  jock  tokens
       (match-jock +.tokens)
@@ -641,17 +667,21 @@
     =.  tokens  +>.tokens
     =^  out  tokens
       (match-jype tokens)
+    ~&  'here'
     =^  body  tokens
-      (match-block [tokens %'{' %'}'] match-jock)
+      (match-block [tokens %'{' %'}'] (curr match-jock-body %'}'))
+    ~&  'here2'
     ?>  (got-punctuator -.tokens %';')
+    :: ?>  (got-punctuator +<.tokens %';')
     =^  next  tokens
-      (match-jock +.tokens)
+      (match-jock +>.tokens)
     =.  type
       :-  [%core [%& [`inp out]] ~]
       name.type
     =.  body
       :-  %lambda
       [[`inp out] body ~]
+    ~&  func+tokens
     [[%func type body next] tokens]
   ::
   ::  lambda (b:@) -> @ {+(b)}(23);
@@ -678,9 +708,9 @@
     =/  type  -.tokens
     ?>  ?=(%type -.type)
     ::  mask out reserved types
-    ?:  =([%type 'List'] type)  !!
-    ?:  =([%type 'Set'] type)   !!
-    ?:  =([%type 'Map'] type)   !!
+    ?:  =([%type 'List'] type)  ~|('Shadowing reserved type List is not allowed.' !!)
+    ?:  =([%type 'Set'] type)   ~|('Shadowing reserved type Set is not allowed.' !!)
+    ?:  =([%type 'Map'] type)   ~|('Shadowing reserved type Map is not allowed.' !!)
     =.  tokens  +.tokens
     ?>  (got-punctuator -.tokens %'{')
     =|  arg=(map term jype)
@@ -697,6 +727,62 @@
     =^  next  tokens
       (match-jock tokens)
     [`jock`[%protocol `jock`[%limb ~[[%name +.type]]] `(map term jype)`body `jock`next] tokens]
+  ::
+  ::  [%type name=cord arms=(map term jock) next=jock]
+      %type
+    =^  jype  tokens
+      (match-jype tokens)
+    ::  mask out reserved types
+    ?:  =([%type 'List'] name.jype)  ~|('Shadowing reserved type List is not allowed.' !!)
+    ?:  =([%type 'Set'] name.jype)   ~|('Shadowing reserved type Set is not allowed.' !!)
+    ?:  =([%type 'Map'] name.jype)   ~|('Shadowing reserved type Map is not allowed.' !!)
+    ::  TODO check `implements`
+    ~&  name+jype
+    ~&  tokkens+[+.tokens]
+    ?>  (got-punctuator -.tokens %'{')
+    =|  arms=(map term jock)
+    =.  tokens  +.tokens
+    =^  arms  tokens
+      |-
+      ~&  arms+arms
+      ~&  tokkkens+tokens
+      ?:  (has-punctuator -.tokens %'}')
+        [arms +.tokens]
+      :: :: ?>  (has-keyword -.tokens %func)
+      :: =^  jok  tokens
+      ::   (match-jock tokens)
+      :: ~&  >>>  jok+jok
+      :: ?>  (got-punctuator -.tokens %';')
+      :: =/  jok  ;;([%let type=^jype val=jock next=jock] jok)
+      =^  type  tokens
+        (match-jype tokens)
+      =^  inp  tokens
+        (match-block [tokens %'((' %')'] match-jype)
+      ?>  (got-punctuator -.tokens %'-')
+      ?>  (got-punctuator +<.tokens %'>')
+      =.  tokens  +>.tokens
+      =^  out  tokens
+        (match-jype tokens)
+      =.  type
+        :-  [%core [%& [`inp out]] ~]
+        name.type
+      ~&  there+type
+      =^  body  tokens
+        :: (match-block [tokens %'{' %'}'] (curr match-jock-body %';'))
+        (match-block [tokens %'{' %'}'] match-jock)
+      ~&  'there2'
+      ?>  (got-punctuator -.tokens %';')
+      =.  body
+        :-  %lambda
+        [[`inp out] body ~]
+      ~&  lunc+tokens
+      :: [[%func type body next] tokens]
+      %=  $
+        arms    (~(put by arms) name.type [%func type body *jock])
+        tokens  +.tokens
+      ==
+    :_  tokens
+    [%type jype arms *jock]
   ::
   ::  if (a < b) { +(a) } else { +(b) }
   ::  [%if cond=jock then=jock after-if=after-if-expression]
@@ -733,16 +819,8 @@
       %object
     =/  has-name  ?=(^ (get-name -.tokens))
     =/  cor-name  (fall (get-name -.tokens) %$)
-    ~&  name+cor-name
-    ~&  tokkens+[+.tokens]
-    =?  tokens  has-name  +.tokens
-    ~&  name+cor-name
-    ~&  tokens+tokens
-    =/  validated=?  (has-punctuator -.tokens %':')
-    =/  has-type  ?=(^ (get-name +<.tokens))
-    =/  cor-type  (fall (get-name +<.tokens) %$)
-    ~&  type+cor-type
-    =?  tokens  has-type  +>.tokens
+    =?  tokens  has-name
+      +.tokens
     ?>  (got-punctuator -.tokens %'{')
     =.  tokens  +.tokens
     =^  core  tokens
@@ -998,8 +1076,10 @@
 ++  match-block
   |*  [[=tokens start=jpunc end=jpunc] gate=$-(tokens [* tokens])]
   ?>  (got-punctuator -.tokens start)
+  ~&  match-block+tokens
   =^  output  tokens
     (gate +.tokens)
+  ~&  match-block-out+tokens
   ?>  (got-punctuator -.tokens end)
   [output +.tokens]
 ::
@@ -1357,6 +1437,10 @@
       ::       (~(cons jt u.inferred-type) jyp)
       ::     [k res]
       ::     :: |=([k=term v=jype] =+([val val-jyp]=^$(jyp v) [key+k val+val jyp+val-jyp]))
+      =+  [nex nex-jyp]=$(j next.j)
+      [nex nex-jyp]
+    ::
+        %type
       =+  [nex nex-jyp]=$(j next.j)
       [nex nex-jyp]
     ::
