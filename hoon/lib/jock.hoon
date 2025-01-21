@@ -39,7 +39,7 @@
       %func
       %lambda
       %protocol
-      %type
+      %class
       %new
       %if
       %else
@@ -142,7 +142,7 @@
   ++  tagged-keyword     (stag %keyword keyword)
   ++  keyword
     %-  perk
-    :~  %let  %func  %lambda  %protocol  %type  %new
+    :~  %let  %func  %lambda  %protocol  %class  %new
         %if  %else  %crash  %assert
         %object  %compose  %loop  %defer
         %recur  %match  %eval  %with  %this
@@ -218,7 +218,7 @@
   $%  [%let type=jype val=jock next=jock]
       [%func type=jype body=jock next=jock]
       [%protocol type=jock body=(map term jype) next=jock]
-      [%type name=jype arms=(map term jock) next=jock]
+      [%class name=jype arms=(map term jock) next=jock]
       [%edit limb=(list jlimb) val=jock next=jock]
       [%increment val=jock]
       [%cell-check val=jock]
@@ -728,8 +728,8 @@
       (match-jock tokens)
     [`jock`[%protocol `jock`[%limb ~[[%name +.type]]] `(map term jype)`body `jock`next] tokens]
   ::
-  ::  [%type name=cord arms=(map term jock) next=jock]
-      %type
+  ::  [%class name=cord arms=(map term jock) next=jock]
+      %class
     =^  jype  tokens
       (match-jype tokens)
     ::  mask out reserved types
@@ -782,7 +782,7 @@
         tokens  +.tokens
       ==
     :_  tokens
-    [%type jype arms *jock]
+    [%class jype arms *jock]
   ::
   ::  if (a < b) { +(a) } else { +(b) }
   ::  [%if cond=jock then=jock after-if=after-if-expression]
@@ -1440,7 +1440,7 @@
       =+  [nex nex-jyp]=$(j next.j)
       [nex nex-jyp]
     ::
-        %type
+        %class
       =+  [nex nex-jyp]=$(j next.j)
       [nex nex-jyp]
     ::

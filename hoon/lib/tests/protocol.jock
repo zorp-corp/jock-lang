@@ -3,7 +3,8 @@ protocol Arithmetic {
   sub(#) -> #;
 };
 
-type Point(x:@ y:@) implements Arithmetic {
+// class Point(x:@ y:@) implements Arithmetic {
+class Point(x:@ y:@): Arithmetic {
   init(q:(x:@ y:@)) -> Point {
     x = q.x;
     y = q.y;
