@@ -31,11 +31,11 @@ release: build-release
 
 .PHONY: release-test-zero
 release-test-zero:
-	cargo run $(PROFILE_RELEASE) -- --new test-n 0
+	RUST_LOG=TRACE cargo run $(PROFILE_RELEASE) -- --new test-n 0
 
 .PHONY: release-test-all
 release-test-all:
-	cargo run $(PROFILE_RELEASE) -- --new exec-all
+	RUST_LOG=TRACE cargo run $(PROFILE_RELEASE) -- --new exec-all
 
 -: ## -----------------------------------------------------------
 -: ## ---------- Rest of the commands in the Makefile -----------
@@ -45,28 +45,28 @@ release-test-all:
 build-dev-fast: ## Slower to compile, faster to execute. Builds all projects
 	@set -e; \
 	RUST_LOG=TRACE ./choo hoon/main.hoon hoon; \
-	# mv out.jam assets/jocktest.jam; \
+	mv out.jam assets/jocktest.jam; \
 	cargo build $(PROFILE_DEV_FAST)
 
 .PHONY: build-parallel
 build-parallel: ## profiling profile with parallel feature enabled
 	@set -e; \
 	./choo hoon/main.hoon hoon; \
-	# mv out.jam assets/jocktest.jam; \
+	mv out.jam assets/jocktest.jam; \
 	cargo build $(FEATURES_PARALLEL) $(PROFILE_PROFILING)
 
 .PHONY: build
 build-dev-debug: ## Fast to compile, slow to execute. Builds all projects
 	@set -e; \
 	RUST_LOG=TRACE ./choo --new --log-level trace hoon/main.hoon hoon; \
-	# mv out.jam assets/jocktest.jam; \
+	mv out.jam assets/jocktest.jam; \
 	cargo build
 
 .PHONY: build-release
 build-release: ## Slowest to compile, fastest to execute. Builds all projects
 	@set -e; \
 	RUST_LOG=TRACE ./choo hoon/main.hoon hoon; \
-	# mv out.jam assets/jocktest.jam; \
+	mv out.jam assets/jocktest.jam; \
 	cargo build $(PROFILE_RELEASE)
 
 .PHONY: update-choo
