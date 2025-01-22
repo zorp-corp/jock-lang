@@ -40,7 +40,6 @@
       %lambda
       %protocol
       %class
-      %new
       %if
       %else
       %crash
@@ -142,7 +141,7 @@
   ++  tagged-keyword     (stag %keyword keyword)
   ++  keyword
     %-  perk
-    :~  %let  %func  %lambda  %protocol  %class  %new
+    :~  %let  %func  %lambda  %protocol  %class
         %if  %else  %crash  %assert
         %object  %compose  %loop  %defer
         %recur  %match  %eval  %with  %this
@@ -336,19 +335,17 @@
 ++  match-jock
   |=  =tokens
   ^-  [jock (list token)]
-  ~&  >>  match-jock+tokens
   ?:  =(~ tokens)
     ~|("expect jock. token: ~" !!)
   =^  jock  tokens
     ?-    -<.tokens
-        %literal
-      ::  TODO: check if we're in a compare
-      (match-literal tokens)
-    ::
+      %literal     (match-literal tokens)
       %name        (match-start-name tokens)
       %keyword     (match-keyword tokens)
       %punctuator  (match-start-punctuator tokens)
-      %type        !!  ::(match-metatype tokens)  :: shouldn't reach this way
+      %type        (match-start-name tokens)  ::(match-metatype tokens)  :: shouldn't reach this way
+      :: %type        !!  ::(match-metatype tokens)  :: shouldn't reach this way
+      ::  TODO: check if we're in a compare
     ==
   [jock tokens]
 ::
@@ -363,13 +360,11 @@
       ==
     (match-jock tokens)
   ?+    -<.tokens  !!
-      %literal
-    ::  TODO: check if we're in a compare
-    (match-literal tokens)
-  ::
-    %name        (match-start-name tokens)
-    %punctuator  (match-start-punctuator tokens)
-    %type        !!  ::(match-metatype tokens)  :: shouldn't reach this way
+      %literal     (match-literal tokens)
+      %name        (match-start-name tokens)
+      %punctuator  (match-start-punctuator tokens)
+      %type        !!  ::(match-metatype tokens)  :: shouldn't reach this way
+      ::  TODO: check if we're in a compare
   ==
 ::
 ++  match-pair-inner-jock
@@ -410,9 +405,7 @@
   ^-  [jock (list token)]
   ?:  =(~ tokens)
     ~|("expect jock. token: ~" !!)
-  ?:  (has-punctuator -.tokens end)
-    ~&  %hello
-    !!
+  ?:  (has-punctuator -.tokens end)  !!
   =^  jock  tokens
     ?-    -<.tokens
         %literal
@@ -452,7 +445,7 @@
   ?.  ?=(%punctuator -.first)
     ~|("expect start-punctuator. token: {<-.first>}" !!)
   =.  tokens  +.tokens
-  ?+    +.first  ~|(tokens !!)
+  ?+    +.first  ~|("expect start-punctuator. token: {<+.first>}" !!)
   ::  Increment  +(0)
       %'+'
     =^  jock  tokens
@@ -561,8 +554,11 @@
   :: ?.  ?=(%name -<.tokens)
   ::   ~|("expect name. token: {<-<.tokens>}" !!)
   ::  How a name is parsed depends on the next symbol.
-  =/  name=term
+  =/  has-name  ?=(%name -<.tokens)
+  =/  name=cord
     ~|  "expect name. token: {<-<.tokens>}" 
+    ?:  has-name  ;;(cord ->.tokens)
+    ?>  =(%type -<.tokens)
     (got-name -.tokens)
   =.  tokens  +.tokens
   =/  limbs=(list jlimb)  ~[[%name name]]
@@ -591,7 +587,6 @@
       [[%compare [%limb limbs] %'==' b] tokens]
     =^  val  tokens
       (match-inner-jock +.tokens)
-    ~&  match-start-name+tokens
     ?>  (got-punctuator -.tokens %';')
     =^  jock  tokens
       (match-jock +.tokens)
@@ -624,13 +619,17 @@
   ?:  =(~ tokens)  ~|("expect expression starting with type. token: ~" !!)
   ?:  !=(%type -<.tokens)
     ~|("expect type. token: {<-.tokens>}" !!)
-  =/  type
+  =/  type=cord
     ?:  =([%type 'List'] -.tokens)
       %list
     ?:  =([%type 'Set'] -.tokens)
       %set
-    !!  ::  TODO generalize
+    ?>  ?=([%type cord] -.tokens)
+    ;;(cord ->.tokens)  ::  TODO generalize?
   =.  tokens  +.tokens
+  ?.  =([%punctuator %'('] -.tokens)
+    ::  XXX fix when finishing type TODO
+    [`jype`[`jype-leaf`[%limb ~[[%name type]]] type] tokens]
   =^  jyp  tokens
     (match-block [tokens %'(' %')'] match-jype)
   [[;;(jype-leaf [type jyp]) %$] tokens]
@@ -667,21 +666,17 @@
     =.  tokens  +>.tokens
     =^  out  tokens
       (match-jype tokens)
-    ~&  'here'
     =^  body  tokens
       (match-block [tokens %'{' %'}'] (curr match-jock-body %'}'))
-    ~&  'here2'
     ?>  (got-punctuator -.tokens %';')
-    :: ?>  (got-punctuator +<.tokens %';')
     =^  next  tokens
-      (match-jock +>.tokens)
+      (match-jock +.tokens)
     =.  type
       :-  [%core [%& [`inp out]] ~]
       name.type
     =.  body
       :-  %lambda
       [[`inp out] body ~]
-    ~&  func+tokens
     [[%func type body next] tokens]
   ::
   ::  lambda (b:@) -> @ {+(b)}(23);
@@ -737,25 +732,17 @@
     ?:  =([%type 'Set'] name.jype)   ~|('Shadowing reserved type Set is not allowed.' !!)
     ?:  =([%type 'Map'] name.jype)   ~|('Shadowing reserved type Map is not allowed.' !!)
     ::  TODO check `implements`
-    ~&  name+jype
-    ~&  tokkens+[+.tokens]
     ?>  (got-punctuator -.tokens %'{')
     =|  arms=(map term jock)
     =.  tokens  +.tokens
     =^  arms  tokens
       |-
-      ~&  arms+arms
-      ~&  tokkkens+tokens
       ?:  (has-punctuator -.tokens %'}')
         [arms +.tokens]
-      :: :: ?>  (has-keyword -.tokens %func)
-      :: =^  jok  tokens
-      ::   (match-jock tokens)
-      :: ~&  >>>  jok+jok
-      :: ?>  (got-punctuator -.tokens %';')
-      :: =/  jok  ;;([%let type=^jype val=jock next=jock] jok)
+      ::  Retrieve the name of the method.
       =^  type  tokens
         (match-jype tokens)
+      ::  Gather the arguments and output type.
       =^  inp  tokens
         (match-block [tokens %'((' %')'] match-jype)
       ?>  (got-punctuator -.tokens %'-')
@@ -766,21 +753,13 @@
       =.  type
         :-  [%core [%& [`inp out]] ~]
         name.type
-      ~&  there+type
+      ::  Retrieve the body of the method.
       =^  body  tokens
-        :: (match-block [tokens %'{' %'}'] (curr match-jock-body %';'))
         (match-block [tokens %'{' %'}'] match-jock)
-      ~&  'there2'
-      ?>  (got-punctuator -.tokens %';')
       =.  body
         :-  %lambda
         [[`inp out] body ~]
-      ~&  lunc+tokens
-      :: [[%func type body next] tokens]
-      %=  $
-        arms    (~(put by arms) name.type [%func type body *jock])
-        tokens  +.tokens
-      ==
+      $(arms (~(put by arms) name.type [%func type body *jock]))
     :_  tokens
     [%class jype arms *jock]
   ::
@@ -1076,10 +1055,8 @@
 ++  match-block
   |*  [[=tokens start=jpunc end=jpunc] gate=$-(tokens [* tokens])]
   ?>  (got-punctuator -.tokens start)
-  ~&  match-block+tokens
   =^  output  tokens
     (gate +.tokens)
-  ~&  match-block-out+tokens
   ?>  (got-punctuator -.tokens end)
   [output +.tokens]
 ::
@@ -1128,10 +1105,10 @@
 ::
 ++  got-name
   |=  =token
-  ^-  term
-  ?.  ?=(%name -.token)
+  ^-  cord
+  ?.  |(?=(%name -.token) ?=(%type -.token))
     ~|("expect name. token: {<-.token>}" !!)
-  +.token
+  ;;(cord +.token)
 ::
 ++  get-name
   |=  =token
@@ -1149,6 +1126,16 @@
     ~|("expect punctuator {<+.token>} to be {<punc>}" !!)
   %.y
 ::
+++  got-type
+  |=  [=token type=cord]
+  ^-  ?
+  ?:  =(~ tokens)  ~|("expect type. token: ~" !!)
+  ?.  ?=(%type -<.tokens)
+    ~|("expect type. token: {<token>}" !!)
+  ?.  =(+.token type)
+    ~|("expect type {<+.token>} to be {<type>}" !!)
+  %.y
+::
 ++  has-punctuator
   |=  [=token punc=jpunc]
   ^-  ?
@@ -1160,6 +1147,12 @@
   ^-  ?
   ?.  ?=(%keyword -.token)  %.n
   =(+.token key)
+::
+++  has-type
+  |=  [=tokens type=cord]
+  ^-  ?
+  ?.  ?=(%type -<.tokens)  %.n
+  =(+.tokens cord)
 --
 ::
 ::  3: compile jock -> nock
@@ -1441,6 +1434,10 @@
       [nex nex-jyp]
     ::
         %class
+      ~|  %class
+      ~&  name+name.j
+      ~&  arms+~(tap by arms.j)
+      ~&  next+next.j
       =+  [nex nex-jyp]=$(j next.j)
       [nex nex-jyp]
     ::
