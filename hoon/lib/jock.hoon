@@ -217,7 +217,7 @@
   $%  [%let type=jype val=jock next=jock]
       [%func type=jype body=jock next=jock]
       [%protocol type=jock body=(map term jype) next=jock]
-      [%class name=jype arms=(map term jock) next=jock]
+      [%class name=jype arms=(map term jock)]
       [%edit limb=(list jlimb) val=jock next=jock]
       [%increment val=jock]
       [%cell-check val=jock]
@@ -335,6 +335,7 @@
 ++  match-jock
   |=  =tokens
   ^-  [jock (list token)]
+  ~&  >>>  tokens
   ?:  =(~ tokens)
     ~|("expect jock. token: ~" !!)
   =^  jock  tokens
@@ -354,6 +355,8 @@
   ^-  [jock (list token)]
   ?:  =(~ tokens)  ~|("expect inner-jock. token: ~" !!)
   ?:  ?|  (has-keyword -.tokens %object)
+          (has-keyword -.tokens %class)
+          (has-keyword -.tokens %protocol)
           (has-keyword -.tokens %with)
           (has-keyword -.tokens %this)
           (has-keyword -.tokens %crash)
@@ -602,7 +605,7 @@
       (match-inner-jock tokens)
     [[%compare [%limb limbs] comparator inner-two] tokens]
   ::  - %call ('((' is the next token)
-  ?:  (has-punctuator -.tokens %'((')
+  ?:  |((has-punctuator -.tokens %'((') (has-punctuator -.tokens %'('))
     |-
     =.  tokens  +.tokens
     =^  arg  tokens
@@ -761,7 +764,7 @@
         [[`inp out] body ~]
       $(arms (~(put by arms) name.type [%func type body *jock]))
     :_  tokens
-    [%class jype arms *jock]
+    [%class jype arms]
   ::
   ::  if (a < b) { +(a) } else { +(b) }
   ::  [%if cond=jock then=jock after-if=after-if-expression]
@@ -1214,7 +1217,7 @@
       ?:  ?=(%name -.i.lis)
         (axis-at-name +.i.lis)
       `+.i.lis
-    ?~  axi  ~|  'limb not found'  !!
+    ?~  axi  ~|  "limb not found: {<lis>} in {<jyp>}"  !!
     ?^  u.axi
       ?~  new-jyp=(type-at-axis (peg +.u.axi -.u.axi))
         ~|  no-type-at-axis+[axi jyp]
@@ -1373,6 +1376,7 @@
   ++  mint
     |=  j=jock
     ^-  [nock jype]
+    ~&  j+j
     ?-    -.j
         ^
       ~|  %pair-p
@@ -1437,9 +1441,35 @@
       ~|  %class
       ~&  name+name.j
       ~&  arms+~(tap by arms.j)
-      ~&  next+next.j
-      =+  [nex nex-jyp]=$(j next.j)
-      [nex nex-jyp]
+      =/  exe-jyp=jype
+        :_  %$
+        [%core %|^(~(run by arms.j) |=(* untyped-j)) `name.j]
+      =/  lis=(list [name=term val=jock])  ~(tap by arms.j)
+      ?>  ?=(^ lis)
+      ~&  lis+lis
+      ~&  jyp+jyp
+      ~&  exe-jyp+exe-jyp
+      =+  [cor-nok cor-jyp]=$(j val.i.lis, jyp exe-jyp)
+      ~&  cor-nok+cor-nok
+      ~&  cor-jyp+cor-jyp
+      [[%0 0] *jype]
+      :: =.  name.name.val.i.lis  name.name.i.lis
+      :: =|  cor-jyp=(map term jype)
+      :: =.  cor-jyp  (~(put by cor-jyp) name.i.lis cor-jyp)
+      :: =>  .(lis `(list [name=term val=jock])`+.lis)
+      :: |-
+      :: ?~  lis
+      ::   :-  [%1 cor-nok]
+      ::   [[%core %|^cor-jyp ~] %$]
+      :: =+  [mor-nok mor-jyp]=$(j val.i.lis, jyp exe-jyp)
+      :: %_    $
+      ::   lis      t.lis
+      ::   cor-nok  [mor-nok cor-nok]
+      ::   cor-jyp  (~(put by cor-jyp) name.i.lis mor-jyp)
+      :: ==
+
+      :: =+  [nex nex-jyp]=$(j next.j)
+      :: [nex nex-jyp]
     ::
         %edit
       =/  [typ=jype axi=@]
@@ -1468,8 +1498,12 @@
       ~|  %compose-p
       =^  p  jyp
         $(j p.j)
+      ~&  p+p
+      ~&  jyp+jyp
       ~|  %compose-q
       =+  [q q-jyp]=$(j q.j)
+      ~&  q+q
+      ~&  q-jyp+q-jyp
       [[%7 p q] q-jyp]
     ::
         %object
