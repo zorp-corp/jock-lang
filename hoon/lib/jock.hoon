@@ -217,7 +217,7 @@
   $%  [%let type=jype val=jock next=jock]
       [%func type=jype body=jock next=jock]
       [%protocol type=jock body=(map term jype) next=jock]
-      [%class name=jype arms=(map term jock)]
+      [%class name=jype arms=(map term jock)]  :: TODO do we want payload?
       [%edit limb=(list jlimb) val=jock next=jock]
       [%increment val=jock]
       [%cell-check val=jock]
@@ -583,7 +583,9 @@
   ?:  (has-punctuator -.tokens %'.')
     $(tokens +.tokens)
   ::  - %edit ('=' is the next token)
+  ::  - compare ('==' is the next token)
   ?:  (has-punctuator -.tokens %'=')
+    ~&  edit-parse+tokens
     ?:  (has-punctuator -.+.tokens %'=')
       =^  b  tokens
         (match-inner-jock +.+.tokens)
@@ -593,6 +595,7 @@
     ?>  (got-punctuator -.tokens %';')
     =^  jock  tokens
       (match-jock +.tokens)
+    ~&  >>  [[%edit limbs val jock] tokens]
     [[%edit limbs val jock] tokens]
   ::  - %compare ('==' or '<' or '>' or '!' is next)
   ?:  ?|  (has-punctuator -.tokens %'<')
@@ -730,6 +733,7 @@
       %class
     =^  jype  tokens
       (match-jype tokens)
+    ~&  jyype+jype
     ::  mask out reserved types
     ?:  =([%type 'List'] name.jype)  ~|('Shadowing reserved type List is not allowed.' !!)
     ?:  =([%type 'Set'] name.jype)   ~|('Shadowing reserved type Set is not allowed.' !!)
@@ -753,17 +757,21 @@
       =.  tokens  +>.tokens
       =^  out  tokens
         (match-jype tokens)
+      ~&  >  name+type
       =.  type
         :-  [%core [%& [`inp out]] ~]
         name.type
+      ~&  >  type+type
       ::  Retrieve the body of the method.
       =^  body  tokens
-        (match-block [tokens %'{' %'}'] match-jock)
+        (match-block [tokens %'{' %'}'] match-inner-jock)
       =.  body
         :-  %lambda
         [[`inp out] body ~]
+      ~&  body+[type body]
       $(arms (~(put by arms) name.type [%func type body *jock]))
     :_  tokens
+    ~&  >>>  [%class jype arms]
     [%class jype arms]
   ::
   ::  if (a < b) { +(a) } else { +(b) }
@@ -1201,11 +1209,15 @@
   ++  get-limb
     |=  lis=(list jlimb)
     ^-  (pair jype (list jwing))
+    ~&  in-jype+jyp
+    ~&  get-limb+lis
     |^
     =/  res=(list jwing)  ~
     =/  ret=jwing  1
-    ?:  =(~ lis)  !!
+    ?:  =(~ lis)  ~|("no limb requested" !!)
     |-
+    ~&  searching+[-.lis]
+    ~&  in+jyp
     ?~  lis
       :-  jyp
       ?:  =(ret 1)
@@ -1217,7 +1229,7 @@
       ?:  ?=(%name -.i.lis)
         (axis-at-name +.i.lis)
       `+.i.lis
-    ?~  axi  ~|  "limb not found: {<lis>} in {<jyp>}"  !!
+    ?~  axi  ~|("limb not found: {<lis>} in {<jyp>}" !!)
     ?^  u.axi
       ?~  new-jyp=(type-at-axis (peg +.u.axi -.u.axi))
         ~|  no-type-at-axis+[axi jyp]
@@ -1233,6 +1245,7 @@
     =.  ret  (peg ret u.axi)
     ?>  (lth ret (bex 63))
     $(lis t.lis, jyp u.new-jyp)
+:: [%limb [%axis 1] ~]
     ::
     ++  type-at-axis
       |=  axi=@
@@ -1377,6 +1390,7 @@
     |=  j=jock
     ^-  [nock jype]
     ~&  j+j
+    ~&  jyp+jyp
     ?-    -.j
         ^
       ~|  %pair-p
@@ -1441,14 +1455,20 @@
       ~|  %class
       ~&  name+name.j
       ~&  arms+~(tap by arms.j)
+      :: =/  exe-lef=jype
+      ::   %-  ~(cons jt name.j)
+      ::     [[%core %|^(~(run by arms.j) |=(* untyped-j)) `name.j] name.name.j]
+      :: =/  exe-jyp=jype
+      ::   :-  -.exe-lef  name.name.j
       =/  exe-jyp=jype
-        :_  %$
-        [%core %|^(~(run by arms.j) |=(* untyped-j)) `name.j]
+        :: [[%core %|^(~(run by arms.j) |=(* untyped-j)) `name.j] name.name.j]
+        [[%core %|^(~(run by arms.j) |=(* untyped-j)) `name.j] %$]
       =/  lis=(list [name=term val=jock])  ~(tap by arms.j)
       ?>  ?=(^ lis)
       ~&  lis+lis
       ~&  jyp+jyp
       ~&  exe-jyp+exe-jyp
+      ~&  val+val.i.lis
       =+  [cor-nok cor-jyp]=$(j val.i.lis, jyp exe-jyp)
       ~&  cor-nok+cor-nok
       ~&  cor-jyp+cor-jyp
@@ -1472,6 +1492,8 @@
       :: [nex nex-jyp]
     ::
         %edit
+      ~&  edit+limb.j
+      ~&  jype+jyp
       =/  [typ=jype axi=@]
         =/  res  (~(get-limb jt jyp) limb.j)
         ?>  ?=(^ q.res)
@@ -1716,6 +1738,7 @@
         `$(j u.payload.p.j)
       =/  input-default  (type-to-default u.inp.arg.p.j)
       ~|  %enter-lambda-body
+      ~&  lambda+[pay input-default jyp]
       ::  TODO: wtf?
       =/  lam-jyp  (lam-j arg.p.j ?~(pay `jyp `q.u.pay))
       =+  [body body-jyp]=$(j body.p.j, jyp lam-jyp)
