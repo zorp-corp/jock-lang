@@ -373,17 +373,22 @@
 ++  match-pair-inner-jock
   |=  =tokens
   ^-  [jock (list token)]
+  ~&  match-pair-inner-jock+tokens
   ?:  =(~ tokens)  ~|("expect jock. token: ~" !!)
   ?:  (has-punctuator -.tokens %'(')
     =>  .(tokens `(list token)`+.tokens)
     =^  jock-one  tokens
       (match-inner-jock tokens)
+    ~&  jock-one+jock-one
+    ~&  tokens+tokens
     ?:  (has-punctuator -.tokens %')')
       [jock-one +.tokens]
     =/  first=?  %.y
     |-  ^-  [jock (list token)]
+    ~&  pair-inner-jock+[first jock-one tokens]
     =^  jock-nex  tokens
       (match-inner-jock tokens)
+    ~&  jock-nex+jock-nex
     =/  pun  (has-punctuator -.tokens %')')
     ?:  &(first pun)
       [[jock-one jock-nex] +.tokens]
@@ -503,6 +508,7 @@
     $(acc (~(put in acc) jock-nex))
   ::  Tuple
       %'('
+    ~&  >>>  'here!'
     (match-pair-inner-jock [[%punctuator %'('] tokens])
   ::  Call
       %'(('
@@ -554,7 +560,7 @@
   |=  =tokens
   ^-  [jock (list token)]
   ?:  =(~ tokens)  ~|("expect expression starting with name. token: ~" !!)
-  :: ?.  ?=(%name -<.tokens)
+  :: ?.  ?=(%name -<.tokens)  :: XXX commented out for typing issues
   ::   ~|("expect name. token: {<-<.tokens>}" !!)
   ::  How a name is parsed depends on the next symbol.
   =/  has-name  ?=(%name -<.tokens)
@@ -568,24 +574,26 @@
   ::  - %name (there is no next token, which is the end of the jock)
   ?:  =(~ tokens)
     [[%limb limbs] tokens]
-  ::  - %name (there is a wing with multiple entries)
-  ?:  ?=(^ (get-name -.tokens))
-    [[%limb limbs] tokens]
+    :: [[%limb limbs] tokens]
   ::  - %name (';' is the next token, which is consumed outside)
   ?:  (has-punctuator -.tokens %';')
     [[%limb limbs] tokens]
   |-
-  ?:  =(~ tokens)
-    [[%limb limbs] tokens]
-  ?^  nom=(get-name -.tokens)
-    $(tokens +.tokens, limbs [[%name u.nom] limbs])
-  ::  - %name ('.' is the next token; there is a wing)
+  ::  - %name (there is a wing with multiple entries)
   ?:  (has-punctuator -.tokens %'.')
-    $(tokens +.tokens)
+    =^  limbs  tokens
+      :: (read-wing tokens)
+      =/  acc=(list jlimb)  ~
+      |-
+      ?:  (has-punctuator -.tokens %'.')
+        ?^  nom=(get-name +<.tokens)
+          $(tokens +>.tokens, acc [[%name u.nom] acc])
+        ~|("expect name in wing. token: {<+<.tokens>}" !!)
+      [acc tokens]
+    $(limbs `(list jlimb)`(snoc limbs `jlimb`[%name name]), tokens tokens)
   ::  - %edit ('=' is the next token)
   ::  - compare ('==' is the next token)
   ?:  (has-punctuator -.tokens %'=')
-    ~&  edit-parse+tokens
     ?:  (has-punctuator -.+.tokens %'=')
       =^  b  tokens
         (match-inner-jock +.+.tokens)
@@ -595,7 +603,6 @@
     ?>  (got-punctuator -.tokens %';')
     =^  jock  tokens
       (match-jock +.tokens)
-    ~&  >>  [[%edit limbs val jock] tokens]
     [[%edit limbs val jock] tokens]
   ::  - %compare ('==' or '<' or '>' or '!' is next)
   ?:  ?|  (has-punctuator -.tokens %'<')
@@ -757,18 +764,15 @@
       =.  tokens  +>.tokens
       =^  out  tokens
         (match-jype tokens)
-      ~&  >  name+type
       =.  type
         :-  [%core [%& [`inp out]] ~]
         name.type
-      ~&  >  type+type
       ::  Retrieve the body of the method.
       =^  body  tokens
-        (match-block [tokens %'{' %'}'] match-inner-jock)
+        (match-block [tokens %'{' %'}'] match-jock)
       =.  body
         :-  %lambda
         [[`inp out] body ~]
-      ~&  body+[type body]
       $(arms (~(put by arms) name.type [%func type body *jock]))
     :_  tokens
     ~&  >>>  [%class jype arms]
@@ -1209,15 +1213,11 @@
   ++  get-limb
     |=  lis=(list jlimb)
     ^-  (pair jype (list jwing))
-    ~&  in-jype+jyp
-    ~&  get-limb+lis
     |^
     =/  res=(list jwing)  ~
     =/  ret=jwing  1
     ?:  =(~ lis)  ~|("no limb requested" !!)
     |-
-    ~&  searching+[-.lis]
-    ~&  in+jyp
     ?~  lis
       :-  jyp
       ?:  =(ret 1)
@@ -1453,16 +1453,9 @@
     ::
         %class
       ~|  %class
-      ~&  name+name.j
-      ~&  arms+~(tap by arms.j)
-      :: =/  exe-lef=jype
-      ::   %-  ~(cons jt name.j)
-      ::     [[%core %|^(~(run by arms.j) |=(* untyped-j)) `name.j] name.name.j]
-      :: =/  exe-jyp=jype
-      ::   :-  -.exe-lef  name.name.j
       =/  exe-jyp=jype
-        :: [[%core %|^(~(run by arms.j) |=(* untyped-j)) `name.j] name.name.j]
-        [[%core %|^(~(run by arms.j) |=(* untyped-j)) `name.j] %$]
+        %-  ~(cons jt name.j)
+          [[%core %|^(~(run by arms.j) |=(* untyped-j)) ~] %$]
       =/  lis=(list [name=term val=jock])  ~(tap by arms.j)
       ?>  ?=(^ lis)
       ~&  lis+lis
