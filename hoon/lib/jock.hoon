@@ -740,7 +740,6 @@
       %class
     =^  jype  tokens
       (match-jype tokens)
-    ~&  jyype+jype
     ::  mask out reserved types
     ?:  =([%type 'List'] name.jype)  ~|('Shadowing reserved type List is not allowed.' !!)
     ?:  =([%type 'Set'] name.jype)   ~|('Shadowing reserved type Set is not allowed.' !!)
@@ -775,7 +774,6 @@
         [[`inp out] body ~]
       $(arms (~(put by arms) name.type [%func type body *jock]))
     :_  tokens
-    ~&  >>>  [%class jype arms]
     [%class jype arms]
   ::
   ::  if (a < b) { +(a) } else { +(b) }
