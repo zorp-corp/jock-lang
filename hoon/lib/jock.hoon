@@ -1451,23 +1451,26 @@
     ::
         %class
       ~|  %class
+      ::  unified context including door sample
       =/  exe-jyp=jype
         %-  ~(cons jt name.j)
           [[%core %|^(~(run by arms.j) |=(* untyped-j)) ~] %$]
+      ::  list of relevant arms
       =/  lis=(list [name=term val=jock])  ~(tap by arms.j)
       ?>  ?=(^ lis)
       ~&  lis+lis
-      ~&  jyp+jyp
       ~&  exe-jyp+exe-jyp
       ~&  val+val.i.lis
-      =+  [cor-nok cor-jyp]=$(j val.i.lis, jyp exe-jyp)
+      ~&  >>>  (reap 80 "*")
+      ::  core and jype of first arm
+      =+  [cor-nok one-jyp]=$(j val.i.lis, jyp exe-jyp)
+      =.  name.one-jyp  name.i.lis
       ~&  cor-nok+cor-nok
-      ~&  cor-jyp+cor-jyp
+      ~&  cor-jyp+one-jyp
+      =|  cor-jyp=(map term jype)
+      =.  cor-jyp  (~(put by cor-jyp) name.i.lis one-jyp)
+      =>  .(lis `(list [name=term val=jock])`+.lis)
       [[%0 0] *jype]
-      :: =.  name.name.val.i.lis  name.name.i.lis
-      :: =|  cor-jyp=(map term jype)
-      :: =.  cor-jyp  (~(put by cor-jyp) name.i.lis cor-jyp)
-      :: =>  .(lis `(list [name=term val=jock])`+.lis)
       :: |-
       :: ?~  lis
       ::   :-  [%1 cor-nok]
