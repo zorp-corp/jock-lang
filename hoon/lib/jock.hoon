@@ -616,11 +616,12 @@
     [[%compare [%limb limbs] comparator inner-two] tokens]
   ::  - %call ('((' is the next token)
   ?:  |((has-punctuator -.tokens %'((') (has-punctuator -.tokens %'('))
-    |-
-    =.  tokens  +.tokens
+    :: |-
+    :: =.  tokens  +.tokens
+    ~&  >>>  here+tokens
     =^  arg  tokens
-      (match-inner-jock tokens)
-    ?>  (got-punctuator -.tokens %')')
+      (match-pair-inner-jock tokens)
+    :: ?>  (got-punctuator -.tokens %')')
     ::  TODO: check if we're in a compare
     [[%call [%limb limbs] `arg] +.tokens]
   [[%limb limbs] tokens]
@@ -659,12 +660,15 @@
       %let
     =^  jype  tokens
       (match-jype tokens)
+    ~&  let-jype+jype
     ?>  (got-punctuator -.tokens %'=')
     =^  val  tokens
       (match-jock +.tokens)
+    ~&  let-val+val
     ?>  (got-punctuator -.tokens %';')
     =^  jock  tokens
       (match-jock +.tokens)
+    ~&  let-jock+jock
     [[%let jype val jock] tokens]
   ::
   ::  func a(b:@) -> @ { +(b) };
@@ -1216,6 +1220,10 @@
     =/  ret=jwing  1
     ?:  =(~ lis)  ~|("no limb requested" !!)
     |-
+    ~&  lis+lis
+    ~&  res+res
+    ~&  ret+ret
+    ~&  jyp+jyp
     ?~  lis
       :-  jyp
       ?:  =(ret 1)
@@ -1455,13 +1463,15 @@
       =/  exe-jyp=jype
         %-  ~(cons jt name.j)
           [[%core %|^(~(run by arms.j) |=(* untyped-j)) ~] %$]
+      =.  exe-jyp
+          [[%core %|^(~(run by arms.j) |=(* untyped-j)) `name.j] %$]
       ::  list of relevant arms
       =/  lis=(list [name=term val=jock])  ~(tap by arms.j)
       ?>  ?=(^ lis)
       ~&  lis+lis
       ~&  exe-jyp+exe-jyp
       ~&  val+val.i.lis
-      ~&  >>>  (reap 80 "*")
+      ~&  >>>  `tape`(zing (reap 36 "*"))
       ::  core and jype of first arm
       =+  [cor-nok one-jyp]=$(j val.i.lis, jyp exe-jyp)
       =.  name.one-jyp  name.i.lis
