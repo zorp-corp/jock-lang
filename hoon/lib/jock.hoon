@@ -1460,27 +1460,58 @@
         %class
       ~|  %class
       ::  unified context including door sample
+      |^
       =/  exe-jyp=jype
         %-  ~(cons jt name.j)
           [[%core %|^(~(run by arms.j) |=(* untyped-j)) ~] %$]
-      =.  exe-jyp
-          [[%core %|^(~(run by arms.j) |=(* untyped-j)) `name.j] %$]
+      :: =/  exe-jyp=jype
+      ::     [[%core %|^(~(run by arms.j) |=(* untyped-j)) `name.j] %$]
+      ~&  exe-jyp-1+exe-jyp
+      :: =/  exe-jyp=jype  (swap exe-jyp [%limb ~[`jlimb`[%name name.name.j]]] name.j)
+      :: ~&  exe-jyp-2+exe-jyp
+      ::  okay, so it's actually not even getting the Point(x y) into the exe-jyp
       ::  list of relevant arms
-      =/  lis=(list [name=term val=jock])  ~(tap by arms.j)
+      =/  lis=(list [k=term v=jock])  ~(tap by arms.j)
       ?>  ?=(^ lis)
       ~&  lis+lis
       ~&  exe-jyp+exe-jyp
-      ~&  val+val.i.lis
+      ~&  val+v.i.lis
       ~&  >>>  `tape`(zing (reap 36 "*"))
       ::  core and jype of first arm
-      =+  [cor-nok one-jyp]=$(j val.i.lis, jyp exe-jyp)
-      =.  name.one-jyp  name.i.lis
+      =+  [cor-nok one-jyp]=^$(j v.i.lis, jyp exe-jyp)
+      :: =.  name.one-jyp  name.i.lis
       ~&  cor-nok+cor-nok
       ~&  cor-jyp+one-jyp
-      =|  cor-jyp=(map term jype)
-      =.  cor-jyp  (~(put by cor-jyp) name.i.lis one-jyp)
-      =>  .(lis `(list [name=term val=jock])`+.lis)
+      :: =|  cor-jyp=(map term jype)
+      :: =.  cor-jyp  (~(put by cor-jyp) name.i.lis one-jyp)
+      :: =>  .(lis `(list [name=term val=jock])`+.lis)
       [[%0 0] *jype]
+      ::  Replace references to the class in arms with the class's jype.
+      ::  A method arm is always a lambda executable, so its jype is
+      ::  always a lambda-argument.
+      ++  swap
+        |=  [p=jype q=jype-leaf r=jype]
+        ^-  jype
+        ~&  >  p+p
+        ~&  >>  q+q
+        ~&  >>>  r+r
+        =/  q  ;;([%core p=[%& lambda-argument] q=(unit jype)] q)
+        :-  :+  %core
+              :-  %&  ^-  lambda-argument
+              :-  inp=`(unit jype)`?~(inp.p.q ~ `(repl u.inp.p.q r))
+              out=(repl out.p.q r)
+            ^-  (unit jype)
+            q.q
+        name.p
+      ::  Execute a DFS and replace in references.
+      ++  repl
+        |=  [p=jype r=jype]
+        ^-  jype
+        :: ?^  -.p  [$(p -.p) $(p +.p)]
+        ~&  repl+[p r]
+        *jype
+        :: ?:  =([%limb ->.r] -.p)  [-.r +.p]  p
+      --
       :: |-
       :: ?~  lis
       ::   :-  [%1 cor-nok]
