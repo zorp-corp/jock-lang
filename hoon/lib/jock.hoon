@@ -327,15 +327,16 @@
 ::  Arm lookups
 +$  jlimb
   $%  ::  Arm or leg name
-      [%name p=cord]
+      [%name p=term]
       ::  Numeric axis
       [%axis p=@]
+      ::  Type reference
+      [%form p=cord]
   ==
 ::
 ++  match-jock
   |=  =tokens
   ^-  [jock (list token)]
-  ~&  >>>  tokens
   ?:  =(~ tokens)
     ~|("expect jock. token: ~" !!)
   =^  jock  tokens
@@ -344,8 +345,7 @@
       %name        (match-start-name tokens)
       %keyword     (match-keyword tokens)
       %punctuator  (match-start-punctuator tokens)
-      %type        (match-start-name tokens)  ::(match-metatype tokens)  :: shouldn't reach this way
-      :: %type        !!  ::(match-metatype tokens)  :: shouldn't reach this way
+      %type        (match-start-name tokens)
       ::  TODO: check if we're in a compare
     ==
   [jock tokens]
@@ -366,7 +366,7 @@
       %literal     (match-literal tokens)
       %name        (match-start-name tokens)
       %punctuator  (match-start-punctuator tokens)
-      %type        !!  ::(match-metatype tokens)  :: shouldn't reach this way
+      %type        (match-start-name tokens)
       ::  TODO: check if we're in a compare
   ==
 ::
@@ -405,7 +405,7 @@
     %literal     (match-literal tokens)
     %name        (match-start-name tokens)
     %punctuator  (match-start-punctuator tokens)
-    %type        !!  ::(match-metatype tokens)  :: shouldn't reach this way
+    %type        (match-start-name tokens)
   ==
 ::  match jocks with no terminating jock (i.e. func bodies)
 ++  match-jock-body
@@ -423,7 +423,7 @@
       %name        (match-start-name tokens)
       %keyword     (match-keyword tokens)
       %punctuator  (match-start-punctuator tokens)
-      %type        !!  ::(match-metatype tokens)  :: shouldn't reach this way
+      %type        (match-start-name tokens)
     ==
   [jock tokens]
 ::
@@ -581,13 +581,17 @@
   |-
   ::  - %name (there is a wing with multiple entries)
   ?:  (has-punctuator -.tokens %'.')
+    ~&  >>  -.tokens
     =^  limbs  tokens
-      :: (read-wing tokens)
       =/  acc=(list jlimb)  ~
       |-
       ?:  (has-punctuator -.tokens %'.')
         ?^  nom=(get-name +<.tokens)
-          $(tokens +>.tokens, acc [[%name u.nom] acc])
+          %=  $
+            tokens  +>.tokens
+            acc     [;;(jlimb [?:(((sane %tas) u.nom) %name %form) u.nom]) acc]
+          ==
+          :: $(tokens +>.tokens, acc [[%name u.nom] acc])
         ~|("expect name in wing. token: {<+<.tokens>}" !!)
       [acc tokens]
     $(limbs `(list jlimb)`(snoc limbs `jlimb`[%name name]), tokens tokens)
@@ -1234,6 +1238,8 @@
     =/  axi=(unit jwing)
       ?:  ?=(%name -.i.lis)
         (axis-at-name +.i.lis)
+      ?:  ?=(%form -.i.lis)
+        (axis-at-form +.i.lis)
       `+.i.lis
     ?~  axi  ~|("limb not found: {<lis>} in {<jyp>}" !!)
     ?^  u.axi
@@ -1250,6 +1256,8 @@
       !!
     =.  ret  (peg ret u.axi)
     ?>  (lth ret (bex 63))
+    ~&  >>>  lis+t.lis
+    ~&  >>>  new-jyp+u.new-jyp
     $(lis t.lis, jyp u.new-jyp)
 :: [%limb [%axis 1] ~]
     ::
@@ -1274,6 +1282,7 @@
     ::
     ++  axis-at-name
       |=  nom=term
+      ^-  (unit jwing)
       =/  axi=jwing  [0 1]
       |-  ^-  (unit jwing)
       ?:  =(name.jyp nom)
@@ -1306,6 +1315,34 @@
           $(jyp q.jyp, -.axi +((mul -.axi 2)))
         r
       l
+    ::  Search for type definition in subject (payload).
+    ++  axis-at-form
+      |=  nom=term
+      ^-  (unit jwing)
+      :: ~&  nom+nom
+      :: ~&  jyp+jyp
+      ::  This should only happen with a core (%form).
+      =/  jyp  ;;([p=[%core p=core-body q=(unit jype)] name=cord] jyp)
+      =/  axi  (axis-at-name(jyp jyp) nom)
+      ?~  axi  ~|(%form-not-found !!)
+      ~&  jype1+jyp
+      ~&  jype1+[`*`jyp]
+      ~&  axis1+axi
+      ?~  q.p.jyp  !!
+      =/  jjyp  ;;([p=[%core p=core-body q=(unit jype)] name=cord] u.q.p.jyp)
+      ?~  q.p.jjyp  !!
+      :: ~&  >>>  u.q.p.jjyp
+      :: ~&  >>  (axis-at-name(jyp jjyp) nom)
+      :: ~&  >>  (axis-at-name(jyp p.jjyp) nom)
+      :: ~&  >>  (axis-at-name(jyp q.p.jjyp) nom)
+      :: ~&  >>  (axis-at-name(jyp u.q.p.jjyp) nom)
+      =/  axy  (axis-at-name(jyp u.q.p.jjyp) nom)
+      ?~  axy  ~|(%form-not-found !!)
+      :: ~&  axis2+[u.axi u.axy] ::(peg (peg u.axy 2) u.axi)
+      ::  ;; because need to be leg/Nock 0 not Nock 9 here
+      ~&  axis2+(peg ;;(@ u.axi) (peg ;;(@ u.axy) 2))
+      [~ (peg ;;(@ u.axi) ;;(@ u.axy))]
+      :: axi
     --
   ::
   ++  find-buc
@@ -1460,10 +1497,9 @@
         %class
       ~|  %class
       ::  unified context including door sample
-      |^
       =/  exe-jyp=jype
-        %-  ~(cons jt name.j)
-          [[%core %|^(~(run by arms.j) |=(* untyped-j)) ~] %$]
+        :: %-  ~(cons jt name.j)
+          [[%core %|^(~(run by arms.j) |=(* untyped-j)) `name.j] %$]
       :: =/  exe-jyp=jype
       ::     [[%core %|^(~(run by arms.j) |=(* untyped-j)) `name.j] %$]
       ~&  exe-jyp-1+exe-jyp
@@ -1478,7 +1514,7 @@
       ~&  val+v.i.lis
       ~&  >>>  `tape`(zing (reap 36 "*"))
       ::  core and jype of first arm
-      =+  [cor-nok one-jyp]=^$(j v.i.lis, jyp exe-jyp)
+      =+  [cor-nok one-jyp]=$(j v.i.lis, jyp exe-jyp)
       :: =.  name.one-jyp  name.i.lis
       ~&  cor-nok+cor-nok
       ~&  cor-jyp+one-jyp
@@ -1486,32 +1522,6 @@
       :: =.  cor-jyp  (~(put by cor-jyp) name.i.lis one-jyp)
       :: =>  .(lis `(list [name=term val=jock])`+.lis)
       [[%0 0] *jype]
-      ::  Replace references to the class in arms with the class's jype.
-      ::  A method arm is always a lambda executable, so its jype is
-      ::  always a lambda-argument.
-      ++  swap
-        |=  [p=jype q=jype-leaf r=jype]
-        ^-  jype
-        ~&  >  p+p
-        ~&  >>  q+q
-        ~&  >>>  r+r
-        =/  q  ;;([%core p=[%& lambda-argument] q=(unit jype)] q)
-        :-  :+  %core
-              :-  %&  ^-  lambda-argument
-              :-  inp=`(unit jype)`?~(inp.p.q ~ `(repl u.inp.p.q r))
-              out=(repl out.p.q r)
-            ^-  (unit jype)
-            q.q
-        name.p
-      ::  Execute a DFS and replace in references.
-      ++  repl
-        |=  [p=jype r=jype]
-        ^-  jype
-        :: ?^  -.p  [$(p -.p) $(p +.p)]
-        ~&  repl+[p r]
-        *jype
-        :: ?:  =([%limb ->.r] -.p)  [-.r +.p]  p
-      --
       :: |-
       :: ?~  lis
       ::   :-  [%1 cor-nok]
