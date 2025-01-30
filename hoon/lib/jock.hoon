@@ -1224,10 +1224,6 @@
     =/  ret=jwing  1
     ?:  =(~ lis)  ~|("no limb requested" !!)
     |-
-    ~&  lis+lis
-    ~&  res+res
-    ~&  ret+ret
-    ~&  jyp+jyp
     ?~  lis
       :-  jyp
       ?:  =(ret 1)
@@ -1247,7 +1243,7 @@
         ~|  no-type-at-axis+[axi jyp]
         !!
       $(lis t.lis, jyp u.new-jyp, res [u.axi res])
-    ?~  new-jyp=(type-at-axis u.axi)
+    ?~  new-jyp=?:(?=(%form -.i.lis) (type-at-form u.axi) (type-at-axis u.axi))
       !!
     ?^  ret
       ::  TODO: in order to support additional limbs
@@ -1256,8 +1252,6 @@
       !!
     =.  ret  (peg ret u.axi)
     ?>  (lth ret (bex 63))
-    ~&  >>>  lis+t.lis
-    ~&  >>>  new-jyp+u.new-jyp
     $(lis t.lis, jyp u.new-jyp)
 :: [%limb [%axis 1] ~]
     ::
@@ -1279,6 +1273,15 @@
       ?:  =(0 i.axi-lis)
         $(axi-lis t.axi-lis, jyp p.jyp)
       $(axi-lis t.axi-lis, jyp q.jyp)
+    ::  This assumes a canonical structure for the form and is brittle.
+    ++  type-at-form
+      |=  axi=@
+      ^-  (unit jype)
+      =/  jyp  ;;([p=[%core p=core-body q=(unit jype)] name=cord] jyp)
+      ?~  q.p.jyp  !!
+      =/  jjyp  ;;([p=[%core p=core-body q=(unit jype)] name=cord] u.q.p.jyp)
+      ?~  q.p.jjyp  !!
+      `[u.q.p.jjyp(name %$)]
     ::
     ++  axis-at-name
       |=  nom=term
@@ -1316,33 +1319,21 @@
         r
       l
     ::  Search for type definition in subject (payload).
+    ::  This assumes a canonical structure for the form and is brittle.
     ++  axis-at-form
       |=  nom=term
       ^-  (unit jwing)
-      :: ~&  nom+nom
-      :: ~&  jyp+jyp
       ::  This should only happen with a core (%form).
       =/  jyp  ;;([p=[%core p=core-body q=(unit jype)] name=cord] jyp)
       =/  axi  (axis-at-name(jyp jyp) nom)
       ?~  axi  ~|(%form-not-found !!)
-      ~&  jype1+jyp
-      ~&  jype1+[`*`jyp]
-      ~&  axis1+axi
       ?~  q.p.jyp  !!
       =/  jjyp  ;;([p=[%core p=core-body q=(unit jype)] name=cord] u.q.p.jyp)
       ?~  q.p.jjyp  !!
-      :: ~&  >>>  u.q.p.jjyp
-      :: ~&  >>  (axis-at-name(jyp jjyp) nom)
-      :: ~&  >>  (axis-at-name(jyp p.jjyp) nom)
-      :: ~&  >>  (axis-at-name(jyp q.p.jjyp) nom)
-      :: ~&  >>  (axis-at-name(jyp u.q.p.jjyp) nom)
       =/  axy  (axis-at-name(jyp u.q.p.jjyp) nom)
       ?~  axy  ~|(%form-not-found !!)
-      :: ~&  axis2+[u.axi u.axy] ::(peg (peg u.axy 2) u.axi)
       ::  ;; because need to be leg/Nock 0 not Nock 9 here
-      ~&  axis2+(peg ;;(@ u.axi) (peg ;;(@ u.axy) 2))
       [~ (peg ;;(@ u.axi) ;;(@ u.axy))]
-      :: axi
     --
   ::
   ++  find-buc
@@ -1507,20 +1498,20 @@
       :: ~&  exe-jyp-2+exe-jyp
       ::  okay, so it's actually not even getting the Point(x y) into the exe-jyp
       ::  list of relevant arms
-      =/  lis=(list [k=term v=jock])  ~(tap by arms.j)
+      =/  lis=(list [name=term val=jock])  ~(tap by arms.j)
       ?>  ?=(^ lis)
       ~&  lis+lis
       ~&  exe-jyp+exe-jyp
-      ~&  val+v.i.lis
+      ~&  val+val.i.lis
       ~&  >>>  `tape`(zing (reap 36 "*"))
       ::  core and jype of first arm
-      =+  [cor-nok one-jyp]=$(j v.i.lis, jyp exe-jyp)
+      =+  [cor-nok one-jyp]=$(j val.i.lis, jyp exe-jyp)
       :: =.  name.one-jyp  name.i.lis
       ~&  cor-nok+cor-nok
       ~&  cor-jyp+one-jyp
-      :: =|  cor-jyp=(map term jype)
-      :: =.  cor-jyp  (~(put by cor-jyp) name.i.lis one-jyp)
-      :: =>  .(lis `(list [name=term val=jock])`+.lis)
+      =|  cor-jyp=(map term jype)
+      =.  cor-jyp  (~(put by cor-jyp) name.i.lis one-jyp)
+      =>  .(lis `(list [name=term val=jock])`+.lis)
       [[%0 0] *jype]
       :: |-
       :: ?~  lis
