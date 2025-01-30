@@ -1493,11 +1493,6 @@
           [[%core %|^(~(run by arms.j) |=(* untyped-j)) `name.j] %$]
       :: =/  exe-jyp=jype
       ::     [[%core %|^(~(run by arms.j) |=(* untyped-j)) `name.j] %$]
-      ~&  exe-jyp-1+exe-jyp
-      :: =/  exe-jyp=jype  (swap exe-jyp [%limb ~[`jlimb`[%name name.name.j]]] name.j)
-      :: ~&  exe-jyp-2+exe-jyp
-      ::  okay, so it's actually not even getting the Point(x y) into the exe-jyp
-      ::  list of relevant arms
       =/  lis=(list [name=term val=jock])  ~(tap by arms.j)
       ?>  ?=(^ lis)
       ~&  lis+lis
@@ -1506,23 +1501,26 @@
       ~&  >>>  `tape`(zing (reap 36 "*"))
       ::  core and jype of first arm
       =+  [cor-nok one-jyp]=$(j val.i.lis, jyp exe-jyp)
-      :: =.  name.one-jyp  name.i.lis
+      =.  name.one-jyp  name.i.lis
       ~&  cor-nok+cor-nok
       ~&  cor-jyp+one-jyp
       =|  cor-jyp=(map term jype)
       =.  cor-jyp  (~(put by cor-jyp) name.i.lis one-jyp)
       =>  .(lis `(list [name=term val=jock])`+.lis)
-      [[%0 0] *jype]
-      :: |-
-      :: ?~  lis
-      ::   :-  [%1 cor-nok]
-      ::   [[%core %|^cor-jyp ~] %$]
-      :: =+  [mor-nok mor-jyp]=$(j val.i.lis, jyp exe-jyp)
-      :: %_    $
-      ::   lis      t.lis
-      ::   cor-nok  [mor-nok cor-nok]
-      ::   cor-jyp  (~(put by cor-jyp) name.i.lis mor-jyp)
-      :: ==
+      :: [[%0 0] *jype]
+      |-  ^-  [nock jype]
+      ?~  lis
+        :-  `nock`[%1 cor-nok]
+        `jype`[[%core %|^cor-jyp ~] %$]
+      ~&  `jock`val.i.lis
+      ~&  `jype`exe-jyp
+      :: ~&  ^-  [nock jype]  $(j ;;(jock val.i.lis), jyp ;;(jype exe-jyp))
+      =+  [mor-nok mor-jyp]=[*nock *jype] ::$(j `jock`val.i.lis, jyp `jype`exe-jyp)
+      %_    $
+        lis      t.lis
+        cor-nok  [mor-nok cor-nok]
+        cor-jyp  `(map term jype)`(~(put by cor-jyp) name.i.lis mor-jyp)
+      ==
 
       :: =+  [nex nex-jyp]=$(j next.j)
       :: [nex nex-jyp]
