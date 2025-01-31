@@ -216,8 +216,8 @@
   $^  [p=jock q=jock]
   $%  [%let type=jype val=jock next=jock]
       [%func type=jype body=jock next=jock]
-      [%protocol type=jock body=(map term jype) next=jock]
-      [%class name=jype arms=(map term jock)]  :: TODO do we want payload?
+      [%protocol type=jock body=(map term jype) next=jock]  :: TODO make compose instead of next
+      [%class state=jype arms=(map term jock)]  :: TODO do we want payload?
       [%edit limb=(list jlimb) val=jock next=jock]
       [%increment val=jock]
       [%cell-check val=jock]
@@ -331,7 +331,7 @@
       ::  Numeric axis
       [%axis p=@]
       ::  Type reference
-      [%form p=cord]
+      [%type p=cord]
   ==
 ::
 ++  match-jock
@@ -373,7 +373,6 @@
 ++  match-pair-inner-jock
   |=  =tokens
   ^-  [jock (list token)]
-  ~&  match-pair-inner-jock+tokens
   ?:  =(~ tokens)  ~|("expect jock. token: ~" !!)
   ?:  (has-punctuator -.tokens %'(')
     =>  .(tokens `(list token)`+.tokens)
@@ -570,7 +569,7 @@
     ?>  =(%type -<.tokens)
     (got-name -.tokens)
   =.  tokens  +.tokens
-  =/  limbs=(list jlimb)  ~[[%name name]]
+  =/  limbs=(list jlimb)  ~[(make-jlimb name)]
   ::  - %name (there is no next token, which is the end of the jock)
   ?:  =(~ tokens)
     [[%limb limbs] tokens]
@@ -589,12 +588,12 @@
         ?^  nom=(get-name +<.tokens)
           %=  $
             tokens  +>.tokens
-            acc     [;;(jlimb [?:(((sane %tas) u.nom) %name %form) u.nom]) acc]
+            acc     [(make-jlimb u.nom) acc]
           ==
           :: $(tokens +>.tokens, acc [[%name u.nom] acc])
         ~|("expect name in wing. token: {<+<.tokens>}" !!)
       [acc tokens]
-    $(limbs `(list jlimb)`(snoc limbs `jlimb`[%name name]), tokens tokens)
+    $(limbs `(list jlimb)`(snoc limbs (make-jlimb name)), tokens tokens)
   ::  - %edit ('=' is the next token)
   ::  - compare ('==' is the next token)
   ?:  (has-punctuator -.tokens %'=')
@@ -630,6 +629,13 @@
     [[%call [%limb limbs] `arg] +.tokens]
   [[%limb limbs] tokens]
 ::
+++  make-jlimb
+  |=  name=cord
+  ^-  jlimb
+  ?:  ((sane %tas) name)
+    [%name name]
+  [%type name]
+::
 ::  Metatype is a container type like List or Set
 ++  match-metatype
   |=  =tokens
@@ -647,7 +653,7 @@
   =.  tokens  +.tokens
   ?.  =([%punctuator %'('] -.tokens)
     ::  XXX fix when finishing type TODO
-    [`jype`[`jype-leaf`[%limb ~[[%name type]]] type] tokens]
+    [`jype`[`jype-leaf`[%limb ~[[%type type]]] type] tokens]
   =^  jyp  tokens
     (match-block [tokens %'(' %')'] match-jype)
   [[;;(jype-leaf [type jyp]) %$] tokens]
@@ -744,14 +750,14 @@
       (match-jock tokens)
     [`jock`[%protocol `jock`[%limb ~[[%name +.type]]] `(map term jype)`body `jock`next] tokens]
   ::
-  ::  [%class name=cord arms=(map term jock) next=jock]
+  ::  [%class state=jype arms=(map term jock)]
       %class
-    =^  jype  tokens
+    =^  state  tokens
       (match-jype tokens)
     ::  mask out reserved types
-    ?:  =([%type 'List'] name.jype)  ~|('Shadowing reserved type List is not allowed.' !!)
-    ?:  =([%type 'Set'] name.jype)   ~|('Shadowing reserved type Set is not allowed.' !!)
-    ?:  =([%type 'Map'] name.jype)   ~|('Shadowing reserved type Map is not allowed.' !!)
+    ?:  =([%type 'List'] name.state)  ~|('Shadowing reserved type List is not allowed.' !!)
+    ?:  =([%type 'Set'] name.state)   ~|('Shadowing reserved type Set is not allowed.' !!)
+    ?:  =([%type 'Map'] name.state)   ~|('Shadowing reserved type Map is not allowed.' !!)
     ::  TODO check `implements`
     ?>  (got-punctuator -.tokens %'{')
     =|  arms=(map term jock)
@@ -782,7 +788,7 @@
         [[`inp out] body ~]
       $(arms (~(put by arms) name.type [%func type body *jock]))
     :_  tokens
-    [%class jype arms]
+    [%class state=state arms=arms]
   ::
   ::  if (a < b) { +(a) } else { +(b) }
   ::  [%if cond=jock then=jock after-if=after-if-expression]
@@ -1224,6 +1230,7 @@
     =/  ret=jwing  1
     ?:  =(~ lis)  ~|("no limb requested" !!)
     |-
+    ~&  >>>  "searching for {<lis>} in {<jyp>}"
     ?~  lis
       :-  jyp
       ?:  =(ret 1)
@@ -1232,18 +1239,43 @@
       ?~  res  ret^~
       !!
     =/  axi=(unit jwing)
-      ?:  ?=(%name -.i.lis)
+      ?:  |(?=(%name -.i.lis) !=(%$ name.jyp))
+        ~&  >>  "searching {<i.lis>} as name"
         (axis-at-name +.i.lis)
-      ?:  ?=(%form -.i.lis)
-        (axis-at-form +.i.lis)
+      ?:  ?=(%type -.i.lis)
+        ~&  >>  "searching {<i.lis>} as type in payload"
+        (axis-at-type +.i.lis)
       `+.i.lis
+    ~&  >>>  "found {<i.lis>} at {<axi>} in {<jyp>}"
+    :: =?  axi  ?=(~ axi)
+    ::   ~|  "limb not found: {<lis>} in {<jyp>}; refining jype"
+    ::   =/  jyp  ;;([p=[%core p=core-body q=(unit jype)] name=cord] jyp)
+    ::   =/  pay  q.p.jyp
+    ::   ?~  pay  !!
+    ::   (axis-at-name(jyp `jype`u.pay) +.i.lis)
     ?~  axi  ~|("limb not found: {<lis>} in {<jyp>}" !!)
     ?^  u.axi
       ?~  new-jyp=(type-at-axis (peg +.u.axi -.u.axi))
         ~|  no-type-at-axis+[axi jyp]
         !!
       $(lis t.lis, jyp u.new-jyp, res [u.axi res])
-    ?~  new-jyp=?:(?=(%form -.i.lis) (type-at-form u.axi) (type-at-axis u.axi))
+    :: ?~  new-jyp=?:(?=(%type -.i.lis) (type-at-form u.axi) (type-at-axis u.axi))
+    ::   !!
+    ?~  new-jyp=(type-at-axis u.axi)
+      !!
+    ~&  new-jyp+new-jyp
+    ::  If new-jyp is a limb to a type, then resolve the type instead.
+::    ?>  ?=(jype new-jyp)
+    ::  [~ u=[[%limb ~[[%type 'Kind']]] name=term]]
+    ?:  =(%limb -<.u.new-jyp)
+      :: ?~  p.u.new-jyp  !!  :: satisfy type, should never happen here
+      =/  lis  ;;((list jlimb) ->.u.new-jyp)
+      ?~  lis  !!
+      ?:  =(%type -.i.lis)
+        ~&  "here!!!"
+        ~&  [->.u.new-jyp jyp]
+        ::  TODO next:  replace in the type from the payload
+        !!
       !!
     ?^  ret
       ::  TODO: in order to support additional limbs
@@ -1277,6 +1309,8 @@
     ++  type-at-form
       |=  axi=@
       ^-  (unit jype)
+      ?:  =(axi 1)
+        `jyp
       =/  jyp  ;;([p=[%core p=core-body q=(unit jype)] name=cord] jyp)
       ?~  q.p.jyp  !!
       =/  jjyp  ;;([p=[%core p=core-body q=(unit jype)] name=cord] u.q.p.jyp)
@@ -1319,19 +1353,26 @@
         r
       l
     ::  Search for type definition in subject (payload).
-    ::  This assumes a canonical structure for the form and is brittle.
-    ++  axis-at-form
+    ::  This assumes a canonical structure for the type and is brittle.
+    ++  axis-at-type
       |=  nom=term
       ^-  (unit jwing)
-      ::  This should only happen with a core (%form).
+      ::  This should only happen with a core (%type).
+      ~&  form+jyp
       =/  jyp  ;;([p=[%core p=core-body q=(unit jype)] name=cord] jyp)
       =/  axi  (axis-at-name(jyp jyp) nom)
-      ?~  axi  ~|(%form-not-found !!)
-      ?~  q.p.jyp  !!
-      =/  jjyp  ;;([p=[%core p=core-body q=(unit jype)] name=cord] u.q.p.jyp)
+      ?~  axi  ~|(%type-not-found !!)
+      =/  pay  q.p.jyp
+      ?~  pay  !!
+      ::  The payload at this point should just contain the door sample.
+      ::  (That is, the class state.)
+      ~&  pay+u.pay
+
+      ?:  !=(%$ name.u.pay)  [~ ;;(@ u.axi)]
+      =/  jjyp  ;;([p=[%core p=core-body q=(unit jype)] name=cord] u.pay)
       ?~  q.p.jjyp  !!
       =/  axy  (axis-at-name(jyp u.q.p.jjyp) nom)
-      ?~  axy  ~|(%form-not-found !!)
+      ?~  axy  ~|(%type-not-found !!)
       ::  ;; because need to be leg/Nock 0 not Nock 9 here
       [~ (peg ;;(@ u.axi) ;;(@ u.axy))]
     --
@@ -1487,12 +1528,15 @@
     ::
         %class
       ~|  %class
-      ::  unified context including door sample
+      ::  unified context including door sample in payload
       =/  exe-jyp=jype
-        :: %-  ~(cons jt name.j)
-          [[%core %|^(~(run by arms.j) |=(* untyped-j)) `name.j] %$]
-      :: =/  exe-jyp=jype
-      ::     [[%core %|^(~(run by arms.j) |=(* untyped-j)) `name.j] %$]
+        :: %-  ~(cons jt state.j)
+          :: a good one is below
+          :: [[%core %|^(~(run by arms.j) |=(* untyped-j)) `state.j] %$]
+          :: [[%core %|^(~(run by arms.j) |=(* untyped-j)) `state.j] %$]
+          :: jyp
+          state.j
+      ~&  class+j
       =/  lis=(list [name=term val=jock])  ~(tap by arms.j)
       ?>  ?=(^ lis)
       ~&  lis+lis
