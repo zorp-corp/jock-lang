@@ -994,12 +994,8 @@
   ^-  [lambda-argument (list token)]
   ?:  =(~ tokens)  ~|("expect lambda-argument. token: ~" !!)
   ^-  [lambda-argument (list token)]
-  :: =?  tokens  ?=(%'((' ->.tokens)  [[%punctuator %'('] +.tokens]
-  ~&  tokens+tokens
   =^  inp  tokens
     (match-block [tokens %'(' %')'] match-jype)
-  ~&  inp+inp
-  ~&  tokens+tokens
   ?>  (got-punctuator -.tokens %'-')
   ?>  (got-punctuator +<.tokens %'>')
   =^  out  tokens
@@ -1270,7 +1266,6 @@
       =/  lis  ;;((list jlimb) ->.u.new-jyp)
       ?~  lis  !!
       ?:  =(%type -.i.lis)
-        ~&  >  "here!!!"
         ~&  >  [->.u.new-jyp new-jyp jyp]
         ~&  >>>  all-axis+(axis-at-name(jyp u.new-jyp) '')
         =/  cor-axi  (axis-at-name(jyp u.new-jyp) %$)
