@@ -1,0 +1,36 @@
+compose
+  class Point(x:@ y:@) {
+    // new() is the required constructor
+    new(q:(x:@ y:@)) -> Point {
+      // the return from any method must match the state shape
+      (x.q y.q)
+    }
+    add(q:Point) -> Point {
+      // we don't have infix operators yet
+      (x.q y.q)
+    }
+  }
+; // end compose
+
+// let origin:Point = Point(0 0);
+// let vector = new Point(1 2);
+
+42
+
+/*
+!:
+!=
+|%
++$  pt  [x=@ y=@]
+++  point
+  |_  state=pt
+  ++  init
+    |=  q=pt
+    .(x.state x.q, y.state y.q)
+  ++  add
+    |=  q=pt
+    ^-  pt
+    [x.q y.q]
+  --
+--
+*/
