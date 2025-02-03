@@ -378,16 +378,12 @@
     =>  .(tokens `(list token)`+.tokens)
     =^  jock-one  tokens
       (match-inner-jock tokens)
-    ~&  jock-one+jock-one
-    ~&  tokens+tokens
     ?:  (has-punctuator -.tokens %')')
       [jock-one +.tokens]
     =/  first=?  %.y
     |-  ^-  [jock (list token)]
-    ~&  pair-inner-jock+[first jock-one tokens]
     =^  jock-nex  tokens
       (match-inner-jock tokens)
-    ~&  jock-nex+jock-nex
     =/  pun  (has-punctuator -.tokens %')')
     ?:  &(first pun)
       [[jock-one jock-nex] +.tokens]
@@ -507,7 +503,6 @@
     $(acc (~(put in acc) jock-nex))
   ::  Tuple
       %'('
-    ~&  >>>  'here!'
     (match-pair-inner-jock [[%punctuator %'('] tokens])
   ::  Call
       %'(('
@@ -580,7 +575,6 @@
   |-
   ::  - %name (there is a wing with multiple entries)
   ?:  (has-punctuator -.tokens %'.')
-    ~&  >>  -.tokens
     =^  limbs  tokens
       =/  acc=(list jlimb)  ~
       |-
@@ -619,12 +613,8 @@
     [[%compare [%limb limbs] comparator inner-two] tokens]
   ::  - %call ('((' is the next token)
   ?:  |((has-punctuator -.tokens %'((') (has-punctuator -.tokens %'('))
-    :: |-
-    :: =.  tokens  +.tokens
-    ~&  >>>  here+tokens
     =^  arg  tokens
       (match-pair-inner-jock tokens)
-    :: ?>  (got-punctuator -.tokens %')')
     ::  TODO: check if we're in a compare
     [[%call [%limb limbs] `arg] +.tokens]
   [[%limb limbs] tokens]
@@ -670,15 +660,12 @@
       %let
     =^  jype  tokens
       (match-jype tokens)
-    ~&  let-jype+jype
     ?>  (got-punctuator -.tokens %'=')
     =^  val  tokens
       (match-jock +.tokens)
-    ~&  let-val+val
     ?>  (got-punctuator -.tokens %';')
     =^  jock  tokens
       (match-jock +.tokens)
-    ~&  let-jock+jock
     [[%let jype val jock] tokens]
   ::
   ::  func a(b:@) -> @ { +(b) };
@@ -1243,7 +1230,7 @@
         ~&  >>  "searching {<i.lis>} as name"
         (axis-at-name +.i.lis)
       ?:  ?=(%type -.i.lis)
-        ~&  >>  "searching {<i.lis>} as type in payload"
+        ~&  >>  "searching as type in payload {<i.lis>}"
         (axis-at-type +.i.lis)
       `+.i.lis
     ~&  >>>  "found {<i.lis>} at {<axi>} in {<jyp>}"
@@ -1272,10 +1259,23 @@
       =/  lis  ;;((list jlimb) ->.u.new-jyp)
       ?~  lis  !!
       ?:  =(%type -.i.lis)
-        ~&  "here!!!"
-        ~&  [->.u.new-jyp jyp]
+        ~&  >  "here!!!"
+        ~&  >  [->.u.new-jyp new-jyp jyp]
+        ~&  >>>  all-axis+(axis-at-name(jyp u.new-jyp) '')
+        =/  cor-axi  (axis-at-name(jyp u.new-jyp) %$)
+        ?~  cor-axi  ~|("no core found in {<u.new-jyp>}" !!)
+        ~&  >>  all-type+(type-at-axis ;;(@ u.cor-axi))
+        =.  res  [u.cor-axi res]
         ::  TODO next:  replace in the type from the payload
-        !!
+        =/  jyp  ;;([p=[%core p=core-body q=(unit jype)] name=cord] jyp)
+        =/  pay  q.p.jyp
+        ?~  pay  ~|("expected type in payload" !!)
+        ~&  >>  just-axis+(axis-at-name(jyp u.pay) +.i.lis)
+        =/  axi  (axis-at-name(jyp u.pay) +.i.lis)
+        ?~  axi  ~|("type not found in payload: {<i.lis>}" !!)
+        :: TODO probably peg the payload in here somehow
+        ~&  res+[u.axi res]
+        $(lis t.lis, jyp u.pay, res [u.axi res])
       !!
     ?^  ret
       ::  TODO: in order to support additional limbs
@@ -1358,7 +1358,6 @@
       |=  nom=term
       ^-  (unit jwing)
       ::  This should only happen with a core (%type).
-      ~&  form+jyp
       =/  jyp  ;;([p=[%core p=core-body q=(unit jype)] name=cord] jyp)
       =/  axi  (axis-at-name(jyp jyp) nom)
       ?~  axi  ~|(%type-not-found !!)
@@ -1366,8 +1365,6 @@
       ?~  pay  !!
       ::  The payload at this point should just contain the door sample.
       ::  (That is, the class state.)
-      ~&  pay+u.pay
-
       ?:  !=(%$ name.u.pay)  [~ ;;(@ u.axi)]
       =/  jjyp  ;;([p=[%core p=core-body q=(unit jype)] name=cord] u.pay)
       ?~  q.p.jjyp  !!
@@ -1533,45 +1530,27 @@
         :: %-  ~(cons jt state.j)
           :: a good one is below
           :: [[%core %|^(~(run by arms.j) |=(* untyped-j)) `state.j] %$]
-          :: [[%core %|^(~(run by arms.j) |=(* untyped-j)) `state.j] %$]
-          :: jyp
           state.j
-      ~&  class+j
       =/  lis=(list [name=term val=jock])  ~(tap by arms.j)
       ?>  ?=(^ lis)
-      ~&  lis+lis
-      ~&  exe-jyp+exe-jyp
-      ~&  val+val.i.lis
-      ~&  >>>  `tape`(zing (reap 36 "*"))
       ::  core and jype of first arm
       =+  [cor-nok one-jyp]=$(j val.i.lis, jyp exe-jyp)
       =.  name.one-jyp  name.i.lis
-      ~&  cor-nok+cor-nok
-      ~&  cor-jyp+one-jyp
       =|  cor-jyp=(map term jype)
       =.  cor-jyp  (~(put by cor-jyp) name.i.lis one-jyp)
       =>  .(lis `(list [name=term val=jock])`+.lis)
-      :: [[%0 0] *jype]
       |-  ^-  [nock jype]
       ?~  lis
-        :-  `nock`[%1 cor-nok]
-        `jype`[[%core %|^cor-jyp ~] %$]
-      ~&  `jock`val.i.lis
-      ~&  `jype`exe-jyp
-      :: ~&  ^-  [nock jype]  $(j ;;(jock val.i.lis), jyp ;;(jype exe-jyp))
-      =+  [mor-nok mor-jyp]=[*nock *jype] ::$(j `jock`val.i.lis, jyp `jype`exe-jyp)
+        :-  [%1 cor-nok]
+        [[%core %|^cor-jyp ~] %$]
+      =+  [mor-nok mor-jyp]=%=(^$ j val.i.lis, jyp exe-jyp)
       %_    $
         lis      t.lis
         cor-nok  [mor-nok cor-nok]
-        cor-jyp  `(map term jype)`(~(put by cor-jyp) name.i.lis mor-jyp)
+        cor-jyp  (~(put by cor-jyp) name.i.lis mor-jyp)
       ==
-
-      :: =+  [nex nex-jyp]=$(j next.j)
-      :: [nex nex-jyp]
     ::
         %edit
-      ~&  edit+limb.j
-      ~&  jype+jyp
       =/  [typ=jype axi=@]
         =/  res  (~(get-limb jt jyp) limb.j)
         ?>  ?=(^ q.res)
@@ -1598,12 +1577,8 @@
       ~|  %compose-p
       =^  p  jyp
         $(j p.j)
-      ~&  p+p
-      ~&  jyp+jyp
       ~|  %compose-q
       =+  [q q-jyp]=$(j q.j)
-      ~&  q+q
-      ~&  q-jyp+q-jyp
       [[%7 p q] q-jyp]
     ::
         %object
@@ -1816,7 +1791,6 @@
         `$(j u.payload.p.j)
       =/  input-default  (type-to-default u.inp.arg.p.j)
       ~|  %enter-lambda-body
-      ~&  lambda+[pay input-default jyp]
       ::  TODO: wtf?
       =/  lam-jyp  (lam-j arg.p.j ?~(pay `jyp `q.u.pay))
       =+  [body body-jyp]=$(j body.p.j, jyp lam-jyp)
