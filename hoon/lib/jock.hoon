@@ -570,6 +570,7 @@
     [[%limb limbs] tokens]
     :: [[%limb limbs] tokens]
   ::  - %name (';' is the next token, which is consumed outside)
+  ~&  name+[name tokens]
   ?:  (has-punctuator -.tokens %';')
     [[%limb limbs] tokens]
   |-
@@ -613,10 +614,11 @@
     [[%compare [%limb limbs] comparator inner-two] tokens]
   ::  - %call ('((' is the next token)
   ?:  |((has-punctuator -.tokens %'((') (has-punctuator -.tokens %'('))
+    =?  tokens  ?=(%'((' ->.tokens)  [[%punctuator %'('] +.tokens]
     =^  arg  tokens
       (match-pair-inner-jock tokens)
     ::  TODO: check if we're in a compare
-    [[%call [%limb limbs] `arg] +.tokens]
+    [[%call [%limb limbs] `arg] tokens]
   [[%limb limbs] tokens]
 ::
 ++  make-jlimb
@@ -660,12 +662,15 @@
       %let
     =^  jype  tokens
       (match-jype tokens)
+    ~&  let+jype
     ?>  (got-punctuator -.tokens %'=')
     =^  val  tokens
       (match-jock +.tokens)
+    ~&  let+val
     ?>  (got-punctuator -.tokens %';')
     =^  jock  tokens
       (match-jock +.tokens)
+    ~&  let+jock
     [[%let jype val jock] tokens]
   ::
   ::  func a(b:@) -> @ { +(b) };
@@ -834,8 +839,10 @@
     =^  p  tokens
       (match-inner-jock tokens)
     ?>  (got-punctuator -.tokens %';')
+    ~&  p+[p tokens]
     =^  q  tokens
       (match-jock +.tokens)
+    ~&  q+[q tokens]
     :_  tokens
     [%compose p q]
   ::
@@ -987,12 +994,16 @@
   ^-  [lambda-argument (list token)]
   ?:  =(~ tokens)  ~|("expect lambda-argument. token: ~" !!)
   ^-  [lambda-argument (list token)]
+  :: =?  tokens  ?=(%'((' ->.tokens)  [[%punctuator %'('] +.tokens]
+  ~&  tokens+tokens
   =^  inp  tokens
     (match-block [tokens %'(' %')'] match-jype)
+  ~&  inp+inp
+  ~&  tokens+tokens
   ?>  (got-punctuator -.tokens %'-')
   ?>  (got-punctuator +<.tokens %'>')
   =^  out  tokens
-    (match-jype +.+.tokens)
+    (match-jype +>.tokens)
   [[`inp out] tokens]
 ::
 ++  match-comparator

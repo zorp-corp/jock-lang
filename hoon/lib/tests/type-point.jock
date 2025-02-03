@@ -12,14 +12,16 @@ compose
   }
 ; // end compose
 
-// let origin:Point = Point(0 0);
-// let vector = new Point(1 2);
+// uses the implicit new() constructor
+let origin:Point = Point(0 0);
+let vector = Point(1 2);
 
-42
+vector
 
 /*
 !:
 !=
+=>  -
 |%
 +$  pt  [x=@ y=@]
 ++  point
