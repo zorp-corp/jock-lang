@@ -644,7 +644,7 @@ dependencies = [
 [[package]]
 name = "crown"
 version = "0.1.0"
-source = "git+https://github.com/zorp-corp/nockapp?rev=d950678e86caa4642fde6432a8d02d1e04b8bcae#d950678e86caa4642fde6432a8d02d1e04b8bcae"
+source = "git+https://github.com/zorp-corp/nockapp?rev=d14578ad2108933b8a370155f07e7c30a43ec69f#d14578ad2108933b8a370155f07e7c30a43ec69f"
 dependencies = [
  "anyhow",
  "assert_no_alloc",
@@ -971,6 +971,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8a9ee70c43aaf417c914396645a0fa852624801b24ebb7ae78fe8272889ac888"
 
 [[package]]
+name = "hashbrown"
+version = "0.14.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e5274423e17b7c9fc20b6e7e208532f9b19825d82dfd615708b70edd83df41f1"
+
+[[package]]
 name = "heck"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1090,7 +1096,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bd070e393353796e801d209ad339e89596eb4c8d430d18ede6a1cced8fafbd99"
 dependencies = [
  "autocfg",
- "hashbrown",
+ "hashbrown 0.12.3",
 ]
 
 [[package]]
@@ -2003,9 +2009,9 @@ dependencies = [
 
 [[package]]
 name = "termimad"
-version = "0.31.2"
+version = "0.31.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a8e19c6dbf107bec01d0e216bb8219485795b7d75328e4fa5ef2756c1be4f8dc"
+checksum = "ea6a5d4cf55d9f1cb04fcda48f725772d0733ae34e030dfc4dd36e738a5965f4"
 dependencies = [
  "coolor",
  "crokey",
@@ -2100,6 +2106,8 @@ dependencies = [
  "bytes",
  "futures-core",
  "futures-sink",
+ "futures-util",
+ "hashbrown 0.14.5",
  "pin-project-lite",
  "tokio",
 ]
