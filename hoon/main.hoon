@@ -41,10 +41,10 @@
   =/  c=^cause  u.soft-cau
   ?-    -.c
       %test-n
-    ~&  -:(snag n.c list-jocks:test-jock)
-    ~&  (parse:test-jock n.c)
-    ~&  (jeam:test-jock n.c)
-    ~&  (mint:test-jock n.c)
+    ~&  >  test+[-:(snag n.c list-jocks:test-jock)]
+    ~&  >  parse+(parse:test-jock n.c)
+    ~&  >  jeam+(jeam:test-jock n.c)
+    ~&  >  mint+(mint:test-jock n.c)
     [~ k]
   ::
       %exec-all

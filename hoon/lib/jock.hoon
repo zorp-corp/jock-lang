@@ -618,6 +618,9 @@
     =^  arg  tokens
       (match-pair-inner-jock tokens)
     ::  TODO: check if we're in a compare
+    ?:  =(%type -<.tokens)
+      :: inject constructor call
+      [[%call [%limb [[%name p=%new] limbs]] `arg] +>.tokens]
     [[%call [%limb limbs] `arg] tokens]
   [[%limb limbs] tokens]
 ::
@@ -746,6 +749,7 @@
       %class
     =^  state  tokens
       (match-jype tokens)
+    ~&  >>>  class+state
     ::  mask out reserved types
     ?:  =([%type 'List'] name.state)  ~|('Shadowing reserved type List is not allowed.' !!)
     ?:  =([%type 'Set'] name.state)   ~|('Shadowing reserved type Set is not allowed.' !!)
@@ -1258,8 +1262,6 @@
     ?~  new-jyp=(type-at-axis u.axi)
       !!
     ~&  new-jyp+new-jyp
-    ::  If new-jyp is a limb to a type, then resolve the type instead.
-::    ?>  ?=(jype new-jyp)
     ::  [~ u=[[%limb ~[[%type 'Kind']]] name=term]]
     ?:  =(%limb -<.u.new-jyp)
       :: ?~  p.u.new-jyp  !!  :: satisfy type, should never happen here
@@ -1358,14 +1360,17 @@
           $(jyp q.jyp, -.axi +((mul -.axi 2)))
         r
       l
-    ::  Search for type definition in subject (payload).
-    ::  This assumes a canonical structure for the type and is brittle.
+    ::  Search for type definition.
+    ::  The type can be in one of two places:
+    ::    the payload (if the initial class definition) or
+    ::    the subject (if a type or constructor).
     ++  axis-at-type
-      |=  nom=term
+      |=  nom=cord
       ^-  (unit jwing)
       ::  This should only happen with a core (%type).
       =/  jyp  ;;([p=[%core p=core-body q=(unit jype)] name=cord] jyp)
       =/  axi  (axis-at-name(jyp jyp) nom)
+      ~&  axis-at-type+[nom jyp]
       ?~  axi  ~|(%type-not-found !!)
       =/  pay  q.p.jyp
       ?~  pay  !!
@@ -1548,7 +1553,7 @@
       |-  ^-  [nock jype]
       ?~  lis
         :-  [%1 cor-nok]
-        [[%core %|^cor-jyp ~] %$]
+        [[%core %|^cor-jyp ~] name.state.j]
       =+  [mor-nok mor-jyp]=%=(^$ j val.i.lis, jyp exe-jyp)
       %_    $
         lis      t.lis
@@ -1584,6 +1589,8 @@
       =^  p  jyp
         $(j p.j)
       ~|  %compose-q
+      ~&  >>  compose-p-nok+p
+      ~&  >>  compose-p-jyp+jyp
       =+  [q q-jyp]=$(j q.j)
       [[%7 p q] q-jyp]
     ::
