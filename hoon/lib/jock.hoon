@@ -1381,12 +1381,12 @@
       =+  [jip jip-jyp]=^$(j -<.cases)
       =+  [jok jok-jyp]=^$(j ->.cases)
       %=  $
-        cell  :^    %6
-                  ^-  nock
-                  (hunt-type jip-jyp)
-                ^-  nock
-                [%7 [%0 3] %1 `nock`jok]
-              cell
+        cell   :^    %6
+                   ^-  nock
+                   (hunt-type jip-jyp)
+                 ^-  nock
+                 [%7 [%0 3] %1 `nock`jok]
+               cell
         cases  +.cases
       ==
     ::
@@ -1406,12 +1406,12 @@
       ?~  cases  cell
       =+  [jok jok-jyp]=^$(j ->.cases)
       %=  $
-        cell  :^    %6
-                  ^-  nock
-                  (hunt-value -<.cases)
-                ^-  nock
-                [%7 [%0 3] %1 `nock`jok]
-              cell
+        cell   :^    %6
+                   ^-  nock
+                   (hunt-value -<.cases)
+                 ^-  nock
+                 [%7 [%0 3] %1 `nock`jok]
+               cell
         cases  +.cases
       ==
     ::
