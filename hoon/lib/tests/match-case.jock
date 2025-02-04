@@ -1,6 +1,6 @@
 let a: @ = 3;
 
-match case a {
+switch a {
   1 -> 2;
   2 -> 4;
   3 -> 8;

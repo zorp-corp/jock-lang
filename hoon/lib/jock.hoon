@@ -48,11 +48,11 @@
       %defer
       %recur
       %match
+      %switch
       %eval
       %with
       %this
       %type
-      %case
   ==
 ::
 +$  jpunc
@@ -141,8 +141,8 @@
     %-  perk
     :~  %let  %func  %lambda  %if  %else  %crash  %assert
         %object  %compose  %loop  %defer
-        %recur  %match  %eval  %with  %this
-        %type  %case
+        %recur  %match  %switch  %eval  %with  %this
+        %type
     ==
   ::
   ++  tagged-punctuator  %+  cook
@@ -707,21 +707,21 @@
   ::
       %match
   :: [%match value=jock cases=(map jock jock) default=(unit jock)]
-  :: [%cases value=jock cases=(map jock jock) default=(unit jock)]
-    ?:  (has-keyword -.tokens %case)
-      =^  value  tokens
-        (match-inner-jock +.tokens)
-      =^  pairs  tokens
-        (match-block [tokens %'{' %'}'] match-match)
-      :_  tokens
-      [%cases value -.pairs +.pairs]
-    ?>  (has-keyword -.tokens %type)
     =^  value  tokens
-      (match-inner-jock +.tokens)
+      (match-inner-jock tokens)
     =^  pairs  tokens
       (match-block [tokens %'{' %'}'] match-match)
     :_  tokens
     [%match value -.pairs +.pairs]
+  ::
+      %switch
+  :: [%cases value=jock cases=(map jock jock) default=(unit jock)]
+    =^  value  tokens
+      (match-inner-jock tokens)
+    =^  pairs  tokens
+      (match-block [tokens %'{' %'}'] match-match)
+    :_  tokens
+    [%cases value -.pairs +.pairs]
   ::
       ?(%loop %defer)
     ?>  (got-punctuator -.tokens %';')
