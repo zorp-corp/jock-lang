@@ -1,5 +1,5 @@
 compose
-  class Point(x:@ y:@) {
+  class Point((x:@ y:@)) {
     // new() is the required constructor
     new(q:(x:@ y:@)) -> Point {
       // the return from any method must match the state shape
@@ -13,11 +13,11 @@ compose
 ; // end compose
 
 // uses the implicit new() constructor
-// let origin:Point = Point(0 0);  // <- TODO here you are Neal
+let origin:Point = Point(0 0);  // <- TODO next fix the constructor to work 2x
 let vector:Point = Point(1 2);
 
-// vector
-42
+vector
+// 42
 /*
 !:
 !=

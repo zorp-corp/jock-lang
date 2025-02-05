@@ -127,8 +127,8 @@
   ::  A name can resolve either to a simple name or to a function invocation,
   ::  if it is followed by no whitespace and an open parenthesis.  In that case,
   ::  the goal is to parse a function call into the pseudo-punctuator '(('.
-  ::  This only happens if there is a term immediately preceding the '(',
-  ::    e.g. foo(bar)  ->  'foo' '((' 'bar' ')'
+  ::  This only happens if there is a name or type immediately preceding '(',
+  ::  e.g. foo(bar)  ->  'foo' '((' 'bar' ')'
   ++  tagged-name        (stag %name name)                :: [%name term]
   ++  name               sym                              :: term
   ::
@@ -180,7 +180,7 @@
         (knee *(list token) |.(~+(;~(plug tagged-literal ;~(pfix gav tokens(fun %.n))))))
         (knee *(list token) |.(~+(;~(plug tagged-name ;~(pfix gav tokens(fun %.y))))))
         (knee *(list token) |.(~+(;~(plug tagged-punctuator ;~(pfix gav tokens(fun %.n))))))
-        (knee *(list token) |.(~+(;~(plug tagged-type ;~(pfix gav tokens(fun %.n))))))
+        (knee *(list token) |.(~+(;~(plug tagged-type ;~(pfix gav tokens(fun %.y))))))
         (easy ~)
     ==
   ::
@@ -570,7 +570,6 @@
     [[%limb limbs] tokens]
     :: [[%limb limbs] tokens]
   ::  - %name (';' is the next token, which is consumed outside)
-  ~&  name+[name tokens]
   ?:  (has-punctuator -.tokens %';')
     [[%limb limbs] tokens]
   |-
@@ -618,9 +617,9 @@
     =^  arg  tokens
       (match-pair-inner-jock tokens)
     ::  TODO: check if we're in a compare
-    ?:  =(%type -<.tokens)
+    ?:  (is-type name)
       :: inject constructor call
-      [[%call [%limb [[%name p=%new] limbs]] `arg] +>.tokens]
+      [[%call [%limb [[%name p=%new] limbs]] `arg] tokens]
     [[%call [%limb limbs] `arg] tokens]
   [[%limb limbs] tokens]
 ::
@@ -645,13 +644,19 @@
       %set
     ?>  ?=([%type cord] -.tokens)
     ;;(cord ->.tokens)  ::  TODO generalize?
+  =/  nom  (get-name -.tokens)
+  ?~  nom  ~|("expect name. token: {<-.tokens>}" !!)
   =.  tokens  +.tokens
-  ?.  =([%punctuator %'('] -.tokens)
+  ?.  =([%punctuator %'(('] -.tokens)
     ::  XXX fix when finishing type TODO
     [`jype`[`jype-leaf`[%limb ~[[%type type]]] type] tokens]
+  ::  two ways here:  pin `()` around it or stop using match-block
   =^  jyp  tokens
-    (match-block [tokens %'(' %')'] match-jype)
-  [[;;(jype-leaf [type jyp]) %$] tokens]
+    (match-jype +.tokens)
+  ?>  (got-punctuator -.tokens %')')
+  ?:  ?=(%list type)  [[;;(jype-leaf [type jyp]) u.nom] +.tokens]
+  ?:  ?=(%set type)  [[;;(jype-leaf [type jyp]) u.nom] +.tokens]
+  [jyp(name u.nom) +.tokens]
 ::
 ++  match-keyword
   |=  =tokens
@@ -665,15 +670,12 @@
       %let
     =^  jype  tokens
       (match-jype tokens)
-    ~&  let+jype
     ?>  (got-punctuator -.tokens %'=')
     =^  val  tokens
       (match-jock +.tokens)
-    ~&  let+val
     ?>  (got-punctuator -.tokens %';')
     =^  jock  tokens
       (match-jock +.tokens)
-    ~&  let+jock
     [[%let jype val jock] tokens]
   ::
   ::  func a(b:@) -> @ { +(b) };
@@ -749,7 +751,6 @@
       %class
     =^  state  tokens
       (match-jype tokens)
-    ~&  >>>  class+state
     ::  mask out reserved types
     ?:  =([%type 'List'] name.state)  ~|('Shadowing reserved type List is not allowed.' !!)
     ?:  =([%type 'Set'] name.state)   ~|('Shadowing reserved type Set is not allowed.' !!)
@@ -934,9 +935,10 @@
       [[jyp-one `jyp-two] tokens]
     [?~(q.r `jype`p.r `jype`[[p.r u.q.r] nom]) tokens]
   ::  Otherwise, match the leaf into the jype and return it with name.
-  ?:  =(%type -<.tokens)
+  ?:  &(!=(%$ nom) (is-type nom))
     =^  jyp  tokens
-      (match-metatype `(list token)`tokens)
+      ::  stub back in name for metatype
+      (match-metatype `(list token)`[[%type nom] tokens])
     [jyp(name nom) tokens]
   =^  jyp-leaf  tokens
     (match-jype-leaf tokens)
@@ -1142,6 +1144,11 @@
   ?:  ?=(%name -.token)  [~ +.token]
   ?>  ?=(%type -.token)  [~ +.token]
 ::
+++  is-type
+  |=  name=cord
+  ^-  ?
+  !((sane %tas) name)
+::
 ++  got-punctuator
   |=  [=token punc=jpunc]
   ^-  ?
@@ -1245,26 +1252,17 @@
         (axis-at-type +.i.lis)
       `+.i.lis
     ~&  >>>  "found {<i.lis>} at {<axi>} in {<jyp>}"
-    :: =?  axi  ?=(~ axi)
-    ::   ~|  "limb not found: {<lis>} in {<jyp>}; refining jype"
-    ::   =/  jyp  ;;([p=[%core p=core-body q=(unit jype)] name=cord] jyp)
-    ::   =/  pay  q.p.jyp
-    ::   ?~  pay  !!
-    ::   (axis-at-name(jyp `jype`u.pay) +.i.lis)
     ?~  axi  ~|("limb not found: {<lis>} in {<jyp>}" !!)
     ?^  u.axi
       ?~  new-jyp=(type-at-axis (peg +.u.axi -.u.axi))
         ~|  no-type-at-axis+[axi jyp]
         !!
       $(lis t.lis, jyp u.new-jyp, res [u.axi res])
-    :: ?~  new-jyp=?:(?=(%type -.i.lis) (type-at-form u.axi) (type-at-axis u.axi))
-    ::   !!
     ?~  new-jyp=(type-at-axis u.axi)
       !!
     ~&  new-jyp+new-jyp
     ::  [~ u=[[%limb ~[[%type 'Kind']]] name=term]]
     ?:  =(%limb -<.u.new-jyp)
-      :: ?~  p.u.new-jyp  !!  :: satisfy type, should never happen here
       =/  lis  ;;((list jlimb) ->.u.new-jyp)
       ?~  lis  !!
       ?:  =(%type -.i.lis)
@@ -1552,6 +1550,8 @@
       =>  .(lis `(list [name=term val=jock])`+.lis)
       |-  ^-  [nock jype]
       ?~  lis
+        :: ~&  >>>  :-  [%1 cor-nok]
+        ::          [[%core %|^cor-jyp ~] name.state.j]
         :-  [%1 cor-nok]
         [[%core %|^cor-jyp ~] name.state.j]
       =+  [mor-nok mor-jyp]=%=(^$ j val.i.lis, jyp exe-jyp)
@@ -1589,8 +1589,6 @@
       =^  p  jyp
         $(j p.j)
       ~|  %compose-q
-      ~&  >>  compose-p-nok+p
-      ~&  >>  compose-p-jyp+jyp
       =+  [q q-jyp]=$(j q.j)
       [[%7 p q] q-jyp]
     ::
