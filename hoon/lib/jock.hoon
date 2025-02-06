@@ -1266,22 +1266,48 @@
       =/  lis  ;;((list jlimb) ->.u.new-jyp)
       ?~  lis  !!
       ?:  =(%type -.i.lis)
-        ~&  >  [->.u.new-jyp new-jyp jyp]
+        ~&  >  [->.u.new-jyp]
+        ~&  >  [new-jyp]
+        ~&  >  [jyp]
         ~&  >>>  all-axis+(axis-at-name(jyp u.new-jyp) '')
         =/  cor-axi  (axis-at-name(jyp u.new-jyp) %$)
         ?~  cor-axi  ~|("no core found in {<u.new-jyp>}" !!)
         ~&  >>  all-type+(type-at-axis ;;(@ u.cor-axi))
+        ~&  >>  -.u.new-jyp
         =.  res  [u.cor-axi res]
+        ::  As with +axis-at-type, type can be in one of two places:
+        ::    a core, if the initial definition, or
+        ::    the subject (if a name dereference).
         ::  TODO next:  replace in the type from the payload
-        =/  jyp  ;;([p=[%core p=core-body q=(unit jype)] name=cord] jyp)
-        =/  pay  q.p.jyp
-        ?~  pay  ~|("expected type in payload" !!)
-        ~&  >>  just-axis+(axis-at-name(jyp u.pay) +.i.lis)
-        =/  axi  (axis-at-name(jyp u.pay) +.i.lis)
-        ?~  axi  ~|("type not found in payload: {<i.lis>}" !!)
-        :: TODO probably peg the payload in here somehow
-        ~&  res+[u.axi res]
-        $(lis t.lis, jyp u.pay, res [u.axi res])
+        ?:  =(%core -<.jyp)
+          :: %core
+          =/  jyp  ;;([p=[%core p=core-body q=(unit jype)] name=cord] jyp)
+          =/  pay  q.p.jyp
+          ?~  pay  ~|("expected type in payload" !!)
+          ~&  >>  just-axis+(axis-at-name(jyp u.pay) +.i.lis)
+          =/  axi  (axis-at-name(jyp u.pay) +.i.lis)
+          ?~  axi  ~|("type not found in payload: {<i.lis>}" !!)
+          :: TODO probably peg the payload in here somehow
+          ~&  res+[u.axi res]
+          $(lis t.lis, jyp u.pay, res [u.axi res])
+        :: &limb
+        ?>  =(%limb -<-<.jyp)
+        ~&  >  in-a-limb+jyp
+        ~&  >  in-a-limb+u.new-jyp
+        ~&  >  in-a-limb+[-<-<.jyp]
+        =/  lim  ;;([[%limb (list jlimb)] cord] u.new-jyp)
+        ~&  >>  lim+lim
+        =/  axi  (axis-at-name ->->.lim)
+        ~&  axi+axi
+        ?~  axi  ~|("limb not found: {<[->->.lim]>} in {<jyp>}" !!)
+        =/  typ  (type-at-axis ;;(@ u.axi))
+        ~&  typ+typ
+        ?~  typ  ~|("type not found: {<[->->.lim]>} in {<jyp>}" !!)
+        =/  jyp  ;;([p=[%core p=core-body q=(unit jype)] name=cord] u.typ)
+        ~&  >>  jyp+jyp
+        ~&  >>  "what am I searching for again? oh yes, {<+.i.lis>}"
+        $(lis t.lis, jyp jyp)
+        :: !!
       !!
     ?^  ret
       ::  TODO: in order to support additional limbs

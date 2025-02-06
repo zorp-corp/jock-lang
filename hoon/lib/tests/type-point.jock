@@ -16,7 +16,7 @@ compose
 let origin:Point = Point(0 0);  // <- TODO next fix the constructor to work 2x
 let vector:Point = Point(1 2);
 
-vector
+[vector 42]
 // 42
 /*
 !:
