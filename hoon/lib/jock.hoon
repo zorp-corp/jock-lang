@@ -1546,7 +1546,7 @@
           ~|  ['have:' val-jyp 'need:' type.j]
           !!
         (~(cons jt u.inferred-type) jyp)
-      [[%8 val [%0 1]] val-jyp]
+      [val val-jyp]
     ::
         %protocol
       ~|  %protocol
@@ -1573,6 +1573,9 @@
     ::
         %class
       ~|  %class
+      ::  door sample
+      =/  sam-nok  (type-to-default state.j)
+      ~&  >>  sam-nok+sam-nok
       ::  unified context including door sample in payload
       =/  exe-jyp=jype
         :: %-  ~(cons jt state.j)
@@ -1591,7 +1594,7 @@
       ?~  lis
         :: ~&  >>>  :-  [%1 cor-nok]
         ::          [[%core %|^cor-jyp ~] name.state.j]
-        :-  [%1 cor-nok]
+        :-  [%8 sam-nok [%1 cor-nok]]
         [[%core %|^cor-jyp ~] name.state.j]
       =+  [mor-nok mor-jyp]=%=(^$ j val.i.lis, jyp exe-jyp)
       %_    $
