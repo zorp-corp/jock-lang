@@ -218,6 +218,7 @@
       [%func type=jype body=jock next=jock]
       [%protocol type=jock body=(map term jype) next=jock]  :: TODO make compose instead of next
       [%class state=jype arms=(map term jock)]  :: TODO do we want payload?
+      [%method type=jype body=jock]
       [%edit limb=(list jlimb) val=jock next=jock]
       [%increment val=jock]
       [%cell-check val=jock]
@@ -783,7 +784,7 @@
       =.  body
         :-  %lambda
         [[`inp out] body ~]
-      $(arms (~(put by arms) name.type [%func type body *jock]))
+      $(arms (~(put by arms) name.type [%method type body]))
     :_  tokens
     [%class state=state arms=arms]
   ::
@@ -1534,6 +1535,18 @@
       ~|  %func-next
       =+  [nex nex-jyp]=$(j next.j)
       [[%8 val nex] nex-jyp]
+    ::
+        %method
+      =+  [val val-jyp]=$(j body.j)
+      =.  jyp
+        =/  inferred-type
+          (~(unify jt type.j) val-jyp)
+        ?~  inferred-type
+          ~|  '%func: value type does not nest in declared type'
+          ~|  ['have:' val-jyp 'need:' type.j]
+          !!
+        (~(cons jt u.inferred-type) jyp)
+      [[%8 val [%0 1]] val-jyp]
     ::
         %protocol
       ~|  %protocol
