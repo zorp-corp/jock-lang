@@ -5,12 +5,12 @@ protocol Arithmetic {
 
 // class Point(x:@ y:@) implements Arithmetic {
 class Point(x:@ y:@): Arithmetic {
-  init(q:(x:@ y:@)) -> Point {
+  new(q:(x:@ y:@)) -> Point {
     x = q.x;
     y = q.y;
   };
-  add(q:Point) -> Point {
-    new Point(((x + q.x) (y + q.y)));
+  add(p:Point, q:Point) -> Point {
+    ((x.p + x.q) (y.p + y.q));
   };
   sub(q:Point) -> Point {
     new Point(((x - q.x) (y - q.y)));
