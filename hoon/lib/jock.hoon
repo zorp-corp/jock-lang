@@ -768,11 +768,15 @@
       ::  Gather the arguments and output type.
       =^  inp  tokens
         (match-block [tokens %'((' %')'] match-jype)
+      ::  Slot in class state if necessary.
+      =.  inp  (replace-state inp state)
       ?>  (got-punctuator -.tokens %'-')
       ?>  (got-punctuator +<.tokens %'>')
       =.  tokens  +>.tokens
       =^  out  tokens
         (match-jype tokens)
+      ::  Slot in class state if necessary.
+      =.  out  (replace-state out state)
       =.  type
         :-  [%core [%& [`inp out]] ~]
         name.type
@@ -843,10 +847,10 @@
     =^  p  tokens
       (match-inner-jock tokens)
     ?>  (got-punctuator -.tokens %';')
-    ~&  p+[p tokens]
+    ~&  compose-p+[p tokens]
     =^  q  tokens
       (match-jock +.tokens)
-    ~&  q+[q tokens]
+    ~&  compose-q+[q tokens]
     :_  tokens
     [%compose p q]
   ::
@@ -899,6 +903,22 @@
       %crash
     [[%crash ~] tokens]
   ==
+::
+::  Replace limb references to state with the actual state.
+::
+++  replace-state
+  |=  [jyp=jype state=jype]
+  ^-  jype
+  ::  direct limb case
+  ?@  -<.jyp
+    ::  only thing in limb search
+    ?:  &(?=(%limb -<.jyp) =(1 (lent p.p.jyp)) =(name.state ->.p.p.jyp))
+      state(name name.jyp)
+    ::  XXX seems like maybe there's another case here but defer
+    ::  it ain't me babe
+    jyp
+  ::  cell case
+  [[$(jyp -<.jyp) $(jyp ->.jyp)] name.jyp]
 ::
 ::  Match tokens into jype information.
 ::
@@ -1246,22 +1266,22 @@
       ::  If no wing, return our self.
       ?~  res  ret^~
       ::  If wing and not self, disambiguate.
-      ~&  >>>  ret+ret
-      ~&  >>>  res+res
+      :: ~&  >>>  ret+ret
+      :: ~&  >>>  res+res
       ?~  res  !!
       ?>  ?=([arm-axis=@ core-axis=@] i.res)
       ?>  ?=(@ ret)
-      ~&  >>>  [`@`(peg ret arm-axis.i.res) `@`core-axis.i.res]^~
+      :: ~&  >>>  [(peg ret arm-axis.i.res) core-axis.i.res]^~
       ^-  (list jwing)
       [`@`(peg ret arm-axis.i.res) `@`core-axis.i.res]^~
       :: !!
     =/  axi=(unit jwing)
-      ?:  |(?=(%name -.i.lis) !=(%$ name.jyp))
+      ?:  |(?=(%name -.i.lis) ?=(%type -.i.lis) !=(%$ name.jyp))
         ~&  >>>  "searching {<i.lis>} as name"
         (axis-at-name +.i.lis)
-      ?:  ?=(%type -.i.lis)
-        ~&  >>>  "searching as type in payload {<i.lis>}"
-        (axis-at-type +.i.lis)
+      :: ?:  ?=(%type -.i.lis)
+      ::   ~&  >>>  "searching as type in payload {<i.lis>}"
+      ::   (axis-at-type +.i.lis)
       `+.i.lis
     ~&  >>>  "found {<i.lis>} at {<axi>} in {<jyp>}"
     ?~  axi  ~|("limb not found: {<lis>} in {<jyp>}" !!)
@@ -1275,7 +1295,7 @@
     ~&  new-jyp+u.new-jyp
     ::  TODO maybe it's easier to just slot in the defn instead of do the search in a different place and peg together?
     ?:  =(%limb -<.u.new-jyp)
-      =/  lis  ;;((list jlimb) ->.u.new-jyp)
+      =/  lis  ;;((list jlimb) ->.u.new-jyp)  :: TMI
       ?~  lis  !!
       ?:  =(%type -.i.lis)
         :: ~&  >  [->.u.new-jyp]
@@ -1596,25 +1616,23 @@
       ~|  %class
       ::  door sample
       =/  sam-nok  (type-to-default state.j)
-      ~&  >>  sam-nok+sam-nok
       ::  unified context including door sample in payload
       =/  exe-jyp=jype
         :: %-  ~(cons jt state.j)
           :: a good one is below
-          :: [[%core %|^(~(run by arms.j) |=(* untyped-j)) `state.j] %$]
-          state.j
+          [[%core %|^(~(run by arms.j) |=(* untyped-j)) `state.j] %$]
+          :: state.j
       =/  lis=(list [name=term val=jock])  ~(tap by arms.j)
       ?>  ?=(^ lis)
       ::  core and jype of first arm
       =+  [cor-nok one-jyp]=$(j val.i.lis, jyp exe-jyp)
       =.  name.one-jyp  name.i.lis
-      =|  cor-jyp=(map term jype)
-      =.  cor-jyp  (~(put by cor-jyp) name.i.lis one-jyp)
+      =/  cor-jyp=(map term jype)
+        (~(put by *(map term jype)) name.i.lis one-jyp)
       =>  .(lis `(list [name=term val=jock])`+.lis)
+      ::  core and jype of subsequent arms
       |-  ^-  [nock jype]
       ?~  lis
-        :: ~&  >>>  :-  [%1 cor-nok]
-        ::          [[%core %|^cor-jyp ~] name.state.j]
         :-  [%8 sam-nok [%1 cor-nok]]
         [[%core %|^cor-jyp ~] name.state.j]
       =+  [mor-nok mor-jyp]=%=(^$ j val.i.lis, jyp exe-jyp)

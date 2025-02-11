@@ -5,9 +5,9 @@ protocol Arithmetic {
 
 // class Point(x:@ y:@) implements Arithmetic {
 class Point(x:@ y:@): Arithmetic {
-  new(q:(x:@ y:@)) -> Point {
-    x = q.x;
-    y = q.y;
+  new(p:Point}) -> Point {
+    x = x.p;
+    y = y.p;
   };
   add(p:Point, q:Point) -> Point {
     ((x.p + x.q) (y.p + y.q));
