@@ -557,7 +557,7 @@
   ::  How a name is parsed depends on the next symbol.
   =/  has-name  ?=(%name -<.tokens)
   =/  name=cord
-    ~|  "expect name. token: {<-<.tokens>}" 
+    ~|  "expect name. token: {<-<.tokens>}"
     ?:  has-name  ;;(cord ->.tokens)
     ?>  =(%type -<.tokens)
     (got-name -.tokens)
@@ -1271,7 +1271,6 @@
       $(lis t.lis, jyp u.new-jyp, res [u.axi res])
     ?~  new-jyp=(type-at-axis u.axi)
       !!
-    ::  TODO maybe it's easier to just slot in the defn instead of do the search in a different place and peg together?
     ?:  =(%limb -<.u.new-jyp)
       =/  lis  ;;((list jlimb) ->.u.new-jyp)  :: TMI
       ?~  lis  !!
@@ -1331,17 +1330,6 @@
       ?:  =(0 i.axi-lis)
         $(axi-lis t.axi-lis, jyp p.jyp)
       $(axi-lis t.axi-lis, jyp q.jyp)
-    ::  This assumes a canonical structure for the form and is brittle.
-    ++  type-at-form
-      |=  axi=@
-      ^-  (unit jype)
-      ?:  =(axi 1)
-        `jyp
-      =/  jyp  ;;([p=[%core p=core-body q=(unit jype)] name=cord] jyp)
-      ?~  q.p.jyp  !!
-      =/  jjyp  ;;([p=[%core p=core-body q=(unit jype)] name=cord] u.q.p.jyp)
-      ?~  q.p.jjyp  !!
-      `[u.q.p.jjyp(name %$)]
     ::
     ++  axis-at-name
       |=  nom=term
@@ -1477,7 +1465,7 @@
     :_  name.jyp
     ?:  =(%none -.p.jyp)
       p.v
-    ?:  =(%none -.p.v)  
+    ?:  =(%none -.p.v)
       p.jyp
     ?>  =(-.p.jyp -.p.v)
     p.jyp

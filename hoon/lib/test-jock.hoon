@@ -51,7 +51,7 @@
 /*  test-match-type       %hoon  /tests/lib/match-type/hoon
 /*  test-example-atom     %hoon  /tests/lib/example-atom/hoon
 /*  test-sets             %hoon  /tests/lib/sets/hoon
-:: /*  test-type-point       %hoon  /tests/lib/type-point/hoon
+/*  test-type-point       %hoon  /tests/lib/type-point/hoon
 ::
 |%
 ++  list-jocks
@@ -161,9 +161,9 @@
       [%test-sets-tokens test-tokenize:test-sets]
       [%test-sets-jeam test-jeam:test-sets]
       [%test-sets-mint test-mint:test-sets]
-      :: [%test-type-point-tokens test-tokenize:test-type-point]
-      :: [%test-type-point-jeam test-jeam:test-type-point]
-      :: [%test-type-point-mint test-mint:test-type-point]
+      [%test-type-point-tokens test-tokenize:test-type-point]
+      [%test-type-point-jeam test-jeam:test-type-point]
+      [%test-type-point-mint test-mint:test-type-point]
   ==
 ::
 ++  parse
