@@ -17,52 +17,6 @@ compose
 ; // end compose
 
 // uses the implicit new() constructor
-let origin = Point(50 60);  // <- TODO next fix the constructor to work 2x
-// let vector:Point = Point(1 2);
+let origin = Point(50 60);
+
 origin
-// this is here as a sanity check so I don't break regular calls
-// func a(b:@) -> @ {
-//   +(b)
-// };
-// let c = a(23);
-
-// [vector 42]
-// 42
-// Point(50 60)
-/*
-!:
-!=
-=<  (new [0 0])
-|_  state=[x=@ y=@]
-++  new
-  |=  q=[x=@ y=@]
-  .(x.state x.q, y.state y.q)
-++  add
-  |=  q=[x=@ y=@]
-  [x.q y.q]
---
-
-[ 7
-  [ 8
-    [1 0 0]
-    [ 1
-      [8 [1 0 0] [1 [0 12] 0 13] 0 1]
-      8
-      [1 0 0]
-      [1 10 [30 [0 12] 0 13] 0 1]
-      0
-      1
-    ]
-    0
-    1
-  ]
-  8
-  [9 5 0 1]
-  9
-  2
-  10
-  [6 7 [0 3] 1 0 0]
-  0
-  2
-]
-*/

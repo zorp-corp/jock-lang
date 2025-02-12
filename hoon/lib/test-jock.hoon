@@ -24,7 +24,6 @@
 /*  match-type            %jock  /lib/tests/match-type/jock
 /*  example-atom          %jock  /lib/tests/example-atom/jock
 /*  sets                  %jock  /lib/tests/sets/jock
-/*  protocol              %jock  /lib/tests/protocol/jock
 /*  type-point            %jock  /lib/tests/type-point/jock
 ::
 /*  test-let-edit         %hoon  /tests/lib/let-edit/hoon
@@ -52,7 +51,6 @@
 /*  test-match-type       %hoon  /tests/lib/match-type/hoon
 /*  test-example-atom     %hoon  /tests/lib/example-atom/hoon
 /*  test-sets             %hoon  /tests/lib/sets/hoon
-:: /*  test-protocol         %hoon  /tests/lib/protocol/hoon
 :: /*  test-type-point       %hoon  /tests/lib/type-point/hoon
 ::
 |%
@@ -83,8 +81,7 @@
       [%match-type q.match-type]                      :: 21
       [%example-atom q.example-atom]                  :: 22
       [%sets q.sets]                                  :: 23
-      [%protocol q.protocol]                          :: 24
-      [%type-point q.type-point]                      :: 25
+      [%type-point q.type-point]                      :: 24
  ==
 ::
 ++  test-jocks
@@ -164,9 +161,6 @@
       [%test-sets-tokens test-tokenize:test-sets]
       [%test-sets-jeam test-jeam:test-sets]
       [%test-sets-mint test-mint:test-sets]
-      :: [%test-protocol-tokens test-tokenize:test-protocol]
-      :: [%test-protocol-jeam test-jeam:test-protocol]
-      :: [%test-protocol-mint test-mint:test-protocol]
       :: [%test-type-point-tokens test-tokenize:test-type-point]
       :: [%test-type-point-jeam test-jeam:test-type-point]
       :: [%test-type-point-mint test-mint:test-type-point]

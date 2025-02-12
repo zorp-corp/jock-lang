@@ -38,7 +38,6 @@
   $?  %let
       %func
       %lambda
-      %protocol
       %class
       %if
       %else
@@ -141,7 +140,7 @@
   ++  tagged-keyword     (stag %keyword keyword)
   ++  keyword
     %-  perk
-    :~  %let  %func  %lambda  %protocol  %class
+    :~  %let  %func  %lambda  %class
         %if  %else  %crash  %assert
         %object  %compose  %loop  %defer
         %recur  %match  %eval  %with  %this
@@ -216,7 +215,6 @@
   $^  [p=jock q=jock]
   $%  [%let type=jype val=jock next=jock]
       [%func type=jype body=jock next=jock]
-      [%protocol type=jock body=(map term jype)]
       [%class state=jype arms=(map term jock)]  :: TODO do we want payload?
       [%method type=jype body=jock]
       [%edit limb=(list jlimb) val=jock next=jock]
@@ -294,7 +292,7 @@
       [%list type=jype]
       ::  %set
       [%set type=jype]
-      ::  %none is a null type (as for undetermined variable labels or protocols)
+      ::  %none is a null type (as for undetermined variable labels)
       [%none p=(unit term)]
   ==
 ::  Jype atom base types; corresponds to jatom tags
@@ -357,7 +355,6 @@
   ?:  =(~ tokens)  ~|("expect inner-jock. token: ~" !!)
   ?:  ?|  (has-keyword -.tokens %object)
           (has-keyword -.tokens %class)
-          (has-keyword -.tokens %protocol)
           (has-keyword -.tokens %with)
           (has-keyword -.tokens %this)
           (has-keyword -.tokens %crash)
@@ -728,31 +725,6 @@
     :: %')' consumed by +match-pair-inner-jock
     [[%call [%lambda lambda] `arg] tokens]
   ::
-  ::  protocol A { func add(#) -> #; func sub(#) -> #; };
-  ::  [%protocol type=jock body=(map jype jype)]
-      %protocol
-    ::  metatype label
-    =/  type  -.tokens
-    ?>  ?=(%type -.type)
-    ::  mask out reserved types
-    ?:  =([%type 'List'] type)  ~|('Shadowing reserved type List is not allowed.' !!)
-    ?:  =([%type 'Set'] type)   ~|('Shadowing reserved type Set is not allowed.' !!)
-    :: ?:  =([%type 'Map'] type)   ~|('Shadowing reserved type Map is not allowed.' !!)
-    =.  tokens  +.tokens
-    ?>  (got-punctuator -.tokens %'{')
-    =|  arg=(map term jype)
-    =.  tokens  +.tokens
-    =^  body  tokens
-    |-
-    ?:  (has-punctuator -.tokens %'}')
-      [arg +.tokens]
-    =^  jype  tokens
-      (match-trait +.tokens)
-    $(arg (~(put by arg) name.jype jype))
-    ?>  (got-punctuator -.tokens %';')
-    =.  tokens  +.tokens
-    [[%protocol `jock`[%limb ~[[%name +.type]]] `(map term jype)`body] tokens]
-  ::
   ::  [%class state=jype arms=(map term jock)]
       %class
     =^  state  tokens
@@ -761,8 +733,6 @@
     ?:  =([%type 'List'] name.state)  ~|('Shadowing reserved type List is not allowed.' !!)
     ?:  =([%type 'Set'] name.state)   ~|('Shadowing reserved type Set is not allowed.' !!)
     :: ?:  =([%type 'Map'] name.state)   ~|('Shadowing reserved type Map is not allowed.' !!)
-    ::  TODO check protocol
-    :: ?:  (has-punctuator -.tokens %':')
     ?>  (got-punctuator -.tokens %'{')
     =|  arms=(map term jock)
     =.  tokens  +.tokens
@@ -866,10 +836,8 @@
     =^  p  tokens
       (match-inner-jock tokens)
     ?>  (got-punctuator -.tokens %';')
-    ~&  compose-p+[p tokens]
     =^  q  tokens
       (match-jock +.tokens)
-    ~&  compose-q+[q tokens]
     :_  tokens
     [%compose p q]
   ::
@@ -960,7 +928,6 @@
       (match-jype +.tokens)
     [jyp(name nom) tokens]
   ::  Tuple cell  (a b)
-  ~&  match-jype+tokens
   ?:  (has-punctuator -.tokens %'(')
     =^  r=(pair jype (unit jype))  tokens
       %+  match-block  [tokens %'(' %')']
@@ -1275,7 +1242,6 @@
     =/  ret=jwing  1
     ?:  =(~ lis)  ~|("no limb requested" !!)
     |-
-    ~&  >>>  "searching for {<lis>} in {<jyp>}"
     ?~  lis
       :-  jyp
       ::  If self, return the wing.
@@ -1287,24 +1253,16 @@
       ::  If no wing, return our self.
       ?~  res  ret^~
       ::  If wing and not self, disambiguate.
-      :: ~&  >>>  ret+ret
-      :: ~&  >>>  res+res
       ?~  res  !!
       ?>  ?=([arm-axis=@ core-axis=@] i.res)
       ?>  ?=(@ ret)
-      :: ~&  >>>  [(peg ret arm-axis.i.res) core-axis.i.res]^~
       ^-  (list jwing)
       [`@`(peg ret arm-axis.i.res) `@`core-axis.i.res]^~
       :: !!
     =/  axi=(unit jwing)
       ?:  |(?=(%name -.i.lis) ?=(%type -.i.lis) !=(%$ name.jyp))
-        ~&  >>>  "searching {<i.lis>} as name"
         (axis-at-name +.i.lis)
-      :: ?:  ?=(%type -.i.lis)
-      ::   ~&  >>>  "searching as type in payload {<i.lis>}"
-      ::   (axis-at-type +.i.lis)
       `+.i.lis
-    ~&  >>>  "found {<i.lis>} at {<axi>} in {<jyp>}"
     ?~  axi  ~|("limb not found: {<lis>} in {<jyp>}" !!)
     ?^  u.axi
       ?~  new-jyp=(type-at-axis (peg +.u.axi -.u.axi))
@@ -1313,57 +1271,34 @@
       $(lis t.lis, jyp u.new-jyp, res [u.axi res])
     ?~  new-jyp=(type-at-axis u.axi)
       !!
-    ~&  new-jyp+u.new-jyp
     ::  TODO maybe it's easier to just slot in the defn instead of do the search in a different place and peg together?
     ?:  =(%limb -<.u.new-jyp)
       =/  lis  ;;((list jlimb) ->.u.new-jyp)  :: TMI
       ?~  lis  !!
       ?:  =(%type -.i.lis)
-        :: ~&  >  [->.u.new-jyp]
-        :: ~&  >  [new-jyp]
-        :: ~&  >  [jyp]
-        :: ~&  >>>  all-axis+(axis-at-name(jyp u.new-jyp) '')
-        :: =/  cor-axi  (axis-at-type(jyp u.new-jyp) %$)
         =/  cor-axi  (axis-at-type +.i.lis)
         ?~  cor-axi  ~|("no core found in {<u.new-jyp>}" !!)
-        ~&  cor-axi+u.cor-axi
-        :: ~&  >>  all-type+(type-at-axis ;;(@ u.cor-axi))
-        :: ~&  >>  -.u.new-jyp
         =.  res  [u.cor-axi res]
         ::  As with +axis-at-type, type can be in one of two places:
         ::    a core, if the initial definition, or
         ::    the subject (if a name dereference).
-        ::  TODO next:  replace in the type from the payload
         ?:  =(%core -<.jyp)
           :: %core
           =/  jyp  ;;([p=[%core p=core-body q=(unit jype)] name=cord] jyp)
           =/  pay  q.p.jyp
           ?~  pay  ~|("expected type in payload" !!)
-          ~&  >>  just-axis+(axis-at-name(jyp u.pay) +.i.lis)
           =/  axi  (axis-at-name(jyp u.pay) +.i.lis)
           ?~  axi  ~|("type not found in payload: {<i.lis>}" !!)
           ::  payload at +3
-          ~&  address+(peg (peg 3 ;;(@ u.axi)) ;;(@ -.res))
-          ~&  address+[-.res]
-          :: TODO probably peg the payload in here somehow
-          :: ~&  res+[u.axi res]
           $(lis t.lis, jyp u.pay, res [(peg 3 ;;(@ u.axi)) res])
         :: &limb
         ?>  =(%limb -<-<.jyp)
-        :: ~&  >  in-a-limb+jyp
-        :: ~&  >  in-a-limb+u.new-jyp
-        :: ~&  >  in-a-limb+[-<-<.jyp]
         =/  lim  ;;([[%limb (list jlimb)] cord] u.new-jyp)
-        :: ~&  >>  lim+lim
         =/  axi  (axis-at-name ->->.lim)
-        :: ~&  axi+axi
         ?~  axi  ~|("limb not found: {<[->->.lim]>} in {<jyp>}" !!)
         =/  typ  (type-at-axis ;;(@ u.axi))
-        :: ~&  typ+typ
         ?~  typ  ~|("type not found: {<[->->.lim]>} in {<jyp>}" !!)
         =/  jyp  ;;([p=[%core p=core-body q=(unit jype)] name=cord] u.typ)
-        :: ~&  >>  jyp+jyp
-        :: ~&  >>  "what am I searching for again? oh yes, {<+.i.lis>}"
         $(lis t.lis, jyp jyp)
         :: !!
       !!
@@ -1380,15 +1315,13 @@
     ++  type-at-axis
       |=  axi=@
       ^-  (unit jype)
-      ~&  type-at-axis+axi
-      ~&  type-at-axis+jyp
       ?:  =(axi 1)
         `jyp
       =/  axi-lis  (flop (snip (rip 0 axi)))
       ~|  type-at-axis+axi-lis
       |-   ^-  (unit jype)
-      ?~  axi-lis  ~&  type-at-axis-out+`jyp
-      `jyp(name %$)
+      ?~  axi-lis
+        `jyp(name %$)
       ?@  -<.jyp
         ?:  =(~ t.axi-lis)  `jyp
         ?.  ?=(%core -.p.jyp)
@@ -1452,12 +1385,9 @@
     ++  axis-at-type
       |=  nom=cord
       ^-  (unit jwing)
-      ~&  axis-at-type+nom
-      ~&  axis-at-type+jyp
       ::  This should only happen with a core (%type).
       =/  jyp  ;;([p=[%core p=core-body q=(unit jype)] name=cord] jyp)
       =/  axi  (axis-at-name(jyp jyp) nom)
-      ~&  axis-at-type+[nom jyp]
       ?~  axi  ~|(%type-not-found !!)
       =/  pay  q.p.jyp
       ?~  pay  !!
@@ -1559,8 +1489,6 @@
   ++  mint
     |=  j=jock
     ^-  [nock jype]
-    ~&  >  j+j
-    ~&  >  jyp+jyp
     ?-    -.j
         ^
       ~|  %pair-p
@@ -1608,29 +1536,6 @@
           ~|  ['have:' val-jyp 'need:' type.j]
           !!
         (~(cons jt u.inferred-type) jyp)
-      ~&  >>>  method+[jyp val]
-      [val val-jyp]
-    ::
-        %protocol
-      ~|  %protocol
-      ~&  type+type.j
-      ~&  body+body.j
-      :: ~&  %+  turn
-      ::       ~(tap by body.j)
-      ::     |=  [k=term v=jype]
-      ::     :: =/  res  (~(get-limb jt jyp) ~[[%name k]])
-      ::     =+  [typ typ-jyp]=^$(j v)
-      ::     =.  jyp
-      ::       =/  inferred-type
-      ::         (~(unify jt type.j) typ-jyp)
-      ::       ?~  inferred-type
-      ::         ~|  '%protocol: body type does not nest in declared type'
-      ::         ~|  ['have:' typ-jyp 'need:' type.j]
-      ::         !!
-      ::       (~(cons jt u.inferred-type) jyp)
-      ::     [k res]
-      ::     :: |=([k=term v=jype] =+([val val-jyp]=^$(jyp v) [key+k val+val jyp+val-jyp]))
-      =+  [val val-jyp]=$(j type.j)
       [val val-jyp]
     ::
         %class
@@ -1809,7 +1714,6 @@
       ==
     ::
         %call
-      ~&  call+j
       ?+    -.func.j  !!
           %limb
         =/  old-jyp  jyp
@@ -1818,7 +1722,6 @@
         ?>  ?=(^ limbs)
         =/  [typ=jype ljw=(list jwing)]
           ?.  &(?=(%axis -.i.limbs) =(+.i.limbs 0))
-            ~&  >>  call+jyp
             (~(get-limb jt jyp) p.func.j)
           ::  special case: we're looking for $
           =/  ret  (~(find-buc jt jyp))
@@ -1828,7 +1731,6 @@
             !!
           [-.u.ret [2 +.u.ret]^~]
         |-
-        ~&  end+[-<.typ]
         ::  at this point it's looking for a %core
         ?^  -<.typ
           ~|  typ
