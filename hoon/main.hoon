@@ -36,15 +36,14 @@
   ^-  [(list effect) test-state]
   ~&  "poked at {<now^cause>}"
   =/  soft-cau  ((soft ^cause) cause)
-  ?~  soft-cau
-  ~&  >>>  "could not mold poke type: {<cause>}"  !!
+  ?~  soft-cau  ~|("could not mold poke type: {<cause>}" !!)
   =/  c=^cause  u.soft-cau
   ?-    -.c
       %test-n
-    ~&  >  test+[-:(snag n.c list-jocks:test-jock)]
-    ~&  >  parse+(parse:test-jock n.c)
-    ~&  >  jeam+(jeam:test-jock n.c)
-    ~&  >  mint+(mint:test-jock n.c)
+    ~&       code+[-:(snag n.c list-jocks:test-jock)]
+    ~&  >    parse+(parse:test-jock n.c)
+    ~&  >>   jeam+(jeam:test-jock n.c)
+    ~&  >>>  mint+(mint:test-jock n.c)
     [~ k]
   ::
       %exec-all
