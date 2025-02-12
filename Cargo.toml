@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-crown = { git = "https://github.com/zorp-corp/nockapp", rev="d950678e86caa4642fde6432a8d02d1e04b8bcae" }
+crown = { git = "https://github.com/zorp-corp/nockapp", rev="d14578ad2108933b8a370155f07e7c30a43ec69f"}
 sword = { git = "https://github.com/zorp-corp/sword.git", rev = "bcb2e7fba0e24d45d4887fae77389d7c5e86b507" }
 sword_macros = { git = "https://github.com/zorp-corp/sword.git", rev = "bcb2e7fba0e24d45d4887fae77389d7c5e86b507" }
 assert_no_alloc = { git = "https://github.com/zorp-corp/sword.git", rev = "bcb2e7fba0e24d45d4887fae77389d7c5e86b507" }

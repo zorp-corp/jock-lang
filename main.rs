@@ -1,16 +1,13 @@
-use crown::kernel::boot;
-use crown::kernel::form::Kernel;
+use crown::nockapp::driver::Operation;
 use crown::utils::make_tas;
-use crown::Noun;
+use crown::{kernel::boot, noun::slab::NounSlab};
+use crown::{one_punch_driver, Noun};
 use sword::noun::{D, T};
 use sword_macros::tas;
-use tracing::debug;
 
 use clap::{arg, command, ColorChoice, Parser};
-static KERNEL_JAM: &[u8] = include_bytes!(concat!(
-    env!("CARGO_MANIFEST_DIR"),
-    "/assets/jocktest.jam"
-));
+static KERNEL_JAM: &[u8] =
+    include_bytes!(concat!(env!("CARGO_MANIFEST_DIR"), "/assets/jocktest.jam"));
 
 use crown::kernel::boot::Cli as BootCli;
 
@@ -32,47 +29,49 @@ enum Command {
         n: Option<u64>,
     },
     #[command(about = "Test all")]
-    TestAll {
-    },
+    TestAll {},
     #[command(about = "Execute all")]
-    ExecAll {
-    }
+    ExecAll {},
 }
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = TestCli::parse();
-    let nockapp = boot::setup(KERNEL_JAM, Some(cli.boot.clone()), &[], "jock")?;
+    let mut nockapp = boot::setup(KERNEL_JAM, Some(cli.boot.clone()), &[], "jock")?;
     boot::init_default_tracing(&cli.boot.clone());
-    let mut kernel = nockapp.kernel;
 
     let poke = match cli.command {
         Command::TestN { n } => {
-            let n = n.unwrap_or(0); // Default to 0 if not provided
-            create_poke(&mut kernel, &[D(tas!(b"test-n")), D(n)])
+            let n = n.unwrap_or(0);
+            create_poke(&[D(tas!(b"test-n")), D(n)])
         }
-        Command::TestAll { } => {
-            let tas = make_tas(kernel.serf.stack(), "test-all");
-            create_poke(&mut kernel, &[tas.as_noun(), D(0)])
+        Command::TestAll {} => {
+            let mut slab = NounSlab::new();
+            let tas = make_tas(&mut slab, "test-all");
+            create_poke(&[tas.as_noun(), D(0)])
         }
-        Command::ExecAll { } => {
-            let tas = make_tas(kernel.serf.stack(), "exec-all");
-            create_poke(&mut kernel, &[tas.as_noun(), D(0)])
+        Command::ExecAll {} => {
+            let mut slab = NounSlab::new();
+            let tas = make_tas(&mut slab, "exec-all");
+            create_poke(&[tas.as_noun(), D(0)])
         }
     };
 
-    debug!("Sending poke: {:?}", poke);
-    let poke_result = kernel.poke(poke)?;
-    debug!("Poke response: {:?}", poke_result);
+    nockapp
+        .add_io_driver(one_punch_driver(poke, Operation::Poke))
+        .await;
+
+    nockapp.run().await?;
 
     Ok(())
 }
 
-fn create_poke(kernel: &mut Kernel, args: &[Noun]) -> Noun {
-    // error if args is less than 2 elements
+fn create_poke(args: &[Noun]) -> NounSlab {
     if args.len() < 2 {
         panic!("args must have at least 2 elements");
     }
-    T(kernel.serf.stack(), args)
+    let mut slab = NounSlab::new();
+    let copy_root = T(&mut slab, args);
+    slab.copy_into(copy_root);
+    slab
 }
-
