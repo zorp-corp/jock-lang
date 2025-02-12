@@ -644,7 +644,7 @@
     ?:  =([%type 'Set'] -.tokens)
       %set
     ?>  ?=([%type cord] -.tokens)
-    ;;(cord ->.tokens)  ::  TODO generalize?
+    ->.tokens
   =/  nom  (get-name -.tokens)
   ?~  nom  ~|("expect name. token: {<-.tokens>}" !!)
   =.  tokens  +.tokens
@@ -969,13 +969,13 @@
       ::  TODO: support implicit right-association  (what's a good test case?)
       [[jyp-one `jyp-two] tokens]
     [?~(q.r `jype`p.r `jype`[[p.r u.q.r] nom]) tokens]
-  ::  Otherwise, match the leaf into the jype and return it with name.
+  ::  If this is a class or type declaration, match it.
   ?:  &(!=(%$ nom) (is-type nom))
     =^  jyp  tokens
       ::  stub back in name for metatype
-      ~&  'here~'
       (match-metatype `(list token)`[[%type nom] tokens])
     [jyp(name nom) tokens]
+  ::  Otherwise, match the leaf into the jype and return it with name.
   =^  jyp-leaf  tokens
     (match-jype-leaf tokens)
   [[jyp-leaf nom] tokens]
