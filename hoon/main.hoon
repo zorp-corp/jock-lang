@@ -45,6 +45,7 @@
     ~&  (parse:test-jock n.c)
     ~&  (jeam:test-jock n.c)
     ~&  (mint:test-jock n.c)
+    ~&  (exec:test-jock n.c)
     [~ k]
   ::
       %exec-all

@@ -86,6 +86,7 @@
   :~  [%test-let-edit-tokens test-tokenize:test-let-edit]
       [%test-let-edit-jeam test-jeam:test-let-edit]
       [%test-let-edit-mint test-mint:test-let-edit]
+      [%test-let-edit-nock test-nock:test-let-edit]
       [%test-let-inner-exp-tokens test-tokenize:test-let-inner-exp]
       [%test-let-inner-exp-jeam test-jeam:test-let-inner-exp]
       [%test-let-inner-exp-mint test-mint:test-let-inner-exp]
@@ -201,6 +202,13 @@
   =/  p  (snag i list-jocks)
   :-  -.p
   (mint:jock +.p)
+::
+++  nock
+  |=  i=@
+  ^-  [term *]
+  =/  p  (snag i list-jocks)
+  :-  -.p
+  .*(~ (mint:jock +.p))
 ::
 ++  test-all
   ^-  (list ?)
