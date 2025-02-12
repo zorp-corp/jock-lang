@@ -651,9 +651,17 @@
   ?.  =([%punctuator %'(('] -.tokens)
     ::  XXX fix when finishing type TODO
     [`jype`[`jype-leaf`[%limb ~[[%type type]]] type] tokens]
-  ::  two ways here:  pin `()` around it or stop using match-block
+  ::  match type state
   =^  jyp  tokens
-    (match-jype +.tokens)
+    =^  r=(pair jype (unit jype))  tokens
+      =^  jyp-one  tokens  (match-jype +.tokens)
+      ?:  (has-punctuator -.tokens %')')
+        ::  short-circuit if single element in cell
+        [[jyp-one ~] tokens]
+      =^  jyp-two  tokens  (match-jype tokens)
+      ::  TODO: support implicit right-association  (what's a good test case?)
+      [[jyp-one `jyp-two] tokens]
+    [?~(q.r `jype`p.r `jype`[[p.r u.q.r] u.nom]) tokens]
   ?>  (got-punctuator -.tokens %')')
   ?:  ?=(%list type)  [[;;(jype-leaf [type jyp]) u.nom] +.tokens]
   ?:  ?=(%set type)  [[;;(jype-leaf [type jyp]) u.nom] +.tokens]
@@ -749,7 +757,14 @@
   ::  [%class state=jype arms=(map term jock)]
       %class
     =^  state  tokens
+      :: =/  nom  (fall (get-name -.tokens) %$)
+      :: =.  tokens  +.tokens
+      :: ?>  ?=(%'((' -.tokens)
+
+      
+
       (match-jype tokens)
+      :: (match-block [tokens %'((' %')'] match-jype)
     ::  mask out reserved types
     ?:  =([%type 'List'] name.state)  ~|('Shadowing reserved type List is not allowed.' !!)
     ?:  =([%type 'Set'] name.state)   ~|('Shadowing reserved type Set is not allowed.' !!)
@@ -941,6 +956,7 @@
       (match-jype +.tokens)
     [jyp(name nom) tokens]
   ::  Tuple cell  (a b)
+  ~&  match-jype+tokens
   ?:  (has-punctuator -.tokens %'(')
     =^  r=(pair jype (unit jype))  tokens
       %+  match-block  [tokens %'(' %')']
@@ -957,6 +973,7 @@
   ?:  &(!=(%$ nom) (is-type nom))
     =^  jyp  tokens
       ::  stub back in name for metatype
+      ~&  'here~'
       (match-metatype `(list token)`[[%type nom] tokens])
     [jyp(name nom) tokens]
   =^  jyp-leaf  tokens
