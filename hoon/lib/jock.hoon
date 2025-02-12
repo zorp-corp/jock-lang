@@ -639,10 +639,9 @@
   ?:  !=(%type -<.tokens)
     ~|("expect type. token: {<-.tokens>}" !!)
   =/  type=cord
-    ?:  =([%type 'List'] -.tokens)
-      %list
-    ?:  =([%type 'Set'] -.tokens)
-      %set
+    ?:  =([%type 'List'] -.tokens)  %list
+    ?:  =([%type 'Set'] -.tokens)   %set
+    :: ?:  =([%type 'Map'] -.tokens)   %map
     ?>  ?=([%type cord] -.tokens)
     ->.tokens
   =/  nom  (get-name -.tokens)
@@ -738,7 +737,7 @@
     ::  mask out reserved types
     ?:  =([%type 'List'] type)  ~|('Shadowing reserved type List is not allowed.' !!)
     ?:  =([%type 'Set'] type)   ~|('Shadowing reserved type Set is not allowed.' !!)
-    ?:  =([%type 'Map'] type)   ~|('Shadowing reserved type Map is not allowed.' !!)
+    :: ?:  =([%type 'Map'] type)   ~|('Shadowing reserved type Map is not allowed.' !!)
     =.  tokens  +.tokens
     ?>  (got-punctuator -.tokens %'{')
     =|  arg=(map term jype)
@@ -757,19 +756,13 @@
   ::  [%class state=jype arms=(map term jock)]
       %class
     =^  state  tokens
-      :: =/  nom  (fall (get-name -.tokens) %$)
-      :: =.  tokens  +.tokens
-      :: ?>  ?=(%'((' -.tokens)
-
-      
-
       (match-jype tokens)
-      :: (match-block [tokens %'((' %')'] match-jype)
     ::  mask out reserved types
     ?:  =([%type 'List'] name.state)  ~|('Shadowing reserved type List is not allowed.' !!)
     ?:  =([%type 'Set'] name.state)   ~|('Shadowing reserved type Set is not allowed.' !!)
-    ?:  =([%type 'Map'] name.state)   ~|('Shadowing reserved type Map is not allowed.' !!)
-    ::  TODO check `implements`
+    :: ?:  =([%type 'Map'] name.state)   ~|('Shadowing reserved type Map is not allowed.' !!)
+    ::  TODO check protocol
+    :: ?:  (has-punctuator -.tokens %':')
     ?>  (got-punctuator -.tokens %'{')
     =|  arms=(map term jock)
     =.  tokens  +.tokens
