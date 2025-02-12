@@ -775,8 +775,19 @@
         (match-jype tokens)
       ::  Gather the arguments and output type.
       =^  inp  tokens
-        (match-block [tokens %'((' %')'] match-jype)
+        ?>  (got-punctuator -.tokens %'((')
+        =^  r=(pair jype (unit jype))  tokens
+          =^  jyp-one  tokens  (match-jype +.tokens)
+          ?:  (has-punctuator -.tokens %')')
+            ::  short-circuit if single element in cell
+            [[jyp-one ~] tokens]
+          =^  jyp-two  tokens  (match-jype tokens)
+          ::  TODO: support implicit right-association  (what's a good test case?)
+          [[jyp-one `jyp-two] tokens]
+        [?~(q.r `jype`p.r `jype`[[p.r u.q.r] %$]) tokens]
       ::  Slot in class state if necessary.
+      ?>  (got-punctuator -.tokens %')')
+      =.  tokens  +.tokens
       =.  inp  (replace-state inp state)
       ?>  (got-punctuator -.tokens %'-')
       ?>  (got-punctuator +<.tokens %'>')
