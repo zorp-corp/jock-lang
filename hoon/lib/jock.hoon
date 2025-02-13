@@ -582,7 +582,6 @@
             tokens  +>.tokens
             acc     [(make-jlimb u.nom) acc]
           ==
-          :: $(tokens +>.tokens, acc [[%name u.nom] acc])
         ~|("expect name in wing. token: {<+<.tokens>}" !!)
       [acc tokens]
     $(limbs `(list jlimb)`(snoc limbs (make-jlimb name)), tokens tokens)
@@ -902,6 +901,9 @@
     ?:  &(?=(%limb -<.jyp) =(1 (lent p.p.jyp)) =(name.state ->.p.p.jyp))
       state(name name.jyp)
     ::  XXX seems like maybe there's another case here but defer
+    ?:  &(?=(%limb -<.jyp) (gth 1 (lent p.p.jyp)))
+      ~&  >>>  'unexpected case'
+      jyp
     ::  it ain't me babe
     jyp
   ::  cell case
