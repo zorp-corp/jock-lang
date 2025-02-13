@@ -576,15 +576,15 @@
     =^  limbs  tokens
       =/  acc=(list jlimb)  ~
       |-
-      ?:  (has-punctuator -.tokens %'.')
-        ?^  nom=(get-name +<.tokens)
-          %=  $
-            tokens  +>.tokens
-            acc     [(make-jlimb u.nom) acc]
-          ==
-        ~|("expect name in wing. token: {<+<.tokens>}" !!)
-      [acc tokens]
-    $(limbs `(list jlimb)`(snoc limbs (make-jlimb name)), tokens tokens)
+      ?.  (has-punctuator -.tokens %'.')
+        [(flop acc) tokens]
+      ?^  nom=(get-name +<.tokens)
+        %=  $
+          tokens  +>.tokens
+          acc     [(make-jlimb u.nom) acc]
+        ==
+      ~|("expect name in wing. token: {<+<.tokens>}" !!)
+    $(limbs `(list jlimb)`[(make-jlimb name) limbs], tokens tokens)
   ::  - %edit ('=' is the next token)
   ::  - compare ('==' is the next token)
   ?:  (has-punctuator -.tokens %'=')
