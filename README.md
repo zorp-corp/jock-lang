@@ -1,10 +1,11 @@
 # Jock, a friendly and practical programming language
 
-This is a developer preview of Jock, a friendly programming language that compiles to Nock.
+This is a developer preview of Jock, a friendly programming language that compiles to the Nock combinator calculus.
 
-Visit the [blog post](https://zorp.io/blog/jock) for more information.
+- [Jock language site](https://jock.org)
+- [Announcement post](https://zorp.io/blog/jock)
 
-The Jock compiler is written in Hoon.
+The Jock compiler is written in Hoon and runs on the NockApp architecture.
 
 ##  Prerequisites
 
@@ -22,10 +23,15 @@ Then copy the `choo` executable to the root folder.
 To build and run Jock with tests:
 
 ```bash
-make build release
+make release
 
 # run all codes in /lib/tests
 ./target/release/jock-testing exec-all
+# - or -
+make release-test-all
+
 # run specific code in /lib/tests
 ./target/release/jock-testing test-n 0
+# - or -
+make test 0
 ```

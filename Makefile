@@ -33,6 +33,22 @@ release: build-release
 release-test-zero:
 	RUST_LOG=TRACE cargo run $(PROFILE_RELEASE) -- --new test-n 0
 
+.DEFAULT_GOAL := test
+
+.PHONY: test
+
+test:
+	@if [ $(words $(MAKECMDGOALS)) -lt 2 ]; then \
+		echo "Usage: make test <number>"; \
+		exit 1; \
+	fi
+	@RUST_LOG=TRACE cargo run $(PROFILE_RELEASE) -- --new test-n $(word 2,$(MAKECMDGOALS))
+	@exit 0
+
+# This wildcard rule catches all other arguments but does nothing with them
+%::
+	@:
+
 .PHONY: release-test-all
 release-test-all:
 	RUST_LOG=TRACE cargo run $(PROFILE_RELEASE) -- --new exec-all

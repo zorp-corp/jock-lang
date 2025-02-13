@@ -1,0 +1,23 @@
+compose
+  class Point(x:@ y:@) {
+    // new() is the required constructor
+    new(p:Point) -> Point {
+      // the return from any method must match the state shape
+      (x.p y.p)
+    }
+    add(p:Point q:Point) -> Point {
+      // we don't have infix operators yet so this is just a weird hack
+      (x.p y.q)
+    }
+    copy(p:Point) -> Point {
+      // return the current state
+      (x.p y.p)
+    }
+  }
+; // end compose
+
+// uses the implicit new() constructor
+let origin = Point(50 60);
+let vector = Point(70 80);
+
+(vector origin)
