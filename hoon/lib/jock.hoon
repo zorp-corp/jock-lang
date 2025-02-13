@@ -1257,8 +1257,8 @@
       ?>  ?=([arm-axis=@ core-axis=@] i.res)
       ?>  ?=(@ ret)
       ^-  (list jwing)
-      [`@`(peg ret arm-axis.i.res) `@`core-axis.i.res]^~
-      :: !!
+      i.res^~
+      :: [`@`arm-axis.i.res `@`core-axis.i.res]^~
     =/  axi=(unit jwing)
       ?:  |(?=(%name -.i.lis) ?=(%type -.i.lis) !=(%$ name.jyp))
         (axis-at-name +.i.lis)

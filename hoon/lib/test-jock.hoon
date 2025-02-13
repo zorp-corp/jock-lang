@@ -25,6 +25,7 @@
 /*  example-atom          %jock  /lib/tests/example-atom/jock
 /*  sets                  %jock  /lib/tests/sets/jock
 /*  type-point            %jock  /lib/tests/type-point/jock
+/*  type-point-2          %jock  /lib/tests/type-point-2/jock
 ::
 /*  test-let-edit         %hoon  /tests/lib/let-edit/hoon
 /*  test-let-inner-exp    %hoon  /tests/lib/let-inner-exp/hoon
@@ -52,6 +53,7 @@
 /*  test-example-atom     %hoon  /tests/lib/example-atom/hoon
 /*  test-sets             %hoon  /tests/lib/sets/hoon
 /*  test-type-point       %hoon  /tests/lib/type-point/hoon
+:: /*  test-type-point-2     %hoon  /tests/lib/type-point-2/hoon
 ::
 |%
 ++  list-jocks
@@ -82,6 +84,7 @@
       [%example-atom q.example-atom]                  :: 22
       [%sets q.sets]                                  :: 23
       [%type-point q.type-point]                      :: 24
+      [%type-point-2 q.type-point-2]                  :: 25
  ==
 ::
 ++  test-jocks
@@ -164,6 +167,9 @@
       [%test-type-point-tokens test-tokenize:test-type-point]
       [%test-type-point-jeam test-jeam:test-type-point]
       [%test-type-point-mint test-mint:test-type-point]
+      :: [%test-type-point-2-tokens test-tokenize:test-type-point-2]
+      :: [%test-type-point-2-jeam test-jeam:test-type-point-2]
+      :: [%test-type-point-2-mint test-mint:test-type-point-2]
   ==
 ::
 ++  parse
