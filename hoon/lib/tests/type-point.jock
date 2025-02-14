@@ -3,15 +3,15 @@ compose
     // new() is the required constructor
     new(p:Point) -> Point {
       // the return from any method must match the state shape
-      (x.p y.p)
+      (p.x p.y)
     }
     add(p:Point q:Point) -> Point {
       // we don't have infix operators yet so this is just a weird hack
-      (x.p y.q)
+      (p.x q.y)
     }
     copy(p:Point) -> Point {
       // return the current state
-      (x.p y.p)
+      (p.x p.y)
     }
   }
 ; // end compose

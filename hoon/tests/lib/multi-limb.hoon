@@ -4,10 +4,10 @@
 ::
 |%
 ++  text
-  'let a: (p:@ q:(k:@ v:@)) = (52 30 45);\0a\0a(v.q.a)  // reduces to v.q.a, so also testing tuple-of-one'
+  'let a: (p:@ q:(k:@ v:@)) = (52 30 45);\0a\0a(a.q.v)  // reduces to a.q.v, so also testing tuple-of-one'
 ++  test-tokenize
   %+  expect-eq:test
-    !>  ~[[%keyword %let] [%name %a] [%punctuator %':'] [%punctuator %'('] [%name %p] [%punctuator %':'] [%punctuator %'@'] [%name %q] [%punctuator %':'] [%punctuator %'('] [%name %k] [%punctuator %':'] [%punctuator %'@'] [%name %v] [%punctuator %':'] [%punctuator %'@'] [%punctuator %')'] [%punctuator %')'] [%punctuator %'='] [%punctuator %'('] [%literal [[%number p=52] q=%.n]] [%literal [[%number p=30] q=%.n]] [%literal [[%number p=45] q=%.n]] [%punctuator %')'] [%punctuator %';'] [%punctuator %'('] [%name %v] [%punctuator %'.'] [%name %q] [%punctuator %'.'] [%name %a] [%punctuator %')']]
+    !>  ~[[%keyword %let] [%name %a] [%punctuator %':'] [%punctuator %'('] [%name %p] [%punctuator %':'] [%punctuator %'@'] [%name %q] [%punctuator %':'] [%punctuator %'('] [%name %k] [%punctuator %':'] [%punctuator %'@'] [%name %v] [%punctuator %':'] [%punctuator %'@'] [%punctuator %')'] [%punctuator %')'] [%punctuator %'='] [%punctuator %'('] [%literal [[%number p=52] q=%.n]] [%literal [[%number p=30] q=%.n]] [%literal [[%number p=45] q=%.n]] [%punctuator %')'] [%punctuator %';'] [%punctuator %'('] [%name %a] [%punctuator %'.'] [%name %q] [%punctuator %'.'] [%name %v] [%punctuator %')']]
     !>  (rash text parse-tokens:jock)
 ::
 ++  test-jeam
