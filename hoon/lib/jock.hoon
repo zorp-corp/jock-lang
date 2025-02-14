@@ -1265,6 +1265,7 @@
       ?:  |(?=(%name -.i.lis) ?=(%type -.i.lis) !=(%$ name.jyp))
         (axis-at-name +.i.lis)
       `+.i.lis
+    ~&  >>  get-limb+[axi name.jyp i.lis]
     ?~  axi  ~|("limb not found: {<lis>} in {<jyp>}" !!)
     ?^  u.axi
       ?~  new-jyp=(type-at-axis (peg +.u.axi -.u.axi))
@@ -1273,6 +1274,7 @@
       $(lis t.lis, jyp u.new-jyp, res [u.axi res])
     ?~  new-jyp=(type-at-axis u.axi)
       !!
+    ~&  >>  get-limb-2+new-jyp
     ?:  =(%limb -<.u.new-jyp)
       =/  lis  ;;((list jlimb) ->.u.new-jyp)  :: TMI
       ?~  lis  !!
@@ -1376,6 +1378,7 @@
       |=  nom=cord
       ^-  (unit jwing)
       ::  This should only happen with a core (%type).
+      ~&  axis-at-type+[nom jyp]
       =/  jyp  ;;([p=[%core p=core-body q=(unit jype)] name=cord] jyp)
       =/  axi  (axis-at-name(jyp jyp) nom)
       ?~  axi  ~|(%type-not-found !!)
@@ -1710,6 +1713,7 @@
         ~|  %call-limb
         =/  limbs=(list jlimb)  p.func.j
         ?>  ?=(^ limbs)
+        ~&  >>  call-limb+[limbs j jyp]
         =/  [typ=jype ljw=(list jwing)]
           ?.  &(?=(%axis -.i.limbs) =(+.i.limbs 0))
             (~(get-limb jt jyp) p.func.j)
@@ -1726,6 +1730,7 @@
           ~|  typ
           ~|  limbs
           !!
+        ~&  mint-limb+[ljw typ]
         ?.  ?=(%core -.p.typ)
           !!
         :_  ?:  ?=(%& -.p.p.typ)

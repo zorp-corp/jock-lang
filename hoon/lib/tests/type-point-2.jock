@@ -17,7 +17,9 @@ compose
 ; // end compose
 
 // uses the implicit new() constructor
-let origin = Point(50 60);
+let origin:Point = Point(50 60);
 let vector = Point(70 80);
 
-origin.add(Point(10 20) Point(30 40))
+//origin.add(Point(10 20) Point(30 40))
+
+origin.add(50 60)
