@@ -20,4 +20,4 @@ compose
 let origin = Point(50 60);
 let vector = Point(70 80);
 
-(vector origin)
+origin.add(Point(10 20) Point(30 40))
