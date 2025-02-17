@@ -32,6 +32,14 @@ enum Command {
     TestAll {},
     #[command(about = "Execute all")]
     ExecAll {},
+    #[command(about = "Parse all")]
+    ParseAll {},
+    #[command(about = "Jeam all")]
+    JeamAll {},
+    #[command(about = "Mint all")]
+    MintAll {},
+    #[command(about = "Run all Nock")]
+    NockAll {},
 }
 
 #[tokio::main]
@@ -53,6 +61,26 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Command::ExecAll {} => {
             let mut slab = NounSlab::new();
             let tas = make_tas(&mut slab, "exec-all");
+            create_poke(&[tas.as_noun(), D(0)])
+        }
+        Command::ParseAll {} => {
+            let mut slab = NounSlab::new();
+            let tas = make_tas(&mut slab, "parse-all");
+            create_poke(&[tas.as_noun(), D(0)])
+        }
+        Command::JeamAll {} => {
+            let mut slab = NounSlab::new();
+            let tas = make_tas(&mut slab, "jeam-all");
+            create_poke(&[tas.as_noun(), D(0)])
+        }
+        Command::MintAll {} => {
+            let mut slab = NounSlab::new();
+            let tas = make_tas(&mut slab, "mint-all");
+            create_poke(&[tas.as_noun(), D(0)])
+        }
+        Command::NockAll {} => {
+            let mut slab = NounSlab::new();
+            let tas = make_tas(&mut slab, "nock-all");
             create_poke(&[tas.as_noun(), D(0)])
         }
     };

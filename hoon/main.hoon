@@ -9,6 +9,9 @@
   $%  [%test-n n=@]
       [%test-all ~]
       [%exec-all ~]
+      [%parse-all ~]
+      [%jeam-all ~]
+      [%mint-all ~]
   ==
 +$  effect  ~
 --
@@ -54,5 +57,18 @@
       %test-all
     ~&  test-all:test-jock
     [~ k]
+  ::
+      %parse-all
+    ~&  parse-all:test-jock
+    [~ k]
+  ::
+      %jeam-all
+    ~&  jeam-all:test-jock
+    [~ k]
+  ::
+      %mint-all
+    ~&  mint-all:test-jock
+    [~ k]
+  ::
   ==
 --
