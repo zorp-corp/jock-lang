@@ -22,4 +22,4 @@ let vector = Point(70 80);
 
 //origin.add(Point(10 20) Point(30 40))
 
-origin.add(50 60)
+Point.add((50 60) (70 80))

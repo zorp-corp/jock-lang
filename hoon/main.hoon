@@ -40,6 +40,7 @@
   =/  c=^cause  u.soft-cau
   ?-    -.c
       %test-n
+    ~&  "running code {<n.c>}"
     ~&       code+[-:(snag n.c list-jocks:test-jock)]
     ~&  >    parse+(parse:test-jock n.c)
     ~&  >>   jeam+(jeam:test-jock n.c)

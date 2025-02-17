@@ -10,6 +10,7 @@
       =+  [jok tokens]=(match-jock (rash txt parse-tokens))
       ?.  ?=(~ tokens)
         ~|  'jeam: must parse to a single jock'
+        ~|  remaining+tokens
         !!
       jok
     ::
@@ -1265,7 +1266,6 @@
       ?:  |(?=(%name -.i.lis) ?=(%type -.i.lis) !=(%$ name.jyp))
         (axis-at-name +.i.lis)
       `+.i.lis
-    ~&  >>  get-limb+[axi name.jyp i.lis]
     ?~  axi  ~|("limb not found: {<lis>} in {<jyp>}" !!)
     ?^  u.axi
       ?~  new-jyp=(type-at-axis (peg +.u.axi -.u.axi))
@@ -1274,18 +1274,17 @@
       $(lis t.lis, jyp u.new-jyp, res [u.axi res])
     ?~  new-jyp=(type-at-axis u.axi)
       !!
-    ~&  >>  get-limb-2+new-jyp
     ?:  =(%limb -<.u.new-jyp)
       =/  lis  ;;((list jlimb) ->.u.new-jyp)  :: TMI
       ?~  lis  !!
       ?:  =(%type -.i.lis)
-        =/  cor-axi  (axis-at-type +.i.lis)
-        ?~  cor-axi  ~|("no core found in {<u.new-jyp>}" !!)
-        =.  res  [u.cor-axi res]
         ::  As with +axis-at-type, type can be in one of two places:
         ::    a core, if the initial definition, or
         ::    the subject (if a name dereference).
         ?:  =(%core -<.jyp)
+          =/  cor-axi  (axis-at-type +.i.lis)
+          ?~  cor-axi  ~|("no core found in {<u.new-jyp>}" !!)
+          =.  res  [u.cor-axi res]
           :: %core
           =/  jyp  ;;([p=[%core p=core-body q=(unit jype)] name=cord] jyp)
           =/  pay  q.p.jyp
@@ -1295,6 +1294,7 @@
           ::  payload at +3
           $(lis t.lis, jyp u.pay, res [(peg 3 ;;(@ u.axi)) res])
         :: &limb
+        ~&  jype+jyp
         ?>  =(%limb -<-<.jyp)
         =/  lim  ;;([[%limb (list jlimb)] cord] u.new-jyp)
         =/  axi  (axis-at-name ->->.lim)
@@ -1713,7 +1713,6 @@
         ~|  %call-limb
         =/  limbs=(list jlimb)  p.func.j
         ?>  ?=(^ limbs)
-        ~&  >>  call-limb+[limbs j jyp]
         =/  [typ=jype ljw=(list jwing)]
           ?.  &(?=(%axis -.i.limbs) =(+.i.limbs 0))
             (~(get-limb jt jyp) p.func.j)
@@ -1730,7 +1729,6 @@
           ~|  typ
           ~|  limbs
           !!
-        ~&  mint-limb+[ljw typ]
         ?.  ?=(%core -.p.typ)
           !!
         :_  ?:  ?=(%& -.p.p.typ)

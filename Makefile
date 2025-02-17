@@ -49,9 +49,13 @@ test:
 %::
 	@:
 
+.PHONY: release-exec-all
+release-exec-all:
+	RUST_LOG=TRACE cargo run $(PROFILE_RELEASE) -- --new exec-all
+
 .PHONY: release-test-all
 release-test-all:
-	RUST_LOG=TRACE cargo run $(PROFILE_RELEASE) -- --new exec-all
+	RUST_LOG=TRACE cargo run $(PROFILE_RELEASE) -- --new test-all
 
 -: ## -----------------------------------------------------------
 -: ## ---------- Rest of the commands in the Makefile -----------

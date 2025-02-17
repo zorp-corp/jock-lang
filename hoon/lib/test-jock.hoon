@@ -220,6 +220,7 @@
   =/  len  (lent test-jocks)
   =|  lis=(list ?)
   |-
+  ~&  >  i
   ?:  =(i len)
     (flop lis)
   =/  res=(unit *)
