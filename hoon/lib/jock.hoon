@@ -7,7 +7,9 @@
     ++  jeam
       |=  txt=@
       ^-  jock
+      ~&  'here'
       =+  [jok tokens]=(match-jock (rash txt parse-tokens))
+      ~&  'there'
       ?.  ?=(~ tokens)
         ~|  'jeam: must parse to a single jock'
         ~|  remaining+tokens
@@ -25,7 +27,7 @@
 ::
 ::  1: tokenizer
 ::
-::  The tokenizer is a simple state machine that reads a string of text and
+::  The tokenizer is a simple machine that reads a string of text and
 ::  produces a list of tokens.  The tokens are classified as keywords,
 ::  punctuators, literals, and names.  The tokenizer is implemented as a
 ::  function that takes a string of text and returns a list of tokens.  It is
@@ -337,6 +339,7 @@
 ++  match-jock
   |=  =tokens
   ^-  [jock (list token)]
+  ~&  match-jock+tokens
   ?:  =(~ tokens)
     ~|("expect jock. token: ~" !!)
   =^  jock  tokens
@@ -673,14 +676,18 @@
     ~|("expect keyword. token: {<-.first>}" !!)
   ?+    +.first  !!
       %let
+    ~&  let+tokens
     =^  jype  tokens
       (match-jype tokens)
+    ~&  >  let+jype
     ?>  (got-punctuator -.tokens %'=')
     =^  val  tokens
       (match-jock +.tokens)
+    ~&  >  let+val
     ?>  (got-punctuator -.tokens %';')
     =^  jock  tokens
       (match-jock +.tokens)
+    ~&  >  let+jock
     [[%let jype val jock] tokens]
   ::
   ::  func a(b:@) -> @ { +(b) };
@@ -920,6 +927,7 @@
   ::  Store name and strip it from token list
   =/  has-name  ?=(^ (get-name -.tokens))
   =/  nom  (fall (get-name -.tokens) %$)
+  ~&  match-jype+nom
   =?  tokens  has-name  +.tokens
   ::  Type-qualified name  b:a
   ?:  &(has-name (has-punctuator -.tokens %':'))
@@ -929,6 +937,7 @@
       [jyp(name nom) tokens]
     =^  jyp  tokens
       (match-jype +.tokens)
+    ~&  match-jype+[jyp(name nom)]
     [jyp(name nom) tokens]
   ::  Tuple cell  (a b)
   ?:  (has-punctuator -.tokens %'(')

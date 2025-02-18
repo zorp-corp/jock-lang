@@ -24,7 +24,7 @@ struct TestCli {
 #[derive(Parser, Debug)]
 enum Command {
     #[command(about = "The name of the code to run")]
-    TestN {
+    Test {
         #[arg(help = "The name of the code to run")]
         n: Option<u64>,
     },
@@ -49,9 +49,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     boot::init_default_tracing(&cli.boot.clone());
 
     let poke = match cli.command {
-        Command::TestN { n } => {
+        Command::Test { n } => {
             let n = n.unwrap_or(0);
-            create_poke(&[D(tas!(b"test-n")), D(n)])
+            create_poke(&[D(tas!(b"test")), D(n)])
         }
         Command::TestAll {} => {
             let mut slab = NounSlab::new();

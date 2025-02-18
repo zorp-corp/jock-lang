@@ -6,7 +6,7 @@
 +$  test-state  [%0 ~]
 ++  moat  (keep test-state)
 +$  cause
-  $%  [%test-n n=@]
+  $%  [%test n=@]
       [%test-all ~]
       [%exec-all ~]
       [%parse-all ~]
@@ -42,7 +42,7 @@
   ?~  soft-cau  ~|("could not mold poke type: {<cause>}" !!)
   =/  c=^cause  u.soft-cau
   ?-    -.c
-      %test-n
+      %test
     ~&  "running code {<n.c>}"
     ~&       code+[-:(snag n.c list-jocks:test-jock)]
     ~&  >    parse+(parse:test-jock n.c)

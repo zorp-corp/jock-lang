@@ -42,7 +42,7 @@ test:
 		echo "Usage: make test <number>"; \
 		exit 1; \
 	fi
-	@RUST_LOG=TRACE cargo run $(PROFILE_RELEASE) -- --new test-n $(word 2,$(MAKECMDGOALS))
+	@RUST_LOG=TRACE cargo run $(PROFILE_RELEASE) -- --new test $(word 2,$(MAKECMDGOALS))
 	@exit 0
 
 # This wildcard rule catches all other arguments but does nothing with them

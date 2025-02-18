@@ -5,13 +5,9 @@ compose
       // the return from any method must match the state shape
       (p.x p.y)
     }
-    add(p:Point q:Point) -> Point {
+    add(p:Point) -> Point {
       // we don't have infix operators yet so this is just a weird hack
-      (p.x q.y)
-    }
-    copy(p:Point) -> Point {
-      // return the current state
-      (p.x p.y)
+      (x p.y)
     }
   }
 ; // end compose
