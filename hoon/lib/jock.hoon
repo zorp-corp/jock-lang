@@ -617,7 +617,7 @@
     ::  TODO: check if we're in a compare
     ?:  (is-type name)
       :: inject constructor call
-      [[%call [%limb [[%name p=%new] limbs]] `arg] tokens]
+      [[%call [%limb [[%name p=%load] limbs]] `arg] tokens]
     [[%call [%limb limbs] `arg] tokens]
   [[%limb limbs] tokens]
 ::
@@ -1480,8 +1480,8 @@
   ++  mint
     |=  j=jock
     ^-  [nock jype]
-    :: ~&  >  mint+j
-    :: ~&  >>  mint+jyp
+    ~&  >  mint+j
+    ~&  >>  mint+jyp
     ?-    -.j
         ^
       ~|  %pair-p
@@ -1535,6 +1535,7 @@
       ~|  %class
       ::  door sample
       =/  sam-nok  (type-to-default state.j)
+      ~&  class+sam-nok
       ::  unified context including door sample in payload
       =/  exe-jyp=jype
         :: %-  ~(cons jt state.j)
@@ -1542,6 +1543,7 @@
           [[%core %|^(~(run by arms.j) |=(* untyped-j)) `state.j] %$]
           :: state.j
       =/  lis=(list [name=term val=jock])  ~(tap by arms.j)
+      ~&  >>  class+lis
       ?>  ?=(^ lis)
       ::  core and jype of first arm
       =+  [cor-nok one-jyp]=$(j val.i.lis, jyp exe-jyp)
@@ -1551,7 +1553,9 @@
       =>  .(lis `(list [name=term val=jock])`+.lis)
       ::  core and jype of subsequent arms
       |-  ^-  [nock jype]
+      ~&  >>>  class+lis
       ?~  lis
+        ~&  >>  %here
         :-  [%8 sam-nok [%1 cor-nok]]
         [[%core %|^cor-jyp ~] name.state.j]
       =+  [mor-nok mor-jyp]=%=(^$ j val.i.lis, jyp exe-jyp)
