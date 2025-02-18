@@ -20,4 +20,10 @@
   %+  expect-eq:test
     !>  [7 [8 [1 0] [1 4 0 6] 0 1] 9 2 0 1]
     !>  (mint:jock text)
+::
+++  test-nock
+  %+  expect-eq:test
+    !>  .*(0 [7 [8 [1 0] [1 4 0 6] 0 1] 9 2 0 1])
+    !>  .*(0 (mint:jock text))
+::
 --
