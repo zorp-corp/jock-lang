@@ -44,10 +44,11 @@
   ?-    -.c
       %test
     ~&  "running code {<n.c>}"
-    ~&       code+[-:(snag n.c list-jocks:test-jock)]
-    ~&  >    parse+(parse:test-jock n.c)
-    ~&  >>   jeam+(jeam:test-jock n.c)
-    ~&  >>>  mint+(mint:test-jock n.c)
+    =/  code  (snag n.c list-jocks:test-jock)
+    ~&       code+[-:code]
+    ~&  >    parse+(parse:test-jock +.code)
+    ~&  >>   jeam+(jeam:test-jock +.code)
+    ~&  >>>  mint+(mint:test-jock +.code)
     [~ k]
   ::
       %exec-all

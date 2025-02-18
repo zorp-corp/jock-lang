@@ -200,18 +200,17 @@
   ==
 ::
 ++  parse
-  |=  i=@
+  |=  =cord
   ^-  (list token:jock)
-  =/  p  (snag i list-jocks)
-  ~|  -.p
-  (rash +.p parse-tokens:jock)
+  ~|  parse
+  (rash cord parse-tokens:jock)
 ::
 ++  parse-all
   ^-  (list (pair term (list token:jock)))
   %+  turn  list-jocks
   |=  [=term t=@t]
   ~|  term
-  [term (rash t parse-tokens:jock)]
+  [term (parse t)]
 ::
 ++  jeam
   |=  =cord

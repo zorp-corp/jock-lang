@@ -7,9 +7,7 @@
     ++  jeam
       |=  txt=@
       ^-  jock
-      ~&  'here'
       =+  [jok tokens]=(match-jock (rash txt parse-tokens))
-      ~&  'there'
       ?.  ?=(~ tokens)
         ~|  'jeam: must parse to a single jock'
         ~|  remaining+tokens
@@ -339,7 +337,6 @@
 ++  match-jock
   |=  =tokens
   ^-  [jock (list token)]
-  ~&  match-jock+tokens
   ?:  =(~ tokens)
     ~|("expect jock. token: ~" !!)
   =^  jock  tokens
@@ -676,18 +673,14 @@
     ~|("expect keyword. token: {<-.first>}" !!)
   ?+    +.first  !!
       %let
-    ~&  let+tokens
     =^  jype  tokens
       (match-jype tokens)
-    ~&  >  let+jype
     ?>  (got-punctuator -.tokens %'=')
     =^  val  tokens
       (match-jock +.tokens)
-    ~&  >  let+val
     ?>  (got-punctuator -.tokens %';')
     =^  jock  tokens
       (match-jock +.tokens)
-    ~&  >  let+jock
     [[%let jype val jock] tokens]
   ::
   ::  func a(b:@) -> @ { +(b) };
@@ -927,7 +920,6 @@
   ::  Store name and strip it from token list
   =/  has-name  ?=(^ (get-name -.tokens))
   =/  nom  (fall (get-name -.tokens) %$)
-  ~&  match-jype+nom
   =?  tokens  has-name  +.tokens
   ::  Type-qualified name  b:a
   ?:  &(has-name (has-punctuator -.tokens %':'))
@@ -937,7 +929,6 @@
       [jyp(name nom) tokens]
     =^  jyp  tokens
       (match-jype +.tokens)
-    ~&  match-jype+[jyp(name nom)]
     [jyp(name nom) tokens]
   ::  Tuple cell  (a b)
   ?:  (has-punctuator -.tokens %'(')
@@ -1303,7 +1294,6 @@
           ::  payload at +3
           $(lis t.lis, jyp u.pay, res [(peg 3 ;;(@ u.axi)) res])
         :: &limb
-        ~&  jype+jyp
         ?>  =(%limb -<-<.jyp)
         =/  lim  ;;([[%limb (list jlimb)] cord] u.new-jyp)
         =/  axi  (axis-at-name ->->.lim)
@@ -1387,7 +1377,6 @@
       |=  nom=cord
       ^-  (unit jwing)
       ::  This should only happen with a core (%type).
-      ~&  axis-at-type+[nom jyp]
       =/  jyp  ;;([p=[%core p=core-body q=(unit jype)] name=cord] jyp)
       =/  axi  (axis-at-name(jyp jyp) nom)
       ?~  axi  ~|(%type-not-found !!)
