@@ -1,7 +1,7 @@
 compose
   class Point(x:@ y:@) {
-    // new() is the required constructor
-    new(p:Point) -> Point {
+    // load() is the required constructor
+    load(p:Point) -> Point {
       // the return must match the output shape
       (p.x p.y)
     }
@@ -12,7 +12,7 @@ compose
   }
 ; // end compose
 
-// use the implicit new() constructor
+// use the implicit load() constructor
 let origin = Point(50 60);
 
 origin
