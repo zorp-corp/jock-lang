@@ -328,8 +328,8 @@
   =/  res=(unit *)
     %-  mole
     |.
-    =/  nok  (mint i)
-    =/  jok  .*(%jock +.nok)
+    =/  nok  (mint +:(snag i list-jocks))
+    =/  jok  .*(%jock nok)
     jok
   =.  lis
     [?=(^ res) lis]
