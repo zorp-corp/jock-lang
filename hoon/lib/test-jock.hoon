@@ -88,6 +88,7 @@
  ==
 ::
 ++  test-jocks
+  ~+
   ^-  (list [term tang])
   :~  [%test-let-edit-tokens test-tokenize:test-let-edit]
       [%test-let-edit-jeam test-jeam:test-let-edit]
@@ -215,7 +216,7 @@
 ++  jeam
   |=  =cord
   ^-  jock:jock
-  ~|  jeam
+  ~|  %jeam
   =/  res=(unit jock:jock)
     %-  mole
     |.
@@ -238,14 +239,13 @@
 ++  mint
   |=  =cord
   ^-  nock:jock
-  ~|  mint
+  ~|  %mint
   =/  res=(unit *)
     %-  mole
     |.
     (mint:jock cord)
   ?~  res
     *nock:jock
-  ~&  >>  u.res
   ;;(nock:jock u.res)
 ::
 ++  mint-all
@@ -259,7 +259,45 @@
   ^-  cord
   (crip "{<term>}: {<nock>}")
 ::
+++  nock
+  |=  =cord
+  ^-  *
+  ~|  %nock
+  =/  res=(unit *)
+    %-  mole
+    |.
+    .*(0 (mint cord))
+  ?~  res
+    *nock:jock
+  u.res
+::
+++  nock-all
+  :: ^-  (list (pair term nock:jock))
+  %+  turn
+    %+  turn  list-jocks
+    |=  [=term t=@t]
+    ~|  term
+    [term (nock t)]
+  |=  [=term noun=*]
+  ^-  cord
+  (crip "{<term>}: {<noun>}")
+::
 ++  test-all
+  =|  i=@
+  =/  len  (lent list-jocks)
+  |-
+  ?:  =(i len)  ~
+  =/  [tag=@tas =cord]  (snag i list-jocks)
+  =/  par  (parse cord)
+  ~&  "{<i>}: parse {<par>}"
+  =/  jem  (jeam cord)
+  ~&  >  "{<i>}: jeam {<jem>}"
+  =/  min  (mint cord)
+  ~&  >>  "{<i>}: mint {<min>}"
+  =/  nok  (nock cord)
+  ~&  >>>  "{<i>}: nock {<nok>}"
+  $(i +(i))
+++  run-details
   ^-  (list ?)
   =|  i=@
   =/  len  (lent test-jocks)

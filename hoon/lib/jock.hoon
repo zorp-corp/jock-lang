@@ -1480,6 +1480,8 @@
   ++  mint
     |=  j=jock
     ^-  [nock jype]
+    :: ~&  >  mint+j
+    :: ~&  >>  mint+jyp
     ?-    -.j
         ^
       ~|  %pair-p

@@ -12,6 +12,8 @@
       [%parse-all ~]
       [%jeam-all ~]
       [%mint-all ~]
+      [%nock-all ~]
+      [%run-details ~]
   ==
 +$  effect  ~
 --
@@ -49,6 +51,7 @@
     ~&  >    parse+(parse:test-jock +.code)
     ~&  >>   jeam+(jeam:test-jock +.code)
     ~&  >>>  mint+(mint:test-jock +.code)
+    ~&  >>>  nock+(nock:test-jock +.code)
     [~ k]
   ::
       %exec-all
@@ -69,6 +72,14 @@
   ::
       %mint-all
     ~&  mint-all:test-jock
+    [~ k]
+  ::
+      %nock-all
+    ~&  nock-all:test-jock
+    [~ k]
+  ::
+      %run-details
+    ~&  run-details:test-jock
     [~ k]
   ::
   ==

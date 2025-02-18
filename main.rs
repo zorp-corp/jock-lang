@@ -40,6 +40,8 @@ enum Command {
     MintAll {},
     #[command(about = "Run all Nock")]
     NockAll {},
+    #[command(about = "Run details")]
+    RunDetails {},
 }
 
 #[tokio::main]
@@ -81,6 +83,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Command::NockAll {} => {
             let mut slab = NounSlab::new();
             let tas = make_tas(&mut slab, "nock-all");
+            create_poke(&[tas.as_noun(), D(0)])
+        }
+        Command::RunDetails {} => {
+            let mut slab = NounSlab::new();
+            let tas = make_tas(&mut slab, "run-details");
             create_poke(&[tas.as_noun(), D(0)])
         }
     };
