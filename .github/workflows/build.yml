@@ -89,5 +89,4 @@ jobs:
         key: ${{ steps.restore-hoon.outputs.cache-primary-key }}
     # Test building and running are split for caching and build time tracking purposes
     - name: Run hoon/nock tests
-      run: make release-test-all
-
+      run: make release-exec-all

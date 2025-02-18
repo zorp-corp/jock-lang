@@ -53,7 +53,7 @@
 /*  test-example-atom     %hoon  /tests/lib/example-atom/hoon
 /*  test-sets             %hoon  /tests/lib/sets/hoon
 /*  test-type-point       %hoon  /tests/lib/type-point/hoon
-:: /*  test-type-point-2     %hoon  /tests/lib/type-point-2/hoon
+/*  test-type-point-2     %hoon  /tests/lib/type-point-2/hoon
 ::
 |%
 ++  list-jocks
@@ -88,133 +88,216 @@
  ==
 ::
 ++  test-jocks
+  ~+
   ^-  (list [term tang])
   :~  [%test-let-edit-tokens test-tokenize:test-let-edit]
       [%test-let-edit-jeam test-jeam:test-let-edit]
       [%test-let-edit-mint test-mint:test-let-edit]
+      [%test-let-edit-nock test-nock:test-let-edit]
       [%test-let-inner-exp-tokens test-tokenize:test-let-inner-exp]
       [%test-let-inner-exp-jeam test-jeam:test-let-inner-exp]
       [%test-let-inner-exp-mint test-mint:test-let-inner-exp]
+      [%test-let-inner-exp-noc test-nock:test-let-inner-exp]
       [%test-call-tokens test-tokenize:test-call]
       [%test-call-jeam test-jeam:test-call]
       [%test-call-mint test-mint:test-call]
+      [%test-call-nock test-nock:test-call]
       [%test-axis-call-tokens test-tokenize:test-axis-call]
       [%test-axis-call-jeam test-jeam:test-axis-call]
       [%test-axis-call-mint test-mint:test-axis-call]
+      [%test-axis-call-nock test-nock:test-axis-call]
       [%test-inline-lambda-call-tokens test-tokenize:test-inline-lambda-call]
       [%test-inline-lambda-call-jeam test-jeam:test-inline-lambda-call]
       [%test-inline-lambda-call-mint test-mint:test-inline-lambda-call]
+      [%test-inline-lambda-call-nock test-nock:test-inline-lambda-call]
       [%test-in-subj-call-tokens test-tokenize:test-in-subj-call]
-      [%test-in-subj-call-jeam test-jeam:test-in-subj-call]
-      [%test-in-subj-call-mint test-mint:test-in-subj-call]
+      :: [%test-in-subj-call-jeam test-jeam:test-in-subj-call]
+      :: [%test-in-subj-call-mint test-mint:test-in-subj-call]
+      :: [%test-in-subj-call-nock test-nock:test-in-subj-call]
       [%test-if-else-tokens test-tokenize:test-if-else]
       [%test-if-else-jeam test-jeam:test-if-else]
       [%test-if-else-mint test-mint:test-if-else]
+      [%test-if-else-nock test-nock:test-if-else]
       [%test-if-elseif-else-tokens test-tokenize:test-if-elseif-else]
       [%test-if-elseif-else-jeam test-jeam:test-if-elseif-else]
       [%test-if-elseif-else-mint test-mint:test-if-elseif-else]
+      [%test-if-elseif-else-nock test-nock:test-if-elseif-else]
       [%test-assert-tokens test-tokenize:test-assert]
       [%test-assert-jeam test-jeam:test-assert]
       [%test-assert-mint test-mint:test-assert]
+      [%test-assert-nock test-nock:test-assert]
       [%test-call-let-edit-tokens test-tokenize:test-call-let-edit]
       [%test-call-let-edit-jeam test-jeam:test-call-let-edit]
       [%test-call-let-edit-mint test-mint:test-call-let-edit]
+      [%test-call-let-edit-nock test-nock:test-call-let-edit]
       [%test-inline-point-tokens test-tokenize:test-inline-point]
       [%test-inline-point-jeam test-jeam:test-inline-point]
       [%test-inline-point-mint test-mint:test-inline-point]
+      [%test-inline-point-nock test-nock:test-inline-point]
       [%test-inline-lambda-no-arg-tokens test-tokenize:test-inline-lambda-no-arg]
       [%test-inline-lambda-no-arg-jeam test-jeam:test-inline-lambda-no-arg]
       [%test-inline-lambda-no-arg-mint test-mint:test-inline-lambda-no-arg]
+      [%test-inline-lambda-no-arg-nock test-nock:test-inline-lambda-no-arg]
       [%test-dec-tokens test-tokenize:test-dec]
       [%test-dec-jeam test-jeam:test-dec]
       [%test-dec-mint test-mint:test-dec]
+      [%test-dec-nock test-nock:test-dec]
       [%test-eval-tokens test-tokenize:test-eval]
       [%test-eval-jeam test-jeam:test-eval]
       [%test-eval-mint test-mint:test-eval]
+      [%test-eval-nock test-nock:test-eval]
       [%test-multi-limb-tokens test-tokenize:test-multi-limb]
       [%test-multi-limb-jeam test-jeam:test-multi-limb]
       [%test-multi-limb-mint test-mint:test-multi-limb]
+      [%test-multi-limb-nock test-nock:test-multi-limb]
       [%test-compose-tokens test-tokenize:test-compose]
       [%test-compose-jeam test-jeam:test-compose]
       [%test-compose-mint test-mint:test-compose]
+      [%test-compose-nock test-nock:test-compose]
       [%test-compose-cores-tokens test-tokenize:test-compose-cores]
       [%test-compose-cores-jeam test-jeam:test-compose-cores]
       [%test-compose-cores-mint test-mint:test-compose-cores]
+      [%test-compose-cores-nock test-nock:test-compose-cores]
       :: [%test-baby-tokens test-tokenize:test-baby]
       :: [%test-baby-jeam test-jeam:test-baby]
       :: [%test-baby-mint test-mint:test-baby]
+      :: [%test-baby-nock test-nock:test-baby]
       [%test-comparator-tokens test-tokenize:test-comparator]
       [%test-comparator-jeam test-jeam:test-comparator]
       [%test-comparator-mint test-mint:test-comparator]
+      [%test-comparator-nock test-nock:test-comparator]
       [%test-lists-tokens test-tokenize:test-lists]
       [%test-lists-jeam test-jeam:test-lists]
       [%test-lists-mint test-mint:test-lists]
+      [%test-lists-nock test-nock:test-lists]
       [%test-lists-nested-tokens test-tokenize:test-lists-nested]
       [%test-lists-nested-jeam test-jeam:test-lists-nested]
       [%test-lists-nested-mint test-mint:test-lists-nested]
+      [%test-lists-nested-nock test-nock:test-lists-nested]
       [%test-match-case-tokens test-tokenize:test-match-case]
       [%test-match-case-jeam test-jeam:test-match-case]
       [%test-match-case-mint test-mint:test-match-case]
+      [%test-match-case-nock test-nock:test-match-case]
       [%test-match-type-tokens test-tokenize:test-match-type]
       [%test-match-type-jeam test-jeam:test-match-type]
       [%test-match-type-mint test-mint:test-match-type]
+      [%test-match-type-nock test-nock:test-match-type]
       [%test-example-atom-tokens test-tokenize:test-example-atom]
       [%test-example-atom-jeam test-jeam:test-example-atom]
       [%test-example-atom-mint test-mint:test-example-atom]
+      [%test-example-atom-nock test-nock:test-example-atom]
       [%test-sets-tokens test-tokenize:test-sets]
       [%test-sets-jeam test-jeam:test-sets]
       [%test-sets-mint test-mint:test-sets]
+      [%test-sets-nock test-nock:test-sets]
       [%test-type-point-tokens test-tokenize:test-type-point]
       [%test-type-point-jeam test-jeam:test-type-point]
       [%test-type-point-mint test-mint:test-type-point]
+      [%test-type-point-nock test-nock:test-type-point]
       :: [%test-type-point-2-tokens test-tokenize:test-type-point-2]
       :: [%test-type-point-2-jeam test-jeam:test-type-point-2]
       :: [%test-type-point-2-mint test-mint:test-type-point-2]
+      :: [%test-type-point-2-nock test-nockint:test-type-point-2]
   ==
 ::
 ++  parse
-  |=  i=@
+  |=  =cord
   ^-  (list token:jock)
-  =/  p  (snag i list-jocks)
-  ~|  -.p
-  (rash +.p parse-tokens:jock)
+  ~|  parse
+  (rash cord parse-tokens:jock)
 ::
 ++  parse-all
   ^-  (list (pair term (list token:jock)))
   %+  turn  list-jocks
   |=  [=term t=@t]
   ~|  term
-  [term (rash t parse-tokens:jock)]
+  [term (parse t)]
 ::
 ++  jeam
-  |=  i=@
+  |=  =cord
   ^-  jock:jock
-  =/  p  (snag i list-jocks)
-  ~|  -.p
-  (jeam:jock +.p)
+  ~|  %jeam
+  =/  res=(unit jock:jock)
+    %-  mole
+    |.
+    (jeam:jock cord)
+  ?~  res
+    *jock:jock
+  u.res
 ::
 ++  jeam-all
-  ^-  (list (pair term jock:jock))
-  %+  turn  list-jocks
-  |=  [=term t=@t]
-  ~|  term
-  [term (jeam:jock t)]
-::
-++  mint-all
-  ^-  (list (pair term *))
-  %+  turn  list-jocks
-  |=  [=term t=@t]
-  ~|  term
-  [term (mint:jock t)]
+  :: ^-  (list (pair term jock:jock))
+  %+  turn
+    %+  turn  list-jocks
+    |=  [=term t=@t]
+    ~|  term
+    [term (jeam t)]
+  |=  [=term =jock:jock]
+  ^-  cord
+  (crip "{<term>}: {<jock>}")
 ::
 ++  mint
-  |=  i=@
-  ^-  [term *]
-  =/  p  (snag i list-jocks)
-  :-  -.p
-  (mint:jock +.p)
+  |=  =cord
+  ^-  nock:jock
+  ~|  %mint
+  =/  res=(unit *)
+    %-  mole
+    |.
+    (mint:jock cord)
+  ?~  res
+    *nock:jock
+  ;;(nock:jock u.res)
+::
+++  mint-all
+  :: ^-  (list (pair term nock:jock))
+  %+  turn
+    %+  turn  list-jocks
+    |=  [=term t=@t]
+    ~|  term
+    [term (mint t)]
+  |=  [=term =nock:jock]
+  ^-  cord
+  (crip "{<term>}: {<nock>}")
+::
+++  nock
+  |=  =cord
+  ^-  *
+  ~|  %nock
+  =/  res=(unit *)
+    %-  mole
+    |.
+    .*(0 (mint cord))
+  ?~  res
+    *nock:jock
+  u.res
+::
+++  nock-all
+  :: ^-  (list (pair term nock:jock))
+  %+  turn
+    %+  turn  list-jocks
+    |=  [=term t=@t]
+    ~|  term
+    [term (nock t)]
+  |=  [=term noun=*]
+  ^-  cord
+  (crip "{<term>}: {<noun>}")
 ::
 ++  test-all
+  =|  i=@
+  =/  len  (lent list-jocks)
+  |-
+  ?:  =(i len)  ~
+  =/  [tag=@tas =cord]  (snag i list-jocks)
+  =/  par  (parse cord)
+  ~&  "{<i>}: parse {<par>}"
+  =/  jem  (jeam cord)
+  ~&  >  "{<i>}: jeam {<jem>}"
+  =/  min  (mint cord)
+  ~&  >>  "{<i>}: mint {<min>}"
+  =/  nok  (nock cord)
+  ~&  >>>  "{<i>}: nock {<nok>}"
+  $(i +(i))
+++  run-details
   ^-  (list ?)
   =|  i=@
   =/  len  (lent test-jocks)
@@ -222,14 +305,10 @@
   |-
   ?:  =(i len)
     (flop lis)
-  =/  res=(unit *)
-    %-  mole
-    |.
-    =/  arm  (snag i test-jocks)
-    ~&  [i -.arm]
-    +.arm
+  =/  [tag=@tas tan=tang]  (snag i test-jocks)
+  ~&  ["{<i>}" tag `tape`(zing (turn tan |=(=tank ~(ram re tank))))]
   =.  lis
-    [?=(^ res) lis]
+    [?=(~ tan) lis]
   $(i +(i))
 ::
 ++  exec
@@ -249,8 +328,8 @@
   =/  res=(unit *)
     %-  mole
     |.
-    =/  nok  (mint i)
-    =/  jok  .*(%jock +.nok)
+    =/  nok  (mint +:(snag i list-jocks))
+    =/  jok  .*(%jock nok)
     jok
   =.  lis
     [?=(^ res) lis]

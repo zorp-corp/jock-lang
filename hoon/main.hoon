@@ -6,9 +6,14 @@
 +$  test-state  [%0 ~]
 ++  moat  (keep test-state)
 +$  cause
-  $%  [%test-n n=@]
+  $%  [%test n=@]
       [%test-all ~]
       [%exec-all ~]
+      [%parse-all ~]
+      [%jeam-all ~]
+      [%mint-all ~]
+      [%nock-all ~]
+      [%run-details ~]
   ==
 +$  effect  ~
 --
@@ -39,11 +44,14 @@
   ?~  soft-cau  ~|("could not mold poke type: {<cause>}" !!)
   =/  c=^cause  u.soft-cau
   ?-    -.c
-      %test-n
-    ~&       code+[-:(snag n.c list-jocks:test-jock)]
-    ~&  >    parse+(parse:test-jock n.c)
-    ~&  >>   jeam+(jeam:test-jock n.c)
-    ~&  >>>  mint+(mint:test-jock n.c)
+      %test
+    ~&  "running code {<n.c>}"
+    =/  code  (snag n.c list-jocks:test-jock)
+    ~&       code+[-:code]
+    ~&  >    parse+(parse:test-jock +.code)
+    ~&  >>   jeam+(jeam:test-jock +.code)
+    ~&  >>>  mint+(mint:test-jock +.code)
+    ~&  >>>  nock+(nock:test-jock +.code)
     [~ k]
   ::
       %exec-all
@@ -53,5 +61,26 @@
       %test-all
     ~&  test-all:test-jock
     [~ k]
+  ::
+      %parse-all
+    ~&  parse-all:test-jock
+    [~ k]
+  ::
+      %jeam-all
+    ~&  jeam-all:test-jock
+    [~ k]
+  ::
+      %mint-all
+    ~&  mint-all:test-jock
+    [~ k]
+  ::
+      %nock-all
+    ~&  nock-all:test-jock
+    [~ k]
+  ::
+      %run-details
+    ~&  run-details:test-jock
+    [~ k]
+  ::
   ==
 --

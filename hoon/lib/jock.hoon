@@ -10,6 +10,7 @@
       =+  [jok tokens]=(match-jock (rash txt parse-tokens))
       ?.  ?=(~ tokens)
         ~|  'jeam: must parse to a single jock'
+        ~|  remaining+tokens
         !!
       jok
     ::
@@ -24,7 +25,7 @@
 ::
 ::  1: tokenizer
 ::
-::  The tokenizer is a simple state machine that reads a string of text and
+::  The tokenizer is a simple machine that reads a string of text and
 ::  produces a list of tokens.  The tokens are classified as keywords,
 ::  punctuators, literals, and names.  The tokenizer is implemented as a
 ::  function that takes a string of text and returns a list of tokens.  It is
@@ -1277,13 +1278,13 @@
       =/  lis  ;;((list jlimb) ->.u.new-jyp)  :: TMI
       ?~  lis  !!
       ?:  =(%type -.i.lis)
-        =/  cor-axi  (axis-at-type +.i.lis)
-        ?~  cor-axi  ~|("no core found in {<u.new-jyp>}" !!)
-        =.  res  [u.cor-axi res]
         ::  As with +axis-at-type, type can be in one of two places:
         ::    a core, if the initial definition, or
         ::    the subject (if a name dereference).
         ?:  =(%core -<.jyp)
+          =/  cor-axi  (axis-at-type +.i.lis)
+          ?~  cor-axi  ~|("no core found in {<u.new-jyp>}" !!)
+          =.  res  [u.cor-axi res]
           :: %core
           =/  jyp  ;;([p=[%core p=core-body q=(unit jype)] name=cord] jyp)
           =/  pay  q.p.jyp
@@ -1479,6 +1480,8 @@
   ++  mint
     |=  j=jock
     ^-  [nock jype]
+    :: ~&  >  mint+j
+    :: ~&  >>  mint+jyp
     ?-    -.j
         ^
       ~|  %pair-p

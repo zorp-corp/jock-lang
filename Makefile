@@ -42,16 +42,24 @@ test:
 		echo "Usage: make test <number>"; \
 		exit 1; \
 	fi
-	@RUST_LOG=TRACE cargo run $(PROFILE_RELEASE) -- --new test-n $(word 2,$(MAKECMDGOALS))
+	@RUST_LOG=TRACE cargo run $(PROFILE_RELEASE) -- --new test $(word 2,$(MAKECMDGOALS))
 	@exit 0
 
 # This wildcard rule catches all other arguments but does nothing with them
 %::
 	@:
 
+.PHONY: release-exec-all
+release-exec-all:
+	RUST_LOG=TRACE cargo run $(PROFILE_RELEASE) -- --new exec-all
+
 .PHONY: release-test-all
 release-test-all:
-	RUST_LOG=TRACE cargo run $(PROFILE_RELEASE) -- --new exec-all
+	RUST_LOG=TRACE cargo run $(PROFILE_RELEASE) -- --new test-all
+
+.PHONY: release-run-details
+release-run-details:
+	RUST_LOG=TRACE cargo run $(PROFILE_RELEASE) -- --new run-details
 
 -: ## -----------------------------------------------------------
 -: ## ---------- Rest of the commands in the Makefile -----------
