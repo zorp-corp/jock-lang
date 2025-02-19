@@ -13,7 +13,7 @@
 ++  test-jeam
   %+  expect-eq:test
     !>  ^-  jock:jock
-        [%let type=[p=[%atom p=%number q=%.n] name=%a] val=[%atom p=[[%number p=3] q=%.n]] next=[%if cond=[%compare a=[%limb p=~[[%name p=%a]]] comp=%'==' b=[%atom p=[[%number p=3] q=%.n]]] then=[%atom p=[[%number p=72] q=%.n]] after=[%else-if cond=[%compare a=[%limb p=~[[%name p=%a]]] comp=%'==' b=[%atom p=[[%number p=5] q=%.n]]] then=[%atom p=[[%number p=17] q=%.n]] after=[%else then=[%atom p=[[%number p=15] q=%.n]]]]]]
+        [%let type=[p=[%atom p=%number q=%.n] name=%a] val=[%atom p=[[%number p=3] q=%.n]] next=[%if cond=[%compare comp=%'==' a=[%limb p=~[[%name p=%a]]] b=[%atom p=[[%number p=3] q=%.n]]] then=[%atom p=[[%number p=72] q=%.n]] after=[%else-if cond=[%compare comp=%'==' a=[%limb p=~[[%name p=%a]]] b=[%atom p=[[%number p=5] q=%.n]]] then=[%atom p=[[%number p=17] q=%.n]] after=[%else then=[%atom p=[[%number p=15] q=%.n]]]]]]
     !>  (jeam:jock text)
 ::
 ++  test-mint

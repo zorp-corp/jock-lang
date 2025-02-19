@@ -26,6 +26,8 @@
 /*  sets                  %jock  /lib/tests/sets/jock
 /*  type-point            %jock  /lib/tests/type-point/jock
 /*  type-point-2          %jock  /lib/tests/type-point-2/jock
+/*  infix-comparator      %jock  /lib/tests/infix-comparator/jock
+/*  infix-arithmetic      %jock  /lib/tests/infix-arithmetic/jock
 ::
 /*  test-let-edit         %hoon  /tests/lib/let-edit/hoon
 /*  test-let-inner-exp    %hoon  /tests/lib/let-inner-exp/hoon
@@ -85,6 +87,8 @@
       [%sets q.sets]                                  :: 23
       [%type-point q.type-point]                      :: 24
       [%type-point-2 q.type-point-2]                  :: 25
+      [%infix-comparator q.infix-comparator]          :: 26
+      [%infix-arithmetic q.infix-arithmetic]          :: 27
  ==
 ::
 ++  test-jocks
@@ -203,7 +207,7 @@
 ++  parse
   |=  =cord
   ^-  (list token:jock)
-  ~|  parse
+  ~|  %parse
   (rash cord parse-tokens:jock)
 ::
 ++  parse-all
