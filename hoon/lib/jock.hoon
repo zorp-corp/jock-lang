@@ -63,7 +63,7 @@
       %'@'  %'?'  %'!'  %'(('
       %'('  %')'  %'{'  %'}'  %'['  %']'
       %'='  %'<'  %'>'  %'#'
-      %'+'  %'-'  %'*'  %'/'  %'_'
+      %'+'  %'-'  %'*'  %'/'  %'%'  %'_'
   ==
 ::
 +$  jatom
@@ -162,7 +162,7 @@
         %'@'  %'?'  %'!'  :: XXX exclude %'((' which is a pseudo-punctuator
         %'('  %')'  %'{'  %'}'  %'['  %']'
         %'='  %'<'  %'>'  %'#'
-        %'+'  %'-'  %'*'  %'/'  %'_'
+        %'+'  %'-'  %'*'  %'/'  %'%'  %'_'
     ==
   ::
   ::  The parser's precedence rules:
@@ -231,7 +231,8 @@
       [%match value=jock cases=(map jock jock) default=(unit jock)]
       [%cases value=jock cases=(map jock jock) default=(unit jock)]
       [%call func=jock arg=(unit jock)]
-      [%compare a=jock comp=comparator b=jock]
+      [%compare comp=comparator a=jock b=jock]
+      [%operator op=operator a=jock b=(unit jock)]
       [%lambda p=lambda]
       [%limb p=(list jlimb)]
       [%atom p=jatom]
@@ -272,6 +273,16 @@
       %'=='
       %'<='
       %'>='
+  ==
+::
++$  operator
+  $+  operator
+  $?  %'+'
+      %'-'
+      %'*'
+      %'/'
+      %'%'
+      %'**'
   ==
 ::  Jype type base types
 +$  jype
@@ -361,20 +372,52 @@
           (has-keyword -.tokens %crash)
       ==
     (match-jock tokens)
-  ?+    -<.tokens  !!
-      %literal     (match-literal tokens)
-      %name        (match-start-name tokens)
-      %punctuator  (match-start-punctuator tokens)
-      %type        (match-start-name tokens)
-      ::  TODO: check if we're in a compare
-  ==
+  =>  .(tokens `(list token)`tokens)  :: TMI
+  =^  lock  tokens
+    ?+    -<.tokens  !!
+        %literal  (match-literal tokens)
+        %name        (match-start-name tokens)
+        %punctuator  (match-start-punctuator tokens)
+        %type        (match-start-name tokens)
+    ==
+  ::  - compare ('==','<','<=','>','>=','!=' is the next token)
+  ?:  ?|  &((has-punctuator -.tokens %'=') (has-punctuator +<.tokens %'='))
+          (has-punctuator -.tokens %'<')
+          &((has-punctuator -.tokens %'<') (has-punctuator +<.tokens %'='))
+          (has-punctuator -.tokens %'>')
+          &((has-punctuator -.tokens %'>') (has-punctuator +<.tokens %'='))
+          &((has-punctuator -.tokens %'!') (has-punctuator +<.tokens %'='))
+      ==
+    =>  .(tokens `(list token)`tokens)  :: TMI
+    =^  comp  tokens
+      (match-comparator tokens)
+    =^  rock  tokens
+      (match-inner-jock tokens)
+    [[%compare comp lock rock] tokens]
+  ::  - arithmetic ('+' or '-' or '*' or '/' or '%' or '**' is next)
+  ?:  ?|  (has-punctuator -.tokens %'+')
+          (has-punctuator -.tokens %'-')
+          (has-punctuator -.tokens %'*')
+          (has-punctuator -.tokens %'/')
+          (has-punctuator -.tokens %'%')
+          :: &((has-punctuator -.tokens %'*') (has-punctuator +<.tokens %'*'))
+      ==
+    ~&  arithmetic+tokens
+    =>  .(tokens `(list token)`tokens)  :: TMI
+    =^  op  tokens
+      (match-operator tokens)
+    =^  rock  tokens
+      (match-inner-jock tokens)
+    [[%operator op lock `rock] tokens]
+  ::  no infix operator
+  [lock tokens]
 ::
 ++  match-pair-inner-jock
   |=  =tokens
   ^-  [jock (list token)]
   ?:  =(~ tokens)  ~|("expect jock. token: ~" !!)
   ?:  (has-punctuator -.tokens %'(')
-    =>  .(tokens `(list token)`+.tokens)
+    =>  .(tokens `(list token)`+.tokens)  :: TMI
     =^  jock-one  tokens
       (match-inner-jock tokens)
     ?:  (has-punctuator -.tokens %')')
@@ -589,26 +632,35 @@
   ::  - %edit ('=' is the next token)
   ::  - compare ('==' is the next token)
   ?:  (has-punctuator -.tokens %'=')
-    ?:  (has-punctuator -.+.tokens %'=')
-      =^  b  tokens
-        (match-inner-jock +.+.tokens)
-      [[%compare [%limb limbs] %'==' b] tokens]
-    =^  val  tokens
-      (match-inner-jock +.tokens)
-    ?>  (got-punctuator -.tokens %';')
-    =^  jock  tokens
-      (match-jock +.tokens)
-    [[%edit limbs val jock] tokens]
-  ::  - %compare ('==' or '<' or '>' or '!' is next)
-  ?:  ?|  (has-punctuator -.tokens %'<')
-          (has-punctuator -.tokens %'>')
-          (has-punctuator -.tokens %'!')
-      ==
-    =^  comparator  tokens
-      (match-comparator tokens)
-    =^  inner-two  tokens
-      (match-inner-jock tokens)
-    [[%compare [%limb limbs] comparator inner-two] tokens]
+  ?>  !(has-punctuator +<.tokens %'=')
+      :: =^  b  tokens
+      ::   (match-inner-jock +>.tokens)
+      :: [[%compare [%limb limbs] %'==' b] tokens]
+  =^  val  tokens
+    (match-inner-jock +.tokens)
+  ?>  (got-punctuator -.tokens %';')
+  =^  jock  tokens
+    (match-jock +.tokens)
+  [[%edit limbs val jock] tokens]
+  :: ::  - %compare ('==' or '<' or '>' or '!' is next)
+  :: ?:  ?|  (has-punctuator -.tokens %'<')
+  ::         (has-punctuator -.tokens %'>')
+  ::         (has-punctuator -.tokens %'!')
+  ::     ==
+  ::   =^  comparator  tokens
+  ::     (match-comparator tokens)
+  ::   =^  inner-two  tokens
+  ::     (match-inner-jock tokens)
+  ::   [[%compare [%limb limbs] comparator inner-two] tokens]
+  :: ::  - arithmetic ('+' or '-' or '*' or '/' or '%' is next)
+  :: ?:  ?|  (has-punctuator -.tokens %'+')
+  ::         (has-punctuator -.tokens %'-')
+  ::         (has-punctuator -.tokens %'*')
+  ::         (has-punctuator -.tokens %'/')
+  ::         (has-punctuator -.tokens %'%')
+  ::     ==
+  ::   ~&  arithmetic+tokens
+  ::   !!
   ::  - %call ('((' is the next token)
   ?:  |((has-punctuator -.tokens %'((') (has-punctuator -.tokens %'('))
     =?  tokens  ?=(%'((' ->.tokens)  [[%punctuator %'('] +.tokens]
@@ -1043,6 +1095,31 @@
   =/  final  (cat 3 u.cm1 u.cm2)
   [;;(comparator final) +>.tokens]
 ::
+++  match-operator
+  |=  =tokens
+  ^-  [operator (list token)]
+  =>  |%
+      ++  mini  ?(%'+' %'-' %'*' %'/' %'%' %'**')
+      ++  comp  (perk %'+' %'-' %'*' %'/' %'%' %'**' ~)
+      --
+  ?:  =(~ tokens)  ~|("expect operator. token: ~" !!)
+  ?.  ?=(%punctuator -<.tokens)
+    ~|("expect punctuator. token: {<-<.tokens>}" !!)
+  =/  cm1=(unit mini)
+    (rust (trip ->.tokens) (full comp))
+  ?~  cm1
+    ~|("match-operator failed: {<-.tokens>}" !!)
+  ?:  =(~ +.tokens)
+    [;;(operator u.cm1) +.tokens]
+  ?.  ?=(%punctuator +<-.tokens)
+    [;;(operator u.cm1) +.tokens]
+  =/  cm2=(unit mini)
+    (rust (trip +<+.tokens) (full comp))
+  ?~  cm2
+    [;;(operator u.cm1) +.tokens]
+  =/  final  (cat 3 u.cm1 u.cm2)
+  [;;(operator final) +>.tokens]
+::
 ++  match-after-if-expression
   |=  =tokens
   ^-  (pair after-if-expression (list token))
@@ -1052,7 +1129,7 @@
     ~|("expect keyword. token: {<-<.tokens>}" !!)
   ?.  =(%else ->.tokens)
     ~|("expect %else. token: {<->.tokens>}" !!)
-  =>  .(tokens `(list token)`+.tokens)
+  =>  .(tokens `(list token)`+.tokens)  :: TMI
   ?:  =(~ tokens)
     ~|("expect more. tokens: ~" !!)
   ?:  (has-punctuator -.tokens %'{')
@@ -1789,6 +1866,48 @@
         [%11 %gte [%0 0]]
       ==
     ::
+        %operator
+      ~|  %operator
+      :_  [%atom %number %.n]^%$
+      ?-    op.j  ::~&  >  op+op.j  [%0 0]
+          %'+'
+        =+  [a a-jyp]=$(j a.j)
+        ?~  b.j  !!
+        =+  [b b-jyp]=$(j u.b.j)
+        [%11 %add [%0 0]]
+        ::
+          %'-'
+        =+  [a a-jyp]=$(j a.j)
+        ?~  b.j  !!
+        =+  [b b-jyp]=$(j u.b.j)
+        [%11 %sub [%0 0]]
+        ::
+          %'*'
+        =+  [a a-jyp]=$(j a.j)
+        ?~  b.j  !!
+        =+  [b b-jyp]=$(j u.b.j)
+        [%11 %mul [%0 0]]
+        ::
+          %'/'
+        =+  [a a-jyp]=$(j a.j)
+        ?~  b.j  !!
+        =+  [b b-jyp]=$(j u.b.j)
+        [%11 %div [%0 0]]
+        ::
+          %'%'
+        =+  [a a-jyp]=$(j a.j)
+        ?~  b.j  !!
+        =+  [b b-jyp]=$(j u.b.j)
+        [%11 %mod [%0 0]]
+        ::
+          %'**'
+        =+  [a a-jyp]=$(j a.j)
+        ?~  b.j  !!
+        =+  [b b-jyp]=$(j u.b.j)
+        [%11 %pow [%0 0]]
+        ::
+      ==
+    ::
         %limb
       ~|  %limb
       =/  res=(pair jype (list jwing))
@@ -1831,7 +1950,9 @@
       |-  ^-  nock
       ::  if the next element ends the list, then we are at the closing ~
       ?~  +.vals
-        ;;(nock (list-to-tuple (flop nok)))
+        ?:  =(%1 -<.nok)
+          ;;(nock (list-to-tuple (flop nok)))
+        ;;(nock [%1 (list-to-tuple (flop nok))])
       ::  for each jock, validate that it nests in the container's declared type
       =+  [val val-jyp]=^^$(j -.vals)
       =/  inferred-type
