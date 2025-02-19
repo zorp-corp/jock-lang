@@ -400,9 +400,8 @@
           (has-punctuator -.tokens %'*')
           (has-punctuator -.tokens %'/')
           (has-punctuator -.tokens %'%')
-          :: &((has-punctuator -.tokens %'*') (has-punctuator +<.tokens %'*'))
+          :: &((has-punctuator -.tokens %'*') (has-punctuator +<.tokens %'*')) :: subcase of '*'
       ==
-    ~&  arithmetic+tokens
     =>  .(tokens `(list token)`tokens)  :: TMI
     =^  op  tokens
       (match-operator tokens)
@@ -633,34 +632,12 @@
   ::  - compare ('==' is the next token)
   ?:  (has-punctuator -.tokens %'=')
   ?>  !(has-punctuator +<.tokens %'=')
-      :: =^  b  tokens
-      ::   (match-inner-jock +>.tokens)
-      :: [[%compare [%limb limbs] %'==' b] tokens]
   =^  val  tokens
     (match-inner-jock +.tokens)
   ?>  (got-punctuator -.tokens %';')
   =^  jock  tokens
     (match-jock +.tokens)
   [[%edit limbs val jock] tokens]
-  :: ::  - %compare ('==' or '<' or '>' or '!' is next)
-  :: ?:  ?|  (has-punctuator -.tokens %'<')
-  ::         (has-punctuator -.tokens %'>')
-  ::         (has-punctuator -.tokens %'!')
-  ::     ==
-  ::   =^  comparator  tokens
-  ::     (match-comparator tokens)
-  ::   =^  inner-two  tokens
-  ::     (match-inner-jock tokens)
-  ::   [[%compare [%limb limbs] comparator inner-two] tokens]
-  :: ::  - arithmetic ('+' or '-' or '*' or '/' or '%' is next)
-  :: ?:  ?|  (has-punctuator -.tokens %'+')
-  ::         (has-punctuator -.tokens %'-')
-  ::         (has-punctuator -.tokens %'*')
-  ::         (has-punctuator -.tokens %'/')
-  ::         (has-punctuator -.tokens %'%')
-  ::     ==
-  ::   ~&  arithmetic+tokens
-  ::   !!
   ::  - %call ('((' is the next token)
   ?:  |((has-punctuator -.tokens %'((') (has-punctuator -.tokens %'('))
     =?  tokens  ?=(%'((' ->.tokens)  [[%punctuator %'('] +.tokens]
