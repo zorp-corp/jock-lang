@@ -275,6 +275,13 @@
       %'>='
   ==
 ::
+++  comparator-set
+  ^~
+  ^-  (set term)
+  %-  silt
+  ^-  (list comparator)
+  ~[%'<' %'>' %'!=' %'==' %'<=' %'>=']
+::
 +$  operator
   $+  operator
   $?  %'+'
@@ -284,6 +291,13 @@
       %'%'
       %'**'
   ==
+::
+++  operator-set
+  ^~
+  ^-  (set term)
+  %-  silt
+  ^-  (list operator)
+  ~[%'+' %'-' %'*' %'/' %'%' %'**']
 ::  Jype type base types
 +$  jype
   $+  jype
@@ -350,16 +364,36 @@
   ^-  [jock (list token)]
   ?:  =(~ tokens)
     ~|("expect jock. token: ~" !!)
-  =^  jock  tokens
+  =^  lock  tokens
     ?-    -<.tokens
-      %literal     (match-literal tokens)
-      %name        (match-start-name tokens)
-      %keyword     (match-keyword tokens)
-      %punctuator  (match-start-punctuator tokens)
-      %type        (match-start-name tokens)
-      ::  TODO: check if we're in a compare
+        %literal     (match-literal tokens)
+        %name        (match-start-name tokens)
+        %keyword     (match-keyword tokens)
+        %punctuator  (match-start-punctuator tokens)
+        %type        (match-start-name tokens)
     ==
-  [jock tokens]
+  ?:  =(~ tokens)  [lock tokens]
+  =^  oc=(unit term)  tokens
+    (any-operator tokens)
+  ?~  oc  [lock tokens]
+  ::  Handle mapping externally.
+  ?:  &(=(%'-' u.oc) =(%'>' ->.tokens))
+    ::  Re-attach map operator.
+    [lock [[%punctuator %'-'] tokens]]
+  ::  - compare ('==','<','<=','>','>=','!=' is the next token)
+  ?:  (~(has in comparator-set) u.oc)
+    =^  rock  tokens
+      (match-inner-jock tokens)
+    [[%compare ;;(comparator u.oc) lock rock] tokens]
+  ::  - arithmetic ('+' or '-' or '*' or '/' or '%' or '**' is next)
+  ?:  (~(has in operator-set) u.oc)
+    =^  op  tokens
+      (match-operator tokens)
+    =^  rock  tokens
+      (match-inner-jock tokens)
+    [[%operator op lock `rock] tokens]
+  ::  no infix operator
+  [lock tokens]
 ::
 ++  match-inner-jock
   |=  =tokens
@@ -375,7 +409,7 @@
   =>  .(tokens `(list token)`tokens)  :: TMI
   =^  lock  tokens
     ?+    -<.tokens  !!
-        %literal  (match-literal tokens)
+        %literal     (match-literal tokens)
         %name        (match-start-name tokens)
         %punctuator  (match-start-punctuator tokens)
         %type        (match-start-name tokens)
@@ -631,13 +665,15 @@
   ::  - %edit ('=' is the next token)
   ::  - compare ('==' is the next token)
   ?:  (has-punctuator -.tokens %'=')
-  ?>  !(has-punctuator +<.tokens %'=')
-  =^  val  tokens
-    (match-inner-jock +.tokens)
-  ?>  (got-punctuator -.tokens %';')
-  =^  jock  tokens
-    (match-jock +.tokens)
-  [[%edit limbs val jock] tokens]
+    ::  - compare ('==' is the next token), in which case punt back
+    ?:  (has-punctuator +<.tokens %'=')
+      [[%limb limbs] tokens]
+    =^  val  tokens
+      (match-inner-jock +.tokens)
+    ?>  (got-punctuator -.tokens %';')
+    =^  jock  tokens
+      (match-jock +.tokens)
+    [[%edit limbs val jock] tokens]
   ::  - %call ('((' is the next token)
   ?:  |((has-punctuator -.tokens %'((') (has-punctuator -.tokens %'('))
     =?  tokens  ?=(%'((' ->.tokens)  [[%punctuator %'('] +.tokens]
@@ -1249,6 +1285,37 @@
   ^-  ?
   ?.  ?=(%type -<.tokens)  %.n
   =(+.tokens cord)
+::  detect both comparators and operators
+++  any-operator
+  |=  =tokens
+  ^-  [(unit term) (list token)]
+  ::  come back with something more clever like ++match-comparator later
+  ?:  &((has-punctuator -.tokens %'=') (has-punctuator +<.tokens %'='))
+    [`%'==' +>.tokens]
+  ?:  &((has-punctuator -.tokens %'<') (has-punctuator +<.tokens %'='))
+    [`%'<=' +>.tokens]
+  ?:  (has-punctuator -.tokens %'<')
+    [`%'<' +.tokens]
+  ?:  &((has-punctuator -.tokens %'>') (has-punctuator +<.tokens %'='))
+    [`%'>=' +>.tokens]
+  ?:  (has-punctuator -.tokens %'>')
+    [`%'>' +.tokens]
+  ?:  &((has-punctuator -.tokens %'!') (has-punctuator +<.tokens %'='))
+    [`%'!=' +>.tokens]
+  ?:  (has-punctuator -.tokens %'+')
+    [`%'+' +.tokens]
+  ?:  (has-punctuator -.tokens %'-')
+    [`%'-' +.tokens]
+  ?:  (has-punctuator -.tokens %'*')
+    [`%'*' +.tokens]
+  ?:  (has-punctuator -.tokens %'/')
+    [`%'/' +.tokens]
+  ?:  (has-punctuator -.tokens %'%')
+    [`%'%' +.tokens]
+  ?:  &((has-punctuator -.tokens %'*') (has-punctuator +<.tokens %'*'))
+    [`%'**' +>.tokens]
+  [~ tokens]
+::
 --
 ::
 ::  3: compile jock -> nock
@@ -1534,8 +1601,6 @@
   ++  mint
     |=  j=jock
     ^-  [nock jype]
-    :: ~&  >  mint+j
-    :: ~&  >>  mint+jyp
     ?-    -.j
         ^
       ~|  %pair-p
@@ -1846,7 +1911,7 @@
         %operator
       ~|  %operator
       :_  [%atom %number %.n]^%$
-      ?-    op.j  ::~&  >  op+op.j  [%0 0]
+      ?-    op.j
           %'+'
         =+  [a a-jyp]=$(j a.j)
         ?~  b.j  !!
