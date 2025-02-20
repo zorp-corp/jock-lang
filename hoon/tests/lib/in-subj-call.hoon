@@ -13,7 +13,7 @@
 ++  test-jeam
   %+  expect-eq:test
     !>  ^-  jock:jock
-        [%let type=[p=[%none ~] name=%a] val=[%atom p=[[%number p=17] q=%.n]] next=[%let type=[p=[%none ~] name=%b] val=[%call func=[%lambda p=[arg=[inp=[~ [[p=[p=[%atom p=%number q=%.n] name=%b] q=[p=[%limb p=~[[%axis p=1]]] name=%c]] name=%$]] out=[p=[%atom p=%number q=%.n] name=%$]] body=[%if cond=[%compare a=[%limb p=~[[%name p=%c]]] comp=%'==' b=[%atom p=[[%number p=18] q=%.n]]] then=[%increment val=[%limb p=~[[%name p=%b]]]] after=[%else then=[%limb p=~[[%name p=%b]]]]] payload=~]] arg=[~ [p=[%atom p=[[%number p=23] q=%.n]] q=[%limb p=~[[%axis p=1]]]]]] next=[%limb p=~[[%axis p=1]]]]]
+        [%let type=[p=[%none ~] name=%a] val=[%atom p=[[%number p=17] q=%.n]] next=[%let type=[p=[%none ~] name=%b] val=[%call func=[%lambda p=[arg=[inp=[~ [[p=[p=[%atom p=%number q=%.n] name=%b] q=[p=[%limb p=~[[%axis p=1]]] name=%c]] name=%$]] out=[p=[%atom p=%number q=%.n] name=%$]] body=[%if cond=[%compare comp=%'==' a=[%limb p=~[[%name p=%c]]] b=[%atom p=[[%number p=18] q=%.n]]] then=[%increment val=[%limb p=~[[%name p=%b]]]] after=[%else then=[%limb p=~[[%name p=%b]]]]] payload=~]] arg=[~ [p=[%atom p=[[%number p=23] q=%.n]] q=[%limb p=~[[%axis p=1]]]]]] next=[%limb p=~[[%axis p=1]]]]]
     !>  (jeam:jock text)
 ::
 ++  test-mint
