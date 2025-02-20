@@ -1199,6 +1199,7 @@
       [[(malt duo) fall] tokens]
     :: default case, must be last
     ?:  (has-punctuator -.tokens %'_')
+      ::  TODO later put these as operators in regular operator handling code
       ?>  (got-punctuator +<.tokens %'-')
       ?>  (got-punctuator +>-.tokens %'>')
       =^  jock  tokens  `[jock (list token)]`(match-jock `(list token)`+>+.tokens)
