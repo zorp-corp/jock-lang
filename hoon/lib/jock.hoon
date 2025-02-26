@@ -314,7 +314,7 @@
       ::  Executable body (battery)
       body=jock
       ::  Supplied context, if applicable
-      context=(unit jock)
+      context=(unit jype)
   ==
 ::  Lambda input argument pair
 +$  lambda-argument
@@ -808,7 +808,7 @@
     ^-  jock
     ?+  -.obj-or-lambda  !!
       %object  obj-or-lambda(q `context)
-      %lambda  obj-or-lambda(context.p `context)
+      :: %lambda  obj-or-lambda(context.p `context)
     ==
   ::
       %object
@@ -1250,6 +1250,7 @@
     =/  ret=jwing  1
     ?:  =(~ lis)  ~|("no limb requested" !!)
     ~&  get-limb+[lis %in jyp]
+    :: =.  lis  (flop lis)
     |-
     ?~  lis
       ::  If we've searched to the bottom, return what we have.
@@ -1302,14 +1303,14 @@
       =/  lis  ;;((list jlimb) ->.u.new-jyp)  :: TMI
       ?~  lis  !!
       ?:  =(%type -.i.lis)
+        =/  cor-axi  (axis-at-type +.i.lis)
+        =/  cor-axi  (axis-at-name +.i.lis)
+        ?~  cor-axi  ~|("no core found in {<u.new-jyp>}" !!)
+        =.  res  [u.cor-axi res]
         ::  As with +axis-at-type, type can be in one of two places:
         ::    a core, if the initial definition, or
         ::    the subject (if a name dereference).
         ?:  =(%core -<.jyp)
-          :: =/  cor-axi  (axis-at-type +.i.lis)
-          =/  cor-axi  (axis-at-name +.i.lis)
-          ?~  cor-axi  ~|("no core found in {<u.new-jyp>}" !!)
-          =.  res  [u.cor-axi res]
           :: %core
           =/  jyp  ;;([p=[%core p=core-body q=(unit jype)] name=cord] jyp)
           =/  pay  q.p.jyp
@@ -1363,12 +1364,12 @@
       ^-  (unit jwing)
       =/  axi=jwing  [0 1]
       ~&  axis-at-name+[nom jyp]
-      =/  upay  q.p:;;([p=[%core p=core-body q=(unit jype)] name=cord] jyp)
-      ~&  axis-at-name1+upay
-      ?~  upay  ~|("expected context in class" !!)
-      =/  pay  ;;([p=[%core p=core-body q=(unit jype)] name=cord] u.upay)
-      ~&  axis-at-name2+pay
-      ~&  axis-at-name3+q.p.pay
+      :: =/  upay  q.p:;;([p=[%core p=core-body q=(unit jype)] name=cord] jyp)
+      :: ~&  axis-at-name1+upay
+      :: ?~  upay  ~|("expected context in class" !!)
+      :: =/  pay  ;;([p=[%core p=core-body q=(unit jype)] name=cord] u.upay)
+      :: ~&  axis-at-name2+pay
+      :: ~&  axis-at-name3+q.p.pay
       :: =?  nom  =(%self nom)  name.pay
       ~&  axis-at-name4+nom
       |-  ^-  (unit jwing)
@@ -1392,7 +1393,7 @@
         `[(peg 2 -.u.bat) +.axi]
       ?:  !=(name.jyp %$)
         ~&  >  'here!'
-        ~&  >>  [jyp pay]
+        ~&  >>  [jyp]
         ~
       =/  l
         ?:  =(-.axi 0)
@@ -1847,7 +1848,7 @@
       ?>  ?=(^ inp.arg.p.j)
       =/  pay=(unit (pair nock jype))
         ?~  context.p.j  ~
-        `$(j u.context.p.j)
+        `$(jyp u.context.p.j)
       ~&  lambda-pay+?~(pay ~ u.pay)
       ~&  lambda+j
       =/  input-default  (type-to-default u.inp.arg.p.j)
