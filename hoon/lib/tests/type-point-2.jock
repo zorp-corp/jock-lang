@@ -12,10 +12,20 @@ compose
   }
 ; // end compose
 
-// uses the implicit load() constructor
-//let origin:Point = Point(50 60);
-// let vector = Point(70 80);
-Point(70 80)
+// works as of 0ea948770a59c4e7fe2b2b42b0d534bea3449f83
+// Point(70 80)
 
-//origin.add(70 80)
-// vector
+// works ditto
+let vector = Point(70 80);
+vector
+
+// fails
+// let origin:Point = Point(50 60);
+// origin
+
+// fails
+// let origin = Point(50 60);
+// origin.add(70 80)
+
+// fails
+// Point(50 60).add(70 80)
