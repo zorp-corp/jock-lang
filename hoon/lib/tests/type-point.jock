@@ -1,18 +1,18 @@
+/*  A class is broadly equivalent to a Hoon door. It has a top-level
+    sample which represents its state, along with methods that have
+    each their own samples.
+
+    A class must be composed into the subject to be accessible.
+*/
 compose
-  class Point(x:@ y:@) {
+  class Foo(x:@) {
     // load() is the required constructor
-    load(p:Point) -> Point {
+    load(p:@) -> Foo {
       // the return must match the output shape
-      (p.x p.y)
-    }
-    add(p:Point) -> Point {
-      // we don't have infix operators yet so this is just a weird hack
-      (x p.y)
+      p
     }
   }
 ; // end compose
 
 // use the implicit load() constructor
-let origin = Point(50 60);
-
-origin
+Foo(42)

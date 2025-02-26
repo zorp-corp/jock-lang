@@ -1,21 +1,20 @@
 compose
   class Point(x:@ y:@) {
     // load() is the required constructor
-    load(p:Point) -> Point {
-      // the return from any method must match the state shape
-      (p.x p.y)
+    load(x:@ y:@) -> Point {
+      // the constructor return must match the state shape
+      (x y)
     }
     add(p:Point) -> Point {
-      // we don't have infix operators yet so this is just a weird hack
-      (x p.y)
+      // we don't have infix operators yet so this is just a foobar
+      (self.x p.y)
     }
   }
 ; // end compose
 
 // uses the implicit load() constructor
-let origin:Point = Point(50 60);
+//let origin:Point = Point(50 60);
 let vector = Point(70 80);
 
-//origin.add(Point(10 20) Point(30 40))
-
-Point.add((50 60) (70 80))
+//origin.add(70 80)
+vector

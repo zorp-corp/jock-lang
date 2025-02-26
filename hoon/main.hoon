@@ -45,7 +45,10 @@
   =/  c=^cause  u.soft-cau
   ?-    -.c
       %test
-    ~&  "running code {<n.c>}"
+    ?.  (gth (lent list-jocks:test-jock) n.c)
+      ~&  >>>  "index out of range: {<n.c>}"
+      [~ k]
+    ~&  >  "running code {<n.c>}"
     =/  code  (snag n.c list-jocks:test-jock)
     ~&       code+[-:code]
     ~&  >    parse+(parse:test-jock +.code)

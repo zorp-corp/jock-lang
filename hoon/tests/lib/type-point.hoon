@@ -4,7 +4,7 @@
 ::
 |%
 ++  text
-  'compose\0a  class Point(x:@ y:@) {\0a    // load() is the required constructor\0a    load(p:Point) -> Point {\0a      // the return from any method must match the state shape\0a      (p.x p.y)\0a    }\0a    add(p:Point q:Point) -> Point {\0a      // we do not have infix operators yet so this is just a weird hack\0a      (p.x q.y)\0a    }\0a    copy(p:Point) -> Point {\0a      // return the current state\0a      (p.x p.y)\0a    }\0a  }; // end compose\0a\0a// uses the implicit load() constructor\0alet origin = Point(50 60);\0a\0aorigin'
+  'compose\0a  class Point(x:@ y:@) {\0a    // load() is the required constructor\0a    load(p:Point) -> Point {\0a      // the return must match the output shape\0a      (p.x p.y)\0a    }\0a  }\0a; // end compose\0a\0a// use the implicit load() constructor\0aPoint(50 60)'
 ++  test-tokenize
   %+  expect-eq:test
     !>  ~[[%keyword %compose] [%keyword %class] [%type 'Point'] [%punctuator %'(('] [%name %x] [%punctuator %':'] [%punctuator %'@'] [%name %y] [%punctuator %':'] [%punctuator %'@'] [%punctuator %')'] [%punctuator %'{'] [%name %load] [%punctuator %'(('] [%name %p] [%punctuator %':'] [%type 'Point'] [%punctuator %')'] [%punctuator %'-'] [%punctuator %'>'] [%type 'Point'] [%punctuator %'{'] [%punctuator %'('] [%name %p] [%punctuator %'.'] [%name %x] [%name %p] [%punctuator %'.'] [%name %y] [%punctuator %')'] [%punctuator %'}'] [%name %add] [%punctuator %'(('] [%name %p] [%punctuator %':'] [%type 'Point'] [%name %q] [%punctuator %':'] [%type 'Point'] [%punctuator %')'] [%punctuator %'-'] [%punctuator %'>'] [%type 'Point'] [%punctuator %'{'] [%punctuator %'('] [%name %p] [%punctuator %'.'] [%name %x] [%name %q] [%punctuator %'.'] [%name %y] [%punctuator %')'] [%punctuator %'}'] [%name %copy] [%punctuator %'(('] [%name %p] [%punctuator %':'] [%type 'Point'] [%punctuator %')'] [%punctuator %'-'] [%punctuator %'>'] [%type 'Point'] [%punctuator %'{'] [%punctuator %'('] [%name %p] [%punctuator %'.'] [%name %x] [%name %p] [%punctuator %'.'] [%name %y] [%punctuator %')'] [%punctuator %'}'] [%punctuator %'}'] [%punctuator %';'] [%keyword %let] [%name %origin] [%punctuator %'='] [%type 'Point'] [%punctuator %'(('] [%literal [[%number p=50] q=%.n]] [%literal [[%number p=60] q=%.n]] [%punctuator %')'] [%punctuator %';'] [%name %origin]]
@@ -19,13 +19,13 @@
 ::
 ++  test-mint
   %+  expect-eq:test
-    !>  [7 [8 [[1 0] 1 0] 1 [8 [[1 0] 1 0] [1 [0 12] 0 13] 0 1] [8 [[1 0] 1 0] [1 [0 12] 0 13] 0 1] 8 [[[1 0] 1 0] [1 0] 1 0] [1 [0 24] 0 27] 0 1] 8 [8 [9 62 0 1] 9 2 10 [6 7 [0 3] [1 50] 1 60] 0 2] 0 2]
+    !>  [7 [8 [1 0] 1 8 [1 0] [1 0 6] 0 1] 8 [9 1 0 1] 9 2 10 [6 7 [0 3] 1 42] 0 2]
     !>  (mint:jock text)
 ::
 ++  test-nock
   %+  expect-eq:test
-    :: !>  .*(0 [7 [8 [[1 0] 1 0] 1 [8 [[1 0] 1 0] [1 [0 12] 0 13] 0 1] [8 [[1 0] 1 0] [1 [0 12] 0 13] 0 1] 8 [[[1 0] 1 0] [1 0] 1 0] [1 [0 24] 0 27] 0 1] 8 [8 [9 62 0 1] 9 2 10 [6 7 [0 3] [1 50] 1 60] 0 2] 0 2])
-    !>  ~
+    !>  ^-  *
+        [50 60]
     !>  .*(0 (mint:jock text))
 ::
 --
