@@ -16,16 +16,16 @@ compose
 // Point(70 80)
 
 // works ditto
-let vector = Point(70 80);
-vector
+// let vector = Point(70 80);
+// vector
 
 // fails
 // let origin:Point = Point(50 60);
 // origin
 
 // fails
-// let origin = Point(50 60);
-// origin.add(70 80)
+let origin = Point(50 60);
+origin.add(70 80)
 
 // fails
 // Point(50 60).add(70 80)
