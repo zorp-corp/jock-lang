@@ -1254,7 +1254,7 @@
     |-
     ?~  lis
       ::  If we've searched to the bottom, return what we have.
-      ~&  >  here+[jyp (flop res)]
+      ~&  >  here+[jyp res]
       ~&  >>
         :-  jyp
         ?:  =(ret 1)
@@ -1371,7 +1371,6 @@
       :: ~&  axis-at-name2+pay
       :: ~&  axis-at-name3+q.p.pay
       :: =?  nom  =(%self nom)  name.pay
-      ~&  axis-at-name4+nom
       |-  ^-  (unit jwing)
       ?:  =(name.jyp nom)
         ?:  =(-.axi 0)
