@@ -7,14 +7,15 @@ compose
     }
     add(p:Point) -> Point {
       // we don't have infix operators yet so this is just a foobar
-      (self.x p.y)
+      (x p.y)
     }
   }
 ; // end compose
 
 // uses the implicit load() constructor
 //let origin:Point = Point(50 60);
-let vector = Point(70 80);
+// let vector = Point(70 80);
+Point(70 80)
 
 //origin.add(70 80)
-vector
+// vector

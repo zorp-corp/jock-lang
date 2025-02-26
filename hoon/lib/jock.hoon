@@ -1369,7 +1369,7 @@
       =/  pay  ;;([p=[%core p=core-body q=(unit jype)] name=cord] u.upay)
       ~&  axis-at-name2+pay
       ~&  axis-at-name3+q.p.pay
-      =?  nom  =(%self nom)  name.pay
+      :: =?  nom  =(%self nom)  name.pay
       ~&  axis-at-name4+nom
       |-  ^-  (unit jwing)
       ?:  =(name.jyp nom)
