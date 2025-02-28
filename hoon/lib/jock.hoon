@@ -1755,7 +1755,10 @@
         ~|  %call-limb
         =/  limbs=(list jlimb)  p.func.j
         ?>  ?=(^ limbs)
+        ::  Right now, the trouble is that Hoon makes [0 22] where we
+        ::  make a [9 2 0 1].
         =/  [typ=jype ljw=(list jwing)]
+          ~&  >  "looking for {<limbs>} in {<jyp>}"
           ?.  &(?=(%axis -.i.limbs) =(+.i.limbs 0))
             (~(get-limb jt jyp) p.func.j)
           ::  special case: we're looking for $
