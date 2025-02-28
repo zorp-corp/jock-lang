@@ -53,7 +53,7 @@
     ~&       code+[-:code]
     ~&  >    parse+(parse:test-jock +.code)
     ~&  >>   jeam+(jeam:test-jock +.code)
-    ~&  >>>  mint+(mint:test-jock +.code)
+    ~&  >>>  mint+`*`(mint:test-jock +.code)
     ~&  >>>  nock+(nock:test-jock +.code)
     [~ k]
   ::

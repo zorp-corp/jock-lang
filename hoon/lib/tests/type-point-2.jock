@@ -12,10 +12,6 @@ compose
   }
 ; // end compose
 
-func hello(x:@) -> @ {
-  x
-};
-
 // works as of 0ea948770a59c4e7fe2b2b42b0d534bea3449f83
 // Point(70 80)
 
@@ -29,8 +25,7 @@ func hello(x:@) -> @ {
 
 // fails
 let origin:Point = Point(50 60);
-(hello(500)
-  origin.add(70 80)
-)
+origin.add(70 80)
+
 // fails
 // Point(50 60).add(70 80)

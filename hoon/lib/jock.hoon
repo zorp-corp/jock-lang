@@ -617,7 +617,7 @@
     ::  TODO: check if we're in a compare
     ?:  (is-type name)
       :: inject constructor call
-      [[%call [%limb [[%name p=%load] limbs]] `arg] tokens]
+      [[%call [%limb (snoc limbs [%name p=%load])] `arg] tokens]
     [[%call [%limb limbs] `arg] tokens]
   [[%limb limbs] tokens]
 ::
@@ -1249,11 +1249,9 @@
     ::  The resulting axis, default subject.
     =/  ret=jwing  1
     ?:  =(~ lis)  ~|("no limb requested" !!)
-    ~&  get-limb+[lis %in jyp]
     |-
     ?~  lis
       ::  If we've searched to the bottom, return what we have.
-      ~&  >  get-limb-return+[jyp res]
       :-  jyp
       ::  If self, return the wing.
       ?:  =(ret 1)
@@ -1272,18 +1270,14 @@
       :: [`@`arm-axis.i.res `@`core-axis.i.res]^~
     =/  axi=(unit jwing)
       ?:  |(?=(%name -.i.lis) ?=(%type -.i.lis) !=(%$ name.jyp))
-        ~&  >  lis-jyp+jyp
-        ~&  >  lis-axi+[lis (axis-at-name +.i.lis)]
         (axis-at-name +.i.lis)
       `+.i.lis
     ?~  axi  ~|("limb not found: {<lis>} in {<jyp>}" !!)
     ::  If it exists and we need to search further, do so.
-    ~&  >>  u-axi+u.axi
     ?^  u.axi
       ?~  new-jyp=(type-at-axis (peg +.u.axi -.u.axi))
         ~|  no-type-at-axis+[axi jyp]
         !!
-      ~&  new-jyp+new-jyp
       $(lis t.lis, jyp u.new-jyp, res [u.axi res])
     ?~  new-jyp=(type-at-axis u.axi)
       !!
@@ -1350,15 +1344,6 @@
       |=  nom=term
       ^-  (unit jwing)
       =/  axi=jwing  [0 1]
-      :: ~&  axis-at-name+[nom jyp]
-      :: ~&  >  axis-at-name+[axi]
-      :: =/  upay  q.p:;;([p=[%core p=core-body q=(unit jype)] name=cord] jyp)
-      :: ~&  axis-at-name1+upay
-      :: ?~  upay  ~|("expected context in class" !!)
-      :: =/  pay  ;;([p=[%core p=core-body q=(unit jype)] name=cord] u.upay)
-      :: ~&  axis-at-name2+pay
-      :: ~&  axis-at-name3+q.p.pay
-      :: =?  nom  =(%self nom)  name.pay
       |-  ^-  (unit jwing)
       ?:  =(name.jyp nom)
         ?:  =(-.axi 0)
@@ -1511,8 +1496,6 @@
       ?:  |(?=(~ p) ?=(~ q))
         ~
       `[[u.p u.q] name.jyp]
-    ~&  >>>  head+v
-    ~&  >>  head+jyp
     ?^  -<.v
       ?:  =(%none -.p.jyp)
         `v(name name.jyp)
@@ -1520,11 +1503,9 @@
       ?:  ?=(%limb -.p.jyp)
         ?>  ?=(^ p.p.jyp)
         ?>  ?=(%type -<.p.p.jyp)
-        ~&  'made it!'
-        ~&  >>>  j+j
-        ~&  >>>  j+(~(get-limb jt j) p.p.jyp)
-        ~
-        :: `v(name name.jyp)
+        =/  jip  (~(get-limb jt j) p.p.jyp)
+        =/  jjip=jype  -.jip
+        `jjip(name name.jyp)
       ~
     :-  ~
     :_  name.jyp
@@ -1558,20 +1539,13 @@
       =.  jyp
         =/  inferred-type
           (~(unify-all jt type.j) val-jyp jyp)
-        ~&  let-jype1+jyp
-        ~&  >  let-jype1+inferred-type
-        ~&  >>  let-jype1+type.j
-        ~&  >>>  let-value+val
-        ~&  >>>  let-jype1+val-jyp
         ?~  inferred-type
           ~|  '%let: value type does not nest in declared type'
           ~|  ['have:' val-jyp 'need:' type.j]
           !!
-        ~&  >  let-out+(~(cons jt u.inferred-type) jyp)
         :: u.inferred-type
         (~(cons jt u.inferred-type) jyp)
       ~|  %let-next
-      ~&  let-jype+jyp
       =+  [nex nex-jyp]=$(j next.j)
       [[%8 val nex] nex-jyp]
     ::
@@ -1590,10 +1564,7 @@
       [[%8 val nex] nex-jyp]
     ::
         %method
-      ~&  'MMMMMMMMMMEEEEEEEEEEEEEETTTTTTTTTTTTTTHHHHHHHHHHHHOOOOOOOOOOOODDDDDDDDDDD'
       =+  [val val-jyp]=$(j body.j)
-      ~&  >  method+[val]
-      ~&  >  method+[val-jyp]
       =.  jyp
         =/  inferred-type
           (~(unify jt type.j) val-jyp)
@@ -1602,7 +1573,6 @@
           ~|  ['have:' val-jyp 'need:' type.j]
           !!
         (~(cons jt u.inferred-type) jyp)
-      ~&  >  method+[jyp]
       [val val-jyp]
     ::
         %class
@@ -1613,24 +1583,17 @@
       =/  exe-jyp=jype
         [[%core %|^(~(run by arms.j) |=(* untyped-j)) `state.j] %$]
       =/  lis=(list [name=term val=jock])  ~(tap by arms.j)
-      ~&  >>>  class1+lis
-      ~&  >>>  class1+exe-jyp
       ?>  ?=(^ lis)
       ::  core and jype of first arm
-      ~&  >  class1+val.i.lis
       =+  [cor-nok one-jyp]=$(j val.i.lis, jyp exe-jyp)
-      ~&  >>>  class2+one-jyp
       =.  name.one-jyp  name.i.lis
       =/  cor-jyp=(map term jype)
         (~(put by *(map term jype)) name.i.lis one-jyp)
-      ~&  >>>  class3+cor-jyp
       =>  .(lis `(list [name=term val=jock])`+.lis)
       ::  core and jype of subsequent arms
       ::  TODO validate that return from method is correct jype
       |-  ^-  [nock jype]
-      ~&  >>>  class4+lis
       ?~  lis
-        ~&  >>>  class5+'here'
         :-  [%8 sam-nok [%1 cor-nok]]
         [[%core %|^cor-jyp ~] name.state.j]
       =+  [mor-nok mor-jyp]=%=(^$ j val.i.lis, jyp exe-jyp)
@@ -1788,26 +1751,22 @@
         %call
       ?+    -.func.j  !!
           %limb
-        ~&  >  call-limb+j
         =/  old-jyp  jyp
         ~|  %call-limb
         =/  limbs=(list jlimb)  p.func.j
         ?>  ?=(^ limbs)
         =/  [typ=jype ljw=(list jwing)]
           ?.  &(?=(%axis -.i.limbs) =(+.i.limbs 0))
-            ~&  >  call-limb1+p.func.j
             (~(get-limb jt jyp) p.func.j)
           ::  special case: we're looking for $
-          ~&  >  %call-limb2
           =/  ret  (~(find-buc jt jyp))
           ?~  ret
             ~|  "couldn't find $"
             ~|  jyp
             !!
           [-.u.ret [2 +.u.ret]^~]
-        |-
-        ~&  >  call-limb3+[limbs %with typ]
-        ::  at this point it's looking for a %core
+        :: |-
+        ::  At this point it's looking for a %core (either func or class).
         ?^  -<.typ
           ~|  typ
           ~|  limbs
@@ -1822,42 +1781,27 @@
             (resolve-wing ljw)
           :+  %8
             (resolve-wing ljw)
-          =+  [arg arg-jyp]=^$(j u.arg.j, jyp old-jyp)
+          =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
           [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
-        ::  Find the arm's output type in a core.
-        ::  There are two kinds of cores:  functions and classes.
-        ::  (In Hoon terms, gates and doors.)  To tell them apart,
-        ::  we check the payload to see if it's a %type.
-        ?:  (is-type name.typ)
-          ::  class
-          =/  dor-val  ;;([p=[%core p=core-body q=(unit jype)] name=cord] typ)
-          ?>  =(name.dor-val name.typ)
-          ?:  ?=(%.y -.p.p.dor-val)  ~|("class cannot be lambda" !!)
-          =/  dor-nom  +:(snag 1 p.func.j)
-          =/  gat-nom  +:(snag 0 p.func.j)
-          =/  gat  (~(get by p.p.p.dor-val) gat-nom)
-          ?~  gat  ~|("gate not found: {<gat-nom>} in {<dor-nom>}" !!)
-          ?>  ?=(%core -<.u.gat)
-          ?>  ?=(%& -.p.p.u.gat)
-          :_  out.p.p.p.u.gat
-          ?~  arg.j
-            (resolve-wing ljw)
-          :+  %8
-            (resolve-wing ljw)
-          =+  [arg arg-jyp]=^$(j u.arg.j, jyp old-jyp)
-          ::  TODO validate this Nock - IT HAS NOT BEEN CHECKED
-          :-  :^  %9  1  %0  1
-          [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
-        ::  function
-        =/  gat-val  ;;([p=[%core p=core-body q=(unit jype)] name=cord] typ)
-        ?>  =(name.gat-val name.typ)
-        ?>  ?=(%& -.p.p.gat-val)
-        :_  out.p.p.p.gat-val
+        ::  Find the arm's output type in a door (class).
+        ::  class
+        =/  dor-val  ;;([p=[%core p=core-body q=(unit jype)] name=cord] typ)
+        ?>  =(name.dor-val name.typ)
+        ?:  ?=(%.y -.p.p.dor-val)  ~|("class cannot be lambda" !!)
+        =/  dor-nom  +:(snag 0 p.func.j)
+        =/  gat-nom  +:(snag 1 p.func.j)
+        =/  gat  (~(get by p.p.p.dor-val) gat-nom)
+        ?~  gat  ~|("gate not found: {<gat-nom>} in {<dor-nom>}" !!)
+        ?>  ?=(%core -<.u.gat)
+        ?>  ?=(%& -.p.p.u.gat)
+        =-  ~&  >  -  -
+        ^-  [nock jype]
+        :_  `jype`out.p.p.p.u.gat
         ?~  arg.j
           (resolve-wing ljw)
         :+  %8
           (resolve-wing ljw)
-        =+  [arg arg-jyp]=^$(j u.arg.j, jyp old-jyp)
+        =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
         [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
       ::
           %lambda
@@ -1909,10 +1853,8 @@
     ::
         %limb
       ~|  %limb
-      ~&  limb+j
       =/  res=(pair jype (list jwing))
         (~(get-limb jt jyp) p.j)
-      ~&  limb+res
       [(resolve-wing q.res) p.res]
     ::
         %lambda
