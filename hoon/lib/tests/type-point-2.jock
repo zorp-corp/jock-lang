@@ -19,7 +19,7 @@ compose
 // let vector = Point(70 80);
 // vector
 
-// fails
+// works as of 3f429049d15c30a4ddba060b8c63d7124837bfd2
 // let origin:Point = Point(50 60);
 // origin
 

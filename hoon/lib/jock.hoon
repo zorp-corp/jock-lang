@@ -1800,6 +1800,7 @@
         ?~  arg.j
           (resolve-wing ljw)
         :+  %8
+          =-  ~&  >>  -  -
           (resolve-wing ljw)
         =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
         [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
@@ -1974,6 +1975,7 @@
     |=  ljw=(list jwing)
     ^-  nock
     ?>  ?=(^ ljw)
+    ~&  >>>  ljw+ljw
     =/  last=nock
       ?@  i.ljw
         [%0 i.ljw]
