@@ -662,6 +662,7 @@
   ?:  ?=(%list type)  [[;;(jype-leaf [type jyp]) u.nom] +.tokens]
   ?:  ?=(%set type)  [[;;(jype-leaf [type jyp]) u.nom] +.tokens]
   [jyp(name u.nom) +.tokens]
+  [jyp +.tokens]
 ::
 ++  match-keyword
   |=  =tokens
@@ -758,13 +759,16 @@
       ::  Slot in class state if necessary.
       ?>  (got-punctuator -.tokens %')')
       =.  tokens  +.tokens
-      :: =.  inp  (replace-state inp state)
+      ~&  >  class-state+state
+      ~&  >  inp+inp
+      =.  inp  (replace-state inp state)
       ?>  (got-punctuator -.tokens %'-')
       ?>  (got-punctuator +<.tokens %'>')
       =.  tokens  +>.tokens
       =^  out  tokens
         (match-jype tokens)
       ::  Slot in class state if necessary.
+      ~&  >  out+out
       =.  out  (replace-state out state)
       =.  type
         :-  [%core [%& [`inp out]] ~]
@@ -946,12 +950,12 @@
   ::  If this is a class or type declaration, match it.
   ?:  &(!=(%$ nom) (is-type nom))
     =^  jyp  tokens
-      ::  stub back in name for metatype
       (match-metatype `(list token)`[[%type nom] tokens])
-    [jyp(name nom) tokens]
+    [jyp tokens]
   ::  Otherwise, match the leaf into the jype and return it with name.
   =^  jyp-leaf  tokens
     (match-jype-leaf tokens)
+  :: =-  ~&  >  -  -
   [[jyp-leaf nom] tokens]
 ::
 ::  Match tokens into terminal jype information.
@@ -1770,6 +1774,10 @@
           [-.u.ret [2 +.u.ret]^~]
         :: |-
         ::  At this point it's looking for a %core (either func or class).
+        ::  We need to resolve several cases:
+        ::    1. func function (single jlimb)
+        ::    2. class method (in definition) (two jlimbs, first a Type)
+        ::    3. class method (in instance) (two jlimbs, first a name)
         ?^  -<.typ
           ~|  typ
           ~|  limbs
@@ -1777,6 +1785,7 @@
         ?.  ?=(%core -.p.typ)
           ~|  %expected-type-to-be-core
           !!
+        ::  function call?
         ?:  ?=(%& -.p.p.typ)
           ::  Get the bare type of a jock.
           :_  out.p.p.p.typ
@@ -1786,24 +1795,39 @@
             (resolve-wing ljw)
           =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
           [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
-        ::  Find the arm's output type in a door (class).
-        ::  class
+        ::  class method call?
+        ~&  >  class-method-call+jyp
+        ::
         =/  dor-val  ;;([p=[%core p=core-body q=(unit jype)] name=cord] typ)
         ?>  =(name.dor-val name.typ)
         ?:  ?=(%.y -.p.p.dor-val)  ~|("class cannot be lambda" !!)
         =/  dor-nom  +:(snag 0 p.func.j)
+        ::  Search for the door defn in the subject jype.
+        =/  dyp  (~(get-limb jt jyp) ~[[%type dor-nom]])
+        ~&  >>  dyp+dyp
         =/  gat-nom  +:(snag 1 p.func.j)
+        =/  gyp  (~(get-limb jt jyp) p.func.j)
+        ~&  >>  gyp+gyp
         =/  gat  (~(get by p.p.p.dor-val) gat-nom)
         ?~  gat  ~|("gate not found: {<gat-nom>} in {<dor-nom>}" !!)
         ?>  ?=(%core -<.u.gat)
         ?>  ?=(%& -.p.p.u.gat)
-        =-  ~&  >  -  -
+        =-  ~&  >  "{<`@t`gat-nom>} in {<`@t`dor-nom>} at {<[`*`-]>}"  -
         ^-  [nock jype]
         :_  `jype`out.p.p.p.u.gat
         ?~  arg.j
           (resolve-wing ljw)
+        ::  Compose a class (door), which requires some tree math.
         :+  %8
-          =-  ~&  >>  -  -
+          :: =-  ~&  >>  -  -
+          :: (resolve-wing ljw)
+          :: ?>  ?=([arm-axis=@ core-axis=@] q.gyp)
+          =/  qgyp  ;;([arm-axis=@ core-axis=@] -.q.gyp)
+          ~&  qgyp+qgyp
+          =/  qdyp  ;;(@ -.q.dyp)
+          ~&  qdyp+qdyp
+          ~&  >>  is-type+(is-type dor-nom)
+          ~&  >>  [%0 (peg (peg qdyp (peg arm-axis.qgyp core-axis.qgyp)) 6)]
           (resolve-wing ljw)
         =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
         [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
@@ -1815,6 +1839,7 @@
         :+  %7
           lam
         ?~  arg.j
+          ~&  >>>  this-lambda+lam
           [%9 2 %0 1]
         =+  [arg arg-jyp]=$(j u.arg.j)
         [%9 2 %10 [6 [%7 [%0 3] arg]] %0 1]
@@ -1980,10 +2005,12 @@
     ?>  ?=(^ ljw)
     ~&  >>>  ljw+ljw
     =/  last=nock
+      =-  ~&  >>>  last+[`*`-]  -
       ?@  i.ljw
         [%0 i.ljw]
       [%9 arm-axis.i.ljw %0 core-axis.i.ljw]
     =>  .(ljw `(list jwing)`t.ljw)
+    =-  ~&  >>>  rest+[`*`-]  -
     |-
     ?~  ljw  last
     =/  val=nock
