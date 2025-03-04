@@ -1797,7 +1797,6 @@
         ::
         ::  traditional function call (case 1)
         ?:  ?=(%& -.p.p.typ)
-          ::  Get the bare type of a jock.
           :_  out.p.p.p.typ
           ?~  arg.j
             (resolve-wing ljw)
