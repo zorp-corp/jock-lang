@@ -661,8 +661,8 @@
   ?>  (got-punctuator -.tokens %')')
   ?:  ?=(%list type)  [[;;(jype-leaf [type jyp]) u.nom] +.tokens]
   ?:  ?=(%set type)  [[;;(jype-leaf [type jyp]) u.nom] +.tokens]
-  :: [jyp(name u.nom) +.tokens]
-  [jyp +.tokens]
+  [jyp(name u.nom) +.tokens]
+  :: [jyp +.tokens]
 ::
 ++  match-keyword
   |=  =tokens
@@ -728,12 +728,14 @@
   ::
   ::  [%class state=jype arms=(map term jock)]
       %class
+    ~&  >>  class-tokens+tokens
     =^  state  tokens
       (match-jype tokens)
     ::  mask out reserved types
     ?:  =([%type 'List'] name.state)  ~|('Shadowing reserved type List is not allowed.' !!)
     ?:  =([%type 'Set'] name.state)   ~|('Shadowing reserved type Set is not allowed.' !!)
     :: ?:  =([%type 'Map'] name.state)   ~|('Shadowing reserved type Map is not allowed.' !!)
+    ~&  >>  class-state+state
     ?>  (got-punctuator -.tokens %'{')
     =|  arms=(map term jock)
     =.  tokens  +.tokens
@@ -759,17 +761,21 @@
       ::  Slot in class state if necessary.
       ?>  (got-punctuator -.tokens %')')
       =.  tokens  +.tokens
-      ~&  >  class-state+state
-      ~&  >  inp+inp
-      =.  inp  (replace-state inp state)
+      ~&  >  method-state+state
+      ~&  >  method-state-inp+inp
+      :: =.  inp  (replace-state inp state)
+      :: ~&  >>  class-state-inp+inp
       ?>  (got-punctuator -.tokens %'-')
       ?>  (got-punctuator +<.tokens %'>')
       =.  tokens  +>.tokens
       =^  out  tokens
         (match-jype tokens)
       ::  Slot in class state if necessary.
-      ~&  >  out+out
-      =.  out  (replace-state out state)
+      ~&  >  method-state-out+out
+      :: =.  out  (replace-state out state)
+      :: ~&  >>  class-state-out+out
+      ~&  type+type
+      ~&  >  type(name name.type)
       =.  type
         :-  [%core [%& [`inp out]] ~]
         name.type
@@ -951,6 +957,7 @@
   ?:  &(!=(%$ nom) (is-type nom))
     =^  jyp  tokens
       (match-metatype `(list token)`[[%type nom] tokens])
+    =-  ~&  >  metatype+[-]  -
     [jyp tokens]
   ::  Otherwise, match the leaf into the jype and return it with name.
   =^  jyp-leaf  tokens
@@ -1779,6 +1786,7 @@
         ::    2. class method (in definition) (two jlimbs, first a Type)
         ::    3. class method (in instance) (two jlimbs, first a name)
         ::    4. lambda function (assigned to variable) (single jlimb)
+        ~&  output+[typ ljw]
         ?^  -<.typ
           ~|  typ
           ~|  limbs
@@ -1786,8 +1794,8 @@
         ?.  ?=(%core -.p.typ)
           ~|  %expected-type-to-be-core
           !!
+        ::
         ::  traditional function call (case 1)
-        ::  use the output type
         ?:  ?=(%& -.p.p.typ)
           ::  Get the bare type of a jock.
           :_  out.p.p.p.typ
