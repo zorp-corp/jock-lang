@@ -661,7 +661,7 @@
   ?>  (got-punctuator -.tokens %')')
   ?:  ?=(%list type)  [[;;(jype-leaf [type jyp]) u.nom] +.tokens]
   ?:  ?=(%set type)  [[;;(jype-leaf [type jyp]) u.nom] +.tokens]
-  [jyp(name u.nom) +.tokens]
+  :: [jyp(name u.nom) +.tokens]
   [jyp +.tokens]
 ::
 ++  match-keyword
@@ -1778,6 +1778,7 @@
         ::    1. func function (single jlimb)
         ::    2. class method (in definition) (two jlimbs, first a Type)
         ::    3. class method (in instance) (two jlimbs, first a name)
+        ::    4. lambda function (assigned to variable) (single jlimb)
         ?^  -<.typ
           ~|  typ
           ~|  limbs
@@ -1785,7 +1786,8 @@
         ?.  ?=(%core -.p.typ)
           ~|  %expected-type-to-be-core
           !!
-        ::  function call?
+        ::  traditional function call (case 1)
+        ::  use the output type
         ?:  ?=(%& -.p.p.typ)
           ::  Get the bare type of a jock.
           :_  out.p.p.p.typ
@@ -1795,24 +1797,36 @@
             (resolve-wing ljw)
           =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
           [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
-        ::  class method call?
-        ~&  >  class-method-call+jyp
         ::
-        =/  dor-val  ;;([p=[%core p=core-body q=(unit jype)] name=cord] typ)
-        ?>  =(name.dor-val name.typ)
-        ?:  ?=(%.y -.p.p.dor-val)  ~|("class cannot be lambda" !!)
-        =/  dor-nom  +:(snag 0 p.func.j)
+        ::  lambda function call (case 4)
+        ?:  =(1 (lent p.func.j))
+          :_  =/  gat  ;;([%core p=core-body q=(unit jype)] -:(~(got by p.p.p.typ) +:(snag 0 p.func.j)))
+              ?>  ?=(%& -.p.gat)
+              out.p.p.gat
+          ?~  arg.j
+            (resolve-wing ljw)
+          :+  %8
+            (resolve-wing ljw)
+          =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
+          [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
+        ::
+        ::  class method call (cases 2 and 3)
+        ~&  >  method-call+jyp
+        =/  cor-val  ;;([p=[%core p=core-body q=(unit jype)] name=cord] typ)
+        ?>  =(name.cor-val name.typ)
+        ?:  ?=(%.y -.p.p.cor-val)  ~|("class cannot be lambda" !!)
+        =/  cor-nom  +:(snag 0 p.func.j)
         ::  Search for the door defn in the subject jype.
-        =/  dyp  (~(get-limb jt jyp) ~[[%type dor-nom]])
+        =/  dyp  (~(get-limb jt jyp) ~[[%type cor-nom]])
         ~&  >>  dyp+dyp
         =/  gat-nom  +:(snag 1 p.func.j)
         =/  gyp  (~(get-limb jt jyp) p.func.j)
         ~&  >>  gyp+gyp
-        =/  gat  (~(get by p.p.p.dor-val) gat-nom)
-        ?~  gat  ~|("gate not found: {<gat-nom>} in {<dor-nom>}" !!)
+        =/  gat  (~(get by p.p.p.cor-val) gat-nom)
+        ?~  gat  ~|("gate not found: {<gat-nom>} in {<cor-nom>}" !!)
         ?>  ?=(%core -<.u.gat)
         ?>  ?=(%& -.p.p.u.gat)
-        =-  ~&  >  "{<`@t`gat-nom>} in {<`@t`dor-nom>} at {<[`*`-]>}"  -
+        =-  ~&  >  "{<`@t`gat-nom>} in {<`@t`cor-nom>} at {<[`*`-]>}"  -
         ^-  [nock jype]
         :_  `jype`out.p.p.p.u.gat
         ?~  arg.j
@@ -1826,7 +1840,7 @@
           ~&  qgyp+qgyp
           =/  qdyp  ;;(@ -.q.dyp)
           ~&  qdyp+qdyp
-          ~&  >>  is-type+(is-type dor-nom)
+          ~&  >>  is-type+(is-type cor-nom)
           ~&  >>  [%0 (peg (peg qdyp (peg arm-axis.qgyp core-axis.qgyp)) 6)]
           (resolve-wing ljw)
         =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
