@@ -1786,7 +1786,7 @@
         ::    2. class method (in definition) (two jlimbs, first a Type)
         ::    3. class method (in instance) (two jlimbs, first a name)
         ::    4. lambda function (assigned to variable) (single jlimb)
-        ~&  output+[typ ljw]
+        ::    5. class method (from other method)
         ?^  -<.typ
           ~|  typ
           ~|  limbs
@@ -1817,38 +1817,77 @@
           =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
           [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
         ::
-        ::  class method call (cases 2 and 3)
-        ~&  >  method-call+jyp
+        ::  class method call by instance (case 3)
+        ?:  ?=(%name -<.limbs)
+          ~&  >  method-jype+jyp
+          ~&  >  method-type+typ
+          ~&  >>  method-call+limbs
+          =/  [typ=jype ljw=(list jwing)]
+            ~&  >  "looking for {<limbs>} in {<old-jyp>}"
+            (~(get-limb jt old-jyp) p.func.j)
+          ~&  >>>  ljw+ljw
+          =/  cor-val  ;;([p=[%core p=core-body q=(unit jype)] name=cord] typ)
+          ?>  =(name.cor-val name.typ)
+          ?:  ?=(%.y -.p.p.cor-val)  ~|("class cannot be lambda" !!)
+          =/  cor-nom  +:(snag 0 p.func.j)
+          ::  Search for the door defn in the subject jype.
+          =/  dyp  (~(get-limb jt jyp) ~[[%type cor-nom]])
+          ~&  >>  dyp+dyp
+          =/  gat-nom  +:(snag 1 p.func.j)
+          =/  gyp  (~(get-limb jt jyp) p.func.j)
+          ~&  >>  gyp+gyp
+          =/  gat  (~(get by p.p.p.cor-val) gat-nom)
+          ~&  >>  here+gat
+          ?~  gat  ~|("gate not found: {<gat-nom>} in {<cor-nom>}" !!)
+          ?>  ?=(%core -<.u.gat)
+          ?>  ?=(%& -.p.p.u.gat)
+          =-  ~&  >  "{<`@t`gat-nom>} in {<`@t`cor-nom>} at {<[`*`-]>}"  -
+          ^-  [nock jype]
+          :_  `jype`out.p.p.p.u.gat
+          ~&  arg+arg.j
+          ~&  ljw+ljw
+          ~&  old-jyp+jyp
+          ::  we need two things:  address of door in subject, and address of arm to call
+          ?~  arg.j
+            (resolve-wing ljw)
+          ~&  >  here+arg.j
+          ::  Compose a class (door), which requires some tree math.
+          :+  %8
+            :: =-  ~&  >>  -  -
+            :: (resolve-wing ljw)
+            :: ?>  ?=([arm-axis=@ core-axis=@] q.gyp)
+            =/  qgyp  ;;([arm-axis=@ core-axis=@] -.q.gyp)
+            ~&  qgyp+qgyp
+            =/  qdyp  ;;(@ -.q.dyp)
+            ~&  qdyp+qdyp
+            ~&  >>  is-type+(is-type cor-nom)
+            ~&  >>  [%0 (peg (peg qdyp (peg arm-axis.qgyp core-axis.qgyp)) 6)]
+            (resolve-wing ljw)
+          =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
+          [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
+        ::
+        ::  class method call by definition (or constructor) (case 2)
+        ?>  ?=(%type -<.limbs)
         =/  cor-val  ;;([p=[%core p=core-body q=(unit jype)] name=cord] typ)
         ?>  =(name.cor-val name.typ)
         ?:  ?=(%.y -.p.p.cor-val)  ~|("class cannot be lambda" !!)
         =/  cor-nom  +:(snag 0 p.func.j)
         ::  Search for the door defn in the subject jype.
         =/  dyp  (~(get-limb jt jyp) ~[[%type cor-nom]])
-        ~&  >>  dyp+dyp
         =/  gat-nom  +:(snag 1 p.func.j)
         =/  gyp  (~(get-limb jt jyp) p.func.j)
-        ~&  >>  gyp+gyp
         =/  gat  (~(get by p.p.p.cor-val) gat-nom)
         ?~  gat  ~|("gate not found: {<gat-nom>} in {<cor-nom>}" !!)
         ?>  ?=(%core -<.u.gat)
         ?>  ?=(%& -.p.p.u.gat)
-        =-  ~&  >  "{<`@t`gat-nom>} in {<`@t`cor-nom>} at {<[`*`-]>}"  -
         ^-  [nock jype]
         :_  `jype`out.p.p.p.u.gat
         ?~  arg.j
           (resolve-wing ljw)
         ::  Compose a class (door), which requires some tree math.
         :+  %8
-          :: =-  ~&  >>  -  -
-          :: (resolve-wing ljw)
-          :: ?>  ?=([arm-axis=@ core-axis=@] q.gyp)
           =/  qgyp  ;;([arm-axis=@ core-axis=@] -.q.gyp)
-          ~&  qgyp+qgyp
           =/  qdyp  ;;(@ -.q.dyp)
-          ~&  qdyp+qdyp
-          ~&  >>  is-type+(is-type cor-nom)
-          ~&  >>  [%0 (peg (peg qdyp (peg arm-axis.qgyp core-axis.qgyp)) 6)]
           (resolve-wing ljw)
         =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
         [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
@@ -2024,14 +2063,11 @@
     |=  ljw=(list jwing)
     ^-  nock
     ?>  ?=(^ ljw)
-    ~&  >>>  ljw+ljw
     =/  last=nock
-      =-  ~&  >>>  last+[`*`-]  -
       ?@  i.ljw
         [%0 i.ljw]
       [%9 arm-axis.i.ljw %0 core-axis.i.ljw]
     =>  .(ljw `(list jwing)`t.ljw)
-    =-  ~&  >>>  rest+[`*`-]  -
     |-
     ?~  ljw  last
     =/  val=nock
