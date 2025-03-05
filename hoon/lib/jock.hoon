@@ -728,14 +728,12 @@
   ::
   ::  [%class state=jype arms=(map term jock)]
       %class
-    ~&  >>  class-tokens+tokens
     =^  state  tokens
       (match-jype tokens)
     ::  mask out reserved types
     ?:  =([%type 'List'] name.state)  ~|('Shadowing reserved type List is not allowed.' !!)
     ?:  =([%type 'Set'] name.state)   ~|('Shadowing reserved type Set is not allowed.' !!)
     :: ?:  =([%type 'Map'] name.state)   ~|('Shadowing reserved type Map is not allowed.' !!)
-    ~&  >>  class-state+state
     ?>  (got-punctuator -.tokens %'{')
     =|  arms=(map term jock)
     =.  tokens  +.tokens
@@ -761,8 +759,8 @@
       ::  Slot in class state if necessary.
       ?>  (got-punctuator -.tokens %')')
       =.  tokens  +.tokens
-      ~&  >  method-state+state
-      ~&  >  method-state-inp+inp
+      :: ~&  >  method-state+state
+      :: ~&  >  method-state-inp+inp
       :: =.  inp  (replace-state inp state)
       :: ~&  >>  class-state-inp+inp
       ?>  (got-punctuator -.tokens %'-')
@@ -771,11 +769,11 @@
       =^  out  tokens
         (match-jype tokens)
       ::  Slot in class state if necessary.
-      ~&  >  method-state-out+out
+      :: ~&  >  method-state-out+out
       :: =.  out  (replace-state out state)
       :: ~&  >>  class-state-out+out
-      ~&  type+type
-      ~&  >  type(name name.type)
+      :: ~&  type+type
+      :: ~&  >  type(name name.type)
       =.  type
         :-  [%core [%& [`inp out]] ~]
         name.type
@@ -957,12 +955,10 @@
   ?:  &(!=(%$ nom) (is-type nom))
     =^  jyp  tokens
       (match-metatype `(list token)`[[%type nom] tokens])
-    =-  ~&  >  metatype+[-]  -
     [jyp tokens]
   ::  Otherwise, match the leaf into the jype and return it with name.
   =^  jyp-leaf  tokens
     (match-jype-leaf tokens)
-  :: =-  ~&  >  -  -
   [[jyp-leaf nom] tokens]
 ::
 ::  Match tokens into terminal jype information.
@@ -1302,25 +1298,23 @@
         ::  As with +axis-at-type, type can be in one of two places:
         ::    a core, if the initial definition, or
         ::    the subject (if a name dereference).
-        ?:  =(%core -<.jyp)
+        ?:  ?=(%core -<.jyp)
           :: %core
-          =/  jyp  ;;([p=[%core p=core-body q=(unit jype)] name=cord] jyp)
           =/  pay  q.p.jyp
           ?~  pay  ~|("expected type in context" !!)
           =/  axi  (axis-at-name(jyp u.pay) +.i.lis)
           ?~  axi  ~|("type not found in context: {<i.lis>}" !!)
           ::  payload at +3
+          ::  TODO break down into door/class which probably matters here
           $(lis t.lis, jyp u.pay, res [(peg 3 ;;(@ u.axi)) res])
         :: &limb
-        ?>  =(%limb -<-<.jyp)
-        =/  lim  ;;([[%limb (list jlimb)] cord] u.new-jyp)
-        =/  axi  (axis-at-name ->->.lim)
+        ?>  ?=(%limb -<-<.jyp)
+        =/  lim  ;;([[%limb p=(list jlimb)] cord] u.new-jyp)
+        =/  axi  (axis-at-name +:(snag 0 p.lim))
         ?~  axi  ~|("limb not found: {<[->->.lim]>} in {<jyp>}" !!)
         =/  typ  (type-at-axis ;;(@ u.axi))
         ?~  typ  ~|("type not found: {<[->->.lim]>} in {<jyp>}" !!)
-        =/  jyp  ;;([p=[%core p=core-body q=(unit jype)] name=cord] u.typ)
-        $(lis t.lis, jyp jyp)
-        :: !!
+        $(lis t.lis, jyp u.typ)
       !!
     ?^  ret
       ::  TODO: in order to support additional limbs
@@ -1387,28 +1381,6 @@
           $(jyp q.jyp, -.axi +((mul -.axi 2)))
         r
       l
-    :: ::  Search for type definition.
-    :: ::  The type can be in one of two places:
-    :: ::    the payload (if the initial class definition) or
-    :: ::    the subject (if a type or constructor).
-    :: ++  axis-at-type
-    ::   |=  nom=cord
-    ::   ^-  (unit jwing)
-    ::   ::  This should only happen with a core (%type).
-    ::   =/  jyp  ;;([p=[%core p=core-body q=(unit jype)] name=cord] jyp)
-    ::   =/  axi  (axis-at-name(jyp jyp) nom)
-    ::   ?~  axi  ~|(%type-not-found !!)
-    ::   =/  pay  q.p.jyp
-    ::   ?~  pay  !!
-    ::   ::  The payload at this point should just contain the door sample.
-    ::   ::  (That is, the class state.)
-    ::   ?:  !=(%$ name.u.pay)  [~ ;;(@ u.axi)]
-    ::   =/  jjyp  ;;([p=[%core p=core-body q=(unit jype)] name=cord] u.pay)
-    ::   ?~  q.p.jjyp  !!
-    ::   =/  axy  (axis-at-name(jyp u.q.p.jjyp) nom)
-    ::   ?~  axy  ~|(%type-not-found !!)
-    ::   ::  ;; because need to be leg/Nock 0 not Nock 9 here
-    ::   [~ (peg ;;(@ u.axi) ;;(@ u.axy))]
     --
   ::
   ++  find-buc
@@ -1769,7 +1741,6 @@
         ::  Right now, the trouble is that Hoon makes [0 22] where we
         ::  make a [9 2 0 1].
         =/  [typ=jype ljw=(list jwing)]
-          ~&  >  "looking for {<limbs>} in {<jyp>}"
           ?.  &(?=(%axis -.i.limbs) =(+.i.limbs 0))
             (~(get-limb jt jyp) p.func.j)
           ::  special case: we're looking for $
@@ -1781,7 +1752,7 @@
           [-.u.ret [2 +.u.ret]^~]
         :: |-
         ::  At this point it's looking for a %core (either func or class).
-        ::  We need to resolve several cases:
+        ::  We need to resolve several cases (in no particular order):
         ::    1. func function (single jlimb)
         ::    2. class method (in definition) (two jlimbs, first a Type)
         ::    3. class method (in instance) (two jlimbs, first a name)
@@ -1820,30 +1791,29 @@
         ::  class method call by instance (case 3)
         ?:  ?=(%name -<.limbs)
           ~&  >  method-jype+jyp
-          ~&  >  method-type+typ
-          ~&  >>  method-call+limbs
-          =/  [typ=jype ljw=(list jwing)]
-            ~&  >  "looking for {<limbs>} in {<old-jyp>}"
-            (~(get-limb jt old-jyp) p.func.j)
-          ~&  >>>  ljw+ljw
-          =/  cor-val  ;;([p=[%core p=core-body q=(unit jype)] name=cord] typ)
-          ?>  =(name.cor-val name.typ)
-          ?:  ?=(%.y -.p.p.cor-val)  ~|("class cannot be lambda" !!)
-          =/  cor-nom  +:(snag 0 p.func.j)
+          ::  Get class definition for instance.
+          =/  [dyp=jype ljw=(list jwing)]
+            (~(get-limb jt jyp) ~[-.limbs])
+          :: ~&  >>>  ljw+ljw
+          :: ~&  >>>  dyp+dyp
+          ?>  ?=(%core -<.dyp)
+          ?:  ?=(%& -.p.p.dyp)  ~|("class cannot be lambda" !!)
           ::  Search for the door defn in the subject jype.
-          =/  dyp  (~(get-limb jt jyp) ~[[%type cor-nom]])
-          ~&  >>  dyp+dyp
-          =/  gat-nom  +:(snag 1 p.func.j)
-          =/  gyp  (~(get-limb jt jyp) p.func.j)
-          ~&  >>  gyp+gyp
-          =/  gat  (~(get by p.p.p.cor-val) gat-nom)
-          ~&  >>  here+gat
-          ?~  gat  ~|("gate not found: {<gat-nom>} in {<cor-nom>}" !!)
+          =/  gat-nom  `cord`+<+.limbs
+          =/  gyp  (~(get-limb jt dyp) +.limbs)
+          :: ~&  >>  gat-nom+gat-nom
+          :: ~&  >>  gyp+gyp
+          =/  gat  (~(get by p.p.p.dyp) gat-nom)
+          :: ~&  >>  here+gat
+          ?~  gat  ~|("gate not found: {<gat-nom>} in {<name.typ>}" !!)
           ?>  ?=(%core -<.u.gat)
-          ?>  ?=(%& -.p.p.u.gat)
-          =-  ~&  >  "{<`@t`gat-nom>} in {<`@t`cor-nom>} at {<[`*`-]>}"  -
+          :: ~&  >>  here+u.gat
+          :: ~&  >  out+p.p.u.gat
+          ?.  ?=(%& -.p.p.u.gat)  ~|("method cannot be lambda" !!)
+          :: =-  ~&  >  "{<`@t`gat-nom>} in {<`@t`dor-nom>} at {<[`*`-]>}"  -
           ^-  [nock jype]
-          :_  `jype`out.p.p.p.u.gat
+          :_  out.p.p.p.u.gat
+          ::  TODO check type nesting
           ~&  arg+arg.j
           ~&  ljw+ljw
           ~&  old-jyp+jyp
@@ -1858,11 +1828,15 @@
             :: ?>  ?=([arm-axis=@ core-axis=@] q.gyp)
             =/  qgyp  ;;([arm-axis=@ core-axis=@] -.q.gyp)
             ~&  qgyp+qgyp
-            =/  qdyp  ;;(@ -.q.dyp)
-            ~&  qdyp+qdyp
-            ~&  >>  is-type+(is-type cor-nom)
-            ~&  >>  [%0 (peg (peg qdyp (peg arm-axis.qgyp core-axis.qgyp)) 6)]
+            :: =/  qdyp  ;;(@ -.q.dyp)
+            :: ~&  qdyp+qdyp
+            :: :: ~&  >>  is-type+(is-type cor-nom)
+            :: =-  ~&  >>  mether+[-]  -
+            :: ~&  >>  [%0 (peg 6 (peg qdyp (peg arm-axis.qgyp core-axis.qgyp)))]
+            :: :: [%0 (peg 6 (peg qdyp (peg arm-axis.qgyp core-axis.qgyp)))]
+            :: :: [%0 22]
             (resolve-wing ljw)
+            :: [%9 2 %0 1]
           =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
           [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
         ::
@@ -1888,6 +1862,7 @@
         :+  %8
           =/  qgyp  ;;([arm-axis=@ core-axis=@] -.q.gyp)
           =/  qdyp  ;;(@ -.q.dyp)
+          =-  ~&  >>  loader+[-]  -
           (resolve-wing ljw)
         =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
         [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
