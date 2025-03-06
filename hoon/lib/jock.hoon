@@ -756,24 +756,13 @@
           ::  TODO: support implicit right-association  (what's a good test case?)
           [[jyp-one `jyp-two] tokens]
         [?~(q.r `jype`p.r `jype`[[p.r u.q.r] %$]) tokens]
-      ::  Slot in class state if necessary.
       ?>  (got-punctuator -.tokens %')')
       =.  tokens  +.tokens
-      :: ~&  >  method-state+state
-      :: ~&  >  method-state-inp+inp
-      :: =.  inp  (replace-state inp state)
-      :: ~&  >>  class-state-inp+inp
       ?>  (got-punctuator -.tokens %'-')
       ?>  (got-punctuator +<.tokens %'>')
       =.  tokens  +>.tokens
       =^  out  tokens
         (match-jype tokens)
-      ::  Slot in class state if necessary.
-      :: ~&  >  method-state-out+out
-      :: =.  out  (replace-state out state)
-      :: ~&  >>  class-state-out+out
-      :: ~&  type+type
-      :: ~&  >  type(name name.type)
       =.  type
         :-  [%core [%& [`inp out]] ~]
         name.type
@@ -898,25 +887,6 @@
       %crash
     [[%crash ~] tokens]
   ==
-::
-::  Replace limb references to state with the actual state.
-::
-++  replace-state
-  |=  [jyp=jype state=jype]
-  ^-  jype
-  ::  direct limb case
-  ?@  -<.jyp
-    ::  only thing in limb search
-    ?:  &(?=(%limb -<.jyp) =(1 (lent p.p.jyp)) =(name.state ->.p.p.jyp))
-      state(name name.jyp)
-    ::  XXX seems like maybe there's another case here but defer
-    ?:  &(?=(%limb -<.jyp) (gth 1 (lent p.p.jyp)))
-      ~&  >>>  'unexpected case'
-      jyp
-    ::  it ain't me babe
-    jyp
-  ::  cell case
-  [[$(jyp -<.jyp) $(jyp ->.jyp)] name.jyp]
 ::
 ::  Match tokens into jype information.
 ::
@@ -1790,53 +1760,36 @@
         ::
         ::  class method call by instance (case 3)
         ?:  ?=(%name -<.limbs)
-          ~&  >  method-jype+jyp
           ::  Get class definition for instance.
           =/  [dyp=jype ljw=(list jwing)]
             (~(get-limb jt jyp) ~[-.limbs])
-          :: ~&  >>>  ljw+ljw
-          :: ~&  >>>  dyp+dyp
           ?>  ?=(%core -<.dyp)
           ?:  ?=(%& -.p.p.dyp)  ~|("class cannot be lambda" !!)
           ::  Search for the door defn in the subject jype.
           =/  gat-nom  `cord`+<+.limbs
           =/  gyp  (~(get-limb jt dyp) +.limbs)
-          :: ~&  >>  gat-nom+gat-nom
-          :: ~&  >>  gyp+gyp
           =/  gat  (~(get by p.p.p.dyp) gat-nom)
-          :: ~&  >>  here+gat
           ?~  gat  ~|("gate not found: {<gat-nom>} in {<name.typ>}" !!)
           ?>  ?=(%core -<.u.gat)
-          :: ~&  >>  here+u.gat
-          :: ~&  >  out+p.p.u.gat
           ?.  ?=(%& -.p.p.u.gat)  ~|("method cannot be lambda" !!)
-          :: =-  ~&  >  "{<`@t`gat-nom>} in {<`@t`dor-nom>} at {<[`*`-]>}"  -
           ^-  [nock jype]
           :_  out.p.p.p.u.gat
           ::  TODO check type nesting
-          ~&  arg+arg.j
-          ~&  ljw+ljw
-          ~&  old-jyp+jyp
           ::  we need two things:  address of door in subject, and address of arm to call
           ?~  arg.j
             (resolve-wing ljw)
-          ~&  >  here+arg.j
           ::  Compose a class (door), which requires some tree math.
+          =-  ~&  >>  armor+[-]  -
           :+  %8
-            :: =-  ~&  >>  -  -
-            :: (resolve-wing ljw)
-            :: ?>  ?=([arm-axis=@ core-axis=@] q.gyp)
             =/  qgyp  ;;([arm-axis=@ core-axis=@] -.q.gyp)
             ~&  qgyp+qgyp
-            :: =/  qdyp  ;;(@ -.q.dyp)
-            :: ~&  qdyp+qdyp
-            :: :: ~&  >>  is-type+(is-type cor-nom)
-            :: =-  ~&  >>  mether+[-]  -
-            :: ~&  >>  [%0 (peg 6 (peg qdyp (peg arm-axis.qgyp core-axis.qgyp)))]
-            :: :: [%0 (peg 6 (peg qdyp (peg arm-axis.qgyp core-axis.qgyp)))]
-            :: :: [%0 22]
-            (resolve-wing ljw)
-            :: [%9 2 %0 1]
+            =/  wing  (resolve-wing ljw)
+            ~&  wing+;;(@ +.wing)
+            =-  ~&  >>  -  -
+            ?:  =(%0 -.wing)
+              [%0 (peg ;;(@ +.wing) (peg arm-axis.qgyp core-axis.qgyp))]
+            :: (resolve-wing ljw)
+            [%9 2 %0 1]
           =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
           [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
         ::
@@ -1859,10 +1812,11 @@
         ?~  arg.j
           (resolve-wing ljw)
         ::  Compose a class (door), which requires some tree math.
+        =-  ~&  >>  loader+[-]  -
         :+  %8
           =/  qgyp  ;;([arm-axis=@ core-axis=@] -.q.gyp)
           =/  qdyp  ;;(@ -.q.dyp)
-          =-  ~&  >>  loader+[-]  -
+          ::  TODO make wing like the case above
           (resolve-wing ljw)
         =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
         [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
