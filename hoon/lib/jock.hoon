@@ -1784,12 +1784,13 @@
             =/  qgyp  ;;([arm-axis=@ core-axis=@] -.q.gyp)
             ~&  qgyp+qgyp
             =/  wing  (resolve-wing ljw)
-            ~&  wing+;;(@ +.wing)
             =-  ~&  >>  -  -
             ?:  =(%0 -.wing)
+              ~&  wing+;;(@ +.wing)
               [%0 (peg ;;(@ +.wing) (peg arm-axis.qgyp core-axis.qgyp))]
-            :: (resolve-wing ljw)
-            [%9 2 %0 1]
+            ~&  wing+[+.wing]
+            (resolve-wing ljw)
+            :: [%9 2 %0 1]
           =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
           [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
         ::
@@ -1814,9 +1815,15 @@
         ::  Compose a class (door), which requires some tree math.
         =-  ~&  >>  loader+[-]  -
         :+  %8
+          ~&  >>  loaderr+q.gyp
           =/  qgyp  ;;([arm-axis=@ core-axis=@] -.q.gyp)
           =/  qdyp  ;;(@ -.q.dyp)
-          ::  TODO make wing like the case above
+          =/  wing  (resolve-wing ljw)
+          =-  ~&  >>  -  -
+          ?:  =(%0 -.wing)
+            ~&  zing+;;(@ +.wing)
+            [%0 (peg ;;(@ +.wing) (peg arm-axis.qgyp core-axis.qgyp))]
+          ~&  zing+[+.wing]
           (resolve-wing ljw)
         =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
         [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
@@ -1828,7 +1835,6 @@
         :+  %7
           lam
         ?~  arg.j
-          ~&  >>>  this-lambda+lam
           [%9 2 %0 1]
         =+  [arg arg-jyp]=$(j u.arg.j)
         [%9 2 %10 [6 [%7 [%0 3] arg]] %0 1]
