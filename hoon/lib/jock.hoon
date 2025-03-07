@@ -1474,13 +1474,12 @@
       =.  jyp
         =/  inferred-type=(unit jype)  `type.j
         :: =/  inferred-type  (~(unify jt type.j) val-jyp)
-        :: =/  inferred-type  (~(unify jt type.j) val-jyp)
         ?~  inferred-type
           ~|  '%let: value type does not nest in declared type'
           ~|  "have: {<val-jyp>}\0aneed: {<type.j>}"
           !!
         (~(cons jt u.inferred-type) jyp)
-        :: (~(cons jt jyp) u.inferred-type)
+        :: (~(cons jt jyp) u.inferred-type)  :: ideal? works for 25
         :: u.inferred-type
       ~|  %let-next
       =+  [nex nex-jyp]=$(j next.j)
