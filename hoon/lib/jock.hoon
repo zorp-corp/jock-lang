@@ -74,7 +74,7 @@
           [%hexadecimal p=@ux]
           [%loobean p=?]
       ==
-    q=?(%.y %.n)
+      q=?(%.y %.n)                  ::  constant flag
   ==
 ::
 +$  token
@@ -133,8 +133,8 @@
   ++  name               sym                              :: term
   ::
   ++  tagged-type        (stag %type type)                :: [%type 'Cord']
-  ++  type               alu                              :: Cord
-  ++  alu                %+  cook                         :: Ulll
+  ++  type               aul                              :: Cord
+  ++  aul                %+  cook                         :: Ulll
                              |=(a=tape (rap 3 ^-((list @) a)))
                          ;~(plug hig (star low))
   ::
@@ -1220,6 +1220,7 @@
   ++  get-limb
     |=  lis=(list jlimb)
     ^-  (pair jype (list jwing))
+    =-  ~&  >  return+[-]  -
     |^
     ::  The resulting jwing.
     =/  res=(list jwing)  ~
@@ -1232,20 +1233,18 @@
       :-  jyp
       ::  If self, return the wing.
       ?:  =(ret 1)
-        ::  If empty search list, then return our self.
-        ?~  res  ret^~
+        ::  If search list empty, then return self.
+        ?~  res  ~[ret]
         ::  Else, return the wing.
         (flop res)
       ::  If no wing, return our self.
-      ?~  res  ret^~
+      ?~  res  ~[ret]
       ::  If wing and not self, disambiguate.
-      :: ?~  res  !!
-      ?>  ?=([arm-axis=@ core-axis=@] i.res)
-      ?>  ?=(@ ret)
-      ^-  (list jwing)
-      i.res^~
-      :: [`@`arm-axis.i.res `@`core-axis.i.res]^~
+      ~[i.res]
     =/  axi=(unit jwing)
+      ~&  what-i-have+i.lis
+      =-  ~&  >>  -  -
+      ::  Resolve names and types to axes.
       ?:  |(?=(%name -.i.lis) ?=(%type -.i.lis) !=(%$ name.jyp))
         (axis-at-name +.i.lis)
       `+.i.lis
@@ -1256,44 +1255,84 @@
         ~|  no-type-at-axis+[axi jyp]
         !!
       $(lis t.lis, jyp u.new-jyp, res [u.axi res])
-    ?~  new-jyp=(type-at-axis u.axi)
-      !!
+    ~&  type-at-axis+(type-at-axis u.axi)
+    ?~  new-jyp=(type-at-axis u.axi)  ~|(%expect-type-at-axis !!)
     ?:  =(%limb -<.u.new-jyp)
       =/  lis  ;;((list jlimb) ->.u.new-jyp)  :: TMI
       ?~  lis  !!
-      ?:  =(%type -.i.lis)
-        =/  cor-axi  (axis-at-name +.i.lis)
-        ?~  cor-axi  ~|("no core found in {<u.new-jyp>}" !!)
-        =.  res  [u.cor-axi res]
-        ::  As with +axis-at-type, type can be in one of two places:
-        ::    a core, if the initial definition, or
-        ::    the subject (if a name dereference).
-        ?:  ?=(%core -<.jyp)
-          :: %core
-          =/  pay  q.p.jyp
-          ?~  pay  ~|("expected type in context" !!)
-          =/  axi  (axis-at-name(jyp u.pay) +.i.lis)
-          ?~  axi  ~|("type not found in context: {<i.lis>}" !!)
-          ::  payload at +3
-          ::  TODO break down into door/class which probably matters here
-          $(lis t.lis, jyp u.pay, res [(peg 3 ;;(@ u.axi)) res])
-        :: &limb
-        ?>  ?=(%limb -<-<.jyp)
-        =/  lim  ;;([[%limb p=(list jlimb)] cord] u.new-jyp)
-        =/  axi  (axis-at-name +:(snag 0 p.lim))
-        ?~  axi  ~|("limb not found: {<[->->.lim]>} in {<jyp>}" !!)
-        =/  typ  (type-at-axis ;;(@ u.axi))
-        ?~  typ  ~|("type not found: {<[->->.lim]>} in {<jyp>}" !!)
-        $(lis t.lis, jyp u.typ)
-      !!
+      ::  If this is a method call, resolve the type reference then continue.
+      ~&  method-call-check+[(lent lis) lis]
+      ~&  axis+[-<.lis]
+      :: ?>  ?=(%type -<.lis)
+      ?.  ?=(%type -<.lis)
+        ::  axis
+        ~&  axis+lis
+        ?^  ret  ~|(%todo-support-limbs-in-core !!)
+        =.  ret  (peg ret u.axi)
+        ?>  (lth ret (bex 63))  :: disallow axes larger than Goldilocks prime field
+        $(lis t.lis, jyp u.new-jyp)
+      ?:  =(1 (lent lis))
+        ::  bare reference to value, just get axis
+        ~&  >>  bare-naked-ladies+lis
+        ?>  ?=(%limb -<.u.new-jyp)
+        =/  axi  (axis-at-name ->->.u.new-jyp)
+        ?~  axi  ~|("limb not found: {<[->->.u.new-jyp]>} in {<jyp>}" !!)
+        ?>  ?=(@ u.axi)
+        =/  typ  (type-at-axis u.axi)
+        ?~  typ  ~|("type not found: {<[->->.u.new-jyp]>} in {<jyp>}" !!)
+        ~&  >>  bare-naked-ladies+[u.axi typ]
+        ~&  >>  bare-naked-ladies+[`cord`->->.u.new-jyp]
+        ~&  >>  bare-naked-ladies+[ret res]
+        =.  res  [u.axi res]
+        :: $(lis t.lis, jyp u.typ, res [u.axi res])
+        :-  u.typ
+        ?:  =(ret 1)
+          (flop res)
+        ?~  res  ~[ret]  :: TMI
+        ~[i.res]
+      ::  ahead of method call
+      =/  cor-axi  (axis-at-name +.i.lis)
+      ?~  cor-axi  ~|("no core found in {<u.new-jyp>}" !!)
+      ~&  type-axis+u.cor-axi
+      =.  res  [u.cor-axi res]
+      ~&  type-res+res
+      ::  As with +axis-at-type, type can be in one of two places:
+      ::    a core, if the initial definition, or
+      ::    the subject (if a name dereference).
+      ?:  ?=(%core -<.jyp)
+        ~&  'core-branch'
+        :: %core
+        =/  pay  q.p.jyp
+        ?~  pay  ~|("expected type in context" !!)
+        =/  axi  (axis-at-name(jyp u.pay) +.i.lis)
+        ?~  axi  ~|("type not found in context: {<i.lis>}" !!)
+        ::  payload at +3
+        ::  TODO break down into door/class which probably matters here
+        $(lis t.lis, jyp u.pay, res [(peg 3 ;;(@ u.axi)) res])
+      :: &limb
+      ~&  'limb-branch'
+      ?>  ?=(%limb -<-<.jyp)
+      ?>  ?=(%limb -<.u.new-jyp)
+      =/  axi  (axis-at-name ->->.u.new-jyp)
+      ?~  axi  ~|("limb not found: {<[->->.u.new-jyp]>} in {<jyp>}" !!)
+      =/  typ  (type-at-axis ;;(@ u.axi))
+      ?~  typ  ~|("type not found: {<[->->.u.new-jyp]>} in {<jyp>}" !!)
+      $(lis t.lis, jyp u.typ)
+    ~&  ret+ret
     ?^  ret
       ::  TODO: in order to support additional limbs
       ::  after a core resolution, we require the return type
       ::  to be a (list jwing)
       !!
+    ~&  'here1'
+    ~&  axis1+axi
     =.  ret  (peg ret u.axi)
-    ?>  (lth ret (bex 63))
+    ~&  'here2'
+    ?>  (lth ret (bex 63))  :: disallow axes larger than Goldilocks prime field
+    ~&  'here3'
+    =-  ~&  >  here+[-]  -
     $(lis t.lis, jyp u.new-jyp)
+    ::
     ::  Locate the type at a given axis.
     ++  type-at-axis
       |=  axi=@
@@ -1526,6 +1565,7 @@
           ~|  ['have:' val-jyp 'need:' type.j]
           !!
         (~(cons jt u.inferred-type) jyp)
+      ::  TODO validate that return from method is correct jype
       [val val-jyp]
     ::
         %class
@@ -1544,10 +1584,9 @@
         (~(put by *(map term jype)) name.i.lis one-jyp)
       =>  .(lis `(list [name=term val=jock])`+.lis)
       ::  core and jype of subsequent arms
-      ::  TODO validate that return from method is correct jype
       |-  ^-  [nock jype]
       ?~  lis
-        :-  [%8 sam-nok [%1 cor-nok]]
+        :-  [%8 sam-nok [%1 cor-nok] %0 1]  ::  XXX autocons [0 1] for subject
         [[%core %|^cor-jyp ~] name.state.j]
       =+  [mor-nok mor-jyp]=%=(^$ j val.i.lis, jyp exe-jyp)
       %_    $
@@ -1566,6 +1605,8 @@
       =+  [val val-jyp]=$(j val.j)
       ~|  %edit-next
       ?>  ?=(^ (~(unify jt typ) val-jyp))
+      ~&  >>>  "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      =-  ~&  >  next+[-]  -
       =+  [nex nex-jyp]=$(j next.j)
       [[%7 [%10 [axi val] %0 1] nex] nex-jyp]
     ::
@@ -1702,25 +1743,23 @@
       ==
     ::
         %call
+      =-  ~&  >>  call-out+[-]  -
       ?+    -.func.j  !!
           %limb
         =/  old-jyp  jyp
         ~|  %call-limb
+        ~&  >  call-limb+p.func.j
         =/  limbs=(list jlimb)  p.func.j
         ?>  ?=(^ limbs)
         ::  Right now, the trouble is that Hoon makes [0 22] where we
         ::  make a [9 2 0 1].
         =/  [typ=jype ljw=(list jwing)]
-          ?.  &(?=(%axis -.i.limbs) =(+.i.limbs 0))
-            (~(get-limb jt jyp) p.func.j)
+          ?.  =([%axis 0] -.limbs)
+            (~(get-limb jt jyp) limbs)
           ::  special case: we're looking for $
           =/  ret  (~(find-buc jt jyp))
-          ?~  ret
-            ~|  "couldn't find $"
-            ~|  jyp
-            !!
-          [-.u.ret [2 +.u.ret]^~]
-        :: |-
+          ?~  ret  ~|("couldn't find $ in {<jyp>}" !!)
+          [-.u.ret ~[2 +.u.ret]]
         ::  At this point it's looking for a %core (either func or class).
         ::  We need to resolve several cases (in no particular order):
         ::    1. func function (single jlimb)
@@ -1728,13 +1767,8 @@
         ::    3. class method (in instance) (two jlimbs, first a name)
         ::    4. lambda function (assigned to variable) (single jlimb)
         ::    5. class method (from other method)
-        ?^  -<.typ
-          ~|  typ
-          ~|  limbs
-          !!
-        ?.  ?=(%core -.p.typ)
-          ~|  %expected-type-to-be-core
-          !!
+        ?^  -<.typ  ~|([typ limbs] !!)
+        ?.  ?=(%core -.p.typ)  ~|(%expected-type-to-be-core !!)
         ::
         ::  traditional function call (case 1)
         ?:  ?=(%& -.p.p.typ)
@@ -1785,12 +1819,11 @@
             ~&  qgyp+qgyp
             =/  wing  (resolve-wing ljw)
             =-  ~&  >>  -  -
-            ?:  =(%0 -.wing)
-              ~&  wing+;;(@ +.wing)
-              [%0 (peg ;;(@ +.wing) (peg arm-axis.qgyp core-axis.qgyp))]
-            ~&  wing+[+.wing]
-            (resolve-wing ljw)
-            :: [%9 2 %0 1]
+            ?:  ?=(%0 -.wing)
+              ~&  wing+[+.wing]
+              [%0 (peg +.wing (peg arm-axis.qgyp core-axis.qgyp))]
+            ~&  wingg+[wing]
+            wing
           =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
           [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
         ::
@@ -1815,16 +1848,16 @@
         ::  Compose a class (door), which requires some tree math.
         =-  ~&  >>  loader+[-]  -
         :+  %8
-          ~&  >>  loaderr+q.gyp
+          ~&  >>  loadgyp+q.gyp
           =/  qgyp  ;;([arm-axis=@ core-axis=@] -.q.gyp)
           =/  qdyp  ;;(@ -.q.dyp)
           =/  wing  (resolve-wing ljw)
           =-  ~&  >>  -  -
-          ?:  =(%0 -.wing)
-            ~&  zing+;;(@ +.wing)
-            [%0 (peg ;;(@ +.wing) (peg arm-axis.qgyp core-axis.qgyp))]
-          ~&  zing+[+.wing]
-          (resolve-wing ljw)
+          ?:  ?=(%0 -.wing)
+            ~&  zing+[+.wing]
+            [%0 (peg +.wing (peg arm-axis.qgyp core-axis.qgyp))]
+          ~&  zingg+[wing]
+          wing
         =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
         [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
       ::
@@ -1894,7 +1927,7 @@
       =+  [body body-jyp]=$(j body.p.j, jyp lam-jyp)
       ?~  pay
         :_  (lam-j arg.p.j `jyp)
-        [%8 input-default [%1 body] [%0 1]]  ::  XXX autocons [0 1] for subject
+        [%8 input-default [%1 body] %0 1]  ::  XXX autocons [0 1] for subject
       :_  (lam-j arg.p.j `q.u.pay)
       [%8 input-default [%1 body] p.u.pay]
     ::
@@ -1937,7 +1970,7 @@
         ::  address of [a_{k-1} ~] (final nontrivial tail of list)
         =+  (dec (bex (lent a)))
         .*  a
-        [%10 [- [%0 (mul 2 -)]] [%0 1]]
+        [%10 [- [%0 (mul 2 -)]] %0 1]
       --
     ::
         %set
@@ -1998,6 +2031,7 @@
     |=  ljw=(list jwing)
     ^-  nock
     ?>  ?=(^ ljw)
+    ~&  resolve-wing+ljw
     =/  last=nock
       ?@  i.ljw
         [%0 i.ljw]
