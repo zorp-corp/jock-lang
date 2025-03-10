@@ -259,6 +259,29 @@
   ^-  cord
   (crip "{<term>}: {<nock>}")
 ::
+++  jype
+  |=  =cord
+  ^-  jype:jock
+  ~|  %jype
+  =/  res=(unit jype:jock)
+    %-  mole
+    |.
+    (jypist:jock cord)
+  ?~  res
+    *jype:jock
+  u.res
+::
+++  jype-all
+  :: ^-  (list (pair term jype:jock))
+  %+  turn
+    %+  turn  list-jocks
+    |=  [=term t=@t]
+    ~|  term
+    [term (jype t)]
+  |=  [=term =jype:jock]
+  ^-  cord
+  (crip "{<term>}: {<jype>}")
+::
 ++  nock
   |=  =cord
   ^-  *

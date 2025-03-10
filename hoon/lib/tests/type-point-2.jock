@@ -42,5 +42,5 @@ vector
 // let origin = Point(50 60);
 // origin.add(70 80)
 
-// fails
+// fails (probably should)
 // Point(50 60).add(70 80)

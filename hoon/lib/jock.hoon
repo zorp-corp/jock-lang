@@ -20,6 +20,14 @@
       =/  jok  (jeam txt)
       =+  [nok jyp]=(~(mint cj [%atom %string %.n]^%$) jok)
       nok
+    ::
+    ++  jypist
+      |=  txt=@
+      ^-  jype
+      =/  jok  (jeam txt)
+      =+  [nok jyp]=(~(mint cj [%atom %string %.n]^%$) jok)
+      jyp
+    ::
     --
 =>
 ::
@@ -218,6 +226,7 @@
       [%func type=jype body=jock next=jock]
       [%class state=jype arms=(map term jock)]  :: TODO do we want payload?
       [%method type=jype body=jock]
+      ::  support value returns?
       [%edit limb=(list jlimb) val=jock next=jock]
       [%increment val=jock]
       [%cell-check val=jock]
@@ -1519,6 +1528,8 @@
       ::  unified context including door sample in payload
       =/  exe-jyp=jype
         [[%core %|^(~(run by arms.j) |=(* untyped-j)) `state.j] %$]
+        ::  unify w/ context? cons?  zeroing out is separate from
+        ::  whether class exposes context to lower things
       =/  lis=(list [name=term val=jock])  ~(tap by arms.j)
       ?>  ?=(^ lis)
       ::  core and jype of first arm
@@ -1530,10 +1541,16 @@
       ::  core and jype of subsequent arms
       |-  ^-  [nock jype]
       ?~  lis
-        :-  [%8 sam-nok [%1 cor-nok] %0 1]  ::  XXX autocons [0 1] for subject
-        [[%core %|^cor-jyp ~] name.state.j]
+        :-  [%8 sam-nok [%1 cor-nok]]
+        (~(cons jt [[%core %|^cor-jyp `state.j] name.state.j]) jyp)
+        :: (~(cons jt (~(cons jt [[%core %|^cor-jyp `state.j] name.state.j]) jyp)) jyp)
+        :: [[[%core %|^cor-jyp `state.j] name.state.j] jyp] :: ?
+        :: state.j in 6 but should be left? check explicit structure
+        :: cons to state.j as inferior of outer cons
+        :: jype is zeroing out context (maybe pair of state.j and cons?)
+        :: 3 = jyp
       =+  [mor-nok mor-jyp]=%=(^$ j val.i.lis, jyp exe-jyp)
-      %_    $
+      %_  $
         lis      t.lis
         cor-nok  [mor-nok cor-nok]
         cor-jyp  (~(put by cor-jyp) name.i.lis mor-jyp)
