@@ -12,6 +12,7 @@
       [%parse-all ~]
       [%jeam-all ~]
       [%mint-all ~]
+      [%jype-all ~]
       [%nock-all ~]
       [%run-details ~]
   ==
@@ -78,6 +79,10 @@
   ::
       %mint-all
     ~&  mint-all:test-jock
+    [~ k]
+  ::
+      %jype-all
+    ~&  jype-all:test-jock
     [~ k]
   ::
       %nock-all
