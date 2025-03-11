@@ -1434,31 +1434,31 @@
     [jyp q]^%$
   ::
   ++  unify
-    |=  v=jype
+    |=  ryp=jype
     ^-  (unit jype)
-    ~|  "unable to unify types\0ahave: {<v>}\0aneed: {<jyp>}"
+    ~|  "unable to unify types\0ahave: {<ryp>}\0aneed: {<jyp>}"
     ?^  -<.jyp
-      ?@  -<.v
-        ?:  =(%none -.p.v)
+      ?@  -<.ryp
+        ?:  =(%none -.p.ryp)
           `jyp
         ~
-      =+  [p q]=[(~(unify jt p.jyp) p.v) (~(unify jt q.jyp) q.v)]
+      =+  [p q]=[(~(unify jt p.jyp) p.ryp) (~(unify jt q.jyp) q.ryp)]
       ?:  |(?=(~ p) ?=(~ q))
         ~
       `[[u.p u.q] name.jyp]
-    ?^  -<.v
+    ?^  -<.ryp
       ?:  =(%none -.p.jyp)
-        `v(name name.jyp)
+        `ryp(name name.jyp)
       ~
     :-  ~
     :_  name.jyp
     ?:  =(%none -.p.jyp)
-      p.v
-    ?:  =(%none -.p.v)
+      p.ryp
+    ?:  =(%none -.p.ryp)
       p.jyp
-    ?:  =(%cell -.p.v)
+    ?:  =(%cell -.p.ryp)
       !!
-    ?>  =(-.p.jyp -.p.v)
+    ?>  =(-.p.jyp -.p.ryp)
     p.jyp
   ::
   --
@@ -1479,22 +1479,23 @@
     ::
         %let
       ~|  %let-value
-      ~&  >>>  let-jyp+jyp
       =+  [val val-jyp]=$(j val.j)
-      ~&  >>  let-val-jyp+val-jyp
       =.  jyp
-        :: =/  inferred-type=(unit jype)  `type.j
-        =/  inferred-type  (~(unify jt type.j) val-jyp)
-        ~&  >  let-inferred-type+inferred-type
+        =/  inferred-type
+          ?:  ?=(%limb -<.type.j)
+            =/  [lyp=jype ljw=(list jwing)]
+              (~(get-limb jt jyp) +.p.type.j)
+            (~(unify jt lyp) val-jyp)
+          (~(unify jt type.j) val-jyp)
         ?~  inferred-type
           ~|  '%let: value type does not nest in declared type'
           ~|  "have: {<val-jyp>}\0aneed: {<type.j>}"
           !!
+        =?  inferred-type  ?=(%limb -<.type.j)  `u.inferred-type(name name.type.j)
         (~(cons jt u.inferred-type) jyp)
         :: (~(cons jt jyp) u.inferred-type)  :: ideal? works for 25
         :: u.inferred-type
       ~|  %let-next
-      ~&  letting-next+next.j
       =+  [nex nex-jyp]=$(j next.j)
       [[%8 val nex] nex-jyp]
     ::

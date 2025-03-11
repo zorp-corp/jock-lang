@@ -1,11 +1,10 @@
 compose
   class Point(x:@ y:@) {
-    // load() is the required constructor
-    load(ix:@ iy:@) -> Point {
-      // the constructor return must match the state shape
-      (ix iy)
+    add(p:(x y)) -> Point {
+      // we don't have infix operators yet so this is just a foobar
+      (p.x p.y)
     }
-    add(p:Point) -> Point {
+    sub(p:Point) -> Point {
       // we don't have infix operators yet so this is just a foobar
       (p.x p.y)
     }

@@ -12,10 +12,15 @@ compose
   }
 ; // end compose
 
-// use the implicit load() constructor
+// works
 // Foo(42)
 
-let a = Foo(42);
+// works
+// let a = Foo(42);
+// a
+
+// works
+let a:Foo = Foo(42);
 a
 
 /*
