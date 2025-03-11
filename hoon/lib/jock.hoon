@@ -1536,7 +1536,7 @@
         ::  unify w/ context? cons?  zeroing out is separate from
         ::  whether class exposes context to lower things
       :: ~&  >>>  class-exe-jyp+exe-jyp
-      :: =/  lis=(list [name=term val=jock])  ~(tap by arms.j)
+      =/  lis=(list [name=term val=jock])  ~(tap by arms.j)
       ?>  ?=(^ lis)
       ::  core and jype of first arm
       =+  [cor-nok one-jyp]=$(j val.i.lis, jyp exe-jyp)
@@ -1733,7 +1733,9 @@
         ::    4. lambda function (assigned to variable) (single jlimb)
         ::    5. class method (from other method)
         ?^  -<.typ
-          ~|  %case-2-5
+          ::  class method call by constructor (case 2), multiple arguments
+          ::  [%call func=[%limb p=(list jlimb)] arg=(unit jock)]
+          ~|  %case-2-args
           ?>  ?=(%type -<.limbs)
           ?~  arg.j  ~|("expect method argument" !!)
           =+  [val val-jyp]=$(j u.arg.j)
@@ -1742,11 +1744,12 @@
             ~|  '%call: argument value type does not nest in method type'
             ~|  "have: {<val-jyp>}\0aneed: {<typ>}"
             !!
+          =.  inferred-type  `u.inferred-type(name ->.limbs)
           :-  val
           u.inferred-type
           :: ~|("could not locate {<limbs>} in {<jyp>}" !!)
         ?.  ?=(%core -.p.typ)
-          ::  class method call by constructor (case 2)
+          ::  class method call by constructor (case 2), single argument
           ::  [%call func=[%limb p=(list jlimb)] arg=(unit jock)]
           ~|  %case-2
           ?>  ?=(%type -<.limbs)
@@ -1757,6 +1760,7 @@
             ~|  '%call: argument value type does not nest in method type'
             ~|  "have: {<val-jyp>}\0aneed: {<typ>}"
             !!
+          =.  inferred-type  `u.inferred-type(name ->.limbs)
           :-  val
           u.inferred-type
         ::
