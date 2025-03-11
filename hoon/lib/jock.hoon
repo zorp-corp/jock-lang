@@ -1229,6 +1229,8 @@
   ++  get-limb
     |=  lis=(list jlimb)
     ^-  (pair jype (list jwing))
+    ~&  lis+lis
+    ~&  >  jyp+jyp
     |^
     ::  The resulting jwing.
     =/  res=(list jwing)  ~
@@ -1481,11 +1483,23 @@
       ~|  %let-value
       =+  [val val-jyp]=$(j val.j)
       =.  jyp
+        ::  let permits four correct cases:
+        ::  1. let name:type = value;
+        ::  2. let name = value;
+        ::  3. let name = Type(value);
+        ::  4. let name:(@ @) = value;  (primitive type)
         =/  inferred-type
           ?:  ?=(%limb -<.type.j)
+            :: case 1, let name:type = value;
             =/  [lyp=jype ljw=(list jwing)]
               (~(get-limb jt jyp) +.p.type.j)
             (~(unify jt lyp) val-jyp)
+          ?:  (is-type name.val-jyp)
+            :: case 3, let name = Type(value);
+            ::  ?>  TODO assert match with class state
+            ^-  (unit jype)
+            `[[%limb ~[[%type name.val-jyp]]] name.type.j]
+          :: cases 2 and 4, let name = value;
           (~(unify jt type.j) val-jyp)
         ?~  inferred-type
           ~|  '%let: value type does not nest in declared type'
@@ -1493,7 +1507,6 @@
           !!
         =?  inferred-type  ?=(%limb -<.type.j)  `u.inferred-type(name name.type.j)
         (~(cons jt u.inferred-type) jyp)
-        :: (~(cons jt jyp) u.inferred-type)  :: ideal? works for 25
       ~|  %let-next
       =+  [nex nex-jyp]=$(j next.j)
       [[%8 val nex] nex-jyp]
@@ -1717,40 +1730,67 @@
         =/  old-jyp  jyp
         ~|  %call-limb
         =/  limbs=(list jlimb)  p.func.j
+        ~&  >>>  call+limbs
         ?>  ?=(^ limbs)
         =/  [typ=jype ljw=(list jwing)]
+          ~&  'one'
           ?.  =([%axis 0] -.limbs)
+            ~&  'two'
+            =-  ~&  -  -
             (~(get-limb jt jyp) limbs)
           ::  special case: we're looking for $
+          ~&  'three'
           =/  ret  (~(find-buc jt jyp))
+          ~&  'four'
           ?~  ret  ~|("couldn't find $ in {<jyp>}" !!)
+          ~&  'five'
           [-.u.ret ~[2 +.u.ret]]
         ::  At this point it's looking for a %core (either func or class).
         ::  We need to resolve several cases (in no particular order):
         ::    1. func function (single jlimb)
-        ::    2. class method (in definition) (one jlimb, a Type)
+        ::    2. class method (definition) (one jlimb) (single or multiple args)
         ::    3. class method (in instance) (two jlimbs, first a name)
         ::    4. lambda function (assigned to variable) (single jlimb)
         ::    5. class method (from other method)
+        ~&  'here!'
+        ::
+        ::  class method call by constructor (case 2), multiple arguments
+        ::  [%call func=[%limb p=(list jlimb)] arg=(unit jock)]
         ?^  -<.typ
-          ::  class method call by constructor (case 2), multiple arguments
-          ::  [%call func=[%limb p=(list jlimb)] arg=(unit jock)]
+          ~&  >>>  case-2-5-args+typ
+          ~&  >>  case-2-5-limbs+limbs
+          ~&  >  case-2-5-args+arg.j
           ~|  %case-2-args
-          ?>  ?=(%type -<.limbs)
+          ?:  ?=(%type -<.limbs)
+            ?~  arg.j  ~|("expect method argument" !!)
+            =+  [val val-jyp]=$(j u.arg.j)
+            =/  inferred-type  (~(unify jt typ) val-jyp)
+            ?~  inferred-type
+              ~|  '%call: argument value type does not nest in method type'
+              ~|  "have: {<val-jyp>}\0aneed: {<typ>}"
+              !!
+            =.  inferred-type  `u.inferred-type(name ->.limbs)
+            :-  val
+            u.inferred-type
+          ?>  ?=(%name -<.limbs)
+          ~&  >  'name!'
           ?~  arg.j  ~|("expect method argument" !!)
           =+  [val val-jyp]=$(j u.arg.j)
+          ~&  'values!'
           =/  inferred-type  (~(unify jt typ) val-jyp)
           ?~  inferred-type
             ~|  '%call: argument value type does not nest in method type'
             ~|  "have: {<val-jyp>}\0aneed: {<typ>}"
             !!
           =.  inferred-type  `u.inferred-type(name ->.limbs)
+          =-  ~&  -  -
           :-  val
           u.inferred-type
           :: ~|("could not locate {<limbs>} in {<jyp>}" !!)
+        ::
+        ::  class method call by constructor (case 2), single argument
+        ::  [%call func=[%limb p=(list jlimb)] arg=(unit jock)]
         ?.  ?=(%core -.p.typ)
-          ::  class method call by constructor (case 2), single argument
-          ::  [%call func=[%limb p=(list jlimb)] arg=(unit jock)]
           ~|  %case-2
           ?>  ?=(%type -<.limbs)
           ?~  arg.j  ~|("expect method argument" !!)
@@ -1789,6 +1829,7 @@
           [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
         ::
         ::  class method call by instance (case 3)
+        ~&  >>>  %case-3
         ?>  ?=(%name -<.limbs)
         ~|  %case-3
         ::  Get class definition for instance.
