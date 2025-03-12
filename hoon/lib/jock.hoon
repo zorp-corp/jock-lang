@@ -1495,17 +1495,21 @@
         =/  inferred-type
           ?:  ?=(%limb -<.type.j)
             :: case 1, let name:type = value;
+            ~&  >  %case-1
             =/  [lyp=jype ljw=(list jwing)]
               =/  gat  ~(get-limb jt jyp)
               (gat(any %|) +.p.type.j)
             (~(unify jt lyp) val-jyp)
           ?:  (is-type name.val-jyp)
+            ~&  >  %case-3
             :: case 3, let name = Type(value);
             ::  ?>  TODO assert match with class state
             ^-  (unit jype)
             `[[%limb ~[[%type name.val-jyp]]] name.type.j]
           :: cases 2 and 4, let name = value;
+          ~&  >  %case-2-4
           (~(unify jt type.j) val-jyp)
+        ~&  >  inferred-type+inferred-type
         ?~  inferred-type
           ~|  '%let: value type does not nest in declared type'
           ~|  "have: {<val-jyp>}\0aneed: {<type.j>}"
