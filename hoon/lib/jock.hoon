@@ -1226,11 +1226,11 @@
   ::  A jwing is a scope resolution into a particular structure.
   ::  A jlimb is thus the actual axis in the subject of the value,
   ::  or a name/type reference to it.
+  ::  If we must return a core (as in a class search), set any to %.n.
   ++  get-limb
+    =|  any=?
     |=  lis=(list jlimb)
     ^-  (pair jype (list jwing))
-    ~&  lis+lis
-    ~&  >  jyp+jyp
     |^
     ::  The resulting jwing.
     =/  res=(list jwing)  ~
@@ -1284,6 +1284,10 @@
         =/  typ  (type-at-axis u.axi)
         ?~  typ  ~|("type not found: {<[->->.u.new-jyp]>} in {<jyp>}" !!)
         =.  res  [u.axi res]
+        ?.  any
+          ::  If we're searching for a core and this is not one, keep going.
+          ~&  no-core+[res ret typ]
+          !!
         :-  u.typ
         ?:  =(ret 1)
           (flop res)
@@ -1492,7 +1496,8 @@
           ?:  ?=(%limb -<.type.j)
             :: case 1, let name:type = value;
             =/  [lyp=jype ljw=(list jwing)]
-              (~(get-limb jt jyp) +.p.type.j)
+              =/  gat  ~(get-limb jt jyp)
+              (gat(any %|) +.p.type.j)
             (~(unify jt lyp) val-jyp)
           ?:  (is-type name.val-jyp)
             :: case 3, let name = Type(value);
