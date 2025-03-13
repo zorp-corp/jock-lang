@@ -13,13 +13,13 @@ compose
 ; // end compose
 
 //  let name:Type = value;
-let a:Foo = Foo(42);
+let a:Foo = Foo(41);
 //  let name = Type(value);
 let b = Foo(42);
 //  let name:type = value;
-let c:@ = 42;
+let c:@ = 43;
 
-(Foo(42) a b c)
+(Foo(40) a b c)
 
 /*
 [p=[%call func=[%limb p=~[[%type p='Foo']]] arg=[~ [%atom p=[[%number p=42] q=%.n]]]]

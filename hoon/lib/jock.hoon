@@ -1266,65 +1266,70 @@
         !!
       $(lis t.lis, jyp u.new-jyp, res [u.axi res])
     ?~  new-jyp=(type-at-axis u.axi)  ~|(%expect-type-at-axis !!)
-    ?:  =(%limb -<.u.new-jyp)
-      =/  lis  ;;((list jlimb) ->.u.new-jyp)  :: TMI
-      ?~  lis  !!
-      ::  If this is a method call, resolve the type reference then continue.
-      ?.  ?=(%type -<.lis)
-        ~&  >  'call by axis'
-        ::  Call by axis.
-        ?^  ret  ~|(%todo-support-limbs-in-core !!)
-        =.  ret  (peg ret u.axi)
-        ?>  (lth ret (bex 63))  :: disallow axes larger than Goldilocks prime field
-        $(lis t.lis, jyp u.new-jyp)
-      :: ?>  ?=(%type -<.lis)
-      ?:  =(1 (lent lis))
-        ::  Bare reference to instance.
-        ~&  >  'bare ref'
-        ?>  ?=(%limb -<.u.new-jyp)
-        =/  axi  (axis-at-name ->->.u.new-jyp)
-        ?~  axi  ~|("limb not found: {<[->->.u.new-jyp]>} in {<jyp>}" !!)
-        ~&  >  axi+axi
-        ?>  ?=(@ u.axi)
-        =/  typ  (type-at-axis u.axi)
-        ?~  typ  ~|("type not found: {<[->->.u.new-jyp]>} in {<jyp>}" !!)
-        ~&  >  typ+typ
-        =.  res  [u.axi res]
-        ?.  any
-          ::  If we're searching for a core and this is not one, keep going.
-          ~&  no-core+[res ret typ]
-          !!
-        =-  ~&  >  bare+[-]  -
-        :-  u.typ
-        ?:  =(ret 1)
-          (flop res)
-        ?~  res  ~[ret]  :: TMI
-        ~[i.res]
-      ::  Reference to instance for method call.
-      ~&  >  'method ref'
-      =/  cor-axi  (axis-at-name +.i.lis)
-      ?~  cor-axi  ~|("no core found in {<u.new-jyp>}" !!)
-      =.  res  [u.cor-axi res]
-      ::  As with +axis-at-type, type can be in one of two places:
-      ::    a core, if the initial definition, or
-      ::    the subject (if a name dereference).
-      ?:  ?=(%core -<.jyp)
-        :: %core
-        =/  pay  q.p.jyp
-        ?~  pay  ~|("expected type in context" !!)
-        =/  axi  (axis-at-name(jyp u.pay) +.i.lis)
-        ?~  axi  ~|("type not found in context: {<i.lis>}" !!)
-        ::  payload at +3
-        ::  TODO break down into door/class which probably matters here
-        $(lis t.lis, jyp u.pay, res [(peg 3 ;;(@ u.axi)) res])
-      :: &limb
-      ?>  ?=(%limb -<-<.jyp)
-      ?>  ?=(%limb -<.u.new-jyp)
-      =/  axi  (axis-at-name ->->.u.new-jyp)
-      ?~  axi  ~|("limb not found: {<[->->.u.new-jyp]>} in {<jyp>}" !!)
-      =/  typ  (type-at-axis ;;(@ u.axi))
-      ?~  typ  ~|("type not found: {<[->->.u.new-jyp]>} in {<jyp>}" !!)
-      $(lis t.lis, jyp u.typ)
+    :: ?:  =(%limb -<.u.new-jyp)
+    ::   =/  lis  ;;((list jlimb) ->.u.new-jyp)  :: TMI
+    ::   ?~  lis  !!
+    ::   ::  If this is a method call, resolve the type reference then continue.
+    ::   ?.  ?=(%type -<.lis)
+    ::     ~&  >  'call by axis'
+    ::     ::  Call by axis.
+    ::     ?^  ret  ~|(%todo-support-limbs-in-core !!)
+    ::     =.  ret  (peg ret u.axi)
+    ::     ?>  (lth ret (bex 63))  :: disallow axes larger than Goldilocks prime field
+    ::     $(lis t.lis, jyp u.new-jyp)
+    ::   :: ?>  ?=(%type -<.lis)
+    ::   ?:  =(1 (lent lis))
+    ::     ::  Bare reference to instance.
+    ::     ::  In this case, we want the address of the state, which is at +6.
+    ::     ~&  >  'bare ref'
+    ::     ?>  ?=(%limb -<.u.new-jyp)
+    ::     =/  axi  (axis-at-name ->->.u.new-jyp)
+    ::     ?~  axi  ~|("limb not found: {<[->->.u.new-jyp]>} in {<jyp>}" !!)
+    ::     ~&  >  axi+axi
+    ::     ?>  ?=(@ u.axi)
+    ::     =/  typ  (type-at-axis (peg u.axi 6))
+    ::     ?~  typ  ~|("type not found: {<[->->.u.new-jyp]>} in {<jyp>}" !!)
+    ::     ~&  >  typ+typ
+    ::     =.  res  [6 u.axi res]
+    ::     :: =.  res  [u.axi res]
+    ::     :: ?.  any  :: TODO remove `any` flag
+    ::     ::   ::  If we're searching for a core and this is not one, keep going.
+    ::     ::   ~&  no-core+[res ret typ]
+    ::     ::   !!
+    ::     =-  ~&  >  bare+[-]  -
+    ::     :: $(lis t.lis, jyp u.new-jyp, res res)
+    ::     :-  u.typ
+    ::     ?>  =(1 ret)
+    ::     (flop res)
+    ::     :: ?~  res  ~&  ret+ret  ~[ret]  :: TMI
+    ::     :: :: (peg u.axi 6)
+    ::     :: ~&  >  i-res+i.res
+    ::     :: ~[i.res]
+    ::   ::  Reference to instance for method call.
+    ::   ~&  >  'method ref'
+    ::   =/  cor-axi  (axis-at-name +.i.lis)
+    ::   ?~  cor-axi  ~|("no core found in {<u.new-jyp>}" !!)
+    ::   =.  res  [u.cor-axi res]
+    ::   ::  As with +axis-at-type, type can be in one of two places:
+    ::   ::    a core, if the initial definition, or
+    ::   ::    the subject (if a name dereference).
+    ::   ?:  ?=(%core -<.jyp)
+    ::     :: %core
+    ::     =/  pay  q.p.jyp
+    ::     ?~  pay  ~|("expected type in context" !!)
+    ::     =/  axi  (axis-at-name(jyp u.pay) +.i.lis)
+    ::     ?~  axi  ~|("type not found in context: {<i.lis>}" !!)
+    ::     ::  payload at +3
+    ::     ::  TODO break down into door/class which probably matters here
+    ::     $(lis t.lis, jyp u.pay, res [(peg 3 ;;(@ u.axi)) res])
+    ::   :: &limb
+    ::   ?>  ?=(%limb -<-<.jyp)
+    ::   ?>  ?=(%limb -<.u.new-jyp)
+    ::   =/  axi  (axis-at-name ->->.u.new-jyp)
+    ::   ?~  axi  ~|("limb not found: {<[->->.u.new-jyp]>} in {<jyp>}" !!)
+    ::   =/  typ  (type-at-axis ;;(@ u.axi))
+    ::   ?~  typ  ~|("type not found: {<[->->.u.new-jyp]>} in {<jyp>}" !!)
+    ::   $(lis t.lis, jyp u.typ)
     ?^  ret
       ::  TODO: in order to support additional limbs
       ::  after a core resolution, we require the return type
@@ -1516,7 +1521,7 @@
             :: =/  byp  (~(unify jt lyp) val-jyp)
             :: ~&  byp+byp
             :: ?~  byp  ~|("let: value type does not nest in declared type" !!)
-            `[[%limb ~[[%type name.type.j]]] name.type.j]
+            `[[%limb ~[[%type name.val-jyp]]] name.type.j]
           ?:  (is-type name.val-jyp)
             :: case 4, let name = Type(value);
             :: [p=[%limb p=~[[%type p='Foo']]] name='name']
