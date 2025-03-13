@@ -12,8 +12,11 @@ compose
   }
 ; // end compose
 
+//  let name:Type = value;
 let a:Foo = Foo(42);
+//  let name = Type(value);
 let b = Foo(42);
+//  let name:type = value;
 let c:@ = 42;
 
 (Foo(42) a b c)
