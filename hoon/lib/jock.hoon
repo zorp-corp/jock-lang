@@ -1269,6 +1269,7 @@
       ?~  lis  !!
       ::  If this is a method call, resolve the type reference then continue.
       ?.  ?=(%type -<.lis)
+        ~&  >  'call by axis'
         ::  Call by axis.
         ?^  ret  ~|(%todo-support-limbs-in-core !!)
         =.  ret  (peg ret u.axi)
@@ -1277,23 +1278,28 @@
       :: ?>  ?=(%type -<.lis)
       ?:  =(1 (lent lis))
         ::  Bare reference to instance.
+        ~&  >  'bare ref'
         ?>  ?=(%limb -<.u.new-jyp)
         =/  axi  (axis-at-name ->->.u.new-jyp)
         ?~  axi  ~|("limb not found: {<[->->.u.new-jyp]>} in {<jyp>}" !!)
+        ~&  >  axi+axi
         ?>  ?=(@ u.axi)
         =/  typ  (type-at-axis u.axi)
         ?~  typ  ~|("type not found: {<[->->.u.new-jyp]>} in {<jyp>}" !!)
+        ~&  >  typ+typ
         =.  res  [u.axi res]
         ?.  any
           ::  If we're searching for a core and this is not one, keep going.
           ~&  no-core+[res ret typ]
           !!
+        =-  ~&  >  bare+[-]  -
         :-  u.typ
         ?:  =(ret 1)
           (flop res)
         ?~  res  ~[ret]  :: TMI
         ~[i.res]
       ::  Reference to instance for method call.
+      ~&  >  'method ref'
       =/  cor-axi  (axis-at-name +.i.lis)
       ?~  cor-axi  ~|("no core found in {<u.new-jyp>}" !!)
       =.  res  [u.cor-axi res]
@@ -1485,6 +1491,10 @@
     ::
         %let
       ~|  %let-value
+      ~&  >>>  '-----------------------------------------------------------'
+      :: ~&  let-inp+[type.j]
+      :: ~&  let-inp+[val.j]
+      :: ~&  let-nex+[next.j]
       =+  [val val-jyp]=$(j val.j)
       =.  jyp
         ::  let permits four correct cases:
@@ -1495,6 +1505,7 @@
         =/  inferred-type=(unit jype)
           ?:  ?=(%limb -<.type.j)
             :: case 3, let name:type = value;
+            :: [p=[%limb p=~[[%type p='Foo']]] name='name']
             :: check nesting of lval and rval but pass lval
             ~|  %nesting-with-specified-lval-type
             =/  [lyp=jype ljw=(list jwing)]
@@ -1508,12 +1519,14 @@
             :: `[[%limb ~[[%type name.val-jyp]]] name.type.j]
           ?:  (is-type name.val-jyp)
             :: case 4, let name = Type(value);
+            :: [p=[%limb p=~[[%type p='Foo']]] name='name']
             :: pass rval as Type after nesting check
             ~|  %nesting-without-specified-lval-type
             ^-  (unit jype)
             :: TODO assert nesting into class state
             `[[%limb ~[[%type name.val-jyp]]] name.type.j]
           :: cases 1 and 2, let name = value;
+          :: [p=jype name='name']
           :: pass unified lval and rval
           ~|  %nesting-without-specified-lval
           (~(unify jt type.j) val-jyp)
@@ -1523,7 +1536,9 @@
           !!
         =?  inferred-type  ?=(%limb -<.type.j)  `u.inferred-type(name name.type.j)
         (~(cons jt u.inferred-type) jyp)
+      ~&  let-result+jyp
       ~|  %let-next
+      ~&  >>>  '========================================================='
       =+  [nex nex-jyp]=$(j next.j)
       [[%8 val nex] nex-jyp]
     ::
@@ -1805,16 +1820,19 @@
         ?.  ?=(%core -.p.typ)
           ~|  %call-case-2
           ~&  %call-call-2
+          ~&  call-call-2-type+typ
+          ~&  call-call-2-args+arg.j
           ?>  ?=(%type -<.limbs)
           ?~  arg.j  ~|("expect method argument" !!)
           =+  [val val-jyp]=$(j u.arg.j)
+          ~&  >>>  nock+val
           ::  XXX this checks to make sure state and input actually nest
           =/  inferred-type  (~(unify jt typ) val-jyp)
           ?~  inferred-type
             ~|  '%call: argument value type does not nest in method type'
             ~|  "have: {<val-jyp>}\0aneed: {<typ>}"
             !!
-          =.  inferred-type  `u.inferred-type ::(name ->.limbs)
+          =.  inferred-type  `u.inferred-type
           :-  val
           :: u.inferred-type
           [[%limb limbs] ->.limbs]
@@ -1931,8 +1949,12 @@
     ::
         %limb
       ~|  %limb
+      ~&  >>>  limb-jype+jyp
+      ~&  >>>  limb-jock+j
       =/  res=(pair jype (list jwing))
         (~(get-limb jt jyp) p.j)
+      ~&  >>  limb-rest+res
+      =-  ~&  >>  limb+wing+[-]  -
       [(resolve-wing q.res) p.res]
     ::
         %lambda
