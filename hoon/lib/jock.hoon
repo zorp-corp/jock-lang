@@ -1231,6 +1231,8 @@
     =|  any=?
     |=  lis=(list jlimb)
     ^-  (pair jype (list jwing))
+    ~&  >>  get-limb+jyp
+    ~&  >>>  get-limb-list+lis
     |^
     ::  The resulting jwing.
     =/  res=(list jwing)  ~
@@ -1492,9 +1494,9 @@
         %let
       ~|  %let-value
       ~&  >>>  '-----------------------------------------------------------'
-      :: ~&  let-inp+[type.j]
-      :: ~&  let-inp+[val.j]
-      :: ~&  let-nex+[next.j]
+      ~&  let-typ+[type.j]
+      ~&  let-inp+[val.j]
+      ~&  let-nex+[next.j]
       =+  [val val-jyp]=$(j val.j)
       =.  jyp
         ::  let permits four correct cases:
@@ -1514,9 +1516,7 @@
             :: =/  byp  (~(unify jt lyp) val-jyp)
             :: ~&  byp+byp
             :: ?~  byp  ~|("let: value type does not nest in declared type" !!)
-            :: `lyp
-            `val-jyp(name name.type.j)
-            :: `[[%limb ~[[%type name.val-jyp]]] name.type.j]
+            `[[%limb ~[[%type name.type.j]]] name.type.j]
           ?:  (is-type name.val-jyp)
             :: case 4, let name = Type(value);
             :: [p=[%limb p=~[[%type p='Foo']]] name='name']
@@ -1534,7 +1534,9 @@
           ~|  '%let: value type does not nest in declared type'
           ~|  "have: {<val-jyp>}\0aneed: {<type.j>}"
           !!
+        ~&  inferred-type+inferred-type
         =?  inferred-type  ?=(%limb -<.type.j)  `u.inferred-type(name name.type.j)
+        ~&  inferred-type+inferred-type
         (~(cons jt u.inferred-type) jyp)
       ~&  let-result+jyp
       ~|  %let-next
@@ -1591,13 +1593,16 @@
       ::  core and jype of subsequent arms
       |-  ^-  [nock jype]
       ?~  lis
-        :: =-  ~&  class+[-]  -
+        =-  ~&  class+[-]  -
         :-  [%8 sam-nok [%1 cor-nok] [%0 1]]  :: XXX for subject
         :: ~&  >  class-core+`jype`[[%core %|^cor-jyp `state.j] name.state.j]
         :: ~&  >>  class-jype+state.j
         :: ~&  >>>  class-context+jyp
         :: ~&  >>  union+(~(cons jt [[%core %|^cor-jyp `state.j] name.state.j]) state.j)
-        (~(cons jt (~(cons jt state.j) [[%core %|^cor-jyp `state.j] name.state.j])) jyp)
+        =/  inner-jyp
+          (~(cons jt state.j) [[%core %|^cor-jyp `state.j] name.state.j])
+        =.  inner-jyp  inner-jyp(name name.state.j)
+        (~(cons jt inner-jyp) jyp)
         :: [[[%core %|^cor-jyp `state.j] name.state.j] jyp] :: ?
         :: state.j in 6 but should be left? check explicit structure
         :: cons to state.j as inferior of outer cons
@@ -1784,14 +1789,19 @@
         ::  class method call by constructor (case 2), multiple arguments
         ::  [%call func=[%limb p=(list jlimb)] arg=(unit jock)]
         ?^  -<.typ
-          ~&  >>>  case-2-5-args+typ
+          ~&  >>>  case-2-5-type+typ
           ~&  >>  case-2-5-limbs+limbs
           ~&  >  case-2-5-args+arg.j
           ~|  %call-case-2-args
           ?:  ?=(%type -<.limbs)
+            ~&  'searching type'
             ?~  arg.j  ~|("expect method argument" !!)
             =+  [val val-jyp]=$(j u.arg.j)
-            =/  inferred-type  (~(unify jt typ) val-jyp)
+            ~&  case-2-5--val+val
+            ~&  >  case-2-5--val-jyp+val-jyp
+            ::  This is a class, so we know that the state is caar.
+            =/  inferred-type  (~(unify jt -<.typ) val-jyp)
+            ~&  inferred-type+inferred-type
             ?~  inferred-type
               ~|  '%call: argument value type does not nest in method type'
               ~|  "have: {<val-jyp>}\0aneed: {<typ>}"
