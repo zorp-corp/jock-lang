@@ -1488,28 +1488,32 @@
       =+  [val val-jyp]=$(j val.j)
       =.  jyp
         ::  let permits four correct cases:
-        ::  1. let name:type = value;
-        ::  2. let name = value;
-        ::  3. let name = Type(value);
-        ::  4. let name:(@ @) = value;  (primitive type)
-        =/  inferred-type
+        ::  1. let name = value;
+        ::  2. let name:(@ @) = value;  (primitive type)
+        ::  3. let name:type = value;
+        ::  4. let name = Type(value);
+        =/  inferred-type=(unit jype)
           ?:  ?=(%limb -<.type.j)
-            :: case 1, let name:type = value;
-            ~&  >  %case-1
+            :: case 3, let name:type = value;
+            :: check nesting of lval and rval but pass lval
+            ~|  %nesting-with-specified-lval-type
             =/  [lyp=jype ljw=(list jwing)]
               =/  gat  ~(get-limb jt jyp)
-              (gat(any %|) +.p.type.j)
-            (~(unify jt lyp) val-jyp)
-          ?:  (is-type name.val-jyp)
-            ~&  >  %case-3
-            :: case 3, let name = Type(value);
-            ::  ?>  TODO assert match with class state
-            ^-  (unit jype)
+              (gat(any %&) +.p.type.j)
+            =/  byp  (~(unify jt lyp) val-jyp)
+            ?~  byp  ~|("let: value type does not nest in declared type" !!)
             `[[%limb ~[[%type name.val-jyp]]] name.type.j]
-          :: cases 2 and 4, let name = value;
-          ~&  >  %case-2-4
+          ?:  (is-type name.val-jyp)
+            :: case 4, let name = Type(value);
+            :: pass rval as Type after nesting check
+            ~|  %nesting-without-specified-lval-type
+            ^-  (unit jype)
+            :: TODO assert nesting
+            `[[%limb ~[[%type name.val-jyp]]] name.type.j]
+          :: cases 1 and 2, let name = value;
+          :: pass unified lval and rval
+          ~|  %nesting-without-specified-lval
           (~(unify jt type.j) val-jyp)
-        ~&  >  inferred-type+inferred-type
         ?~  inferred-type
           ~|  '%let: value type does not nest in declared type'
           ~|  "have: {<val-jyp>}\0aneed: {<type.j>}"

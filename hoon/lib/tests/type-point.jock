@@ -12,16 +12,11 @@ compose
   }
 ; // end compose
 
-// works
-// Foo(42)
-
-// works
-// let a = Foo(42);
-// a
-
-// works
 let a:Foo = Foo(42);
-a
+let b = Foo(42);
+let c:@ = 42;
+
+(Foo(42) a b c)
 
 /*
 !=
