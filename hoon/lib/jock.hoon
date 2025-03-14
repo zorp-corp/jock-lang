@@ -1228,11 +1228,9 @@
   ::  or a name/type reference to it.
   ::  If we must return a core (as in a class search), set any to %.n.
   ++  get-limb
-    =|  any=?
+    =|  method-search=?(%.y %.n)
     |=  lis=(list jlimb)
     ^-  (pair jype (list jwing))
-    ~&  >>  get-limb+jyp
-    ~&  >>>  get-limb-list+lis
     |^
     ::  The resulting jwing.
     =/  res=(list jwing)  ~
@@ -1266,70 +1264,25 @@
         !!
       $(lis t.lis, jyp u.new-jyp, res [u.axi res])
     ?~  new-jyp=(type-at-axis u.axi)  ~|(%expect-type-at-axis !!)
-    :: ?:  =(%limb -<.u.new-jyp)
-    ::   =/  lis  ;;((list jlimb) ->.u.new-jyp)  :: TMI
-    ::   ?~  lis  !!
-    ::   ::  If this is a method call, resolve the type reference then continue.
-    ::   ?.  ?=(%type -<.lis)
-    ::     ~&  >  'call by axis'
-    ::     ::  Call by axis.
-    ::     ?^  ret  ~|(%todo-support-limbs-in-core !!)
-    ::     =.  ret  (peg ret u.axi)
-    ::     ?>  (lth ret (bex 63))  :: disallow axes larger than Goldilocks prime field
-    ::     $(lis t.lis, jyp u.new-jyp)
-    ::   :: ?>  ?=(%type -<.lis)
-    ::   ?:  =(1 (lent lis))
-    ::     ::  Bare reference to instance.
-    ::     ::  In this case, we want the address of the state, which is at +6.
-    ::     ~&  >  'bare ref'
-    ::     ?>  ?=(%limb -<.u.new-jyp)
-    ::     =/  axi  (axis-at-name ->->.u.new-jyp)
-    ::     ?~  axi  ~|("limb not found: {<[->->.u.new-jyp]>} in {<jyp>}" !!)
-    ::     ~&  >  axi+axi
-    ::     ?>  ?=(@ u.axi)
-    ::     =/  typ  (type-at-axis (peg u.axi 6))
-    ::     ?~  typ  ~|("type not found: {<[->->.u.new-jyp]>} in {<jyp>}" !!)
-    ::     ~&  >  typ+typ
-    ::     =.  res  [6 u.axi res]
-    ::     :: =.  res  [u.axi res]
-    ::     :: ?.  any  :: TODO remove `any` flag
-    ::     ::   ::  If we're searching for a core and this is not one, keep going.
-    ::     ::   ~&  no-core+[res ret typ]
-    ::     ::   !!
-    ::     =-  ~&  >  bare+[-]  -
-    ::     :: $(lis t.lis, jyp u.new-jyp, res res)
-    ::     :-  u.typ
-    ::     ?>  =(1 ret)
-    ::     (flop res)
-    ::     :: ?~  res  ~&  ret+ret  ~[ret]  :: TMI
-    ::     :: :: (peg u.axi 6)
-    ::     :: ~&  >  i-res+i.res
-    ::     :: ~[i.res]
-    ::   ::  Reference to instance for method call.
-    ::   ~&  >  'method ref'
-    ::   =/  cor-axi  (axis-at-name +.i.lis)
-    ::   ?~  cor-axi  ~|("no core found in {<u.new-jyp>}" !!)
-    ::   =.  res  [u.cor-axi res]
-    ::   ::  As with +axis-at-type, type can be in one of two places:
-    ::   ::    a core, if the initial definition, or
-    ::   ::    the subject (if a name dereference).
-    ::   ?:  ?=(%core -<.jyp)
-    ::     :: %core
-    ::     =/  pay  q.p.jyp
-    ::     ?~  pay  ~|("expected type in context" !!)
-    ::     =/  axi  (axis-at-name(jyp u.pay) +.i.lis)
-    ::     ?~  axi  ~|("type not found in context: {<i.lis>}" !!)
-    ::     ::  payload at +3
-    ::     ::  TODO break down into door/class which probably matters here
-    ::     $(lis t.lis, jyp u.pay, res [(peg 3 ;;(@ u.axi)) res])
-    ::   :: &limb
-    ::   ?>  ?=(%limb -<-<.jyp)
-    ::   ?>  ?=(%limb -<.u.new-jyp)
-    ::   =/  axi  (axis-at-name ->->.u.new-jyp)
-    ::   ?~  axi  ~|("limb not found: {<[->->.u.new-jyp]>} in {<jyp>}" !!)
-    ::   =/  typ  (type-at-axis ;;(@ u.axi))
-    ::   ?~  typ  ~|("type not found: {<[->->.u.new-jyp]>} in {<jyp>}" !!)
-    ::   $(lis t.lis, jyp u.typ)
+    ::  If we are looking for a method, we need to resolve the instance value as
+    ::  well as the door and arm.  XXX This is why we cannot resolve Class.add.
+    ::  This is the case iff the type is a class name but the limb is only a name
+    ::  and there are subsequent limbs to search for.
+    ?:  ?&  =(%name -<.lis)               :: look for a name
+            ?=(%limb -<.u.new-jyp)        :: of an instance
+            ?=(%type ->-<.u.new-jyp)      :: that refers to a class type
+            !=(~ t.lis)                   :: that is not just a name
+        ==
+      :-  u.new-jyp
+      ?:  =(ret 1)
+        ::  If search list empty, then return self.
+        ?~  res  ~[ret]
+        ::  Else, return the wing.
+        (flop res)
+      ::  If no wing, return our self.
+      ?~  res  ~[ret]
+      ::  If wing and not self, disambiguate.
+      ~[i.res]
     ?^  ret
       ::  TODO: in order to support additional limbs
       ::  after a core resolution, we require the return type
@@ -1498,10 +1451,6 @@
     ::
         %let
       ~|  %let-value
-      ~&  >>>  '-----------------------------------------------------------'
-      ~&  let-typ+[type.j]
-      ~&  let-inp+[val.j]
-      ~&  let-nex+[next.j]
       =+  [val val-jyp]=$(j val.j)
       =.  jyp
         ::  let permits four correct cases:
@@ -1516,11 +1465,7 @@
             :: check nesting of lval and rval but pass lval
             ~|  %nesting-with-specified-lval-type
             =/  [lyp=jype ljw=(list jwing)]
-              :: =/  gat  ~(get-limb jt jyp)
               (~(get-limb jt jyp) +.p.type.j)
-            :: =/  byp  (~(unify jt lyp) val-jyp)
-            :: ~&  byp+byp
-            :: ?~  byp  ~|("let: value type does not nest in declared type" !!)
             `[[%limb ~[[%type name.val-jyp]]] name.type.j]
           ?:  (is-type name.val-jyp)
             :: case 4, let name = Type(value);
@@ -1539,13 +1484,9 @@
           ~|  '%let: value type does not nest in declared type'
           ~|  "have: {<val-jyp>}\0aneed: {<type.j>}"
           !!
-        ~&  inferred-type+inferred-type
         =?  inferred-type  ?=(%limb -<.type.j)  `u.inferred-type(name name.type.j)
-        ~&  inferred-type+inferred-type
         (~(cons jt u.inferred-type) jyp)
-      ~&  let-result+jyp
       ~|  %let-next
-      ~&  >>>  '========================================================='
       =+  [nex nex-jyp]=$(j next.j)
       [[%8 val nex] nex-jyp]
     ::
@@ -1586,7 +1527,6 @@
         [[%core %|^(~(run by arms.j) |=(* untyped-j)) `state.j] %$]
         ::  unify w/ context? cons?  zeroing out is separate from
         ::  whether class exposes context to lower things
-      :: ~&  >>>  class-exe-jyp+exe-jyp
       =/  lis=(list [name=term val=jock])  ~(tap by arms.j)
       ?>  ?=(^ lis)
       ::  core and jype of first arm
@@ -1598,21 +1538,11 @@
       ::  core and jype of subsequent arms
       |-  ^-  [nock jype]
       ?~  lis
-        =-  ~&  class+[-]  -
         :-  [%8 sam-nok [%1 cor-nok] [%0 1]]  :: XXX for subject
-        :: ~&  >  class-core+`jype`[[%core %|^cor-jyp `state.j] name.state.j]
-        :: ~&  >>  class-jype+state.j
-        :: ~&  >>>  class-context+jyp
-        :: ~&  >>  union+(~(cons jt [[%core %|^cor-jyp `state.j] name.state.j]) state.j)
         =/  inner-jyp
           (~(cons jt state.j) [[%core %|^cor-jyp `state.j] name.state.j])
         =.  inner-jyp  inner-jyp(name name.state.j)
         (~(cons jt inner-jyp) jyp)
-        :: [[[%core %|^cor-jyp `state.j] name.state.j] jyp] :: ?
-        :: state.j in 6 but should be left? check explicit structure
-        :: cons to state.j as inferior of outer cons
-        :: jype is zeroing out context (maybe pair of state.j and cons?)
-        :: 3 = jyp
       =+  [mor-nok mor-jyp]=%=(^$ j val.i.lis, jyp exe-jyp)
       %_  $
         lis      t.lis
@@ -1771,7 +1701,6 @@
         =/  old-jyp  jyp
         ~|  %call-limb
         =/  limbs=(list jlimb)  p.func.j
-        ~&  >>>  call+limbs
         ?>  ?=(^ limbs)
         =/  [typ=jype ljw=(list jwing)]
           ?.  =([%axis 0] -.limbs)
@@ -1787,26 +1716,16 @@
         ::    3. class method (in instance) (two jlimbs, first a name)
         ::    4. lambda function (assigned to variable) (single jlimb)
         ::    5. class method (from other method)
-        ~&  'here!'
-        ~&  >  call-limbs+limbs
-        ~&  >  call-j+j
         ::
         ::  class method call by constructor (case 2), multiple arguments
         ::  [%call func=[%limb p=(list jlimb)] arg=(unit jock)]
         ?^  -<.typ
-          ~&  >>>  case-2-5-type+typ
-          ~&  >>  case-2-5-limbs+limbs
-          ~&  >  case-2-5-args+arg.j
           ~|  %call-case-2-args
           ?:  ?=(%type -<.limbs)
-            ~&  'searching type'
             ?~  arg.j  ~|("expect method argument" !!)
             =+  [val val-jyp]=$(j u.arg.j)
-            ~&  case-2-5--val+val
-            ~&  >  case-2-5--val-jyp+val-jyp
             ::  This is a class, so we know that the state is caar.
             =/  inferred-type  (~(unify jt -<.typ) val-jyp)
-            ~&  inferred-type+inferred-type
             ?~  inferred-type
               ~|  '%call: argument value type does not nest in method type'
               ~|  "have: {<val-jyp>}\0aneed: {<typ>}"
@@ -1815,46 +1734,67 @@
             :-  val
             u.inferred-type
           ?>  ?=(%name -<.limbs)
-          ~&  >  'name!'
           ?~  arg.j  ~|("expect method argument" !!)
           =+  [val val-jyp]=$(j u.arg.j)
-          ~&  'values!'
           =/  inferred-type  (~(unify jt typ) val-jyp)
           ?~  inferred-type
             ~|  '%call: argument value type does not nest in method type'
             ~|  "have: {<val-jyp>}\0aneed: {<typ>}"
             !!
           =.  inferred-type  `u.inferred-type(name ->.limbs)
-          =-  ~&  -  -
           :-  val
           u.inferred-type
-          :: ~|("could not locate {<limbs>} in {<jyp>}" !!)
         ::
         ::  class method call by constructor (case 2), single argument
         ::  [%call func=[%limb p=(list jlimb)] arg=(unit jock)]
         ?.  ?=(%core -.p.typ)
-          ~|  %call-case-2
-          ~&  %call-call-2
-          ~&  call-call-2-type+typ
-          ~&  call-call-2-args+arg.j
-          ?>  ?=(%type -<.limbs)
-          ?~  arg.j  ~|("expect method argument" !!)
-          =+  [val val-jyp]=$(j u.arg.j)
-          ~&  >>>  nock+val
-          ::  XXX this checks to make sure state and input actually nest
-          =/  inferred-type  (~(unify jt typ) val-jyp)
-          ?~  inferred-type
-            ~|  '%call: argument value type does not nest in method type'
-            ~|  "have: {<val-jyp>}\0aneed: {<typ>}"
-            !!
-          =.  inferred-type  `u.inferred-type
-          :-  val
-          :: u.inferred-type
-          [[%limb limbs] ->.limbs]
+          ?:  ?=(%type -<.limbs)
+            ~|  %call-case-2
+            ?>  ?=(%type -<.limbs)
+            ?~  arg.j  ~|("expect method argument" !!)
+            =+  [val val-jyp]=$(j u.arg.j)
+            ::  XXX this checks to make sure state and input actually nest
+            =/  inferred-type  (~(unify jt typ) val-jyp)
+            ?~  inferred-type
+              ~|  '%call: argument value type does not nest in method type'
+              ~|  "have: {<val-jyp>}\0aneed: {<typ>}"
+              !!
+            =.  inferred-type  `u.inferred-type
+            :-  val
+            [[%limb limbs] ->.limbs]
+          ?>  ?=(%name -<.limbs)
+          ~|  %call-case-3
+          ::  In this case, we have located the class instance
+          ::  but now need the method and the argument to construct
+          ::  the Nock.
+          ?>  ?=(%limb -.p.typ)
+          ::  Get class definition for instance.  This is a cons of
+          ::  the state and the methods (arms) as a core.
+          =/  [dyp=jype ljd=(list jwing)]  (~(get-limb jt jyp) p.p.typ)
+          =/  syp  ;;(jype -<.dyp)
+          =/  cyp  ;;(jype ->.dyp)
+          ?>  ?=(%core -<.cyp)
+          ?:  ?=(%& -.p.p.cyp)  ~|("class cannot be lambda" !!)
+          ::  TODO assert jype match of state argument? or assume correct b/c of constructor?
+          ::  Search for the door defn in the subject jype.
+          =/  gat-nom  `cord`+<+.limbs
+          =/  [gyp=jype ljg=(list jwing)]  (~(get-limb jt dyp) +.limbs)
+          =/  gat  (~(get by p.p.p.cyp) gat-nom)
+          ?~  gat  ~|("gate not found: {<gat-nom>} in {<name.typ>}" !!)
+          ?>  ?=(%core -<.u.gat)
+          ?.  ?=(%& -.p.p.u.gat)  ~|("method cannot be lambda" !!)
+          ^-  [nock jype]
+          :_  out.p.p.p.u.gat
+          ?~  arg.j
+            (resolve-wing ljd)
+          ::  Compose a class (door), which requires some tree math.
+          :+  %8
+            (resolve-wing ljg)
+          =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
+          [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
         ::
         ::  traditional function call (case 1)
         ?:  ?=(%& -.p.p.typ)
-          ~&  >>>  %call-case-1
           ~|  %call-case-1
           :_  out.p.p.p.typ
           ?~  arg.j
@@ -1866,7 +1806,6 @@
         ::
         ::  lambda function call (case 4)
         ?:  &(=(1 (lent p.func.j)) !?=(%type -<.limbs))
-          ~&  >>>  %call-case-4
           ~|  %call-case-4
           :_  =/  gat  ;;([%core p=core-body q=(unit jype)] -:(~(got by p.p.p.typ) +:(snag 0 p.func.j)))
               ?>  ?=(%& -.p.gat)
@@ -1879,7 +1818,7 @@
           [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
         ::
         ::  class method call by instance (case 3)
-        ~&  >>>  %call-case-3
+        ::  XXX could be dead code branch
         ?>  ?=(%name -<.limbs)
         ~|  %call-case-3
         ::  Get class definition for instance.
@@ -1907,12 +1846,8 @@
             [%0 (peg +.wing (peg arm-axis.qgyp core-axis.qgyp))]
           ?>  ?=(%9 -.wing)
           wing
-          :: [%9 (peg 2 +<.wing) +>.wing]
-          :: [%9 +<.wing +>.wing]
-          :: wing
         =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
         [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
-        ::  ~|("could not locate {<limbs>} in {<jyp>}" !!)
       ::
       ::
           %lambda
@@ -1964,12 +1899,8 @@
     ::
         %limb
       ~|  %limb
-      ~&  >>>  limb-jype+jyp
-      ~&  >>>  limb-jock+j
       =/  res=(pair jype (list jwing))
         (~(get-limb jt jyp) p.j)
-      ~&  >>  limb-rest+res
-      =-  ~&  >>  limb+wing+[-]  -
       [(resolve-wing q.res) p.res]
     ::
         %lambda

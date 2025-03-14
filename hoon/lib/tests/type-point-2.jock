@@ -4,10 +4,10 @@ compose
       // we don't have infix operators yet so this is just a foobar
       (p.x p.y)
     }
-    sub(p:Point) -> Point {
-      // we don't have infix operators yet so this is just a foobar
-      (p.x p.x p.x)
-    }
+    // sub(p:Point) -> Point {
+    //   // we don't have infix operators yet so this is just a foobar
+    //   (p.x p.x p.x)
+    // }
   }
 ; // end compose
 
@@ -39,7 +39,8 @@ a
 // [7 [8 [[1 0] 1 0] 1 [8 [[1 0] 1 0] [1 [0 12] 0 13] 0 1] 8 [1 0] [1 [7 [0 15] 0 7] 7 [0 15] 0 7] 0 1] 8 [8 [9 2 0 1] 9 2 10 [6 7 [0 3] [1 50] 1 60] 0 2] 8 [0 3] 9 2 10 [6 7 [0 3] [1 70] 1 80] 0 2]
 // [7 [8 [[1 0] 1 0] 1 [8 [[1 0] 1 0] [1 [0 12] 0 13] 0 1] 8 [1 0] [1 [7 [0 15] 0 7] 7 [0 15] 0 7] 0 1] 8 [8 [9 2 0 1] 9 2 10 [6 7 [0 3] [1 50] 1 60] 0 2] 8 [0 22] 9 2 10 [6 7 [0 3] [1 70] 1 80] 0 2]
 let origin = Point(50 60);
-(origin.add(70 80) origin.sub(70 80))
+origin.add(Point(70 80))
+// (origin.add(70 80) origin.sub(70 80))
 
 // fails (probably should)
 // Point(50 60).add(70 80)
