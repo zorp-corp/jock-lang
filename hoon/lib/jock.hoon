@@ -1893,6 +1893,7 @@
           ::  Get class definition for instance.  This is a cons of
           ::  the state and the methods (arms) as a core.
           =/  [dyp=jype ljd=(list jwing)]  (~(get-limb jt jyp) p.p.typ)
+          ::  XXX these may be spurious
           =/  syp  ;;(jype -<.dyp)
           =/  cyp  ;;(jype ->.dyp)
           ?>  ?=(%core -<.cyp)
