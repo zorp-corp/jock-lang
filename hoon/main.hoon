@@ -12,6 +12,7 @@
       [%parse-all ~]
       [%jeam-all ~]
       [%mint-all ~]
+      [%jype-all ~]
       [%nock-all ~]
       [%run-details ~]
   ==
@@ -45,13 +46,19 @@
   =/  c=^cause  u.soft-cau
   ?-    -.c
       %test
-    ~&  "running code {<n.c>}"
+    ?.  (gth (lent list-jocks:test-jock) n.c)
+      ~&  >>>  "index out of range: {<n.c>}"
+      [~ k]
+    ~&  >  "running code {<n.c>}"
     =/  code  (snag n.c list-jocks:test-jock)
     ~&       code+[-:code]
     ~&  >    parse+(parse:test-jock +.code)
     ~&  >>   jeam+(jeam:test-jock +.code)
-    ~&  >>>  mint+(mint:test-jock +.code)
-    ~&  >>>  nock+(nock:test-jock +.code)
+    =/  res  `*`(mint:test-jock +.code)
+    ~&  >>>  mint+res
+    ~&  >>   jype+(jype:test-jock +.code)
+    ~&  :-  %nock  .*  0  res
+    :: ~&  >>>  nock+(nock:test-jock +.code)
     [~ k]
   ::
       %exec-all
@@ -72,6 +79,10 @@
   ::
       %mint-all
     ~&  mint-all:test-jock
+    [~ k]
+  ::
+      %jype-all
+    ~&  jype-all:test-jock
     [~ k]
   ::
       %nock-all

@@ -38,6 +38,8 @@ enum Command {
     JeamAll {},
     #[command(about = "Mint all")]
     MintAll {},
+    #[command(about = "Jype all")]
+    JypeAll {},
     #[command(about = "Run all Nock")]
     NockAll {},
     #[command(about = "Run details")]
@@ -78,6 +80,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Command::MintAll {} => {
             let mut slab = NounSlab::new();
             let tas = make_tas(&mut slab, "mint-all");
+            create_poke(&[tas.as_noun(), D(0)])
+        }
+        Command::JypeAll {} => {
+            let mut slab = NounSlab::new();
+            let tas = make_tas(&mut slab, "jype-all");
             create_poke(&[tas.as_noun(), D(0)])
         }
         Command::NockAll {} => {
