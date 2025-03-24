@@ -2147,51 +2147,52 @@
       ?.  (~(has in whitelist) name.j)
         ~|("hoon: gate {<name.j>} not found" !!)
       |^
-      =/  arg
+      =/  sam
         ?~  arg.j
           ~|("hoon: no argument" !!)
-        (j2h $(j u.arg.j))
+        (j2h +:[^$(j u.arg.j)])
       :-  jyp
       ?+  name.j  ~|("hoon: gate {<name.j>} not found" !!)
-        %add  ?~(arg.j (add) (add arg))
-        %sub  ?~(arg.j (sub) (sub arg))
-        %mul  ?~(arg.j (mul) (mul arg))
-        %div  ?~(arg.j (div) (div arg))
+        %add  (add sam)
+        %sub  (sub sam)
+        %mul  (mul sam)
+        %div  (div sam)
       ==
       ::  Return the Hoon equivalent of a Jock value.
       ++  j2h
         |=  =jock
-        :: ^-  noun
-        ?^  -<.jock
-          [$(jock -.jock) $(jock +.jock)]
-        ?+    -<.jock
-          ~|("j2h: can't match {<`@tas`-<.jock>}" !!)
-          ::
-            %atom
-          ?+  ->-.jock  ~|("j2h: can't match {<`@tas`-<.jock>}" !!)
-            %string       p.jock
-            %number       p.jock
-            %hexadecimal  p.jock
-            %loobean      p.jock
-          ==
-          ::
-            %list
-          ?+  type.jock  ~|("j2h: can't match {<`@tas`-<.jock>}" !!)
-            %string       `(list @t)`val.jock
-            %number       `(list @ud)`val.jock
-            %hexadecimal  `(list @ux)`val.jock
-            %loobean      `(list ?)`val.jock
-          ==
-          ::
-            %set
-          ?+  type.jock  ~|("j2h: can't match {<`@tas`-<.jock>}" !!)
-            %string       `(set @t)`val.jock
-            %number       `(set @ud)`val.jock
-            %hexadecimal  `(set @ux)`val.jock
-            %loobean      `(set ?)`val.jock
-          ==
-          ::
-        ==
+        !!
+        :: ^-  hoon
+        :: ?^  -<.jock
+        ::   [$(jock -.jock) $(jock +.jock)]
+        :: ?+    -<.jock
+        ::   ~|("j2h: can't match {<`@tas`-<.jock>}" !!)
+        ::   ::
+        ::     %atom
+        ::   ?+  ->-.jock  ~|("j2h: can't match {<`@tas`-<.jock>}" !!)
+        ::     %string       p.jock
+        ::     %number       p.jock
+        ::     %hexadecimal  p.jock
+        ::     %loobean      p.jock
+        ::   ==
+        ::   ::
+        ::     %list
+        ::   ?+  type.jock  ~|("j2h: can't match {<`@tas`-<.jock>}" !!)
+        ::     %string       `(list @t)`val.jock
+        ::     %number       `(list @ud)`val.jock
+        ::     %hexadecimal  `(list @ux)`val.jock
+        ::     %loobean      `(list ?)`val.jock
+        ::   ==
+        ::   ::
+        ::     %set
+        ::   ?+  type.jock  ~|("j2h: can't match {<`@tas`-<.jock>}" !!)
+        ::     %string       `(set @t)`val.jock
+        ::     %number       `(set @ud)`val.jock
+        ::     %hexadecimal  `(set @ux)`val.jock
+        ::     %loobean      `(set ?)`val.jock
+        ::   ==
+        ::   ::
+        :: ==
       --
     ==
   ::

@@ -28,6 +28,7 @@
 /*  type-point-2          %jock  /lib/tests/type-point-2/jock
 /*  infix-comparator      %jock  /lib/tests/infix-comparator/jock
 /*  infix-arithmetic      %jock  /lib/tests/infix-arithmetic/jock
+/*  hoon-arithmetic       %jock  /lib/tests/hoon-arithmetic/jock
 ::
 /*  test-let-edit         %hoon  /tests/lib/let-edit/hoon
 /*  test-let-inner-exp    %hoon  /tests/lib/let-inner-exp/hoon
@@ -56,6 +57,9 @@
 /*  test-sets             %hoon  /tests/lib/sets/hoon
 /*  test-type-point       %hoon  /tests/lib/type-point/hoon
 /*  test-type-point-2     %hoon  /tests/lib/type-point-2/hoon
+:: /*  test-infix-comparator  %hoon  /tests/lib/infix-comparator/hoon
+:: /*  test-infix-arithmetic  %hoon  /tests/lib/infix-arithmetic/hoon
+:: /*  test-hoon-arithmetic   %hoon  /tests/lib/hoon-arithmetic/hoon
 ::
 |%
 ++  list-jocks
@@ -89,6 +93,7 @@
       [%type-point-2 q.type-point-2]                  :: 25
       [%infix-comparator q.infix-comparator]          :: 26
       [%infix-arithmetic q.infix-arithmetic]          :: 27
+      [%hoon-arithmetic q.hoon-arithmetic]            :: 28
  ==
 ::
 ++  test-jocks
@@ -202,6 +207,18 @@
       [%test-type-point-2-jeam test-jeam:test-type-point-2]
       [%test-type-point-2-mint test-mint:test-type-point-2]
       [%test-type-point-2-nock test-nock:test-type-point-2]
+      :: [%test-infix-comparator-tokens test-tokenize:test-infix-comparator]
+      :: [%test-infix-comparator-jeam test-jeam:test-infix-comparator]
+      :: [%test-infix-comparator-mint test-mint:test-infix-comparator]
+      :: [%test-infix-comparator-nock test-nock:test-infix-comparator]
+      :: [%test-infix-arithmetic-tokens test-tokenize:test-infix-arithmetic]
+      :: [%test-infix-arithmetic-jeam test-jeam:test-infix-arithmetic]
+      :: [%test-infix-arithmetic-mint test-mint:test-infix-arithmetic]
+      :: [%test-infix-arithmetic-nock test-nock:test-infix-arithmetic]
+      :: [%test-hoon-arithmetic-tokens test-tokenize:test-hoon-arithmetic]
+      :: [%test-hoon-arithmetic-jeam test-jeam:test-hoon-arithmetic]
+      :: [%test-hoon-arithmetic-mint test-mint:test-hoon-arithmetic]
+      :: [%test-hoon-arithmetic-nock test-nock:test-hoon-arithmetic]
   ==
 ::
 ++  parse
