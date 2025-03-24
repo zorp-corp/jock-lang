@@ -1925,47 +1925,15 @@
           [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
         ::
         ::  lambda function call (case 4)
-        ?:  &(=(1 (lent p.func.j)) !?=(%type -<.limbs))
-          ~|  %call-case-4
-          :_  =/  gat  ;;([%core p=core-body q=(unit jype)] -:(~(got by p.p.p.typ) +:(snag 0 p.func.j)))
-              ?>  ?=(%& -.p.gat)
-              out.p.p.gat
-          ?~  arg.j
-            (resolve-wing ljw)
-          :+  %8
-            (resolve-wing ljw)
-          =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
-          [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
-        ::
-        ::  class method call by instance (case 3)
-        ::  XXX could be dead code branch
-        ?>  ?=(%name -<.limbs)
-        ~|  %call-case-3
-        ::  Get class definition for instance.
-        =/  [dyp=jype ljd=(list jwing)]  (~(get-limb jt jyp) ~[-.limbs])
-        ?>  ?=(%core -<.dyp)
-        ?:  ?=(%& -.p.p.dyp)  ~|("class cannot be lambda" !!)
-        ::  Search for the door defn in the subject jype.
-        =/  gat-nom  `cord`+<+.limbs
-        =/  gyp  (~(get-limb jt dyp) +.limbs)
-        =/  gat  (~(get by p.p.p.dyp) gat-nom)
-        ?~  gat  ~|("gate not found: {<gat-nom>} in {<name.typ>}" !!)
-        ?>  ?=(%core -<.u.gat)
-        ?.  ?=(%& -.p.p.u.gat)  ~|("method cannot be lambda" !!)
-        ^-  [nock jype]
-        :_  out.p.p.p.u.gat
-        ::  TODO check type nesting
-        ::  we need two things:  address of door in subject, and address of arm to call
+        ?>  &(=(1 (lent p.func.j)) !?=(%type -<.limbs))
+        ~|  %call-case-4
+        :_  =/  gat  ;;([%core p=core-body q=(unit jype)] -:(~(got by p.p.p.typ) +:(snag 0 p.func.j)))
+            ?>  ?=(%& -.p.gat)
+            out.p.p.gat
         ?~  arg.j
-          (resolve-wing ljd)
-        ::  Compose a class (door), which requires some tree math.
+          (resolve-wing ljw)
         :+  %8
-          =/  qgyp  ;;([arm-axis=@ core-axis=@] -.q.gyp)
-          =/  wing  (resolve-wing ljw)
-          ?:  ?=(%0 -.wing)
-            [%0 (peg +.wing (peg arm-axis.qgyp core-axis.qgyp))]
-          ?>  ?=(%9 -.wing)
-          wing
+          (resolve-wing ljw)
         =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
         [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
       ::
