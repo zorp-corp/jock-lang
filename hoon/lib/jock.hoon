@@ -348,7 +348,7 @@
       ::  Executable body (battery)
       body=jock
       ::  Supplied context, if applicable
-      context=(unit jype)
+      context=(unit jock)
   ==
 ::  Lambda input argument pair
 +$  lambda-argument
@@ -689,9 +689,6 @@
     =^  arg  tokens
       (match-pair-inner-jock tokens)
     ::  TODO: check if we're in a compare
-    :: ?:  (is-type name)
-    ::   :: inject constructor call
-    ::   [[%call [%limb (snoc limbs [%name p=%load])] `arg] tokens]
     [[%call [%limb limbs] `arg] tokens]
   [[%limb limbs] tokens]
 ::
@@ -736,7 +733,6 @@
   ?:  ?=(%list type)  [[;;(jype-leaf [type jyp]) u.nom] +.tokens]
   ?:  ?=(%set type)  [[;;(jype-leaf [type jyp]) u.nom] +.tokens]
   [jyp(name u.nom) +.tokens]
-  :: [jyp +.tokens]
 ::
 ++  match-keyword
   |=  =tokens
@@ -879,7 +875,7 @@
     ^-  jock
     ?+  -.obj-or-lambda  !!
       %object  obj-or-lambda(q `context)
-      :: %lambda  obj-or-lambda(context.p `context)
+      %lambda  obj-or-lambda(context.p `context)
     ==
   ::
       %object
@@ -1348,7 +1344,6 @@
   ::  A jwing is a scope resolution into a particular structure.
   ::  A jlimb is thus the actual axis in the subject of the value,
   ::  or a name/type reference to it.
-  ::  If we must return a core (as in a class search), set any to %.n.
   ++  get-limb
     |=  lis=(list jlimb)
     ^-  (pair jype (list jwing))
@@ -1386,9 +1381,8 @@
       $(lis t.lis, jyp u.new-jyp, res [u.axi res])
     ?~  new-jyp=(type-at-axis u.axi)  ~|(%expect-type-at-axis !!)
     ::  If we are looking for a method, we need to resolve the instance value as
-    ::  well as the door and arm.  XXX This is why we cannot resolve Class.add.
-    ::  This is the case iff the type is a class name but the limb is only a name
-    ::  and there are subsequent limbs to search for.
+    ::  well as the door and arm.  This is the case iff the type is a class name
+    ::  but the limb is only a name and there are subsequent limbs to find.
     ?:  ?&  =(%name -<.lis)               :: look for a name
             ?=(%limb -<.u.new-jyp)        :: of an instance
             ?=(%type ->-<.u.new-jyp)      :: that refers to a class type
@@ -1594,7 +1588,6 @@
             :: pass rval as Type after nesting check
             ~|  %nesting-without-specified-lval-type
             ^-  (unit jype)
-            :: TODO assert nesting into class state
             `[[%limb ~[[%type name.val-jyp]]] name.type.j]
           :: cases 1 and 2, let name = value;
           :: [p=jype name='name']
@@ -1635,7 +1628,6 @@
           ~|  ['have:' val-jyp 'need:' type.j]
           !!
         (~(cons jt u.inferred-type) jyp)
-      ::  TODO validate that return from method is correct jype
       [val val-jyp]
     ::
         %class
@@ -1845,7 +1837,7 @@
           ?:  ?=(%type -<.limbs)
             ?~  arg.j  ~|("expect method argument" !!)
             =+  [val val-jyp]=$(j u.arg.j)
-            ::  This is a class, so we know that the state is caar.
+            ::  This is a class, so we know that the state is at the head.
             =/  inferred-type  (~(unify jt -<.typ) val-jyp)
             ?~  inferred-type
               ~|  '%call: argument value type does not nest in method type'
@@ -1895,7 +1887,6 @@
           =/  cyp  ;;(jype ->.dyp)
           ?>  ?=(%core -<.cyp)
           ?:  ?=(%& -.p.p.cyp)  ~|("class cannot be lambda" !!)
-          ::  TODO assert jype match of state argument? or assume correct b/c of constructor?
           ::  Search for the door defn in the subject jype.
           =/  gat-nom  `cord`+<+.limbs
           =/  [gyp=jype ljg=(list jwing)]  (~(get-limb jt dyp) +.limbs)
@@ -2038,7 +2029,7 @@
       ?>  ?=(^ inp.arg.p.j)
       =/  pay=(unit (pair nock jype))
         ?~  context.p.j  ~
-        `$(jyp u.context.p.j)
+        `$(j u.context.p.j)
       =/  input-default  (type-to-default u.inp.arg.p.j)
       ~|  %enter-lambda-body
       ::  TODO: wtf?
