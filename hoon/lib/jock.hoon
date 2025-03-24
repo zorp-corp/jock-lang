@@ -1350,7 +1350,6 @@
   ::  or a name/type reference to it.
   ::  If we must return a core (as in a class search), set any to %.n.
   ++  get-limb
-    =|  method-search=?(%.y %.n)
     |=  lis=(list jlimb)
     ^-  (pair jype (list jwing))
     |^
@@ -1893,8 +1892,6 @@
           ::  Get class definition for instance.  This is a cons of
           ::  the state and the methods (arms) as a core.
           =/  [dyp=jype ljd=(list jwing)]  (~(get-limb jt jyp) p.p.typ)
-          ::  XXX these may be spurious
-          =/  syp  ;;(jype -<.dyp)
           =/  cyp  ;;(jype ->.dyp)
           ?>  ?=(%core -<.cyp)
           ?:  ?=(%& -.p.p.cyp)  ~|("class cannot be lambda" !!)
