@@ -1,18 +1,22 @@
+/*  A class is broadly equivalent to a Hoon door. It has a top-level
+    sample which represents its state, along with methods that have
+    each their own samples.
+
+    A class must be composed into the subject to be accessible.
+*/
 compose
-  class Point(x:@ y:@) {
-    // new() is the required constructor
-    new(p:Point) -> Point {
-      // the return must match the output shape
-      (p.x p.y)
-    }
-    add(p:Point) -> Point {
-      // we don't have infix operators yet so this is just a weird hack
-      (x p.y)
+  class Foo(x:@) {
+    bar(p:@) -> Foo {
+      p
     }
   }
 ; // end compose
 
-// use the implicit new() constructor
-let origin = Point(50 60);
+//  let name:Type = value;
+let a:Foo = Foo(41);
+//  let name = Type(value);
+let b = Foo(42);
+//  let name:type = value;
+let c:@ = 43;
 
-origin
+(Foo(40) a b c)

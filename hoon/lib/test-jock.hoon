@@ -198,10 +198,10 @@
       [%test-type-point-jeam test-jeam:test-type-point]
       [%test-type-point-mint test-mint:test-type-point]
       [%test-type-point-nock test-nock:test-type-point]
-      :: [%test-type-point-2-tokens test-tokenize:test-type-point-2]
-      :: [%test-type-point-2-jeam test-jeam:test-type-point-2]
-      :: [%test-type-point-2-mint test-mint:test-type-point-2]
-      :: [%test-type-point-2-nock test-nockint:test-type-point-2]
+      [%test-type-point-2-tokens test-tokenize:test-type-point-2]
+      [%test-type-point-2-jeam test-jeam:test-type-point-2]
+      [%test-type-point-2-mint test-mint:test-type-point-2]
+      [%test-type-point-2-nock test-nock:test-type-point-2]
   ==
 ::
 ++  parse
@@ -262,6 +262,29 @@
   |=  [=term =nock:jock]
   ^-  cord
   (crip "{<term>}: {<nock>}")
+::
+++  jype
+  |=  =cord
+  ^-  jype:jock
+  ~|  %jype
+  =/  res=(unit jype:jock)
+    %-  mole
+    |.
+    (jypist:jock cord)
+  ?~  res
+    *jype:jock
+  u.res
+::
+++  jype-all
+  :: ^-  (list (pair term jype:jock))
+  %+  turn
+    %+  turn  list-jocks
+    |=  [=term t=@t]
+    ~|  term
+    [term (jype t)]
+  |=  [=term =jype:jock]
+  ^-  cord
+  (crip "{<term>}: {<jype>}")
 ::
 ++  nock
   |=  =cord
