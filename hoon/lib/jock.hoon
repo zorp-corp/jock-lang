@@ -19,7 +19,7 @@
       ^-  *
       =/  jok  (jeam txt)
       :: =+  [nok jyp]=(~(mint cj [%atom %string %.n]^%$) jok)
-      =+  vaz=!>(..add)  :: core %one
+      =+  vaz=!>(..ap)  :: core %pen
       =+  [nok jyp]=(~(mint cj [[%hoon vaz] %hoon]) jok)
       nok
     ::
@@ -32,6 +32,7 @@
     ::
     --
 =>
+=/  hun  ..ap  :: core %pen
 ::
 ::  1: tokenizer
 ::
@@ -1351,17 +1352,14 @@
   ++  get-limb
     |=  lis=(list jlimb)
     ^-  (pair jype (list jwing))
-    ~&  get-limb+lis
     |^
     ::  The resulting jwing.
     =/  res=(list jwing)  ~
     ::  The resulting axis, default subject.
     =/  ret=jwing  1
     ?:  =(~ lis)  ~|("no limb requested" !!)
-    ~&  'searching'
     |-
     ?~  lis
-      ~&  >>  'on the way out'
       ::  If we've searched to the bottom, return what we have.
       :-  jyp
       ::  If self, return the wing.
@@ -1374,24 +1372,11 @@
       ?~  res  ~[ret]
       ::  If wing and not self, disambiguate.
       ~[i.res]
-    ~&  'axis'
-    ~&  jyp+jyp
     =/  axi=(unit jwing)
       ::  Resolve names and types to axes.
       ?:  |(?=(%name -.i.lis) ?=(%type -.i.lis) !=(%$ name.jyp))
-        ::  If we are resolving into the Hoon subject, we need to handle it separately.
-        ?:  =(%hoon +.i.lis)
-          ~&  >  found-hoon+[lis]
-          =/  att  (axis-at-name +.i.lis)
-          ~&  >>  att+att
-          att
-        ~&  searching+`cord`[+.i.lis]
-        ?:  =(%hoon -<.jyp)
-          ~&  searching-hoon+`cord`[+.i.lis]
-          !!
         (axis-at-name +.i.lis)
       `+.i.lis
-    ~&  axi+axi
     ?~  axi  ~|("limb not found: {<lis>} in {<jyp>}" !!)
     ::  If it exists and we need to search further, do so.
     ?^  u.axi
@@ -1833,7 +1818,7 @@
       ?+    -.func.j  !!
           %limb
         ~&  >>  here+j
-        ~&  >>>  here+jyp
+        :: ~&  >>>  here+jyp
         =/  old-jyp  jyp
         ~|  %call-limb
         =/  limbs=(list jlimb)  p.func.j
@@ -1852,17 +1837,22 @@
         ::  [%call func=[%limb p=(list jlimb)] arg=(unit jock)]
         ?:  =([%name %hoon] -.limbs)
           ::  case 6, Hoon subject call
-          ~&  'hoon!'
           ::  Construct a gate call from the rest of the limbs.
           =/  limbs  (flop ;;((list jlimb) +.limbs))  :: TMI
           ?>  ?=(^ limbs)
           ~&  call-limbs+limbs
           ?~  arg.j  ~|("expect function argument" !!)
           =+  [val val-jyp]=$(j u.arg.j)
-          =/  ast  (j2h limbs [val val-jyp])
+          ::  Construct the AST for the Hoon RPC.
+          =/  ast  (j2h limbs u.arg.j)
+          :: =/  hun  (resolve-wing )
           ~&  >  ast+ast
-          ~&  >>  (~(mint ut %noun) %noun ast)
-          !!
+          =/  min  (~(mint ut p:!>(hun)) %noun ast)
+          =/  qmin  ;;(nock q.min)
+          =-  ~&(- -)
+          :-  qmin
+          val-jyp  :: XXX wrong now
+          :: !!
         =/  [typ=jype ljw=(list jwing)]
           ?.  =([%axis 0] -.limbs)
             ~&  >  limbs+limbs
@@ -2239,10 +2229,10 @@
   ::
   ::  Convert a Jock function call to a Hoon gate call.
   ++  j2h
-    |=  [wing=(list jlimb) arg=[=nock =jype]]  :: <- NED can't do this now, switch to jock
+    |=  [wing=(list jlimb) arg=jock]
     ^-  hoon
     ~&  >  wing+wing
-    ~&  >>  arg+arg
+    ~&  >>  argg+arg
     =/  p
       =|  out=hoon
       |-  ^-  hoon
@@ -2256,18 +2246,46 @@
       ^-  (list hoon)
       =|  sam=(list hoon)
       |-  ^-  (list hoon)
-      ?~  arg
-        (flop sam)
-      ?+    -<.arg  ~|(%unexpected-arg-type !!)
+      ~&  >>>  arg+arg
+      ?^  -.arg
+        (weld $(arg -.arg) $(arg +.arg))
+      ?+    -.arg  ~|("j2h: expect valid function argument" !!)
           %atom
-        %=  $
-          sam   :_  sam
-                :+  ?:(q %rock %sand)
-                  ?-(-.p.-.arg %string %ta, %number %ud, %hexadecimal %ux, %loobean %f)
-                p.p.-.arg
-          arg   +.arg
-        ==
+        ^-  (list hoon)
+        :_  ~
+        ;;  hoon
+        :+  ?:(q.p.arg %rock %sand)
+          ?-(-<.p.arg %string %ta, %number %ud, %hexadecimal %ux, %loobean %f)
+        p.p.arg
+        :: ~[[%sand %ud 1]]
+      ::
+          %limb
+        ::  Limbs must be resolved to the target jock.
+        ~|  %limb
+        =/  res=(pair jype (list jwing))
+          (~(get-limb jt jyp) p.arg)
+        ~&  >>  res+res
+        =/  val  [(resolve-wing q.res) p.res]
+        ~&  >>>  val+val
+        :: ?>  !?=(%limb -.val)
+        :: $(arg val)
+        !!
       ==
+      ::  %list
+      ::  %set
+      ::  %limb
+      :: ?~  arg
+      ::   (flop sam)
+      :: ?+    -<.arg  ~|(%unexpected-arg-type !!)
+      ::     %atom
+      ::   %=  $
+      ::     sam   :_  sam
+      ::           :+  ?:(q %rock %sand)
+      ::             ?-(-.p.-.arg %string %ta, %number %ud, %hexadecimal %ux, %loobean %f)
+      ::           p.p.-.arg
+      ::     arg   +.arg
+      ::   ==
+      :: ==
       :: [[%sand %ud 1] ~]
     [%cncl p q]
   ::
