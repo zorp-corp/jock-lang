@@ -2251,16 +2251,23 @@
         (weld $(arg -.arg) $(arg +.arg))
       ?+    -.arg  ~|("j2h: expect valid function argument" !!)
           %atom
+        ::  [%atom p=jatom]
+        ::  [[%string p=term] q=?], etc.
         ^-  (list hoon)
         :_  ~
         ;;  hoon
         :+  ?:(q.p.arg %rock %sand)
-          ?-(-<.p.arg %string %ta, %number %ud, %hexadecimal %ux, %loobean %f)
+          ?-  -<.p.arg
+            %string       %ta
+            %number       %ud
+            %hexadecimal  %ux
+            %loobean      %f
+          ==
         p.p.arg
-        :: ~[[%sand %ud 1]]
       ::
           %limb
         ::  Limbs must be resolved to the target jock.
+        ::  [%limb p=(list jlimb)]
         ~|  %limb
         =/  res=(pair jype (list jwing))
           (~(get-limb jt jyp) p.arg)
@@ -2270,23 +2277,21 @@
         :: ?>  !?=(%limb -.val)
         :: $(arg val)
         !!
-      ==
-      ::  %list
+      ::
+          %list
+        ::  Lists are composed of a series of values, which we unpack.
+        ::  [%list type=jype-leaf val=(list jock)]
+        ~|  %list
+        :_  ~
+        :-  %clsg
+        %-  snip  :: spurious ~ from Jock representation
+        %+  turn
+          val.arg
+        |=  item=jock
+        ^-  hoon
+        -:^$(arg item)
       ::  %set
-      ::  %limb
-      :: ?~  arg
-      ::   (flop sam)
-      :: ?+    -<.arg  ~|(%unexpected-arg-type !!)
-      ::     %atom
-      ::   %=  $
-      ::     sam   :_  sam
-      ::           :+  ?:(q %rock %sand)
-      ::             ?-(-.p.-.arg %string %ta, %number %ud, %hexadecimal %ux, %loobean %f)
-      ::           p.p.-.arg
-      ::     arg   +.arg
-      ::   ==
-      :: ==
-      :: [[%sand %ud 1] ~]
+      ==
     [%cncl p q]
   ::
   :: +hunt-type: make a $nock to test whether jock nests in jype
