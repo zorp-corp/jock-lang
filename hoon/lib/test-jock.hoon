@@ -373,7 +373,7 @@
     %-  mole
     |.
     =/  nok  (mint +:(snag i list-jocks))
-    =/  jok  .*(%jock nok)
+    =/  jok  .*(+:!>(..ap) nok)
     jok
   =.  lis
     [?=(^ res) lis]
