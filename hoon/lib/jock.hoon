@@ -1848,11 +1848,12 @@
           :: =/  hun  (resolve-wing )
           ~&  >  ast+ast
           =/  min  (~(mint ut p:!>(hun)) %noun ast)
+          =/  pmin  p.min
+          ~&  pmin+pmin
           =/  qmin  ;;(nock q.min)
           =-  ~&(- -)
           :-  qmin
           val-jyp  :: XXX wrong now
-          :: !!
         =/  [typ=jype ljw=(list jwing)]
           ?.  =([%axis 0] -.limbs)
             ~&  >  limbs+limbs
