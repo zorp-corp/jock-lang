@@ -18,18 +18,22 @@
       |=  txt=@
       ^-  *
       =/  jok  (jeam txt)
-      =+  [nok jyp]=(~(mint cj [%atom %string %.n]^%$) jok)
+      =+  vaz=!>(..ap)  :: core %pen
+      =+  [nok jyp]=(~(mint cj [[%hoon vaz] %hoon]) jok)
       nok
     ::
     ++  jypist
       |=  txt=@
       ^-  jype
       =/  jok  (jeam txt)
-      =+  [nok jyp]=(~(mint cj [%atom %string %.n]^%$) jok)
+      =+  vaz=!>(..ap)  :: core %pen
+      =+  [nok jyp]=(~(mint cj [[%hoon vaz] %hoon]) jok)
+      :: =+  [nok jyp]=(~(mint cj [%atom %string %.n]^%$) jok)
       jyp
     ::
     --
 =>
+=/  hun  ..ap  :: core %pen
 ::
 ::  1: tokenizer
 ::
@@ -327,6 +331,8 @@
       [%list type=jype]
       ::  %set
       [%set type=jype]
+      ::  %hoon is a vase for the supplied subject (presumably hoon or tiny)
+      [%hoon p=vase]
       ::  %none is a null type (as for undetermined variable labels)
       [%none p=(unit term)]
   ==
@@ -1815,13 +1821,6 @@
         ~|  %call-limb
         =/  limbs=(list jlimb)  p.func.j
         ?>  ?=(^ limbs)
-        =/  [typ=jype ljw=(list jwing)]
-          ?.  =([%axis 0] -.limbs)
-            (~(get-limb jt jyp) limbs)
-          ::  special case: we're looking for $
-          =/  ret  (~(find-buc jt jyp))
-          ?~  ret  ~|("couldn't find $ in {<jyp>}" !!)
-          [-.u.ret ~[2 +.u.ret]]
         ::  At this point it's looking for a %core (either func or class).
         ::  We need to resolve several cases (in no particular order):
         ::    1. func function (single jlimb)
@@ -1829,7 +1828,33 @@
         ::    3. class method (in instance) (two jlimbs, first a name)
         ::    4. lambda function (assigned to variable) (single jlimb)
         ::    5. class method (from other method)
+        ::    6. Hoon subject call (at least two jlimbs, the first being "hoon")
+        ::       (eventually libraries handled this way as well)
         ::
+        ?:  =([%name %hoon] -.limbs)
+          ::  case 6, Hoon subject call
+          ::  Construct a gate call from the rest of the limbs.
+          =/  limbs  (flop ;;((list jlimb) +.limbs))  :: TMI
+          ?>  ?=(^ limbs)
+          ?~  arg.j  ~|("expect function argument" !!)
+          =+  [val val-jyp]=$(j u.arg.j)
+          ::  Construct the AST for the Hoon RPC.
+          =+  ast=(j2h limbs u.arg.j)
+          =/  min  (~(mint ut p:!>(hun)) %noun ast)
+          =/  pmin  p.min
+          =/  jyp  (type2jype pmin)
+          =/  qmin  ;;(nock q.min)
+          :: =-  ~&(result+[-] -)
+          :-  qmin
+          jyp
+        =/  [typ=jype ljw=(list jwing)]
+          ?.  =([%axis 0] -.limbs)
+            =/  lim  (~(get-limb jt jyp) limbs)
+            lim
+          ::  special case: we're looking for $
+          =/  ret  (~(find-buc jt jyp))
+          ?~  ret  ~|("couldn't find $ in {<jyp>}" !!)
+          [-.u.ret ~[2 +.u.ret]]
         ::  class method call by constructor (case 2), multiple arguments
         ::  [%call func=[%limb p=(list jlimb)] arg=(unit jock)]
         ?^  -<.typ
@@ -2124,6 +2149,7 @@
         %crash
       ~|  %crash
       [[%0 0] jyp]
+    ::
     ==
   ::
   ++  mint-after-if
@@ -2186,7 +2212,123 @@
     ::
         %set       [%1 0]
     ::
+        %hoon      [%1 0]
+    ::
         %none      [%1 0]
+    ==
+  ::
+  ::  Convert a Jock function call to a Hoon gate call.
+  ++  j2h
+    |=  [wing=(list jlimb) arg=jock]
+    ^-  hoon
+    =/  p
+      =|  out=hoon
+      |-  ^-  hoon
+      ?~  wing
+        out
+      ?:  =(*hoon out)
+        ::  overwrite bunt with first value
+        $(out [%wing ~[->.wing]], wing +.wing)
+      $(out [%wing (snoc ;;(^wing +.out) ->.wing)], wing +.wing)  :: XXX not as efficient but easy
+    =/  q
+      |-  ^-  (list hoon)
+      ?^  -.arg
+        (weld $(arg -.arg) $(arg +.arg))
+      ?+    -.arg  ~|("j2h: expect valid function argument" !!)
+          %atom
+        ::  [%atom p=jatom]
+        ::  [[%string p=term] q=?], etc.
+        ^-  (list hoon)
+        :_  ~
+        ;;  hoon
+        :+  ?:(q.p.arg %rock %sand)
+          ?-  -<.p.arg
+            %string       %ta
+            %number       %ud
+            %hexadecimal  %ux
+            %loobean      %f
+          ==
+        p.p.arg
+      ::
+          %limb
+        ::  Limbs must be resolved to the target jock.
+        ::  [%limb p=(list jlimb)]
+        ~|  %limb
+        =/  res=(pair jype (list jwing))
+          (~(get-limb jt jyp) p.arg)
+        ~&  >>  res+res
+        =/  val  [(resolve-wing q.res) p.res]
+        ~&  >>>  val+val
+        :: ?>  !?=(%limb -.val)
+        :: $(arg val)
+        !!
+      ::
+          %list
+        ::  Lists are composed of a series of values, which we unpack.
+        ::  [%list type=jype-leaf val=(list jock)]
+        ~|  %list
+        :_  ~
+        :-  %clsg
+        %-  snip  :: spurious ~ from Jock representation
+        %+  turn
+          val.arg
+        |=  item=jock
+        ^-  hoon
+        -:^$(arg item)
+      ::
+          %set
+        ::  Sets are a tree of values, which must be in the same order as Hoon.
+        ::  [%set type=jype-leaf val=(set jock)]
+        ~|  %set
+        !!
+      ==
+    [%cncl p q]
+  ::
+  ::  Convert a Hoon type to a Jock jype.
+  ++  type2jype
+    |=  t=type
+    ^-  jype
+    :: +$  type  $+  type
+    ::           $~  %noun                                     ::
+    ::           $@  $?  %noun                                 ::  any nouns
+    ::                   %void                                 ::  no noun
+    ::               ==                                        ::
+    ::           $%  [%atom p=term q=(unit @)]                 ::  atom / constant
+    ::               [%cell p=type q=type]                     ::  ordered pair
+    ::               [%core p=type q=coil]                     ::  object
+    ::               [%face p=$@(term tune) q=type]            ::  namespace
+    ::               [%fork p=(set type)]                      ::  union
+    ::               [%hint p=(pair type note) q=type]         ::  annotation
+    ::               [%hold p=type q=hoon]                     ::  lazy evaluation
+    ::           ==                                            ::
+    ?+    -.t
+        ::  We cannot convert %core, %face, %fork, %hint, %void.
+        ~|("cannot convert type {<t>} to valid jype" !!)
+      ::
+        %atom
+      :_  %$
+      ^-  jype-leaf
+      :+  %atom
+        ?+  p.t  ~|("cannot convert atom type {<p.t>} to jatom" !!)
+          %ud   %number
+          %ux   %hexadecimal
+          %t    %string
+          %ta   %string
+          %tas  %string
+          %f    %loobean
+        ==
+      =(~ q.t)
+    ::
+        %cell
+      :_  %$
+      ^-  jype-leaf
+      :: [%list [type.p.t %$]]
+      *jype-leaf
+    ::
+        %hold
+      ::  %hold can mean a lot of things, but presumably means a container.
+      :_  %$
+      *jype-leaf
     ==
   ::
   :: +hunt-type: make a $nock to test whether jock nests in jype
