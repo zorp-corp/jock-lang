@@ -57,8 +57,8 @@
     =/  res  `*`(mint:test-jock +.code)
     ~&  >>>  mint+res
     ~&  >>   jype+(jype:test-jock +.code)
-    ~&  :-  %nock  .*  ..ap  res
-    :: ~&  >>>  nock+(nock:test-jock +.code)
+    :: ~&  :-  %nock  .*  %0  res
+    ~&  >>>  nock+(nock:test-jock +.code)
     [~ k]
   ::
       %exec-all

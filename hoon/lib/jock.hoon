@@ -1,3 +1,4 @@
+/*  hoon  %txt  /lib/mini/txt
 =<  |%
     ++  tokenize
       |=  txt=@
@@ -18,17 +19,18 @@
       |=  txt=@
       ^-  *
       =/  jok  (jeam txt)
-      =+  vaz=!>(..ap)  :: core %pen
-      =+  [nok jyp]=(~(mint cj [[%hoon vaz] %hoon]) jok)
+      :: =+  vaz=!>(..ap)  :: core %pen
+      :: =+  [nok jyp]=(~(mint cj [[%hoon vaz] %hoon]) jok)
+      =+  [nok jyp]=(~(mint cj [%atom %string %.n]^%$) jok)
       nok
     ::
     ++  jypist
       |=  txt=@
       ^-  jype
       =/  jok  (jeam txt)
-      =+  vaz=!>(..ap)  :: core %pen
-      =+  [nok jyp]=(~(mint cj [[%hoon vaz] %hoon]) jok)
-      :: =+  [nok jyp]=(~(mint cj [%atom %string %.n]^%$) jok)
+      :: =+  vaz=!>(..ap)  :: core %pen
+      :: =+  [nok jyp]=(~(mint cj [[%hoon vaz] %hoon]) jok)
+      =+  [nok jyp]=(~(mint cj [%atom %string %.n]^%$) jok)
       jyp
     ::
     --
@@ -67,6 +69,7 @@
       %with
       %this
       %type
+      %import
   ==
 ::
 +$  jpunc
@@ -157,7 +160,7 @@
         %if  %else  %crash  %assert
         %object  %compose  %loop  %defer
         %recur  %match  %switch  %eval  %with  %this
-        %type
+        %type  %import
     ==
   ::
   ++  tagged-punctuator  %+  cook
@@ -959,6 +962,24 @@
       (match-jock tokens)
     :_  tokens
     [%eval p q]
+  ::
+      %import
+    ~&  >  import+tokens
+    =^  src  tokens
+      (match-name tokens)
+    ::  later we switch to vase mode composition
+    ?>  (got-punctuator -.tokens %';')
+    ~&  >  src+src
+    ~&  >>  hoon+hoon
+    ?>  ?=(%limb -.src)
+    ?>  =(%hoon +<+.src) :: deferred fence
+    =/  past  (rash q.hoon tall:(vang | /))
+    =/  p  (~(mint ut %noun) %noun past)
+    =^  q  tokens
+      (match-jock +.tokens)
+    :-  [%compose [%hoon !>(p)] q]
+    tokens
+    :: !!
   ::
       %crash
     [[%crash ~] tokens]
@@ -2220,27 +2241,28 @@
   ::  Convert a Jock function call to a Hoon gate call.
   ++  j2h
     |=  [wing=(list jlimb) arg=jock]
-    ^-  hoon
+    ::  XXX formally this is a potential mismatch from the imported Hoon, be careful!
+    ^-  ^hoon
     =/  p
-      =|  out=hoon
-      |-  ^-  hoon
+      =|  out=^hoon
+      |-  ^-  ^hoon
       ?~  wing
         out
-      ?:  =(*hoon out)
+      ?:  =(*^hoon out)
         ::  overwrite bunt with first value
         $(out [%wing ~[->.wing]], wing +.wing)
       $(out [%wing (snoc ;;(^wing +.out) ->.wing)], wing +.wing)  :: XXX not as efficient but easy
     =/  q
-      |-  ^-  (list hoon)
+      |-  ^-  (list ^hoon)
       ?^  -.arg
         (weld $(arg -.arg) $(arg +.arg))
       ?+    -.arg  ~|("j2h: expect valid function argument" !!)
           %atom
         ::  [%atom p=jatom]
         ::  [[%string p=term] q=?], etc.
-        ^-  (list hoon)
+        ^-  (list ^hoon)
         :_  ~
-        ;;  hoon
+        ;;  ^hoon
         :+  ?:(q.p.arg %rock %sand)
           ?-  -<.p.arg
             %string       %ta
@@ -2273,7 +2295,7 @@
         %+  turn
           val.arg
         |=  item=jock
-        ^-  hoon
+        ^-  ^hoon
         -:^$(arg item)
       ::
           %set
