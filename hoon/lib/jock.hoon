@@ -35,7 +35,6 @@
     ::
     --
 =>
-=/  hun  ..ap  :: core %pen
 ::
 ::  1: tokenizer
 ::
@@ -254,6 +253,7 @@
       [%atom p=jatom]
       [%list type=jype-leaf val=(list jock)]
       [%set type=jype-leaf val=(set jock)]
+      [%hoon p=vase]
       [%crash ~]
   ==
 ::
@@ -964,22 +964,19 @@
     [%eval p q]
   ::
       %import
-    ~&  >  import+tokens
-    =^  src  tokens
-      (match-name tokens)
-    ::  later we switch to vase mode composition
+    ?>  ?=(%name -<.tokens)
+    =/  src=jock  [%limb ~[-.tokens]]
+    =/  tokens  +.tokens
     ?>  (got-punctuator -.tokens %';')
-    ~&  >  src+src
-    ~&  >>  hoon+hoon
-    ?>  ?=(%limb -.src)
-    ?>  =(%hoon +<+.src) :: deferred fence
-    =/  past  (rash q.hoon tall:(vang | /))
-    =/  p  (~(mint ut %noun) %noun past)
+    =/  past  (rush q.hoon (ifix [gay gay] tall:(vang | /)))
+    ?~  past  ~|("unable to build Hoon library: {<[+<+.src]>}" !!)
+    =/  p  (~(mint ut %noun) %noun u.past)
     =^  q  tokens
       (match-jock +.tokens)
-    :-  [%compose [%hoon !>(p)] q]
+    :-  :+  %compose
+          [%hoon [p.p .*(0 q.p)]]
+        q
     tokens
-    :: !!
   ::
       %crash
     [[%crash ~] tokens]
@@ -1853,15 +1850,20 @@
         ::       (eventually libraries handled this way as well)
         ::
         ?:  =([%name %hoon] -.limbs)
+        :: ?:  (~(has in libs) -.limbs)
           ::  case 6, Hoon subject call
+          ::  We do this here because it's a top-level call to a library.
           ::  Construct a gate call from the rest of the limbs.
           =/  limbs  (flop ;;((list jlimb) +.limbs))  :: TMI
           ?>  ?=(^ limbs)
           ?~  arg.j  ~|("expect function argument" !!)
           =+  [val val-jyp]=$(j u.arg.j)
+          ::  Retrieve the library from the jype.
+          :: =/  nom-lib  `cord`+<+.limbs
+          =+  [hun pat]=(~(get-limb jt jyp) ~[+<.limbs])
           ::  Construct the AST for the Hoon RPC.
           =+  ast=(j2h limbs u.arg.j)
-          =/  min  (~(mint ut p:!>(hun)) %noun ast)
+          =/  min  (~(mint ut p:!>(p.hun)) %noun ast)
           =/  pmin  p.min
           =/  jyp  (type2jype pmin)
           =/  qmin  ;;(nock q.min)
@@ -2166,6 +2168,11 @@
       ~|  [%atom +<+.j]
       :-  [%1 +<+.j]
       [^-(jype-leaf [%atom +<-.j +>.j]) %$]
+    ::
+        %hoon
+      ~|  %hoon
+      :-  [%1 +>.j]
+      [^-(jype-leaf [%hoon +.j]) %$]
     ::
         %crash
       ~|  %crash
