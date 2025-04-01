@@ -253,7 +253,7 @@
       [%atom p=jatom]
       [%list type=jype-leaf val=(list jock)]
       [%set type=jype-leaf val=(set jock)]
-      [%hoon p=vase]
+      [%library name=jype]
       [%crash ~]
   ==
 ::
@@ -965,6 +965,7 @@
   ::
       %import
     ?>  ?=(%name -<.tokens)
+    =/  nom=term  ->.tokens
     =/  src=jock  [%limb ~[-.tokens]]
     =/  tokens  +.tokens
     ?>  (got-punctuator -.tokens %';')
@@ -974,7 +975,8 @@
     =^  q  tokens
       (match-jock +.tokens)
     :-  :+  %compose
-          [%hoon [p.p .*(0 q.p)]]
+          ^-  jock
+          [%library [[%hoon [p.p .*(0 q.p)]] nom]]
         q
     tokens
   ::
@@ -1712,10 +1714,14 @@
     ::
         %compose
       ~|  %compose-p
+      ~&  >  %starting
       =^  p  jyp
         $(j p.j)
+      ~&  >  compose-p+p
+      ~&  >  compose-p-jyp+jyp
       ~|  %compose-q
       =+  [q q-jyp]=$(j q.j)
+      ~&  >  %compose-q
       [[%7 p q] q-jyp]
     ::
         %object
@@ -1846,28 +1852,38 @@
         ::    3. class method (in instance) (two jlimbs, first a name)
         ::    4. lambda function (assigned to variable) (single jlimb)
         ::    5. class method (from other method)
-        ::    6. Hoon subject call (at least two jlimbs, the first being "hoon")
-        ::       (eventually libraries handled this way as well)
+        ::    6. library call (at least two jlimbs, the first being a library name)
         ::
         ?:  =([%name %hoon] -.limbs)
         :: ?:  (~(has in libs) -.limbs)
-          ::  case 6, Hoon subject call
+          ::  case 6, library call
           ::  We do this here because it's a top-level call to a library.
           ::  Construct a gate call from the rest of the limbs.
-          =/  limbs  (flop ;;((list jlimb) +.limbs))  :: TMI
+          :: =/  limbs  (flop ;;((list jlimb) +.limbs))  :: TMI
           ?>  ?=(^ limbs)
           ?~  arg.j  ~|("expect function argument" !!)
           =+  [val val-jyp]=$(j u.arg.j)
           ::  Retrieve the library from the jype.
           :: =/  nom-lib  `cord`+<+.limbs
-          =+  [hun pat]=(~(get-limb jt jyp) ~[+<.limbs])
+          ~&  >>  wut+[~[-.limbs]]
+          =+  [hun pat]=(~(get-limb jt jyp) ~[-.limbs])
           ::  Construct the AST for the Hoon RPC.
-          =+  ast=(j2h limbs u.arg.j)
-          =/  min  (~(mint ut p:!>(p.hun)) %noun ast)
+          ~&  >  'call'
+          =+  ast=(j2h +.limbs u.arg.j)
+          ~&  here+ast
+          ?>  ?=(%hoon -<.hun)
+          ~&  >  mint+[-.p.p.-.hun]
+          =/  min  (~(mint ut -.p.p.-.hun) %noun ast)
+          ~&  >  'there'
           =/  pmin  p.min
+          ~&  >>  'where?'
           =/  jyp  (type2jype pmin)
-          =/  qmin  ;;(nock q.min)
-          :: =-  ~&(result+[-] -)
+          ~&  >>>  'hither'
+          =/  qmin
+            ~|  'failed to validate Nock---perhaps a %12?'
+            ;;(nock q.min)
+          ~&  >  'thither'
+          =-  ~&(result+[-] -)
           :-  qmin
           jyp
         =/  [typ=jype ljw=(list jwing)]
@@ -2169,10 +2185,11 @@
       :-  [%1 +<+.j]
       [^-(jype-leaf [%atom +<-.j +>.j]) %$]
     ::
-        %hoon
-      ~|  %hoon
-      :-  [%1 +>.j]
-      [^-(jype-leaf [%hoon +.j]) %$]
+        %library
+      ~|  %library
+      ?>  ?=(%hoon -<.name.j)  :: right now only hoon.hoon
+      :-  [%1 q.p.p.name.j]
+      name.j
     ::
         %crash
       ~|  %crash
