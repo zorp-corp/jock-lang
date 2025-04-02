@@ -253,7 +253,7 @@
       [%atom p=jatom]
       [%list type=jype-leaf val=(list jock)]
       [%set type=jype-leaf val=(set jock)]
-      [%library name=jype]
+      [%import name=jype next=jock]
       [%crash ~]
   ==
 ::
@@ -970,15 +970,12 @@
     =/  tokens  +.tokens
     ?>  (got-punctuator -.tokens %';')
     =/  past  (rush q.hoon (ifix [gay gay] tall:(vang | /)))
-    ?~  past  ~|("unable to build Hoon library: {<[+<+.src]>}" !!)
+    ?~  past  ~|("unable to parse Hoon library: {<[+<+.src]>}" !!)
     =/  p  (~(mint ut %noun) %noun u.past)
     =^  q  tokens
       (match-jock +.tokens)
-    :-  :+  %compose
-          ^-  jock
-          [%library [[%hoon [p.p .*(0 q.p)]] nom]]
-        q
-    tokens
+    :_  tokens
+    [%import [[%hoon [p.p .*(0 q.p)]] nom] q]
   ::
       %crash
     [[%crash ~] tokens]
@@ -1714,14 +1711,10 @@
     ::
         %compose
       ~|  %compose-p
-      ~&  >  %starting
       =^  p  jyp
         $(j p.j)
-      ~&  >  compose-p+p
-      ~&  >  compose-p-jyp+jyp
       ~|  %compose-q
       =+  [q q-jyp]=$(j q.j)
-      ~&  >  %compose-q
       [[%7 p q] q-jyp]
     ::
         %object
@@ -1865,27 +1858,30 @@
           =+  [val val-jyp]=$(j u.arg.j)
           ::  Retrieve the library from the jype.
           :: =/  nom-lib  `cord`+<+.limbs
-          ~&  >>  wut+[~[-.limbs]]
           =+  [hun pat]=(~(get-limb jt jyp) ~[-.limbs])
           ::  Construct the AST for the Hoon RPC.
-          ~&  >  'call'
           =+  ast=(j2h +.limbs u.arg.j)
-          ~&  here+ast
           ?>  ?=(%hoon -<.hun)
-          ~&  >  mint+[-.p.p.-.hun]
-          =/  min  (~(mint ut -.p.p.-.hun) %noun ast)
-          ~&  >  'there'
+          ::  TODO the problem is that it "assumes" the library is the head so it ignores var pushes
+          =/  min  (~(mint ut -:(slop p.p.-.hun !>(~))) %noun ast)
+          ~&  min+min
           =/  pmin  p.min
-          ~&  >>  'where?'
-          =/  jyp  (type2jype pmin)
-          ~&  >>>  'hither'
+          =/  pjyp  (type2jype pmin)
           =/  qmin
             ~|  'failed to validate Nock---perhaps a %12?'
             ;;(nock q.min)
-          ~&  >  'thither'
-          =-  ~&(result+[-] -)
-          :-  qmin
-          jyp
+          :: :-  qmin
+          :_  pjyp
+          ;;  nock
+          :+  %8
+            :: qmin of form [8 [9 ### 0 ###] 9 2 10 [6 7 [0 3] 1 5] 0 2]
+            :^    %9
+                +<+<.qmin
+              %0
+            %14
+          =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
+          [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
+        ::
         =/  [typ=jype ljw=(list jwing)]
           ?.  =([%axis 0] -.limbs)
             =/  lim  (~(get-limb jt jyp) limbs)
@@ -2185,11 +2181,17 @@
       :-  [%1 +<+.j]
       [^-(jype-leaf [%atom +<-.j +>.j]) %$]
     ::
-        %library
-      ~|  %library
+        %import
+      ~|  %import
       ?>  ?=(%hoon -<.name.j)  :: right now only hoon.hoon
-      :-  [%1 q.p.p.name.j]
-      name.j
+      =.  jyp  (~(cons jt name.j) jyp)
+      ~|  %import-next
+      =+  [nex nex-jyp]=$(j next.j)
+      ~&  >  nock+[q.p.p.name.j]
+      :_  nex-jyp
+      :+  %8
+        [%1 q.p.p.name.j]
+      nex
     ::
         %crash
       ~|  %crash
