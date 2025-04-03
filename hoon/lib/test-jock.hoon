@@ -310,7 +310,7 @@
   =/  res=(unit *)
     %-  mole
     |.
-    .*(0 (mint cord))
+    .*(%0 (mint cord))
   ?~  res
     *nock:jock
   u.res
