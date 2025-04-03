@@ -65,6 +65,7 @@
       %this
       %type
       %import
+      %as
   ==
 ::
 +$  jpunc
@@ -155,7 +156,7 @@
         %if  %else  %crash  %assert
         %object  %compose  %loop  %defer
         %recur  %match  %switch  %eval  %with  %this
-        %type  %import
+        %type  %import  %as
     ==
   ::
   ++  tagged-punctuator  %+  cook
@@ -964,10 +965,14 @@
     =/  nom=term  ->.tokens
     =/  src=jock  [%limb ~[-.tokens]]
     =/  tokens  +.tokens
-    ?>  (got-punctuator -.tokens %';')
     =/  past  (rush q.hoon (ifix [gay gay] tall:(vang | /)))
     ?~  past  ~|("unable to parse Hoon library: {<[+<+.src]>}" !!)
     =/  p  (~(mint ut %noun) %noun u.past)
+    =?  nom  (has-keyword -.tokens %as)
+      ?>  =(%name +<-.tokens)
+      ;;(term +<+.tokens)
+    =?  tokens  (has-keyword -.tokens %as)  +>.tokens
+    ?>  (got-punctuator -.tokens %';')
     =^  q  tokens
       (match-jock +.tokens)
     :_  tokens
@@ -1845,7 +1850,7 @@
         ::    5. class method (from other method)
         ::    6. library call (at least two jlimbs, the first being a library name)
         ::
-        ?:  =([%name %hoon] -.limbs)
+        ?:  |(=([%name %hoon] -.limbs) =([%name %lib] -.limbs))
         :: ?:  (~(has in libs) -.limbs)
           ::  case 6, library call
           ::  We do this here because it's a top-level call to a library.

@@ -29,6 +29,7 @@
 /*  infix-comparator      %jock  /lib/tests/infix-comparator/jock
 /*  infix-arithmetic      %jock  /lib/tests/infix-arithmetic/jock
 /*  hoon-arithmetic       %jock  /lib/tests/hoon-arithmetic/jock
+/*  hoon-alias            %jock  /lib/tests/hoon-alias/jock
 ::
 /*  test-let-edit         %hoon  /tests/lib/let-edit/hoon
 /*  test-let-inner-exp    %hoon  /tests/lib/let-inner-exp/hoon
@@ -60,6 +61,7 @@
 :: /*  test-infix-comparator  %hoon  /tests/lib/infix-comparator/hoon
 :: /*  test-infix-arithmetic  %hoon  /tests/lib/infix-arithmetic/hoon
 :: /*  test-hoon-arithmetic   %hoon  /tests/lib/hoon-arithmetic/hoon
+:: /*  test-hoon-alias      %hoon  /tests/lib/hoon-alias/hoon
 ::
 |%
 ++  list-jocks
@@ -94,6 +96,7 @@
       [%infix-comparator q.infix-comparator]          :: 26
       [%infix-arithmetic q.infix-arithmetic]          :: 27
       [%hoon-arithmetic q.hoon-arithmetic]            :: 28
+      [%hoon-alias q.hoon-alias]                      :: 29
  ==
 ::
 ++  test-jocks
@@ -219,6 +222,10 @@
       :: [%test-hoon-arithmetic-jeam test-jeam:test-hoon-arithmetic]
       :: [%test-hoon-arithmetic-mint test-mint:test-hoon-arithmetic]
       :: [%test-hoon-arithmetic-nock test-nock:test-hoon-arithmetic]
+      :: [%test-hoon-alias-tokens test-tokenize:test-hoon-alias]
+      :: [%test-hoon-alias-jeam test-jeam:test-hoon-alias]
+      :: [%test-hoon-alias-mint test-mint:test-hoon-alias]
+      :: [%test-hoon-alias-nock test-nock:test-hoon-alias]
   ==
 ::
 ++  parse
