@@ -19,8 +19,6 @@
       |=  txt=@
       ^-  *
       =/  jok  (jeam txt)
-      :: =+  vaz=!>(..ap)  :: core %pen
-      :: =+  [nok jyp]=(~(mint cj [[%hoon vaz] %hoon]) jok)
       =+  [nok jyp]=(~(mint cj [%atom %string %.n]^%$) jok)
       nok
     ::
@@ -28,8 +26,6 @@
       |=  txt=@
       ^-  jype
       =/  jok  (jeam txt)
-      :: =+  vaz=!>(..ap)  :: core %pen
-      :: =+  [nok jyp]=(~(mint cj [[%hoon vaz] %hoon]) jok)
       =+  [nok jyp]=(~(mint cj [%atom %string %.n]^%$) jok)
       jyp
     ::
