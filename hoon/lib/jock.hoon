@@ -1333,6 +1333,7 @@
 ::  as %constants.
 ::
 |%
+::  Note that %12 does not occur, so returns from Hoon libraries must be molded.
 +$  nock
   $+  nock
   $^  [p=nock q=nock]                           ::  autocons
@@ -1450,7 +1451,8 @@
       ?:  =(0 i.axi-lis)
         $(axi-lis t.axi-lis, jyp p.jyp)
       $(axi-lis t.axi-lis, jyp q.jyp)
-    ::  Locate the name's corresponding axis.
+    ::
+    ::  Locate a name's corresponding axis.
     ++  axis-at-name
       |=  nom=term
       ^-  (unit jwing)
@@ -1857,28 +1859,24 @@
           ?~  arg.j  ~|("expect function argument" !!)
           =+  [val val-jyp]=$(j u.arg.j)
           ::  Retrieve the library from the jype.
-          :: =/  nom-lib  `cord`+<+.limbs
           =+  [hun pat]=(~(get-limb jt jyp) ~[-.limbs])
-          ::  Construct the AST for the Hoon RPC.
-          =+  ast=(j2h +.limbs u.arg.j)
+          ::  Construct the AST for the Hoon RPC using the bunt for now.
+          =+  ast=(j2h +.limbs ~)
           ?>  ?=(%hoon -<.hun)
-          ::  TODO the problem is that it "assumes" the library is the head so it ignores var pushes
-          =/  min  (~(mint ut -:(slop p.p.-.hun !>(~))) %noun ast)
-          ~&  min+min
+          :: =/  min  (~(mint ut -:(slop p.p.-.hun !>(~))) %noun ast)
+          =/  min  (~(mint ut -.p.p.-.hun) %noun ast)
           =/  pmin  p.min
           =/  pjyp  (type2jype pmin)
           =/  qmin
             ~|  'failed to validate Nock---perhaps a %12?'
             ;;(nock q.min)
-          :: :-  qmin
           :_  pjyp
           ;;  nock
           :+  %8
-            :: qmin of form [8 [9 ### 0 ###] 9 2 10 [6 7 [0 3] 1 5] 0 2]
             :^    %9
                 +<+<.qmin
               %0
-            %14
+            -.pat
           =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
           [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
         ::
@@ -2118,8 +2116,7 @@
       =.  vals  +.vals
       :_  [[%list u.inferred-type] %$]
       |-  ^-  nock
-      ::  if the next element ends the list, then we are at the closing ~
-      ?~  +.vals
+      ?~  vals
         ?:  =(%1 -<.nok)
           ;;(nock (list-to-tuple (flop nok)))
         ;;(nock [%1 (list-to-tuple (flop nok))])
@@ -2187,7 +2184,6 @@
       =.  jyp  (~(cons jt name.j) jyp)
       ~|  %import-next
       =+  [nex nex-jyp]=$(j next.j)
-      ~&  >  nock+[q.p.p.name.j]
       :_  nex-jyp
       :+  %8
         [%1 q.p.p.name.j]
@@ -2266,7 +2262,7 @@
   ::
   ::  Convert a Jock function call to a Hoon gate call.
   ++  j2h
-    |=  [wing=(list jlimb) arg=jock]
+    |=  [wing=(list jlimb) arg=(unit jock)]
     ::  XXX formally this is a potential mismatch from the imported Hoon, be careful!
     ^-  ^hoon
     =/  p
@@ -2280,12 +2276,15 @@
       $(out [%wing (snoc ;;(^wing +.out) ->.wing)], wing +.wing)  :: XXX not as efficient but easy
     =/  q
       |-  ^-  (list ^hoon)
+      ?~  arg  ~
+      =/  arg  u.arg
       ?^  -.arg
-        (weld $(arg -.arg) $(arg +.arg))
+        (weld $(arg `-.arg) $(arg `+.arg))
       ?+    -.arg  ~|("j2h: expect valid function argument" !!)
           %atom
+        ::  Atoms trivially map to Hoon atoms.
         ::  [%atom p=jatom]
-        ::  [[%string p=term] q=?], etc.
+        ::    [[%string p=term] q=?], etc.
         ^-  (list ^hoon)
         :_  ~
         ;;  ^hoon
@@ -2299,17 +2298,10 @@
         p.p.arg
       ::
           %limb
-        ::  Limbs must be resolved to the target jock.
+        ::  Limbs must be resolved to a basic value.
         ::  [%limb p=(list jlimb)]
         ~|  %limb
-        =/  res=(pair jype (list jwing))
-          (~(get-limb jt jyp) p.arg)
-        ~&  >>  res+res
-        =/  val  [(resolve-wing q.res) p.res]
-        ~&  >>>  val+val
-        :: ?>  !?=(%limb -.val)
-        :: $(arg val)
-        !!
+        ~
       ::
           %list
         ::  Lists are composed of a series of values, which we unpack.
@@ -2322,7 +2314,7 @@
           val.arg
         |=  item=jock
         ^-  ^hoon
-        -:^$(arg item)
+        -:^$(arg `item)
       ::
           %set
         ::  Sets are a tree of values, which must be in the same order as Hoon.
