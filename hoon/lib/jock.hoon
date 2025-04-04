@@ -1378,7 +1378,6 @@
     ::  The resulting axis, default subject.
     =/  ret=jwing  1
     ?:  =(~ lis)  ~|("no limb requested" !!)
-    ~&  searching+lis
     |-
     ?~  lis
       ::  If we've searched to the bottom, return what we have.
@@ -1399,7 +1398,6 @@
       ?:  |(?=(%name -.i.lis) ?=(%type -.i.lis) !=(%$ name.jyp))
         (axis-at-name +.i.lis)
       `+.i.lis
-    ~&  axi+axi
     ?~  axi  ~|("limb not found: {<lis>} in {<jyp>}" !!)
     ::  If it exists and we need to search further, do so.
     ?^  u.axi
@@ -1409,9 +1407,7 @@
       $(lis t.lis, jyp u.new-jyp, res [u.axi res])
     ?~  new-jyp=(type-at-axis u.axi)  ~|(%expect-type-at-axis !!)
     ::  If this is a Hoon library, then return now.
-    ~&  u.new-jyp
     ?:  =(%hoon -<.u.new-jyp)
-      ~&  >  'returning!'
       :-  %|
       :+  u.new-jyp
         t.lis
@@ -1871,30 +1867,26 @@
         ::    5. class method (from other method)
         ::    6. library call (at least two jlimbs, the first being a library name)
         ::
-        ?:  |(=([%name %hoon] -.limbs) =([%name %lib] -.limbs))
-        :: ?:  (~(has in libs) ->.limbs)
+        =/  [typ=jype ljl=(list jlimb) ljw=(list jwing)]
+          ?.  =([%axis 0] -.limbs)
+            =/  lim  (~(get-limb jt jyp) limbs)
+            ?:  ?=(%& -.lim)
+              [p.p.lim ~ q.p.lim]
+            p.lim
+          ::  special case: we're looking for $
+          =/  ret  (~(find-buc jt jyp))
+          ?~  ret  ~|("couldn't find $ in {<jyp>}" !!)
+          [-.u.ret ~ ~[2 +.u.ret]]
+        ?:  !=(~ ljl)
           ::  case 6, library call
           ::  Construct a gate call from the rest of the limbs.
-          ~&  >  'making the call'
           ?>  ?=(^ limbs)
           ?~  arg.j  ~|("expect function argument" !!)
           =+  [val val-jyp]=$(j u.arg.j)
-          ::  Retrieve the library from the jype.
-          :: =/  lim  (~(get-limb jt jyp) ~[-.limbs])
-          ~&  >  'here1'
-          =/  lim  (~(get-limb jt jyp) limbs)
-          ~&  >  'here2'
-          ?>  ?=(%| -.lim)
-          =/  hun  p.p.lim
-          =/  limbs  q.p.lim
-          =/  pat  r.p.lim
           ::  Construct the AST for the Hoon RPC using the bunt for now.
-          ~&  >>>  limbs+limbs
-          ~&  >>  hun+hun
-          ~&  >  pat+pat
-          =+  ast=(j2h limbs ~)
-          ?>  ?=(%hoon -<.hun)
-          =/  min  (~(mint ut -.p.p.-.hun) %noun ast)
+          =+  ast=(j2h ljl ~)
+          ?>  ?=(%hoon -<.typ)
+          =/  min  (~(mint ut -.p.p.-.typ) %noun ast)
           =/  pmin  p.min
           =/  pjyp  (type2jype pmin)
           =/  qmin
@@ -1906,19 +1898,9 @@
             :^    %9
                 +<+<.qmin
               %0
-            -.pat
+            -.ljw
           =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
           [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
-        ::
-        =/  [typ=jype ljw=(list jwing)]
-          ?.  =([%axis 0] -.limbs)
-            =/  lim  (~(get-limb jt jyp) limbs)
-            ?>  ?=(%& -.lim)
-            p.lim
-          ::  special case: we're looking for $
-          =/  ret  (~(find-buc jt jyp))
-          ?~  ret  ~|("couldn't find $ in {<jyp>}" !!)
-          [-.u.ret ~[2 +.u.ret]]
         ::  class method call by constructor (case 2), multiple arguments
         ::  [%call func=[%limb p=(list jlimb)] arg=(unit jock)]
         ?^  -<.typ
