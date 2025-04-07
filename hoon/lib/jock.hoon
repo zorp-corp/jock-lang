@@ -2031,26 +2031,30 @@
         =+  [b b-jyp]=$(j b.j)
         [%6 [%5 a b] [%1 1] %1 0]
       ::
-      ::  TODO: figure out jets and then fix this.
+      ::  Other comparators must map into Hoon itself.
           %'>'
-        =+  [a a-jyp]=$(j a.j)
-        =+  [b b-jyp]=$(j b.j)
-        [%11 %gth [%0 0]]
+        :: =+  [a a-jyp]=$(j a.j)
+        :: =+  [b b-jyp]=$(j b.j)
+        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %gth]]] arg=`[a.j b.j]]
+        -:$(j j)
       ::
           %'<'
-        =+  [a a-jyp]=$(j a.j)
-        =+  [b b-jyp]=$(j b.j)
-        [%11 %lth [%0 0]]
+        :: =+  [a a-jyp]=$(j a.j)
+        :: =+  [b b-jyp]=$(j b.j)
+        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %lth]]] arg=`[a.j b.j]]
+        -:$(j j)
       ::
           %'<='
-        =+  [a a-jyp]=$(j a.j)
-        =+  [b b-jyp]=$(j b.j)
-        [%11 %lte [%0 0]]
+        :: =+  [a a-jyp]=$(j a.j)
+        :: =+  [b b-jyp]=$(j b.j)
+        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %lte]]] arg=`[a.j b.j]]
+        -:$(j j)
       ::
           %'>='
-        =+  [a a-jyp]=$(j a.j)
-        =+  [b b-jyp]=$(j b.j)
-        [%11 %gte [%0 0]]
+        :: =+  [a a-jyp]=$(j a.j)
+        :: =+  [b b-jyp]=$(j b.j)
+        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %gte]]] arg=`[a.j b.j]]
+        -:$(j j)
       ==
     ::
         %operator
