@@ -2055,45 +2055,33 @@
       :_  [%atom %number %.n]^%$
       ?-    op.j
           %'+'
-        ~&  add+[a.j b.j]
         ?~  b.j  !!
         =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %add]]] arg=`[a.j u.b.j]]
-        =-  ~&(add+[-] -)
         -:$(j j)
         ::
           %'-'
-        ~&  sub+[a.j b.j]
         ?~  b.j  !!
         =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %sub]]] arg=`[a.j u.b.j]]
-        =-  ~&(sub+[-] -)
         -:$(j j)
         ::
           %'*'
-        ~&  mul+[a.j b.j]
         ?~  b.j  !!
         =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %mul]]] arg=`[a.j u.b.j]]
-        =-  ~&(mul+[-] -)
         -:$(j j)
         ::
           %'/'
-        ~&  div+[a.j b.j]
         ?~  b.j  !!
         =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %div]]] arg=`[a.j u.b.j]]
-        =-  ~&(div+[-] -)
         -:$(j j)
         ::
           %'%'
-        ~&  mod+[a.j b.j]
         ?~  b.j  !!
         =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %mod]]] arg=`[a.j u.b.j]]
-        =-  ~&(mod+[-] -)
         -:$(j j)
         ::
           %'**'
-        ~&  pow+[a.j b.j]
         ?~  b.j  !!
         =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %pow]]] arg=`[a.j u.b.j]]
-        =-  ~&(pow+[-] -)
         -:$(j j)
         ::
       ==
