@@ -1,3 +1,4 @@
+import hoon;
 
 let a = true;
 let b = a == true;
