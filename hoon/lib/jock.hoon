@@ -402,11 +402,11 @@
     [[%compare ;;(comparator u.oc) lock rock] tokens]
   ::  - arithmetic ('+' or '-' or '*' or '/' or '%' or '**' is next)
   ?:  (~(has in operator-set) u.oc)
-    =^  op  tokens
-      (match-operator tokens)
     =^  rock  tokens
       (match-inner-jock tokens)
-    [[%operator op lock `rock] tokens]
+    :_  tokens
+    ;;  jock
+    [%operator u.oc lock `rock]
   ::  no infix operator
   [lock tokens]
 ::
@@ -429,6 +429,7 @@
         %punctuator  (match-start-punctuator tokens)
         %type        (match-start-name tokens)
     ==
+  ?~  tokens  [lock tokens]
   ::  - compare ('==','<','<=','>','>=','!=' is the next token)
   ?:  ?|  &((has-punctuator -.tokens %'=') (has-punctuator +<.tokens %'='))
           (has-punctuator -.tokens %'<')
@@ -2033,26 +2034,18 @@
       ::
       ::  Other comparators must map into Hoon itself.
           %'>'
-        :: =+  [a a-jyp]=$(j a.j)
-        :: =+  [b b-jyp]=$(j b.j)
         =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %gth]]] arg=`[a.j b.j]]
         -:$(j j)
       ::
           %'<'
-        :: =+  [a a-jyp]=$(j a.j)
-        :: =+  [b b-jyp]=$(j b.j)
         =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %lth]]] arg=`[a.j b.j]]
         -:$(j j)
       ::
           %'<='
-        :: =+  [a a-jyp]=$(j a.j)
-        :: =+  [b b-jyp]=$(j b.j)
         =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %lte]]] arg=`[a.j b.j]]
         -:$(j j)
       ::
           %'>='
-        :: =+  [a a-jyp]=$(j a.j)
-        :: =+  [b b-jyp]=$(j b.j)
         =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %gte]]] arg=`[a.j b.j]]
         -:$(j j)
       ==
@@ -2062,40 +2055,46 @@
       :_  [%atom %number %.n]^%$
       ?-    op.j
           %'+'
-        =+  [a a-jyp]=$(j a.j)
+        ~&  add+[a.j b.j]
         ?~  b.j  !!
-        =+  [b b-jyp]=$(j u.b.j)
-        [%11 %add [%0 0]]
+        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %add]]] arg=`[a.j u.b.j]]
+        =-  ~&(add+[-] -)
+        -:$(j j)
         ::
           %'-'
-        =+  [a a-jyp]=$(j a.j)
+        ~&  sub+[a.j b.j]
         ?~  b.j  !!
-        =+  [b b-jyp]=$(j u.b.j)
-        [%11 %sub [%0 0]]
+        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %sub]]] arg=`[a.j u.b.j]]
+        =-  ~&(sub+[-] -)
+        -:$(j j)
         ::
           %'*'
-        =+  [a a-jyp]=$(j a.j)
+        ~&  mul+[a.j b.j]
         ?~  b.j  !!
-        =+  [b b-jyp]=$(j u.b.j)
-        [%11 %mul [%0 0]]
+        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %mul]]] arg=`[a.j u.b.j]]
+        =-  ~&(mul+[-] -)
+        -:$(j j)
         ::
           %'/'
-        =+  [a a-jyp]=$(j a.j)
+        ~&  div+[a.j b.j]
         ?~  b.j  !!
-        =+  [b b-jyp]=$(j u.b.j)
-        [%11 %div [%0 0]]
+        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %div]]] arg=`[a.j u.b.j]]
+        =-  ~&(div+[-] -)
+        -:$(j j)
         ::
           %'%'
-        =+  [a a-jyp]=$(j a.j)
+        ~&  mod+[a.j b.j]
         ?~  b.j  !!
-        =+  [b b-jyp]=$(j u.b.j)
-        [%11 %mod [%0 0]]
+        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %mod]]] arg=`[a.j u.b.j]]
+        =-  ~&(mod+[-] -)
+        -:$(j j)
         ::
           %'**'
-        =+  [a a-jyp]=$(j a.j)
+        ~&  pow+[a.j b.j]
         ?~  b.j  !!
-        =+  [b b-jyp]=$(j u.b.j)
-        [%11 %pow [%0 0]]
+        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %pow]]] arg=`[a.j u.b.j]]
+        =-  ~&(pow+[-] -)
+        -:$(j j)
         ::
       ==
     ::
