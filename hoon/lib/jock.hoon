@@ -18,14 +18,14 @@
     ++  mint
       |=  txt=@
       ^-  *
-      =/  jok  (jeam txt)
+      =/  jok  (jeam (cat 3 'import hoon;\0a' txt))
       =+  [nok jyp]=(~(mint cj [%atom %string %.n]^%$) jok)
       nok
     ::
     ++  jypist
       |=  txt=@
       ^-  jype
-      =/  jok  (jeam txt)
+      =/  jok  (jeam (cat 3 'import hoon;\0a' txt))
       =+  [nok jyp]=(~(mint cj [%atom %string %.n]^%$) jok)
       jyp
     ::
