@@ -1,0 +1,53 @@
+// fibonacci
+
+/*
+def f(n):
+    if n == 0:
+        return 1
+    if n == 1:
+        return 3
+    grandparent = 1
+    parent = 3
+    for i = 2 to n:
+        me = 3 * parent - grandparent
+        grandparent = parent
+        parent = me
+    return me
+*/
+
+func fib(n:@) -> @ {
+  if n == 0 {
+    0
+  } else {
+    if n == 1 {
+        1
+    } else {
+      let m = 0;
+      let g = 1;
+      let p = 3;
+      loop;
+      if m == n {
+        m
+      } else {
+        m = (3 * p) - g;
+        g = p;
+        p = n;
+        recur
+      }
+    }
+  }
+};
+
+(
+    fib(0)
+    fib(1)
+   fib(2)
+//    fib(3)
+//    fib(4)
+//    fib(5)
+//    fib(6)
+//    fib(7)
+//    fib(8)
+//    fib(9)
+//    fib(10)
+)
