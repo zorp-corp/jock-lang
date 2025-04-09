@@ -30,6 +30,7 @@
 /*  infix-arithmetic      %jock  /lib/tests/infix-arithmetic/jock
 /*  hoon-arithmetic       %jock  /lib/tests/hoon-arithmetic/jock
 /*  hoon-alias            %jock  /lib/tests/hoon-alias/jock
+/*  fib                   %jock  /lib/tests/fib/jock
 ::
 /*  test-let-edit         %hoon  /tests/lib/let-edit/hoon
 /*  test-let-inner-exp    %hoon  /tests/lib/let-inner-exp/hoon
@@ -97,6 +98,7 @@
       [%infix-arithmetic q.infix-arithmetic]          :: 27
       [%hoon-arithmetic q.hoon-arithmetic]            :: 28
       [%hoon-alias q.hoon-alias]                      :: 29
+      [%fib q.fib]                                    :: 30
  ==
 ::
 ++  test-jocks
