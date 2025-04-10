@@ -28,6 +28,7 @@
 /*  type-point-2          %jock  /lib/tests/type-point-2/jock
 /*  infix-comparator      %jock  /lib/tests/infix-comparator/jock
 /*  infix-arithmetic      %jock  /lib/tests/infix-arithmetic/jock
+/*  hoon-ffi              %jock  /lib/tests/hoon-ffi/jock
 /*  hoon-arithmetic       %jock  /lib/tests/hoon-arithmetic/jock
 /*  hoon-alias            %jock  /lib/tests/hoon-alias/jock
 /*  fib                   %jock  /lib/tests/fib/jock
@@ -96,9 +97,10 @@
       [%type-point-2 q.type-point-2]                  :: 25
       [%infix-comparator q.infix-comparator]          :: 26
       [%infix-arithmetic q.infix-arithmetic]          :: 27
-      [%hoon-arithmetic q.hoon-arithmetic]            :: 28
-      [%hoon-alias q.hoon-alias]                      :: 29
-      [%fib q.fib]                                    :: 30
+      [%hoon-ffi q.hoon-ffi]                          :: 28
+      [%hoon-arithmetic q.hoon-arithmetic]            :: 29
+      [%hoon-alias q.hoon-alias]                      :: 30
+      [%fib q.fib]                                    :: 31
  ==
 ::
 ++  test-jocks
@@ -220,6 +222,10 @@
       :: [%test-infix-arithmetic-jeam test-jeam:test-infix-arithmetic]
       :: [%test-infix-arithmetic-mint test-mint:test-infix-arithmetic]
       :: [%test-infix-arithmetic-nock test-nock:test-infix-arithmetic]
+      :: [%test-hoon-ffi-tokens test-tokenize:test-hoon-ffi]
+      :: [%test-hoon-ffi-jeam test-jeam:test-hoon-ffi]
+      :: [%test-hoon-ffi-mint test-mint:test-hoon-ffi]
+      :: [%test-hoon-ffi-nock test-nock:test-hoon-ffi]
       :: [%test-hoon-arithmetic-tokens test-tokenize:test-hoon-arithmetic]
       :: [%test-hoon-arithmetic-jeam test-jeam:test-hoon-arithmetic]
       :: [%test-hoon-arithmetic-mint test-mint:test-hoon-arithmetic]
@@ -228,6 +234,10 @@
       :: [%test-hoon-alias-jeam test-jeam:test-hoon-alias]
       :: [%test-hoon-alias-mint test-mint:test-hoon-alias]
       :: [%test-hoon-alias-nock test-nock:test-hoon-alias]
+      :: [%test-fib-tokens test-tokenize:test-fib]
+      :: [%test-fib-jeam test-jeam:test-fib]
+      :: [%test-fib-mint test-mint:test-fib]
+      :: [%test-fib-nock test-nock:test-fib]
   ==
 ::
 ++  parse

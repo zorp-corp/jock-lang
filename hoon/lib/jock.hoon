@@ -63,7 +63,6 @@
       %eval
       %with
       %this
-      %type
       %import
       %as
   ==
@@ -156,7 +155,7 @@
         %if  %else  %crash  %assert
         %object  %compose  %loop  %defer
         %recur  %match  %switch  %eval  %with  %this
-        %type  %import  %as
+        %import  %as
     ==
   ::
   ++  tagged-punctuator  %+  cook
