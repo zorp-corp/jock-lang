@@ -62,8 +62,10 @@
 /*  test-type-point-2     %hoon  /tests/lib/type-point-2/hoon
 :: /*  test-infix-comparator  %hoon  /tests/lib/infix-comparator/hoon
 :: /*  test-infix-arithmetic  %hoon  /tests/lib/infix-arithmetic/hoon
+:: /*  test-hoon-ffi       %hoon  /tests/lib/hoon-ffi/hoon
 :: /*  test-hoon-arithmetic   %hoon  /tests/lib/hoon-arithmetic/hoon
 :: /*  test-hoon-alias      %hoon  /tests/lib/hoon-alias/hoon
+:: /*  test-fib            %hoon  /tests/lib/fib/hoon
 ::
 |%
 ++  list-jocks

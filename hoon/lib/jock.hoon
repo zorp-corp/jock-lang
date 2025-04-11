@@ -551,12 +551,12 @@
       (match-block [tokens %'(' %')'] match-inner-jock)
     ::  TODO: check if we're in a compare
     [[%cell-check jock] tokens]
-  ::
+  ::  $ = recur
       %'$'
     ?.  (has-punctuator -.tokens %'(')
       [[%call [%limb [%axis 0] ~] ~] tokens]
     ?:  (has-punctuator -.tokens %')')
-      [[%call [%limb [%axis 0] ~] ~] +.+.tokens]
+      [[%call [%limb [%axis 0] ~] ~] +>.tokens]
     =^  arg  tokens
       (match-block [tokens %'(' %')'] match-inner-jock)
     [[%call [%limb [%axis %0] ~] `arg] tokens]
@@ -938,12 +938,12 @@
       (match-jock +.tokens)
     :_  tokens
     ?:(?=(%loop +.first) [+.first jock] [+.first jock])
-  ::
+  ::  recur = $
       %recur
     ?.  (has-punctuator -.tokens %'(')
       [[%call [%limb [%axis 0] ~] ~] tokens]
     ?:  (has-punctuator -.+.tokens %')')
-      [[%call [%limb [%axis 0] ~] ~] +.+.tokens]
+      [[%call [%limb [%axis 0] ~] ~] +>.tokens]
     =^  arg  tokens
       (match-inner-jock +.tokens)
     ?>  (got-punctuator -.tokens %')')
@@ -1392,12 +1392,12 @@
       ::  If no wing, return our self.
       ?~  res  ~[ret]
       ::  If wing and not self, disambiguate.
-      ~[i.res]
+      ~[-.res]
     =/  axi=(unit jwing)
       ::  Resolve names and types to axes.
-      ?:  |(?=(%name -.i.lis) ?=(%type -.i.lis) !=(%$ name.jyp))
-        (axis-at-name +.i.lis)
-      `+.i.lis
+      ?:  |(?=(%name -<.lis) ?=(%type -<.lis) !=(%$ name.jyp))
+        (axis-at-name ->.lis)
+      `[->.lis]
     ?~  axi  ~|("limb not found: {<lis>} in {<jyp>}" !!)
     ::  If it exists and we need to search further, do so.
     ?^  u.axi
@@ -1405,7 +1405,8 @@
         ~|  no-type-at-axis+[axi jyp]
         !!
       $(lis t.lis, jyp u.new-jyp, res [u.axi res])
-    ?~  new-jyp=(type-at-axis u.axi)  ~|(%expect-type-at-axis !!)
+    ?~  new-jyp=(type-at-axis u.axi)
+      ~|(%expect-type-at-axis !!)
     ::  If this is a Hoon library, then return now.
     ?:  =(%hoon -<.u.new-jyp)
       :-  %|
@@ -1876,7 +1877,7 @@
           ::  special case: we're looking for $
           =/  ret  (~(find-buc jt jyp))
           ?~  ret  ~|("couldn't find $ in {<jyp>}" !!)
-          [-.u.ret ~ ~[2 +.u.ret]]
+          [-.u.ret ~ ~[[2 +.u.ret]]]
         ?:  !=(~ ljl)
           ::  case 6, library call
           ::  Construct a gate call from the rest of the limbs.
