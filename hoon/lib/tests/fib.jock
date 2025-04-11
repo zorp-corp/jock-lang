@@ -25,14 +25,17 @@ func fib(n:@) -> @ {
       let m = 0;
       let g = 1;
       let p = 3;
-      loop;
+      // loop;
       if m == n {
         m
       } else {
         m = (3 * p) - g;
-        g = p;
-        p = n;
-        recur
+        m
+        // recur
+        // g = p;
+        // p = n;
+        // m
+        // recur
       }
     }
   }
