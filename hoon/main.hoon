@@ -55,9 +55,8 @@
     ~&  >    parse+(parse:test-jock +.code)
     ~&  >>   jeam+(jeam:test-jock +.code)
     =/  res  `*`(mint:test-jock +.code)
-    ~&  >>>  mint+res
+    ~&  >    mint+res
     ~&  >>   jype+(jype:test-jock +.code)
-    :: ~&  :-  %nock  .*  %0  res
     ~&  >>>  nock+(nock:test-jock +.code)
     [~ k]
   ::
