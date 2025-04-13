@@ -1,0 +1,6 @@
+import hoon as lib;
+
+let a:@ = 6;
+let b:@ = 7;
+
+lib.mul(a b)

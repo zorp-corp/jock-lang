@@ -1,3 +1,4 @@
+/*  hoon  %txt  /lib/mini/txt
 =<  |%
     ++  tokenize
       |=  txt=@
@@ -17,14 +18,14 @@
     ++  mint
       |=  txt=@
       ^-  *
-      =/  jok  (jeam txt)
+      =/  jok  (jeam (cat 3 'import hoon;\0a' txt))
       =+  [nok jyp]=(~(mint cj [%atom %string %.n]^%$) jok)
       nok
     ::
     ++  jypist
       |=  txt=@
       ^-  jype
-      =/  jok  (jeam txt)
+      =/  jok  (jeam (cat 3 'import hoon;\0a' txt))
       =+  [nok jyp]=(~(mint cj [%atom %string %.n]^%$) jok)
       jyp
     ::
@@ -62,7 +63,8 @@
       %eval
       %with
       %this
-      %type
+      %import
+      %as
   ==
 ::
 +$  jpunc
@@ -153,7 +155,7 @@
         %if  %else  %crash  %assert
         %object  %compose  %loop  %defer
         %recur  %match  %switch  %eval  %with  %this
-        %type
+        %import  %as
     ==
   ::
   ++  tagged-punctuator  %+  cook
@@ -247,6 +249,7 @@
       [%atom p=jatom]
       [%list type=jype-leaf val=(list jock)]
       [%set type=jype-leaf val=(set jock)]
+      [%import name=jype next=jock]
       [%crash ~]
   ==
 ::
@@ -327,6 +330,8 @@
       [%list type=jype]
       ::  %set
       [%set type=jype]
+      ::  %hoon is a vase for the supplied subject (presumably hoon or tiny)
+      [%hoon p=vase]
       ::  %none is a null type (as for undetermined variable labels)
       [%none p=(unit term)]
   ==
@@ -396,11 +401,11 @@
     [[%compare ;;(comparator u.oc) lock rock] tokens]
   ::  - arithmetic ('+' or '-' or '*' or '/' or '%' or '**' is next)
   ?:  (~(has in operator-set) u.oc)
-    =^  op  tokens
-      (match-operator tokens)
     =^  rock  tokens
       (match-inner-jock tokens)
-    [[%operator op lock `rock] tokens]
+    :_  tokens
+    ;;  jock
+    [%operator u.oc lock `rock]
   ::  no infix operator
   [lock tokens]
 ::
@@ -423,6 +428,7 @@
         %punctuator  (match-start-punctuator tokens)
         %type        (match-start-name tokens)
     ==
+  ?~  tokens  [lock tokens]
   ::  - compare ('==','<','<=','>','>=','!=' is the next token)
   ?:  ?|  &((has-punctuator -.tokens %'=') (has-punctuator +<.tokens %'='))
           (has-punctuator -.tokens %'<')
@@ -545,12 +551,12 @@
       (match-block [tokens %'(' %')'] match-inner-jock)
     ::  TODO: check if we're in a compare
     [[%cell-check jock] tokens]
-  ::
+  ::  $ = recur
       %'$'
     ?.  (has-punctuator -.tokens %'(')
       [[%call [%limb [%axis 0] ~] ~] tokens]
     ?:  (has-punctuator -.tokens %')')
-      [[%call [%limb [%axis 0] ~] ~] +.+.tokens]
+      [[%call [%limb [%axis 0] ~] ~] +>.tokens]
     =^  arg  tokens
       (match-block [tokens %'(' %')'] match-inner-jock)
     [[%call [%limb [%axis %0] ~] `arg] tokens]
@@ -932,12 +938,12 @@
       (match-jock +.tokens)
     :_  tokens
     ?:(?=(%loop +.first) [+.first jock] [+.first jock])
-  ::
+  ::  recur = $
       %recur
     ?.  (has-punctuator -.tokens %'(')
       [[%call [%limb [%axis 0] ~] ~] tokens]
     ?:  (has-punctuator -.+.tokens %')')
-      [[%call [%limb [%axis 0] ~] ~] +.+.tokens]
+      [[%call [%limb [%axis 0] ~] ~] +>.tokens]
     =^  arg  tokens
       (match-inner-jock +.tokens)
     ?>  (got-punctuator -.tokens %')')
@@ -953,6 +959,24 @@
       (match-jock tokens)
     :_  tokens
     [%eval p q]
+  ::
+      %import
+    ?>  ?=(%name -<.tokens)
+    =/  nom=term  ->.tokens
+    =/  src=jock  [%limb ~[-.tokens]]
+    =/  tokens  +.tokens
+    =/  past  (rush q.hoon (ifix [gay gay] tall:(vang | /)))
+    ?~  past  ~|("unable to parse Hoon library: {<[+<+.src]>}" !!)
+    =/  p  (~(mint ut %noun) %noun u.past)
+    =?  nom  (has-keyword -.tokens %as)
+      ?>  =(%name +<-.tokens)
+      ;;(term +<+.tokens)
+    =?  tokens  (has-keyword -.tokens %as)  +>.tokens
+    ?>  (got-punctuator -.tokens %';')
+    =^  q  tokens
+      (match-jock +.tokens)
+    :_  tokens
+    [%import [[%hoon [p.p .*(0 q.p)]] nom] q]
   ::
       %crash
     [[%crash ~] tokens]
@@ -1310,6 +1334,7 @@
 ::  as %constants.
 ::
 |%
+::  Note that %12 does not occur, so returns from Hoon libraries must be molded.
 +$  nock
   $+  nock
   $^  [p=nock q=nock]                           ::  autocons
@@ -1346,7 +1371,7 @@
   ::  or a name/type reference to it.
   ++  get-limb
     |=  lis=(list jlimb)
-    ^-  (pair jype (list jwing))
+    ^-  (each (pair jype (list jwing)) (trel jype (list jlimb) (list jwing)))
     |^
     ::  The resulting jwing.
     =/  res=(list jwing)  ~
@@ -1356,7 +1381,8 @@
     |-
     ?~  lis
       ::  If we've searched to the bottom, return what we have.
-      :-  jyp
+      :+  %&
+        jyp
       ::  If self, return the wing.
       ?:  =(ret 1)
         ::  If search list empty, then return self.
@@ -1366,12 +1392,12 @@
       ::  If no wing, return our self.
       ?~  res  ~[ret]
       ::  If wing and not self, disambiguate.
-      ~[i.res]
+      ~[-.res]
     =/  axi=(unit jwing)
       ::  Resolve names and types to axes.
-      ?:  |(?=(%name -.i.lis) ?=(%type -.i.lis) !=(%$ name.jyp))
-        (axis-at-name +.i.lis)
-      `+.i.lis
+      ?:  |(?=(%name -<.lis) ?=(%type -<.lis) !=(%$ name.jyp))
+        (axis-at-name ->.lis)
+      `[->.lis]
     ?~  axi  ~|("limb not found: {<lis>} in {<jyp>}" !!)
     ::  If it exists and we need to search further, do so.
     ?^  u.axi
@@ -1379,7 +1405,18 @@
         ~|  no-type-at-axis+[axi jyp]
         !!
       $(lis t.lis, jyp u.new-jyp, res [u.axi res])
-    ?~  new-jyp=(type-at-axis u.axi)  ~|(%expect-type-at-axis !!)
+    ?~  new-jyp=(type-at-axis u.axi)
+      ~|(%expect-type-at-axis !!)
+    ::  If this is a Hoon library, then return now.
+    ?:  =(%hoon -<.u.new-jyp)
+      :-  %|
+      :+  u.new-jyp
+        t.lis
+      ?:  =(ret 1)
+        ?~  res  ~[?>(?=(@ u.axi) ?^(ret !! (peg ret u.axi)))]
+        (flop res)
+      ?~  res  ~[?>(?=(@ u.axi) ?^(ret !! (peg ret u.axi)))]
+      ~[i.res]
     ::  If we are looking for a method, we need to resolve the instance value as
     ::  well as the door and arm.  This is the case iff the type is a class name
     ::  but the limb is only a name and there are subsequent limbs to find.
@@ -1388,7 +1425,8 @@
             ?=(%type ->-<.u.new-jyp)      :: that refers to a class type
             !=(~ t.lis)                   :: that is not just a name
         ==
-      :-  u.new-jyp
+      :+  %&
+        u.new-jyp
       ?:  =(ret 1)
         ::  If search list empty, then return self.
         ?~  res  ~[ret]
@@ -1427,7 +1465,8 @@
       ?:  =(0 i.axi-lis)
         $(axi-lis t.axi-lis, jyp p.jyp)
       $(axi-lis t.axi-lis, jyp q.jyp)
-    ::  Locate the name's corresponding axis.
+    ::
+    ::  Locate a name's corresponding axis.
     ++  axis-at-name
       |=  nom=term
       ^-  (unit jwing)
@@ -1579,8 +1618,12 @@
             :: [p=[%limb p=~[[%type p='Foo']]] name='name']
             :: check nesting of lval and rval but pass lval
             ~|  %nesting-with-specified-lval-type
-            =/  [lyp=jype ljw=(list jwing)]
-              (~(get-limb jt jyp) +.p.type.j)
+            :: =/  [lyp=jype ljw=(list jwing)]
+            ::   (~(get-limb jt jyp) +.p.type.j)
+            =/  lim  (~(get-limb jt jyp) +.p.type.j)
+            ?>  ?=(%& -.lim)
+            =/  lyp=jype  p.p.lim
+            =/  ljw=(list jwing)  q.p.lim
             `[[%limb ~[[%type name.val-jyp]]] name.type.j]
           ?:  (is-type name.val-jyp)
             :: case 4, let name = Type(value);
@@ -1666,9 +1709,10 @@
         %edit
       =/  [typ=jype axi=@]
         =/  res  (~(get-limb jt jyp) limb.j)
-        ?>  ?=(^ q.res)
-        ?>  ?=(@ i.q.res)
-        [p.res i.q.res]
+        ?>  ?=(%& -.res)
+        ?>  ?=(^ q.p.res)
+        ?>  ?=(@ i.q.p.res)
+        [p.p.res i.q.p.res]
       ~|  %edit-value
       =+  [val val-jyp]=$(j val.j)
       ~|  %edit-next
@@ -1815,13 +1859,6 @@
         ~|  %call-limb
         =/  limbs=(list jlimb)  p.func.j
         ?>  ?=(^ limbs)
-        =/  [typ=jype ljw=(list jwing)]
-          ?.  =([%axis 0] -.limbs)
-            (~(get-limb jt jyp) limbs)
-          ::  special case: we're looking for $
-          =/  ret  (~(find-buc jt jyp))
-          ?~  ret  ~|("couldn't find $ in {<jyp>}" !!)
-          [-.u.ret ~[2 +.u.ret]]
         ::  At this point it's looking for a %core (either func or class).
         ::  We need to resolve several cases (in no particular order):
         ::    1. func function (single jlimb)
@@ -1829,7 +1866,42 @@
         ::    3. class method (in instance) (two jlimbs, first a name)
         ::    4. lambda function (assigned to variable) (single jlimb)
         ::    5. class method (from other method)
+        ::    6. library call (at least two jlimbs, the first being a library name)
         ::
+        =/  [typ=jype ljl=(list jlimb) ljw=(list jwing)]
+          ?.  =([%axis 0] -.limbs)
+            =/  lim  (~(get-limb jt jyp) limbs)
+            ?:  ?=(%& -.lim)
+              [p.p.lim ~ q.p.lim]
+            p.lim
+          ::  special case: we're looking for $
+          =/  ret  (~(find-buc jt jyp))
+          ?~  ret  ~|("couldn't find $ in {<jyp>}" !!)
+          [-.u.ret ~ ~[[2 +.u.ret]]]
+        ?:  !=(~ ljl)
+          ::  case 6, library call
+          ::  Construct a gate call from the rest of the limbs.
+          ?>  ?=(^ limbs)
+          ?~  arg.j  ~|("expect function argument" !!)
+          =+  [val val-jyp]=$(j u.arg.j)
+          ::  Construct the AST for the Hoon RPC using the bunt for now.
+          =+  ast=(j2h ljl ~)
+          ?>  ?=(%hoon -<.typ)
+          =/  min  (~(mint ut -.p.p.-.typ) %noun ast)
+          =/  pmin  p.min
+          =/  pjyp  (type2jype pmin)
+          =/  qmin
+            ~|  'failed to validate Nock---perhaps a %12?'
+            ;;(nock q.min)
+          :_  pjyp
+          ;;  nock
+          :+  %8
+            :^    %9
+                +<+<.qmin
+              %0
+            -.ljw
+          =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
+          [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
         ::  class method call by constructor (case 2), multiple arguments
         ::  [%call func=[%limb p=(list jlimb)] arg=(unit jock)]
         ?^  -<.typ
@@ -1883,13 +1955,19 @@
           ?>  ?=(%limb -.p.typ)
           ::  Get class definition for instance.  This is a cons of
           ::  the state and the methods (arms) as a core.
-          =/  [dyp=jype ljd=(list jwing)]  (~(get-limb jt jyp) p.p.typ)
+          =/  lim  (~(get-limb jt jyp) p.p.typ)
+          ?>  ?=(%& -.lim)
+          =/  dyp=jype  p.p.lim
+          =/  ljd=(list jwing)  q.p.lim
           =/  cyp  ;;(jype ->.dyp)
           ?>  ?=(%core -<.cyp)
           ?:  ?=(%& -.p.p.cyp)  ~|("class cannot be lambda" !!)
           ::  Search for the door defn in the subject jype.
           =/  gat-nom  `cord`+<+.limbs
-          =/  [gyp=jype ljg=(list jwing)]  (~(get-limb jt dyp) +.limbs)
+          =/  gim  (~(get-limb jt dyp) +.limbs)
+          ?>  ?=(%& -.gim)
+          =/  gyp=jype  p.p.gim
+          =/  ljg=(list jwing)  q.p.gim
           =/  gat  (~(get by p.p.p.cyp) gat-nom)
           ?~  gat  ~|("gate not found: {<gat-nom>} in {<name.typ>}" !!)
           ?>  ?=(%core -<.u.gat)
@@ -1954,26 +2032,22 @@
         =+  [b b-jyp]=$(j b.j)
         [%6 [%5 a b] [%1 1] %1 0]
       ::
-      ::  TODO: figure out jets and then fix this.
+      ::  Other comparators must map into Hoon itself.
           %'>'
-        =+  [a a-jyp]=$(j a.j)
-        =+  [b b-jyp]=$(j b.j)
-        [%11 %gth [%0 0]]
+        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %gth]]] arg=`[a.j b.j]]
+        -:$(j j)
       ::
           %'<'
-        =+  [a a-jyp]=$(j a.j)
-        =+  [b b-jyp]=$(j b.j)
-        [%11 %lth [%0 0]]
+        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %lth]]] arg=`[a.j b.j]]
+        -:$(j j)
       ::
           %'<='
-        =+  [a a-jyp]=$(j a.j)
-        =+  [b b-jyp]=$(j b.j)
-        [%11 %lte [%0 0]]
+        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %lte]]] arg=`[a.j b.j]]
+        -:$(j j)
       ::
           %'>='
-        =+  [a a-jyp]=$(j a.j)
-        =+  [b b-jyp]=$(j b.j)
-        [%11 %gte [%0 0]]
+        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %gte]]] arg=`[a.j b.j]]
+        -:$(j j)
       ==
     ::
         %operator
@@ -1981,47 +2055,42 @@
       :_  [%atom %number %.n]^%$
       ?-    op.j
           %'+'
-        =+  [a a-jyp]=$(j a.j)
         ?~  b.j  !!
-        =+  [b b-jyp]=$(j u.b.j)
-        [%11 %add [%0 0]]
+        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %add]]] arg=`[a.j u.b.j]]
+        -:$(j j)
         ::
           %'-'
-        =+  [a a-jyp]=$(j a.j)
         ?~  b.j  !!
-        =+  [b b-jyp]=$(j u.b.j)
-        [%11 %sub [%0 0]]
+        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %sub]]] arg=`[a.j u.b.j]]
+        -:$(j j)
         ::
           %'*'
-        =+  [a a-jyp]=$(j a.j)
         ?~  b.j  !!
-        =+  [b b-jyp]=$(j u.b.j)
-        [%11 %mul [%0 0]]
+        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %mul]]] arg=`[a.j u.b.j]]
+        -:$(j j)
         ::
           %'/'
-        =+  [a a-jyp]=$(j a.j)
         ?~  b.j  !!
-        =+  [b b-jyp]=$(j u.b.j)
-        [%11 %div [%0 0]]
+        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %div]]] arg=`[a.j u.b.j]]
+        -:$(j j)
         ::
           %'%'
-        =+  [a a-jyp]=$(j a.j)
         ?~  b.j  !!
-        =+  [b b-jyp]=$(j u.b.j)
-        [%11 %mod [%0 0]]
+        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %mod]]] arg=`[a.j u.b.j]]
+        -:$(j j)
         ::
           %'**'
-        =+  [a a-jyp]=$(j a.j)
         ?~  b.j  !!
-        =+  [b b-jyp]=$(j u.b.j)
-        [%11 %pow [%0 0]]
+        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %pow]]] arg=`[a.j u.b.j]]
+        -:$(j j)
         ::
       ==
     ::
         %limb
       ~|  %limb
-      =/  res=(pair jype (list jwing))
-        (~(get-limb jt jyp) p.j)
+      =/  lim  (~(get-limb jt jyp) p.j)
+      ?>  ?=(%& -.lim)
+      =/  res=(pair jype (list jwing))  p.lim
       [(resolve-wing q.res) p.res]
     ::
         %lambda
@@ -2058,8 +2127,7 @@
       =.  vals  +.vals
       :_  [[%list u.inferred-type] %$]
       |-  ^-  nock
-      ::  if the next element ends the list, then we are at the closing ~
-      ?~  +.vals
+      ?~  vals
         ?:  =(%1 -<.nok)
           ;;(nock (list-to-tuple (flop nok)))
         ;;(nock [%1 (list-to-tuple (flop nok))])
@@ -2121,9 +2189,21 @@
       :-  [%1 +<+.j]
       [^-(jype-leaf [%atom +<-.j +>.j]) %$]
     ::
+        %import
+      ~|  %import
+      ?>  ?=(%hoon -<.name.j)  :: right now only hoon.hoon
+      =.  jyp  (~(cons jt name.j) jyp)
+      ~|  %import-next
+      =+  [nex nex-jyp]=$(j next.j)
+      :_  nex-jyp
+      :+  %8
+        [%1 q.p.p.name.j]
+      nex
+    ::
         %crash
       ~|  %crash
       [[%0 0] jyp]
+    ::
     ==
   ::
   ++  mint-after-if
@@ -2178,7 +2258,9 @@
       [[%1 $(j u.inp.p.p.p.j)] [%0 0]]
     ::
         %limb
-      $(j p:(~(get-limb jt jyp) p.p.j))
+      =/  lim  (~(get-limb jt jyp) p.p.j)
+      ?>  ?=(%& -.lim)  :: if you want from a library then resolve it yourself
+      $(j p.p.lim)
     ::
         %fork      $(j p.p.j)
     ::
@@ -2186,7 +2268,120 @@
     ::
         %set       [%1 0]
     ::
+        %hoon      [%1 0]
+    ::
         %none      [%1 0]
+    ==
+  ::
+  ::  Convert a Jock function call to a Hoon gate call.
+  ++  j2h
+    |=  [wing=(list jlimb) arg=(unit jock)]
+    ::  XXX formally this is a potential mismatch from the imported Hoon, be careful!
+    ^-  ^hoon
+    =/  p
+      =|  out=^hoon
+      |-  ^-  ^hoon
+      ?~  wing
+        out
+      ?:  =(*^hoon out)
+        ::  overwrite bunt with first value
+        $(out [%wing ~[->.wing]], wing +.wing)
+      $(out [%wing (snoc ;;(^wing +.out) ->.wing)], wing +.wing)  :: XXX not as efficient but easy
+    =/  q
+      |-  ^-  (list ^hoon)
+      ?~  arg  ~
+      =/  arg  u.arg
+      ?^  -.arg
+        (weld $(arg `-.arg) $(arg `+.arg))
+      ?+    -.arg  ~|("j2h: expect valid function argument" !!)
+          %atom
+        ::  Atoms trivially map to Hoon atoms.
+        ::  [%atom p=jatom]
+        ::    [[%string p=term] q=?], etc.
+        ^-  (list ^hoon)
+        :_  ~
+        ;;  ^hoon
+        :+  ?:(q.p.arg %rock %sand)
+          ?-  -<.p.arg
+            %string       %ta
+            %number       %ud
+            %hexadecimal  %ux
+            %loobean      %f
+          ==
+        p.p.arg
+      ::
+          %limb
+        ::  Limbs must be resolved to a basic value.
+        ::  [%limb p=(list jlimb)]
+        ~|  %limb
+        ~
+      ::
+          %list
+        ::  Lists are composed of a series of values, which we unpack.
+        ::  [%list type=jype-leaf val=(list jock)]
+        ~|  %list
+        :_  ~
+        :-  %clsg
+        %-  snip  :: spurious ~ from Jock representation
+        %+  turn
+          val.arg
+        |=  item=jock
+        ^-  ^hoon
+        -:^$(arg `item)
+      ::
+          %set
+        ::  Sets are a tree of values, which must be in the same order as Hoon.
+        ::  [%set type=jype-leaf val=(set jock)]
+        ~|  %set
+        !!
+      ==
+    [%cncl p q]
+  ::
+  ::  Convert a Hoon type to a Jock jype.
+  ++  type2jype
+    |=  t=type
+    ^-  jype
+    :: +$  type  $+  type
+    ::           $~  %noun                                     ::
+    ::           $@  $?  %noun                                 ::  any nouns
+    ::                   %void                                 ::  no noun
+    ::               ==                                        ::
+    ::           $%  [%atom p=term q=(unit @)]                 ::  atom / constant
+    ::               [%cell p=type q=type]                     ::  ordered pair
+    ::               [%core p=type q=coil]                     ::  object
+    ::               [%face p=$@(term tune) q=type]            ::  namespace
+    ::               [%fork p=(set type)]                      ::  union
+    ::               [%hint p=(pair type note) q=type]         ::  annotation
+    ::               [%hold p=type q=hoon]                     ::  lazy evaluation
+    ::           ==                                            ::
+    ?+    -.t
+        ::  We cannot convert %core, %face, %fork, %hint, %void.
+        ~|("cannot convert type {<t>} to valid jype" !!)
+      ::
+        %atom
+      :_  %$
+      ^-  jype-leaf
+      :+  %atom
+        ?+  p.t  ~|("cannot convert atom type {<p.t>} to jatom" !!)
+          %ud   %number
+          %ux   %hexadecimal
+          %t    %string
+          %ta   %string
+          %tas  %string
+          %f    %loobean
+        ==
+      =(~ q.t)
+    ::
+        %cell
+      :_  %$
+      ^-  jype-leaf
+      :: [%list [type.p.t %$]]
+      *jype-leaf
+    ::
+        %hold
+      ::  %hold can mean a lot of things, but presumably means a container.
+      :_  %$
+      *jype-leaf
     ==
   ::
   :: +hunt-type: make a $nock to test whether jock nests in jype
