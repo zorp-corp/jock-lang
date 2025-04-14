@@ -5,7 +5,7 @@ func dec(a:@) -> @ {
     b
   } else {
     b = +(b);
-    recur
+    recur(+(b))
   }
 };
 

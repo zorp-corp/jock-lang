@@ -114,7 +114,7 @@
 ++  tokenize
   =|  fun=?(%.y %.n)
   |%
-  ++  string             (stag %string (ifix [soq soq] sym))
+  ++  string             (stag %string (cook crip (ifix [soq soq] (star ;~(less soq prn)))))
   ++  number             (stag %number dem:ag)
   ++  hexadecimal        (stag %hexadecimal ;~(pfix (jest %'0x') hex))
   ++  loobean
