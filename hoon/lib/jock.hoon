@@ -857,10 +857,14 @@
       %if
     =^  cond  tokens
       (match-inner-jock tokens)
+    ~&  if+cond
     =^  then  tokens
       (match-block [tokens %'{' %'}'] match-jock)
+    ~&  >  then+then
     =^  after-if  tokens
       (match-after-if-expression tokens)
+    ~&  >>  after-if+after-if
+    ~&  >>>  tokens+tokens
     [[%if cond then after-if] tokens]
   ::
       %assert
@@ -1857,6 +1861,8 @@
           %limb
         =/  old-jyp  jyp
         ~|  %call-limb
+        ~&  >  call-limb+j
+        =-  ~&  >>  call-limb-nock+[-]  -
         =/  limbs=(list jlimb)  p.func.j
         ?>  ?=(^ limbs)
         ::  At this point it's looking for a %core (either func or class).
@@ -1868,6 +1874,7 @@
         ::    5. class method (from other method)
         ::    6. library call (at least two jlimbs, the first being a library name)
         ::
+        ~&  >  searching-for+p.func.j
         =/  [typ=jype ljl=(list jlimb) ljw=(list jwing)]
           ?.  =([%axis 0] -.limbs)
             =/  lim  (~(get-limb jt jyp) limbs)
@@ -1878,6 +1885,7 @@
           =/  ret  (~(find-buc jt jyp))
           ?~  ret  ~|("couldn't find $ in {<jyp>}" !!)
           [-.u.ret ~ ~[[2 +.u.ret]]]
+        ~&  >>>  check+[typ ljl ljw]
         ?:  !=(~ ljl)
           ::  case 6, library call
           ::  Construct a gate call from the rest of the limbs.
