@@ -857,14 +857,10 @@
       %if
     =^  cond  tokens
       (match-inner-jock tokens)
-    ~&  if+cond
     =^  then  tokens
       (match-block [tokens %'{' %'}'] match-jock)
-    ~&  >  then+then
     =^  after-if  tokens
       (match-after-if-expression tokens)
-    ~&  >>  after-if+after-if
-    ~&  >>>  tokens+tokens
     [[%if cond then after-if] tokens]
   ::
       %assert
@@ -1885,7 +1881,7 @@
           =/  ret  (~(find-buc jt jyp))
           ?~  ret  ~|("couldn't find $ in {<jyp>}" !!)
           [-.u.ret ~ ~[[2 +.u.ret]]]
-        ~&  >>>  check+[typ ljl ljw]
+        ~&  >>>  check+[ljl ljw]
         ?:  !=(~ ljl)
           ::  case 6, library call
           ::  Construct a gate call from the rest of the limbs.
@@ -1912,6 +1908,7 @@
           [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
         ::  class method call by constructor (case 2), multiple arguments
         ::  [%call func=[%limb p=(list jlimb)] arg=(unit jock)]
+        ~&  >>  'here now'
         ?^  -<.typ
           ~|  %call-case-2-args
           ?:  ?=(%type -<.limbs)
@@ -1926,7 +1923,9 @@
             =.  inferred-type  `u.inferred-type(name ->.limbs)
             :-  val
             u.inferred-type
+          ~&  'fallthrough'
           ?>  ?=(%name -<.limbs)
+          ~&  finally-here+[arg.j]
           ?~  arg.j  ~|("expect method argument" !!)
           =+  [val val-jyp]=$(j u.arg.j)
           =/  inferred-type  (~(unify jt typ) val-jyp)
@@ -1940,6 +1939,7 @@
         ::
         ::  class method call by constructor (case 2), single argument
         ::  [%call func=[%limb p=(list jlimb)] arg=(unit jock)]
+        ~&  >  'there now'
         ?.  ?=(%core -.p.typ)
           ?:  ?=(%type -<.limbs)
             ~|  %call-case-2
@@ -1991,9 +1991,25 @@
           [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
         ::
         ::  traditional function call (case 1)
+        ~&  >>  'finally'
         ?:  ?=(%& -.p.p.typ)
+          ~&  >  'down here'
+          ~&  j+j
+          ~&  args+arg.j
+          ~&  ljw+(resolve-wing ljw)
           ~|  %call-case-1
           :_  out.p.p.p.typ
+          ?:  =([%axis 0] +<.func.j)
+            ::  self call (i.e., recursion)
+            ::  TODO add self fn here as well
+            ~&  >  'self call'
+            ?~  arg.j
+              (resolve-wing ljw)
+            :+  %8
+              (resolve-wing ljw)
+            =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
+            ::  XXX voodoo
+            [%9 2 %10 [%8 [(resolve-wing ljw)] [%9 2 %10 arg]] %0 2]
           ?~  arg.j
             (resolve-wing ljw)
           :+  %8
@@ -2002,6 +2018,7 @@
           [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
         ::
         ::  lambda function call (case 4)
+        ~&  >  lambda+[(lent p.func.j) -<.limbs]
         ?>  &(=(1 (lent p.func.j)) !?=(%type -<.limbs))
         ~|  %call-case-4
         :_  =/  gat  ;;([%core p=core-body q=(unit jype)] -:(~(got by p.p.p.typ) +:(snag 0 p.func.j)))
