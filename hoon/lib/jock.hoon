@@ -857,10 +857,13 @@
       %if
     =^  cond  tokens
       (match-inner-jock tokens)
+    ~&  >  cond+cond
     =^  then  tokens
       (match-block [tokens %'{' %'}'] match-jock)
+    ~&  >>  then+then
     =^  after-if  tokens
       (match-after-if-expression tokens)
+    ~&  >>>  after-if+after-if
     [[%if cond then after-if] tokens]
   ::
       %assert
@@ -1605,6 +1608,7 @@
     ::
         %let
       ~|  %let-value
+      ~&  >  'start!'
       =+  [val val-jyp]=$(j val.j)
       =.  jyp
         ::  let permits four correct cases:
@@ -1644,7 +1648,9 @@
         =?  inferred-type  ?=(%limb -<.type.j)  `u.inferred-type(name name.type.j)
         (~(cons jt u.inferred-type) jyp)
       ~|  %let-next
+      ~&  'let!'
       =+  [nex nex-jyp]=$(j next.j)
+      ~&  'next!'
       [[%8 val nex] nex-jyp]
     ::
         %func
@@ -2005,11 +2011,13 @@
             ~&  >  'self call'
             ?~  arg.j
               (resolve-wing ljw)
-            :+  %8
-              (resolve-wing ljw)
+            :: :+  %8
+              :: (resolve-wing ljw)
             =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
+            ~&  arg+arg
             ::  XXX voodoo
-            [%9 2 %10 [%8 [(resolve-wing ljw)] [%9 2 %10 arg]] %0 2]
+              (resolve-wing ljw)
+            :: [%9 2 %10 [%8 [(resolve-wing ljw)] [%9 2 %10 arg]] %0 2]
           ?~  arg.j
             (resolve-wing ljw)
           :+  %8
