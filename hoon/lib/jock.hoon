@@ -857,13 +857,10 @@
       %if
     =^  cond  tokens
       (match-inner-jock tokens)
-    ~&  >  cond+cond
     =^  then  tokens
       (match-block [tokens %'{' %'}'] match-jock)
-    ~&  >>  then+then
     =^  after-if  tokens
       (match-after-if-expression tokens)
-    ~&  >>>  after-if+after-if
     [[%if cond then after-if] tokens]
   ::
       %assert
@@ -1608,7 +1605,6 @@
     ::
         %let
       ~|  %let-value
-      ~&  >  'start!'
       =+  [val val-jyp]=$(j val.j)
       =.  jyp
         ::  let permits four correct cases:
@@ -1648,9 +1644,7 @@
         =?  inferred-type  ?=(%limb -<.type.j)  `u.inferred-type(name name.type.j)
         (~(cons jt u.inferred-type) jyp)
       ~|  %let-next
-      ~&  'let!'
       =+  [nex nex-jyp]=$(j next.j)
-      ~&  'next!'
       [[%8 val nex] nex-jyp]
     ::
         %func
@@ -1863,8 +1857,6 @@
           %limb
         =/  old-jyp  jyp
         ~|  %call-limb
-        ~&  >  call-limb+j
-        =-  ~&  >>  call-limb-nock+[-]  -
         =/  limbs=(list jlimb)  p.func.j
         ?>  ?=(^ limbs)
         ::  At this point it's looking for a %core (either func or class).
@@ -1876,7 +1868,6 @@
         ::    5. class method (from other method)
         ::    6. library call (at least two jlimbs, the first being a library name)
         ::
-        ~&  >  searching-for+p.func.j
         =/  [typ=jype ljl=(list jlimb) ljw=(list jwing)]
           ?.  =([%axis 0] -.limbs)
             =/  lim  (~(get-limb jt jyp) limbs)
@@ -1887,7 +1878,6 @@
           =/  ret  (~(find-buc jt jyp))
           ?~  ret  ~|("couldn't find $ in {<jyp>}" !!)
           [-.u.ret ~ ~[[2 +.u.ret]]]
-        ~&  >>>  check+[ljl ljw]
         ?:  !=(~ ljl)
           ::  case 6, library call
           ::  Construct a gate call from the rest of the limbs.
@@ -1914,7 +1904,6 @@
           [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
         ::  class method call by constructor (case 2), multiple arguments
         ::  [%call func=[%limb p=(list jlimb)] arg=(unit jock)]
-        ~&  >>  'here now'
         ?^  -<.typ
           ~|  %call-case-2-args
           ?:  ?=(%type -<.limbs)
@@ -1929,9 +1918,7 @@
             =.  inferred-type  `u.inferred-type(name ->.limbs)
             :-  val
             u.inferred-type
-          ~&  'fallthrough'
           ?>  ?=(%name -<.limbs)
-          ~&  finally-here+[arg.j]
           ?~  arg.j  ~|("expect method argument" !!)
           =+  [val val-jyp]=$(j u.arg.j)
           =/  inferred-type  (~(unify jt typ) val-jyp)
@@ -1945,7 +1932,6 @@
         ::
         ::  class method call by constructor (case 2), single argument
         ::  [%call func=[%limb p=(list jlimb)] arg=(unit jock)]
-        ~&  >  'there now'
         ?.  ?=(%core -.p.typ)
           ?:  ?=(%type -<.limbs)
             ~|  %call-case-2
@@ -1997,12 +1983,7 @@
           [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
         ::
         ::  traditional function call (case 1)
-        ~&  >>  'finally'
         ?:  ?=(%& -.p.p.typ)
-          ~&  >  'down here'
-          ~&  j+j
-          ~&  args+arg.j
-          ~&  ljw+(resolve-wing ljw)
           ~|  %call-case-1
           :_  out.p.p.p.typ
           ?:  =([%axis 0] +<.func.j)
@@ -2012,13 +1993,21 @@
             ~&  args+arg.j
             ?~  arg.j
               (resolve-wing ljw)
+            :: :-  [%0 6]
             :: :+  %8
-              :: (resolve-wing ljw)
+            ::   ?~  ljw  !!  :: shouldn't reach
+            ::   ?>  ?=(^ i.ljw)
+            ::   :: =/  ljw  ;;(@ arm-axis.-.ljw)
+            ::   ~&  arm-axis+ljw
+            ::   (resolve-wing ~[arm-axis.i.ljw])
             =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
             ~&  arg+arg
             ::  XXX voodoo
-              (resolve-wing ljw)
             :: [%9 2 %10 [%8 [(resolve-wing ljw)] [%9 2 %10 arg]] %0 2]
+            :: [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
+            :: [%10 [6 [%7 [%0 3] arg]] %0 1]
+            :: [%10 [6 [%7 [%0 3] arg]] %0 1]
+            [%9 2 %10 [6 [%7 [%0 1] arg]] %0 1]
           ?~  arg.j
             (resolve-wing ljw)
           :+  %8
