@@ -2009,6 +2009,7 @@
             ::  self call (i.e., recursion)
             ::  TODO add self fn here as well
             ~&  >  'self call'
+            ~&  args+arg.j
             ?~  arg.j
               (resolve-wing ljw)
             :: :+  %8
