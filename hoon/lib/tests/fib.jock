@@ -19,21 +19,21 @@ func fib(n:@) -> @{
   } else if n == 1 {
     1
   } else {
-    $(n - 1) //+ $(n - 2)
+    $(n - 1) + $(n - 2)
     // &1
   }
 };
 
 (
-  // fib(0)
-  // fib(1)
+  fib(0)
+  fib(1)
   fib(2)
-  // fib(3)
-  // fib(4)
-  // fib(5)
-  // fib(6)
-  // fib(7)
-  // fib(8)
-  // fib(9)
-  // fib(10)
+  fib(3)
+  fib(4)
+  fib(5)
+  fib(6)
+  fib(7)
+  fib(8)
+  fib(9)
+  fib(10)
 )
