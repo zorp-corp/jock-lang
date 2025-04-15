@@ -84,7 +84,6 @@
   (sub a (mul b (div a b)))
 ::
 ++  pow                                                 ::  unsigned exponent
-  ~/  %pow
   |=  [a=@ b=@]
   ?:  =(b 0)  1
   |-  ?:  =(b 1)  a
@@ -93,7 +92,6 @@
   ?~  (dis b 1)  d  (mul d a)
 ::
 ++  sqt                                                 ::  unsigned sqrt/rem
-  ~/  %sqt
   |=  a=@  ^-  [p=@ q=@]
   ?~  a  [0 0]
   =+  [q=(div (dec (xeb a)) 2) r=0]
@@ -114,7 +112,6 @@
   (mul 2 $(a (dec a)))
 ::
 ++  xeb                                                 ::  binary logarithm
-  ~/  %xeb
   |=  a=@
   ^-  @
   (met 0 a)

@@ -79,7 +79,7 @@
 +$  jatom
   $+  jatom
   $~  [[%loobean p=%.n] q=%.n]
-  $:  $%  [%string p=term]
+  $:  $%  [%string p=cord]
           [%number p=@ud]
           [%hexadecimal p=@ux]
           [%loobean p=?]
@@ -760,7 +760,7 @@
       (match-jock +.tokens)
     [[%let jype val jock] tokens]
   ::
-  ::  func a(b:@) -> @ { +(b) };
+  ::  func inc(n:@) -> @ { +(n) };
   ::  [%func name=jype body=jock next=jock]
       %func
     =^  type  tokens
@@ -1986,6 +1986,12 @@
         ?:  ?=(%& -.p.p.typ)
           ~|  %call-case-1
           :_  out.p.p.p.typ
+          ?:  =([%axis 0] +<.func.j)
+            ::  self call (i.e., recursion)
+            ?~  arg.j
+              (resolve-wing ljw)
+            =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
+            [%9 2 %10 [6 [%7 [%0 1] arg]] %0 1]
           ?~  arg.j
             (resolve-wing ljw)
           :+  %8
