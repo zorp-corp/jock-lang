@@ -760,7 +760,7 @@
       (match-jock +.tokens)
     [[%let jype val jock] tokens]
   ::
-  ::  func a(b:@) -> @ { +(b) };
+  ::  func inc(n:@) -> @ { +(n) };
   ::  [%func name=jype body=jock next=jock]
       %func
     =^  type  tokens
@@ -1988,25 +1988,9 @@
           :_  out.p.p.p.typ
           ?:  =([%axis 0] +<.func.j)
             ::  self call (i.e., recursion)
-            ::  TODO add self fn here as well
-            ~&  >  'self call'
-            ~&  args+arg.j
             ?~  arg.j
               (resolve-wing ljw)
-            :: :-  [%0 6]
-            :: :+  %8
-            ::   ?~  ljw  !!  :: shouldn't reach
-            ::   ?>  ?=(^ i.ljw)
-            ::   :: =/  ljw  ;;(@ arm-axis.-.ljw)
-            ::   ~&  arm-axis+ljw
-            ::   (resolve-wing ~[arm-axis.i.ljw])
             =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
-            ~&  arg+arg
-            ::  XXX voodoo
-            :: [%9 2 %10 [%8 [(resolve-wing ljw)] [%9 2 %10 arg]] %0 2]
-            :: [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
-            :: [%10 [6 [%7 [%0 3] arg]] %0 1]
-            :: [%10 [6 [%7 [%0 3] arg]] %0 1]
             [%9 2 %10 [6 [%7 [%0 1] arg]] %0 1]
           ?~  arg.j
             (resolve-wing ljw)
@@ -2016,7 +2000,6 @@
           [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
         ::
         ::  lambda function call (case 4)
-        ~&  >  lambda+[(lent p.func.j) -<.limbs]
         ?>  &(=(1 (lent p.func.j)) !?=(%type -<.limbs))
         ~|  %call-case-4
         :_  =/  gat  ;;([%core p=core-body q=(unit jype)] -:(~(got by p.p.p.typ) +:(snag 0 p.func.j)))
