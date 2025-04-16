@@ -6,10 +6,10 @@
 
 
 compose
-  class Point(x:@ y:@) {
+  class Point(x:@) {
     add(p:(x:@ y:@)) -> Point {
-      // import hoon;
-      (x + p.x y + p.y)
+      x
+      // (x + p.x y + p.y)
     }
     /*sub(p:(x:@ y:@)) -> Point {
       (x - p.x y - p.y)
@@ -17,8 +17,10 @@ compose
   }
 ; // end compose
 
+// 10
+// Point(50)
 //  let name = value;
-let origin = Point(50 60);
+let origin = Point(50);
 //  value.method()
 //(origin.add(70 80) origin.sub(10 20))
 origin.add(70 80)

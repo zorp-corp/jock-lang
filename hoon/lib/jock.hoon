@@ -1923,19 +1923,25 @@
           [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
         ::  class method call by constructor (case 2), multiple arguments
         ::  [%call func=[%limb p=(list jlimb)] arg=(unit jock)]
-        ~&  thing+[-<.typ]
         ?^  -<.typ
           ~|  %call-case-2-args
           ?:  ?=(%type -<.limbs)
             ?~  arg.j  ~|("expect method argument" !!)
             =+  [val val-jyp]=$(j u.arg.j)
+            ~&  val+val
+            ~&  >  val-jyp+val-jyp
             ::  This is a class, so we know that the state is at the head.
-            =/  inferred-type  (~(unify jt -<.typ) val-jyp)
+            ?>  ?=(%state -<-<.typ)
+            :: ~&  >>  -<.typ
+            =/  inferred-type  (~(unify jt -<->.typ) val-jyp)
+            ~&  >>  inferred-type+inferred-type
             ?~  inferred-type
               ~|  '%call: argument value type does not nest in method type'
               ~|  "have: {<val-jyp>}\0aneed: {<typ>}"
               !!
+            ~&  >  'here'
             =.  inferred-type  `u.inferred-type(name ->.limbs)
+            =-  ~&(here+[-] -)
             :-  val
             u.inferred-type
           ?>  ?=(%name -<.limbs)
