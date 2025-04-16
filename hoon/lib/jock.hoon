@@ -758,8 +758,10 @@
     =^  val  tokens
       (match-jock +.tokens)
     ?>  (got-punctuator -.tokens %';')
+    ~&  'let-here'
     =^  jock  tokens
       (match-jock +.tokens)
+    ~&  'let-out'
     [[%let jype val jock] tokens]
   ::
   ::  func inc(n:@) -> @ { +(n) };
@@ -1691,7 +1693,7 @@
         jyp
         ::  unify w/ context? cons?  zeroing out is separate from
         ::  whether class exposes context to lower things
-      ~&  >  exe-jyp+exe-jyp
+      :: ~&  >  exe-jyp+exe-jyp
       =/  lis=(list [name=term val=jock])  ~(tap by arms.j)
       ?>  ?=(^ lis)
       ::  core and jype of first arm
@@ -1745,6 +1747,7 @@
         $(j p.j)
       ~|  %compose-q
       =+  [q q-jyp]=$(j q.j)
+      =-  ~&(result+[-] -)
       [[%7 p q] q-jyp]
     ::
         %object
@@ -1869,6 +1872,7 @@
         =/  limbs=(list jlimb)  p.func.j
         ~&  >  limbs+limbs
         ~&  >>  j+j
+        =-  ~&(callout+[-] -)
         ?>  ?=(^ limbs)
         ::  At this point it's looking for a %core (either func or class).
         ::  We need to resolve several cases (in no particular order):
@@ -1879,7 +1883,7 @@
         ::    5. class method (from other method)
         ::    6. library call (at least two jlimbs, the first being a library name)
         ::
-        ~&  >  jyp+jyp
+        :: ~&  >  jyp+jyp
         =/  [typ=jype ljl=(list jlimb) ljw=(list jwing)]
           ?.  =([%axis 0] -.limbs)
             =/  lim  (~(get-limb jt jyp) limbs)
@@ -1929,7 +1933,7 @@
             ?~  arg.j  ~|("expect method argument" !!)
             =+  [val val-jyp]=$(j u.arg.j)
             ~&  val+val
-            ~&  >  val-jyp+val-jyp
+            :: ~&  >  val-jyp+val-jyp
             ::  This is a class, so we know that the state is at the head.
             ?>  ?=(%state -<-<.typ)
             :: ~&  >>  -<.typ
