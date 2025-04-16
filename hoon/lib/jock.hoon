@@ -332,6 +332,8 @@
       [%set type=jype]
       ::  %hoon is a vase for the supplied subject (presumably hoon or tiny)
       [%hoon p=vase]
+      ::  %state is a container for class state
+      [%state p=jype]
       ::  %none is a null type (as for undetermined variable labels)
       [%none p=(unit term)]
   ==
@@ -738,7 +740,7 @@
   ?>  (got-punctuator -.tokens %')')
   ?:  ?=(%list type)  [[;;(jype-leaf [type jyp]) u.nom] +.tokens]
   ?:  ?=(%set type)  [[;;(jype-leaf [type jyp]) u.nom] +.tokens]
-  [jyp(name u.nom) +.tokens]
+  [[[%state jyp] u.nom] +.tokens]
 ::
 ++  match-keyword
   |=  =tokens
@@ -1678,11 +1680,18 @@
       ::  door sample
       =/  sam-nok  (type-to-default state.j)
       ::  unified context including door sample in payload
+      ~&  >>  state+state.j
+      ?>  ?=(%state -<.state.j)
+      :: ?:  =(1 1)  !!
       =/  exe-jyp=jype
-        %-  ~(cons jt state.j)
-        [[%core %|^(~(run by arms.j) |=(* untyped-j)) `state.j] %$]
+        :: %-  ~(cons jt state.j)
+        :: [[%core %|^(~(run by arms.j) |=(* untyped-j)) `state.j] %$]
+        %-  %~  cons  jt
+          [[%core %|^(~(run by arms.j) |=(* untyped-j)) `p.p.state.j] %$]
+        jyp
         ::  unify w/ context? cons?  zeroing out is separate from
         ::  whether class exposes context to lower things
+      ~&  >  exe-jyp+exe-jyp
       =/  lis=(list [name=term val=jock])  ~(tap by arms.j)
       ?>  ?=(^ lis)
       ::  core and jype of first arm
@@ -1858,6 +1867,8 @@
         =/  old-jyp  jyp
         ~|  %call-limb
         =/  limbs=(list jlimb)  p.func.j
+        ~&  >  limbs+limbs
+        ~&  >>  j+j
         ?>  ?=(^ limbs)
         ::  At this point it's looking for a %core (either func or class).
         ::  We need to resolve several cases (in no particular order):
@@ -1868,6 +1879,7 @@
         ::    5. class method (from other method)
         ::    6. library call (at least two jlimbs, the first being a library name)
         ::
+        ~&  >  jyp+jyp
         =/  [typ=jype ljl=(list jlimb) ljw=(list jwing)]
           ?.  =([%axis 0] -.limbs)
             =/  lim  (~(get-limb jt jyp) limbs)
@@ -1883,16 +1895,21 @@
           ::  Construct a gate call from the rest of the limbs.
           ?>  ?=(^ limbs)
           ?~  arg.j  ~|("expect function argument" !!)
+          ~&  'zhere!'
+          ~&  case-6+[u.arg.j]
           =+  [val val-jyp]=$(j u.arg.j)
+          ~&  val+val
           ::  Construct the AST for the Hoon RPC using the bunt for now.
           =+  ast=(j2h ljl ~)
           ?>  ?=(%hoon -<.typ)
+          ~&  >>  'in here'
           =/  min  (~(mint ut -.p.p.-.typ) %noun ast)
           =/  pmin  p.min
           =/  pjyp  (type2jype pmin)
           =/  qmin
             ~|  'failed to validate Nock---perhaps a %12?'
             ;;(nock q.min)
+          ~&  >>  'in there'
           :_  pjyp
           ;;  nock
           :+  %8
@@ -1900,10 +1917,13 @@
                 +<+<.qmin
               %0
             -.ljw
+          ~&  >>  'in where'
           =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
+          ~&  >>  arg+arg
           [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
         ::  class method call by constructor (case 2), multiple arguments
         ::  [%call func=[%limb p=(list jlimb)] arg=(unit jock)]
+        ~&  thing+[-<.typ]
         ?^  -<.typ
           ~|  %call-case-2-args
           ?:  ?=(%type -<.limbs)
@@ -1933,6 +1953,7 @@
         ::  class method call by constructor (case 2), single argument
         ::  [%call func=[%limb p=(list jlimb)] arg=(unit jock)]
         ?.  ?=(%core -.p.typ)
+          ~&  'there!'
           ?:  ?=(%type -<.limbs)
             ~|  %call-case-2
             ?>  ?=(%type -<.limbs)
@@ -1949,9 +1970,11 @@
             [[%limb limbs] ->.limbs]
           ?>  ?=(%name -<.limbs)
           ~|  %call-case-3
+          ::  class method call in instance (case 3)
           ::  In this case, we have located the class instance
           ::  but now need the method and the argument to construct
           ::  the Nock.
+          ~&  >  'here!'
           ?>  ?=(%limb -.p.typ)
           ::  Get class definition for instance.  This is a cons of
           ::  the state and the methods (arms) as a core.
@@ -2094,8 +2117,10 @@
     ::
         %limb
       ~|  %limb
+      ~&  limb+p.j
       =/  lim  (~(get-limb jt jyp) p.j)
-      ?>  ?=(%& -.lim)
+      ~&  lim+lim
+      ?>  ?=(%& -.lim)  :: +each resolution
       =/  res=(pair jype (list jwing))  p.lim
       [(resolve-wing q.res) p.res]
     ::
@@ -2275,6 +2300,8 @@
         %set       [%1 0]
     ::
         %hoon      [%1 0]
+    ::
+        %state     [%1 $(j p.p.j)]
     ::
         %none      [%1 0]
     ==

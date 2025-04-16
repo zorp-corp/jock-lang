@@ -1,17 +1,24 @@
+// class Point(x:@) {
+//   value(p:(x:@ y:@)) -> @ {
+//     x + p.x
+//   }
+// }
+
+
 compose
   class Point(x:@ y:@) {
     add(p:(x:@ y:@)) -> Point {
-      // we don't have infix operators yet so this is just a foobar
-      (p.x p.y)
+      // import hoon;
+      (x + p.x y + p.y)
     }
-    sub(p:(x:@ y:@)) -> Point {
-      // we don't have infix operators yet so this is just a foobar
-      (p.x p.x p.x)
-    }
+    /*sub(p:(x:@ y:@)) -> Point {
+      (x - p.x y - p.y)
+    }*/
   }
 ; // end compose
 
 //  let name = value;
 let origin = Point(50 60);
 //  value.method()
-(origin.add(70 80) origin.sub(90 100))
+//(origin.add(70 80) origin.sub(10 20))
+origin.add(70 80)
