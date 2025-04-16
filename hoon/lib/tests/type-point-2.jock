@@ -8,7 +8,7 @@
 compose
   class Point(x:@) {
     add(p:(x:@ y:@)) -> Point {
-      x
+      x + p.x
       // (x + p.x y + p.y)
     }
     /*sub(p:(x:@ y:@)) -> Point {

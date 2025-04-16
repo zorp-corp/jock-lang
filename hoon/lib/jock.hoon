@@ -1980,7 +1980,6 @@
           ::  In this case, we have located the class instance
           ::  but now need the method and the argument to construct
           ::  the Nock.
-          ~&  >  'here!'
           ?>  ?=(%limb -.p.typ)
           ::  Get class definition for instance.  This is a cons of
           ::  the state and the methods (arms) as a core.
