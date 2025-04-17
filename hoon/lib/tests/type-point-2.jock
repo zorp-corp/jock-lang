@@ -1,26 +1,22 @@
-// class Point(x:@) {
-//   value(p:(x:@ y:@)) -> @ {
-//     x + p.x
-//   }
-// }
-
-
 compose
   class Point(x:@) {
     add(p:(x:@ y:@)) -> Point {
       x + p.x
-      // (x + p.x y + p.y)
     }
-    /*sub(p:(x:@ y:@)) -> Point {
-      (x - p.x y - p.y)
-    }*/
   }
 ; // end compose
 
-// 10
-// Point(50)
-//  let name = value;
-let origin = Point(50);
-//  value.method()
-//(origin.add(70 80) origin.sub(10 20))
-origin.add(70 80)
+Point(50)
+
+/*
+!=
+=>
+|_  x=@
+++  add
+  |=  [x=@ y=@]
+  (^add x x.p)
+--
+::~(. + 50)
+=/  origin  ~(. + 50)
+(add:origin [70 80])
+*/

@@ -758,10 +758,8 @@
     =^  val  tokens
       (match-jock +.tokens)
     ?>  (got-punctuator -.tokens %';')
-    ~&  'let-here'
     =^  jock  tokens
       (match-jock +.tokens)
-    ~&  'let-out'
     [[%let jype val jock] tokens]
   ::
   ::  func inc(n:@) -> @ { +(n) };
@@ -1645,7 +1643,8 @@
           ~|  '%let: value type does not nest in declared type'
           ~|  "have: {<val-jyp>}\0aneed: {<type.j>}"
           !!
-        =?  inferred-type  ?=(%limb -<.type.j)  `u.inferred-type(name name.type.j)
+        =?  inferred-type  ?=(%limb -<.type.j)
+          `u.inferred-type(name name.type.j)
         (~(cons jt u.inferred-type) jyp)
       ~|  %let-next
       =+  [nex nex-jyp]=$(j next.j)
@@ -1681,18 +1680,14 @@
       ~|  %class
       ::  door sample
       =/  sam-nok  (type-to-default state.j)
-      ::  unified context including door sample in payload
-      ~&  >>  state+state.j
+      ::  unified context including door sample in context
       ?>  ?=(%state -<.state.j)
-      :: ?:  =(1 1)  !!
       =/  exe-jyp=jype
         :: %-  ~(cons jt state.j)
         :: [[%core %|^(~(run by arms.j) |=(* untyped-j)) `state.j] %$]
-        %-  %~  cons  jt
+        %-  %~  cons  jt  jyp
+          :: [[%core %|^(~(run by arms.j) |=(* untyped-j)) `(~(cons jt p.p.state.j) jyp)] %$]
           [[%core %|^(~(run by arms.j) |=(* untyped-j)) `p.p.state.j] %$]
-        jyp
-        ::  unify w/ context? cons?  zeroing out is separate from
-        ::  whether class exposes context to lower things
       :: ~&  >  exe-jyp+exe-jyp
       =/  lis=(list [name=term val=jock])  ~(tap by arms.j)
       ?>  ?=(^ lis)
@@ -1743,10 +1738,13 @@
     ::
         %compose
       ~|  %compose-p
+      ~&  >>>  pp+p.j
       =^  p  jyp
         $(j p.j)
+      ~&  p+p
       ~|  %compose-q
       =+  [q q-jyp]=$(j q.j)
+      ~&  q+q
       =-  ~&(result+[-] -)
       [[%7 p q] q-jyp]
     ::
@@ -1872,18 +1870,16 @@
         =/  limbs=(list jlimb)  p.func.j
         ~&  >  limbs+limbs
         ~&  >>  j+j
-        =-  ~&(callout+[-] -)
         ?>  ?=(^ limbs)
         ::  At this point it's looking for a %core (either func or class).
         ::  We need to resolve several cases (in no particular order):
         ::    1. func function (single jlimb)
-        ::    2. class method (definition) (one jlimb) (single or multiple args)
+        ::    2. class constructor (one jlimb) (single or multiple args)
         ::    3. class method (in instance) (two jlimbs, first a name)
         ::    4. lambda function (assigned to variable) (single jlimb)
         ::    5. class method (from other method)
         ::    6. library call (at least two jlimbs, the first being a library name)
         ::
-        :: ~&  >  jyp+jyp
         =/  [typ=jype ljl=(list jlimb) ljw=(list jwing)]
           ?.  =([%axis 0] -.limbs)
             =/  lim  (~(get-limb jt jyp) limbs)
@@ -1897,23 +1893,22 @@
         ?:  !=(~ ljl)
           ::  case 6, library call
           ::  Construct a gate call from the rest of the limbs.
+          ::  We have to +slam the gate into the Hoon library,
+          ::  thus two separate wings.
           ?>  ?=(^ limbs)
           ?~  arg.j  ~|("expect function argument" !!)
-          ~&  'zhere!'
-          ~&  case-6+[u.arg.j]
+          ~&  'here'
           =+  [val val-jyp]=$(j u.arg.j)
-          ~&  val+val
+          ~&  >  'here'
           ::  Construct the AST for the Hoon RPC using the bunt for now.
           =+  ast=(j2h ljl ~)
           ?>  ?=(%hoon -<.typ)
-          ~&  >>  'in here'
           =/  min  (~(mint ut -.p.p.-.typ) %noun ast)
           =/  pmin  p.min
           =/  pjyp  (type2jype pmin)
           =/  qmin
             ~|  'failed to validate Nock---perhaps a %12?'
             ;;(nock q.min)
-          ~&  >>  'in there'
           :_  pjyp
           ;;  nock
           :+  %8
@@ -1921,33 +1916,31 @@
                 +<+<.qmin
               %0
             -.ljw
-          ~&  >>  'in where'
           =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
-          ~&  >>  arg+arg
           [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
-        ::  class method call by constructor (case 2), multiple arguments
+        ::  class constructor (case 2), multiple arguments
         ::  [%call func=[%limb p=(list jlimb)] arg=(unit jock)]
         ?^  -<.typ
+          ~&  %case-2
           ~|  %call-case-2-args
           ?:  ?=(%type -<.limbs)
             ?~  arg.j  ~|("expect method argument" !!)
             =+  [val val-jyp]=$(j u.arg.j)
-            ~&  val+val
-            :: ~&  >  val-jyp+val-jyp
             ::  This is a class, so we know that the state is at the head.
             ?>  ?=(%state -<-<.typ)
-            :: ~&  >>  -<.typ
             =/  inferred-type  (~(unify jt -<->.typ) val-jyp)
-            ~&  >>  inferred-type+inferred-type
             ?~  inferred-type
               ~|  '%call: argument value type does not nest in method type'
               ~|  "have: {<val-jyp>}\0aneed: {<typ>}"
               !!
-            ~&  >  'here'
             =.  inferred-type  `u.inferred-type(name ->.limbs)
+            ~&  >>>  ljw+ljw
+            ~&  >>>  wing+(resolve-wing ljw)
             =-  ~&(here+[-] -)
-            :-  val
-            u.inferred-type
+            :_  u.inferred-type
+            :+  %8
+              (resolve-wing ljw)
+            [%10 [6 %7 [%0 3] val] %0 2]
           ?>  ?=(%name -<.limbs)
           ?~  arg.j  ~|("expect method argument" !!)
           =+  [val val-jyp]=$(j u.arg.j)
@@ -2009,8 +2002,12 @@
           ?~  arg.j
             (resolve-wing ljd)
           ::  Compose a class (door), which requires some tree math.
+          ~&  >  ljd+ljd
+          ~&  >>  ljg+ljg
+          ~&  >>>  wing+(resolve-wing ljg)
           :+  %8
             (resolve-wing ljg)
+            :: resolves to [9 2 0 3] but should be [7 [0 2] 9 2 0 1]
           =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
           [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
         ::
@@ -2310,7 +2307,7 @@
     ::
         %hoon      [%1 0]
     ::
-        %state     [%1 $(j p.p.j)]
+        %state     $(j p.p.j)
     ::
         %none      [%1 0]
     ==
