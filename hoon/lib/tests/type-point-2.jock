@@ -6,17 +6,18 @@ compose
   }
 ; // end compose
 
-Point(50)
+let origin = Point(50);
+origin.add(70 80)
 
 /*
 !=
-=>
+=+
 |_  x=@
 ++  add
-  |=  [x=@ y=@]
+  |=  p=[x=@ y=@]
   (^add x x.p)
 --
-::~(. + 50)
+::~(. - 50)
 =/  origin  ~(. + 50)
 (add:origin [70 80])
 */

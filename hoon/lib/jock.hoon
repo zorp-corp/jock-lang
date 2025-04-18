@@ -1738,14 +1738,10 @@
     ::
         %compose
       ~|  %compose-p
-      ~&  >>>  pp+p.j
       =^  p  jyp
         $(j p.j)
-      ~&  p+p
       ~|  %compose-q
       =+  [q q-jyp]=$(j q.j)
-      ~&  q+q
-      =-  ~&(result+[-] -)
       [[%7 p q] q-jyp]
     ::
         %object
@@ -1870,6 +1866,7 @@
         =/  limbs=(list jlimb)  p.func.j
         ~&  >  limbs+limbs
         ~&  >>  j+j
+        ~&  >>>  jyp+jyp
         ?>  ?=(^ limbs)
         ::  At this point it's looking for a %core (either func or class).
         ::  We need to resolve several cases (in no particular order):
@@ -1934,8 +1931,12 @@
               ~|  "have: {<val-jyp>}\0aneed: {<typ>}"
               !!
             =.  inferred-type  `u.inferred-type(name ->.limbs)
+            ~&  >  inferred-type+u.inferred-type
             ~&  >>>  ljw+ljw
             ~&  >>>  wing+(resolve-wing ljw)
+            ~&  'here'
+            ~&  val+val
+            ~&  'there'
             =-  ~&(here+[-] -)
             :_  u.inferred-type
             :+  %8
@@ -2005,11 +2006,16 @@
           ~&  >  ljd+ljd
           ~&  >>  ljg+ljg
           ~&  >>>  wing+(resolve-wing ljg)
+          =-  ~&(here+[-] -)
           :+  %8
+            :+  %7
+              [%0 2]
             (resolve-wing ljg)
+            :: [%7 [%0 2] %9 2 %0 1]
             :: resolves to [9 2 0 3] but should be [7 [0 2] 9 2 0 1]
           =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
           [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
+          :: [%9 2 %10 [6 arg] %0 2]
         ::
         ::  traditional function call (case 1)
         ?:  ?=(%& -.p.p.typ)
