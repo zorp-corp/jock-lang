@@ -1,17 +1,23 @@
 compose
-  class Point(x:@ y:@) {
+  class Point(x:@) {
     add(p:(x:@ y:@)) -> Point {
-      // we don't have infix operators yet so this is just a foobar
-      (p.x p.y)
-    }
-    sub(p:(x:@ y:@)) -> Point {
-      // we don't have infix operators yet so this is just a foobar
-      (p.x p.x p.x)
+      x + p.x
     }
   }
 ; // end compose
 
-//  let name = value;
-let origin = Point(50 60);
-//  value.method()
-(origin.add(70 80) origin.sub(90 100))
+let origin = Point(50);
+origin.add(70 80)
+
+/*
+!=
+=+
+|_  x=@
+++  add
+  |=  p=[x=@ y=@]
+  (^add x x.p)
+--
+::~(. - 50)
+=/  origin  ~(. + 50)
+(add:origin [70 80])
+*/

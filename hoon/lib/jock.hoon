@@ -332,6 +332,8 @@
       [%set type=jype]
       ::  %hoon is a vase for the supplied subject (presumably hoon or tiny)
       [%hoon p=vase]
+      ::  %state is a container for class state
+      [%state p=jype]
       ::  %none is a null type (as for undetermined variable labels)
       [%none p=(unit term)]
   ==
@@ -738,7 +740,7 @@
   ?>  (got-punctuator -.tokens %')')
   ?:  ?=(%list type)  [[;;(jype-leaf [type jyp]) u.nom] +.tokens]
   ?:  ?=(%set type)  [[;;(jype-leaf [type jyp]) u.nom] +.tokens]
-  [jyp(name u.nom) +.tokens]
+  [[[%state jyp] u.nom] +.tokens]
 ::
 ++  match-keyword
   |=  =tokens
@@ -1641,7 +1643,8 @@
           ~|  '%let: value type does not nest in declared type'
           ~|  "have: {<val-jyp>}\0aneed: {<type.j>}"
           !!
-        =?  inferred-type  ?=(%limb -<.type.j)  `u.inferred-type(name name.type.j)
+        =?  inferred-type  ?=(%limb -<.type.j)
+          `u.inferred-type(name name.type.j)
         (~(cons jt u.inferred-type) jyp)
       ~|  %let-next
       =+  [nex nex-jyp]=$(j next.j)
@@ -1677,12 +1680,15 @@
       ~|  %class
       ::  door sample
       =/  sam-nok  (type-to-default state.j)
-      ::  unified context including door sample in payload
+      ::  unified context including door sample in context
+      ?>  ?=(%state -<.state.j)
       =/  exe-jyp=jype
-        %-  ~(cons jt state.j)
-        [[%core %|^(~(run by arms.j) |=(* untyped-j)) `state.j] %$]
-        ::  unify w/ context? cons?  zeroing out is separate from
-        ::  whether class exposes context to lower things
+        :: %-  ~(cons jt state.j)
+        :: [[%core %|^(~(run by arms.j) |=(* untyped-j)) `state.j] %$]
+        %-  %~  cons  jt  jyp
+          :: [[%core %|^(~(run by arms.j) |=(* untyped-j)) `(~(cons jt p.p.state.j) jyp)] %$]
+          [[%core %|^(~(run by arms.j) |=(* untyped-j)) `p.p.state.j] %$]
+      :: ~&  >  exe-jyp+exe-jyp
       =/  lis=(list [name=term val=jock])  ~(tap by arms.j)
       ?>  ?=(^ lis)
       ::  core and jype of first arm
@@ -1858,11 +1864,14 @@
         =/  old-jyp  jyp
         ~|  %call-limb
         =/  limbs=(list jlimb)  p.func.j
+        ~&  >  limbs+limbs
+        ~&  >>  j+j
+        ~&  >>>  jyp+jyp
         ?>  ?=(^ limbs)
         ::  At this point it's looking for a %core (either func or class).
         ::  We need to resolve several cases (in no particular order):
         ::    1. func function (single jlimb)
-        ::    2. class method (definition) (one jlimb) (single or multiple args)
+        ::    2. class constructor (one jlimb) (single or multiple args)
         ::    3. class method (in instance) (two jlimbs, first a name)
         ::    4. lambda function (assigned to variable) (single jlimb)
         ::    5. class method (from other method)
@@ -1881,9 +1890,13 @@
         ?:  !=(~ ljl)
           ::  case 6, library call
           ::  Construct a gate call from the rest of the limbs.
+          ::  We have to +slam the gate into the Hoon library,
+          ::  thus two separate wings.
           ?>  ?=(^ limbs)
           ?~  arg.j  ~|("expect function argument" !!)
+          ~&  'here'
           =+  [val val-jyp]=$(j u.arg.j)
+          ~&  >  'here'
           ::  Construct the AST for the Hoon RPC using the bunt for now.
           =+  ast=(j2h ljl ~)
           ?>  ?=(%hoon -<.typ)
@@ -1902,22 +1915,33 @@
             -.ljw
           =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
           [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
-        ::  class method call by constructor (case 2), multiple arguments
+        ::  class constructor (case 2), multiple arguments
         ::  [%call func=[%limb p=(list jlimb)] arg=(unit jock)]
         ?^  -<.typ
+          ~&  %case-2
           ~|  %call-case-2-args
           ?:  ?=(%type -<.limbs)
             ?~  arg.j  ~|("expect method argument" !!)
             =+  [val val-jyp]=$(j u.arg.j)
             ::  This is a class, so we know that the state is at the head.
-            =/  inferred-type  (~(unify jt -<.typ) val-jyp)
+            ?>  ?=(%state -<-<.typ)
+            =/  inferred-type  (~(unify jt -<->.typ) val-jyp)
             ?~  inferred-type
               ~|  '%call: argument value type does not nest in method type'
               ~|  "have: {<val-jyp>}\0aneed: {<typ>}"
               !!
             =.  inferred-type  `u.inferred-type(name ->.limbs)
-            :-  val
-            u.inferred-type
+            ~&  >  inferred-type+u.inferred-type
+            ~&  >>>  ljw+ljw
+            ~&  >>>  wing+(resolve-wing ljw)
+            ~&  'here'
+            ~&  val+val
+            ~&  'there'
+            =-  ~&(here+[-] -)
+            :_  u.inferred-type
+            :+  %8
+              (resolve-wing ljw)
+            [%10 [6 %7 [%0 3] val] %0 2]
           ?>  ?=(%name -<.limbs)
           ?~  arg.j  ~|("expect method argument" !!)
           =+  [val val-jyp]=$(j u.arg.j)
@@ -1933,6 +1957,7 @@
         ::  class method call by constructor (case 2), single argument
         ::  [%call func=[%limb p=(list jlimb)] arg=(unit jock)]
         ?.  ?=(%core -.p.typ)
+          ~&  'there!'
           ?:  ?=(%type -<.limbs)
             ~|  %call-case-2
             ?>  ?=(%type -<.limbs)
@@ -1949,6 +1974,7 @@
             [[%limb limbs] ->.limbs]
           ?>  ?=(%name -<.limbs)
           ~|  %call-case-3
+          ::  class method call in instance (case 3)
           ::  In this case, we have located the class instance
           ::  but now need the method and the argument to construct
           ::  the Nock.
@@ -1977,10 +2003,19 @@
           ?~  arg.j
             (resolve-wing ljd)
           ::  Compose a class (door), which requires some tree math.
+          ~&  >  ljd+ljd
+          ~&  >>  ljg+ljg
+          ~&  >>>  wing+(resolve-wing ljg)
+          =-  ~&(here+[-] -)
           :+  %8
+            :+  %7
+              [%0 2]
             (resolve-wing ljg)
+            :: [%7 [%0 2] %9 2 %0 1]
+            :: resolves to [9 2 0 3] but should be [7 [0 2] 9 2 0 1]
           =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
           [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
+          :: [%9 2 %10 [6 arg] %0 2]
         ::
         ::  traditional function call (case 1)
         ?:  ?=(%& -.p.p.typ)
@@ -2094,8 +2129,10 @@
     ::
         %limb
       ~|  %limb
+      ~&  limb+p.j
       =/  lim  (~(get-limb jt jyp) p.j)
-      ?>  ?=(%& -.lim)
+      ~&  lim+lim
+      ?>  ?=(%& -.lim)  :: +each resolution
       =/  res=(pair jype (list jwing))  p.lim
       [(resolve-wing q.res) p.res]
     ::
@@ -2275,6 +2312,8 @@
         %set       [%1 0]
     ::
         %hoon      [%1 0]
+    ::
+        %state     $(j p.p.j)
     ::
         %none      [%1 0]
     ==
