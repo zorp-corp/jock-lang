@@ -226,7 +226,7 @@
   $^  [p=jock q=jock]
   $%  [%let type=jype val=jock next=jock]
       [%func type=jype body=jock next=jock]
-      [%class state=jype arms=(map term jock) next=jock]
+      [%class state=jype arms=(map term jock)] :: next=jock]
       [%method type=jype body=jock]
       ::  support value returns?
       [%edit limb=(list jlimb) val=jock next=jock]
@@ -852,11 +852,12 @@
         :-  %lambda
         [[`inp out] body ~]
       $(arms (~(put by arms) name.type [%method type body]))
-    ?>  (got-punctuator -.tokens %';')
-    =^  next  tokens
-      (match-jock +.tokens)
+    :: ?>  (got-punctuator -.tokens %';')
+    :: =^  next  tokens
+    ::   (match-jock +.tokens)
     :_  tokens
-    [%class state=state arms=arms next=next]
+    [%class state=state arms=arms]
+    :: [%class state=state arms=arms next=next]
   ::
   ::  if (a < b) { +(a) } else { +(b) }
   ::  [%if cond=jock then=jock after-if=after-if-expression]
@@ -1705,23 +1706,36 @@
       ::  core and jype of subsequent arms
       |-  ^-  [nock jype]
       ?~  lis
-        =.  jyp
-          =/  inner-jyp
-            (~(cons jt state.j) [[%core %|^cor-jyp `state.j] name.state.j])
-          =.  inner-jyp  inner-jyp(name name.state.j)
-          (~(cons jt inner-jyp) jyp)
-        ~|  %class-next
-        =+  [nex nex-jyp]=^$(j next.j)
-        :_  nex-jyp
-        :+  %8
-          [%8 sam-nok [%1 cor-nok] [%0 1]]  :: XXX for subject
-        nex
+        :-  [%8 sam-nok [%1 cor-nok] [%0 1]]  :: XXX for subject
+        =/  inner-jyp
+          (~(cons jt state.j) [[%core %|^cor-jyp `state.j] name.state.j])
+        =.  inner-jyp  inner-jyp(name name.state.j)
+        (~(cons jt inner-jyp) jyp)
       =+  [mor-nok mor-jyp]=%=(^$ j val.i.lis, jyp exe-jyp)
       %_  $
         lis      t.lis
         cor-nok  [mor-nok cor-nok]
         cor-jyp  (~(put by cor-jyp) name.i.lis mor-jyp)
       ==
+      :: |-  ^-  [nock jype]
+      :: ?~  lis
+      ::   =.  jyp
+      ::     =/  inner-jyp
+      ::       (~(cons jt state.j) [[%core %|^cor-jyp `state.j] name.state.j])
+      ::     =.  inner-jyp  inner-jyp(name name.state.j)
+      ::     (~(cons jt inner-jyp) jyp)
+      ::   ~|  %class-next
+      ::   =+  [nex nex-jyp]=^$(j next.j)
+      ::   :_  nex-jyp
+      ::   :+  %8
+      ::     [%8 sam-nok [%1 cor-nok] [%0 1]]  :: XXX for subject
+      ::   nex
+      :: =+  [mor-nok mor-jyp]=%=(^$ j val.i.lis, jyp exe-jyp)
+      :: %_  $
+      ::   lis      t.lis
+      ::   cor-nok  [mor-nok cor-nok]
+      ::   cor-jyp  (~(put by cor-jyp) name.i.lis mor-jyp)
+      :: ==
     ::
         %edit
       =/  [typ=jype axi=@]
@@ -2020,10 +2034,6 @@
           ~&  >>>  wing+(resolve-wing ljg)
           =-  ~&(here+[-] -)
           :+  %8
-            :: :^    %9
-            ::     +<+.ljg
-            ::   %0
-            :: ;;(@ -.ljd)
             :: :+  %7
             ::   [%0 2]  [%9 2 %0 1]
             (resolve-wing ljg)

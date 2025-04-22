@@ -1,11 +1,19 @@
-class Point(x:@) {
-  add(p:(x:@ y:@)) -> Point {
-    x + p.x
+compose
+  class Point(x:@) {
+    add(p:(x:@ y:@)) -> Point {
+      x + p.x
+    }
+    inc(q:@) -> @ {
+      +(q)
+    }
   }
-};
+;
 
+// Point(50)
 let origin = Point(50);
-origin.add(70 80)
+// origin
+// origin.add(70 80)
+origin.inc(500)
 
 /*
 !=
@@ -77,16 +85,27 @@ origin.add(70 80)
 (sloe -:!>(door))
 (slap !>(mini) (ream '=/  class\0a|_  x=@\0a++  arm\0a|=(y=@ (add x y))\0a--\0a=/  door  ~(. class 40)\0a(arm:door 2)'))
 
+!=
 =/  door
-  =>
   |_  x=@
-  ++  arm
-    |=  y=@
-    (add x y)
+  ++  add
+    |=  p=[x=@ y=@]
+    1.000
   --
-  ~(. + 40)
-(sloe -:!>(door))
-(arm:door 2)
+=/  origin
+  ~(. door 50)
+(add:origin [70 80])
+
+!=
+=>
+  |_  x=@
+  ++  add
+    |=  p=[x=@ y=@]
+    (add:mini x x.p)
+  --
+=/  origin
+  ~(. . 50)
+(add:origin [70 80])
 
 
 */
