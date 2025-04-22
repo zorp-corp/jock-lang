@@ -63,13 +63,19 @@ origin.inc(500)
   ~(. og 42)
 (sloe -:!>(rng))
 
+!=
 =>
 |_  x=@
-++  arm
-  |=  y=@
-  (add x y)
+++  add
+  |=  p=[x=@ y=@]
+  (add:mini x x.p)
+++  inc
+  |=  q=@
+  +(q)
 --
-.
+=/  origin
+  ~(. . 50)
+(inc:origin 500)
 
 
 !=
