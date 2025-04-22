@@ -226,7 +226,7 @@
   $^  [p=jock q=jock]
   $%  [%let type=jype val=jock next=jock]
       [%func type=jype body=jock next=jock]
-      [%class state=jype arms=(map term jock)]  :: TODO do we want payload?
+      [%class state=jype arms=(map term jock) next=jock]
       [%method type=jype body=jock]
       ::  support value returns?
       [%edit limb=(list jlimb) val=jock next=jock]
@@ -758,9 +758,10 @@
     =^  val  tokens
       (match-jock +.tokens)
     ?>  (got-punctuator -.tokens %';')
-    =^  jock  tokens
+    =^  next  tokens
       (match-jock +.tokens)
-    [[%let jype val jock] tokens]
+    :_  tokens
+    [%let jype val next]
   ::
   ::  func inc(n:@) -> @ { +(n) };
   ::  [%func name=jype body=jock next=jock]
@@ -851,8 +852,11 @@
         :-  %lambda
         [[`inp out] body ~]
       $(arms (~(put by arms) name.type [%method type body]))
+    ?>  (got-punctuator -.tokens %';')
+    =^  next  tokens
+      (match-jock +.tokens)
     :_  tokens
-    [%class state=state arms=arms]
+    [%class state=state arms=arms next=next]
   ::
   ::  if (a < b) { +(a) } else { +(b) }
   ::  [%if cond=jock then=jock after-if=after-if-expression]
@@ -1674,6 +1678,7 @@
           ~|  ['have:' val-jyp 'need:' type.j]
           !!
         (~(cons jt u.inferred-type) jyp)
+        :: (~(cons jt jyp) u.inferred-type)
       [val val-jyp]
     ::
         %class
@@ -1686,8 +1691,8 @@
         :: %-  ~(cons jt state.j)
         :: [[%core %|^(~(run by arms.j) |=(* untyped-j)) `state.j] %$]
         %-  %~  cons  jt  jyp
-          :: [[%core %|^(~(run by arms.j) |=(* untyped-j)) `(~(cons jt p.p.state.j) jyp)] %$]
           [[%core %|^(~(run by arms.j) |=(* untyped-j)) `p.p.state.j] %$]
+          :: [[%core %|^(~(run by arms.j) |=(* untyped-j)) `(~(cons jt p.p.state.j) jyp)] %$]
       :: ~&  >  exe-jyp+exe-jyp
       =/  lis=(list [name=term val=jock])  ~(tap by arms.j)
       ?>  ?=(^ lis)
@@ -1700,11 +1705,17 @@
       ::  core and jype of subsequent arms
       |-  ^-  [nock jype]
       ?~  lis
-        :-  [%8 sam-nok [%1 cor-nok] [%0 1]]  :: XXX for subject
-        =/  inner-jyp
-          (~(cons jt state.j) [[%core %|^cor-jyp `state.j] name.state.j])
-        =.  inner-jyp  inner-jyp(name name.state.j)
-        (~(cons jt inner-jyp) jyp)
+        =.  jyp
+          =/  inner-jyp
+            (~(cons jt state.j) [[%core %|^cor-jyp `state.j] name.state.j])
+          =.  inner-jyp  inner-jyp(name name.state.j)
+          (~(cons jt inner-jyp) jyp)
+        ~|  %class-next
+        =+  [nex nex-jyp]=^$(j next.j)
+        :_  nex-jyp
+        :+  %8
+          [%8 sam-nok [%1 cor-nok] [%0 1]]  :: XXX for subject
+        nex
       =+  [mor-nok mor-jyp]=%=(^$ j val.i.lis, jyp exe-jyp)
       %_  $
         lis      t.lis
@@ -1740,8 +1751,10 @@
       ~|  %compose-p
       =^  p  jyp
         $(j p.j)
+      ~&  pjyp+jyp
       ~|  %compose-q
       =+  [q q-jyp]=$(j q.j)
+      ~&  qjyp+q-jyp
       [[%7 p q] q-jyp]
     ::
         %object
@@ -1866,7 +1879,7 @@
         =/  limbs=(list jlimb)  p.func.j
         ~&  >  limbs+limbs
         ~&  >>  j+j
-        ~&  >>>  jyp+jyp
+        :: ~&  >>>  jyp+jyp
         ?>  ?=(^ limbs)
         ::  At this point it's looking for a %core (either func or class).
         ::  We need to resolve several cases (in no particular order):
@@ -1957,7 +1970,6 @@
         ::  class method call by constructor (case 2), single argument
         ::  [%call func=[%limb p=(list jlimb)] arg=(unit jock)]
         ?.  ?=(%core -.p.typ)
-          ~&  'there!'
           ?:  ?=(%type -<.limbs)
             ~|  %call-case-2
             ?>  ?=(%type -<.limbs)
@@ -2008,8 +2020,12 @@
           ~&  >>>  wing+(resolve-wing ljg)
           =-  ~&(here+[-] -)
           :+  %8
-            :+  %7
-              [%0 2]
+            :: :^    %9
+            ::     +<+.ljg
+            ::   %0
+            :: ;;(@ -.ljd)
+            :: :+  %7
+            ::   [%0 2]  [%9 2 %0 1]
             (resolve-wing ljg)
             :: [%7 [%0 2] %9 2 %0 1]
             :: resolves to [9 2 0 3] but should be [7 [0 2] 9 2 0 1]

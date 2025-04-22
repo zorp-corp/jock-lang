@@ -1,23 +1,92 @@
-compose
-  class Point(x:@) {
-    add(p:(x:@ y:@)) -> Point {
-      x + p.x
-    }
+class Point(x:@) {
+  add(p:(x:@ y:@)) -> Point {
+    x + p.x
   }
-; // end compose
+};
 
 let origin = Point(50);
 origin.add(70 80)
 
 /*
 !=
-=+
+=>
 |_  x=@
 ++  add
   |=  p=[x=@ y=@]
   (^add x x.p)
 --
-::~(. - 50)
+~(. - 50)
 =/  origin  ~(. + 50)
 (add:origin [70 80])
+
+!=
+=>
+|_  x=@
+++  add
+  |=  p=[x=@ y=@]
+  (^add x x.p)
+--
+=/  origin  ~(. + 50)
+(add.origin [70 80])
+
+=mini -build-file /===/lib/mini/hoon
+(slap !>(.) (ream '=>\0a|_  x=@\0a++  add\0a|=(p=[x=@ y=@] (^add x x.p))\0a--\0a=/  origin  ~(. + 50)\0a(add:origin [70 80])'))
+(slap !>(mini) (ream '(add 3 39)'))
+(slap !>(mini) (ream '=>\0a|_  x=@\0a++  add\0a|=(p=[x=@ y=@] (^add x x.p))\0a--\0a=/  origin  ~(. + 50)\0a(add:origin [70 80])'))
+(slap !>(mini) (ream '=>\0a|_  x=@\0a++  add\0a|=(p=[x=@ y=@] (^add x x.p))\0a--\0a=/  origin  ~(. + 50)\0aorigin'))
+(slap !>(mini) (ream '=>\0a|_  x=@\0a++  dd\0a|=(p=[x=@ y=@] (add x x.p))\0a--\0a=/  origin  ~(. + 50)\0a(dd:origin [70 80])'))
+
+
+=/  door
+  =>
+  |_  x=@
+  ++  arm
+    |=  y=@
+    (add x y)
+  --
+  ~(. + 40)
+(sloe -:!>(door))
+(arm:door 2)
+
+(slap !>(mini) (ream '=>\0a|_  x=@\0a++  arm\0a|=(y=@ (add x y))\0a--\0a=/  door  ~(. + 40)\0a(arm:door 2)'))
+
+
+=/  rng
+  ~(. og 42)
+(sloe -:!>(rng))
+
+=>
+|_  x=@
+++  arm
+  |=  y=@
+  (add x y)
+--
+.
+
+
+!=
+=/  door
+  |_  x=@
+  ++  add
+    |=  p=[x=@ y=@]
+    (add:mini x x.p)
+  --
+=/  origin
+  ~(. door 50)
+(add:origin [70 80])
+(sloe -:!>(door))
+(slap !>(mini) (ream '=/  class\0a|_  x=@\0a++  arm\0a|=(y=@ (add x y))\0a--\0a=/  door  ~(. class 40)\0a(arm:door 2)'))
+
+=/  door
+  =>
+  |_  x=@
+  ++  arm
+    |=  y=@
+    (add x y)
+  --
+  ~(. + 40)
+(sloe -:!>(door))
+(arm:door 2)
+
+
 */
