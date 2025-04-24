@@ -1,12 +1,7 @@
 compose
   class Point(x:@) {
     add(p:(x:@ y:@)) -> Point {
-      (x p.x)
-      // (&31)
-      // &14 [[8 [[1 0] 1 0] [1 0 14] 0 1] 8 [1 0] [1 4 0 6] 0 1] = door battery
-      // &30 0 door sample
-      // &31 door context
-      //&7 //x + p.x
+      x + p.x
     }
     inc(q:@) -> @ {
       +(q)
@@ -23,8 +18,24 @@ origin.add(70 80)
 /*
 :: this one is the equivalent to the above
 !=
+!:
 =>  mini=mini
 =>
+  |_  x=@
+  ++  add
+    |=  p=[x=@ y=@]
+    (add:mini x x.p)
+  ++  inc
+    |=  q=@
+    +(q)
+  --
+=/  origin
+  ~(. . 50)
+(add:origin [70 80])
+
+!=
+=>  mini=mini
+=/  door
 |_  x=@
 ++  add
   |=  p=[x=@ y=@]
@@ -34,11 +45,7 @@ origin.add(70 80)
   +(q)
 --
 =/  origin
-  ~(. . 50)
-(inc:origin 500)
-
-=/  origin
-  ~(. . 50)
+  ~(. door 50)
 (add:origin [70 80])
 
 :: to check axes:

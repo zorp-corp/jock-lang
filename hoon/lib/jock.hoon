@@ -1463,7 +1463,6 @@
     ++  type-at-axis
       |=  axi=@
       ^-  (unit jype)
-      ~&  type-at-axis+[axi]
       ?:  =(axi 1)
         `jyp
       =/  axi-lis  (flop (snip (rip 0 axi)))
@@ -1486,7 +1485,6 @@
       |=  nom=term
       ^-  (unit jwing)
       =/  axi=jwing  [0 1]
-      ~&  axis-at-name+nom
       |-  ^-  (unit jwing)
       ?:  =(name.jyp nom)
         ?:  =(-.axi 0)
@@ -1622,7 +1620,11 @@
     ::
         %let
       ~|  %let-value
+      :: ~&  jyp+jyp
       =+  [val val-jyp]=$(j val.j)
+      =/  val  [%0 1]
+      ~&  >  let-value+val
+      ~&  >>  let-jype+val-jyp
       =.  jyp
         ::  let permits four correct cases:
         ::  1. let name = value;
@@ -1662,6 +1664,8 @@
           `u.inferred-type(name name.type.j)
         (~(cons jt u.inferred-type) jyp)
       ~|  %let-next
+      ~&  'here'
+      ~&  >>>  type+(~(get-limb jt jyp) ~[[%name 'origin']])
       =+  [nex nex-jyp]=$(j next.j)
       [[%8 val nex] nex-jyp]
     ::
@@ -1700,14 +1704,12 @@
       ?>  ?=(%state -<.state.j)
       ::  exe-jyp has list of untyped arms plus door state
       =/  exe-jyp=jype
-        :: %-  ~(cons jt state.j)
-        :: [[%core %|^(~(run by arms.j) |=(* untyped-j)) `state.j] %$]
         :: instead of untyped, assume correct output type in exe-jyp
         =/  context=jype
           (~(cons jt p.p.state.j) jyp)
+        [[%core %|^(~(run by arms.j) |=(* untyped-j)) `context] %$]
         :: %-  %~  cons  jt  jyp
           :: [[%core %|^(~(run by arms.j) |=(* untyped-j)) ~] %$]
-        [[%core %|^(~(run by arms.j) |=(* untyped-j)) `context] %$]
           :: [[%core %|^(~(run by arms.j) |=(* untyped-j)) `state.j] %$]
           :: [[%core %|^(~(run by arms.j) |=(* untyped-j)) `(~(cons jt p.p.state.j) jyp)] %$]
       :: ~&  >  exe-jyp+exe-jyp
@@ -1953,12 +1955,19 @@
                 +<+<.qmin
               %0
             -.ljw
+            :: equivalent to Hoon:
+            :: :+  %7
+            ::   [%0 -.ljw]
+            :: :^    %9
+            ::     +<+<.qmin
+            ::   %0
+            :: 1
           =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
           [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
         ::  class constructor (case 2), multiple arguments
         ::  [%call func=[%limb p=(list jlimb)] arg=(unit jock)]
         ?^  -<.typ
-          ~&  %case-2
+          :: ~&  %case-2
           ~|  %call-case-2-args
           ?:  ?=(%type -<.limbs)
             ?~  arg.j  ~|("expect method argument" !!)
@@ -1971,13 +1980,13 @@
               ~|  "have: {<val-jyp>}\0aneed: {<typ>}"
               !!
             =.  inferred-type  `u.inferred-type(name ->.limbs)
-            ~&  >  inferred-type+u.inferred-type
-            ~&  >>>  ljw+ljw
-            ~&  >>>  wing+(resolve-wing ljw)
-            ~&  'here'
-            ~&  val+val
-            ~&  'there'
-            =-  ~&(here+[-] -)
+            :: ~&  >  inferred-type+u.inferred-type
+            :: ~&  >>>  ljw+ljw
+            :: ~&  >>>  wing+(resolve-wing ljw)
+            :: ~&  'here'
+            :: ~&  val+val
+            :: ~&  'there'
+            :: =-  ~&(here+[-] -)
             :_  u.inferred-type
             :+  %8
               (resolve-wing ljw)
@@ -2048,9 +2057,12 @@
           ~&  >>>  wing+(resolve-wing ljg)
           =-  ~&(here+[-] -)
           :+  %8
-            :: :+  %7
+            :+  %7
+              [%0 ;;(@ -.ljw)]
             ::   [%0 2]  [%9 2 %0 1]
-            (resolve-wing ljg)
+            :: (resolve-wing ljg)
+            =/  axes  (resolve-wing ljg)
+            [%9 ;;(@ -<.ljg) %0 1]
             :: [%7 [%0 2] %9 2 %0 1]
             :: resolves to [9 2 0 3] but should be [7 [0 2] 9 2 0 1]
           =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
