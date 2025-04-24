@@ -1622,7 +1622,6 @@
       ~|  %let-value
       :: ~&  jyp+jyp
       =+  [val val-jyp]=$(j val.j)
-      =/  val  [%0 1]
       ~&  >  let-value+val
       ~&  >>  let-jype+val-jyp
       =.  jyp
