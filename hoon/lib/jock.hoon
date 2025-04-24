@@ -321,7 +321,7 @@
   $%  ::  %atom is a basic numeric type with constant flag (%.y = constant)
       [%atom p=jatom-type q=?(%.y %.n)]
       ::  %core is a callable function with arguments and returns
-      [%core p=core-body q=(unit jype)]
+      [%core p=core-body q=(unit jype)]  :: q is context supplied to core
       ::  %limb is a reference to a limb in the current core
       [%limb p=(list jlimb)]
       ::  %fork is a branch point (as in an if-else)
@@ -331,11 +331,18 @@
       ::  %set
       [%set type=jype]
       ::  %hoon is a vase for the supplied subject (presumably hoon or tiny)
-      [%hoon p=vase]
+      :: [%hoon p=vase]
+      [%hoon p=truncated-vase]
       ::  %state is a container for class state
       [%state p=jype]
       ::  %none is a null type (as for undetermined variable labels)
       [%none p=(unit term)]
+  ==
+::
++$  truncated-vase
+  $+  truncated-vase
+  $:  p=type
+      q=noun
   ==
 ::  Jype atom base types; corresponds to jatom tags
 +$  jatom-type
@@ -1456,6 +1463,7 @@
     ++  type-at-axis
       |=  axi=@
       ^-  (unit jype)
+      ~&  type-at-axis+[axi]
       ?:  =(axi 1)
         `jyp
       =/  axi-lis  (flop (snip (rip 0 axi)))
@@ -1478,6 +1486,7 @@
       |=  nom=term
       ^-  (unit jwing)
       =/  axi=jwing  [0 1]
+      ~&  axis-at-name+nom
       |-  ^-  (unit jwing)
       ?:  =(name.jyp nom)
         ?:  =(-.axi 0)
@@ -1530,21 +1539,22 @@
       r
     l
   ::
+  ::  Construct subject for when core is called.
   ++  call-core
     |=  [%core p=core-body q=(unit jype)]
     ^-  jype
     ?:  ?=(%& -.p)
       ~|  %call-lambda
-      =/  body-type
+      =/  out-type
         ::  TODO: need to put the return type here, with all names stripped
-        untyped-j
+        out.p.p
       ?~  inp.p.p
         ?~  q
-          body-type
-        [body-type u.q]^%$
+          [out-type untyped-j]^%$
+        [out-type u.q]^%$
       ?~  q
-        [body-type u.inp.p.p]^%$
-      [body-type [u.inp.p.p u.q]^%$]^%$
+        [out-type u.inp.p.p]^%$
+      [out-type [u.inp.p.p u.q]^%$]^%$
     ~|  %call-object
     =/  cor-lis=(list [name=term val=jype])  ~(tap by p.p)
     ?>  ?=(^ cor-lis)
@@ -1688,13 +1698,20 @@
       =/  sam-nok  (type-to-default state.j)
       ::  unified context including door sample in context
       ?>  ?=(%state -<.state.j)
+      ::  exe-jyp has list of untyped arms plus door state
       =/  exe-jyp=jype
         :: %-  ~(cons jt state.j)
         :: [[%core %|^(~(run by arms.j) |=(* untyped-j)) `state.j] %$]
-        %-  %~  cons  jt  jyp
-          [[%core %|^(~(run by arms.j) |=(* untyped-j)) `p.p.state.j] %$]
+        :: instead of untyped, assume correct output type in exe-jyp
+        =/  context=jype
+          (~(cons jt p.p.state.j) jyp)
+        :: %-  %~  cons  jt  jyp
+          :: [[%core %|^(~(run by arms.j) |=(* untyped-j)) ~] %$]
+        [[%core %|^(~(run by arms.j) |=(* untyped-j)) `context] %$]
+          :: [[%core %|^(~(run by arms.j) |=(* untyped-j)) `state.j] %$]
           :: [[%core %|^(~(run by arms.j) |=(* untyped-j)) `(~(cons jt p.p.state.j) jyp)] %$]
       :: ~&  >  exe-jyp+exe-jyp
+      ::  car 14 vs cdr 15
       =/  lis=(list [name=term val=jock])  ~(tap by arms.j)
       ?>  ?=(^ lis)
       ::  core and jype of first arm
@@ -1765,10 +1782,8 @@
       ~|  %compose-p
       =^  p  jyp
         $(j p.j)
-      ~&  pjyp+jyp
       ~|  %compose-q
       =+  [q q-jyp]=$(j q.j)
-      ~&  qjyp+q-jyp
       [[%7 p q] q-jyp]
     ::
         %object
@@ -1891,8 +1906,8 @@
         =/  old-jyp  jyp
         ~|  %call-limb
         =/  limbs=(list jlimb)  p.func.j
-        ~&  >  limbs+limbs
-        ~&  >>  j+j
+        :: ~&  >  limbs+limbs
+        :: ~&  >>  j+j
         :: ~&  >>>  jyp+jyp
         ?>  ?=(^ limbs)
         ::  At this point it's looking for a %core (either func or class).
@@ -1921,9 +1936,7 @@
           ::  thus two separate wings.
           ?>  ?=(^ limbs)
           ?~  arg.j  ~|("expect function argument" !!)
-          ~&  'here'
           =+  [val val-jyp]=$(j u.arg.j)
-          ~&  >  'here'
           ::  Construct the AST for the Hoon RPC using the bunt for now.
           =+  ast=(j2h ljl ~)
           ?>  ?=(%hoon -<.typ)
@@ -2004,6 +2017,7 @@
           ::  In this case, we have located the class instance
           ::  but now need the method and the argument to construct
           ::  the Nock.
+          :: ~&  >>>  case-3-jyp+jyp
           ?>  ?=(%limb -.p.typ)
           ::  Get class definition for instance.  This is a cons of
           ::  the state and the methods (arms) as a core.
@@ -2155,9 +2169,7 @@
     ::
         %limb
       ~|  %limb
-      ~&  limb+p.j
       =/  lim  (~(get-limb jt jyp) p.j)
-      ~&  lim+lim
       ?>  ?=(%& -.lim)  :: +each resolution
       =/  res=(pair jype (list jwing))  p.lim
       [(resolve-wing q.res) p.res]
