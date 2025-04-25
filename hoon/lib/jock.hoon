@@ -472,8 +472,12 @@
   |=  =tokens
   ^-  [jock (list token)]
   ?:  =(~ tokens)  ~|("expect jock. token: ~" !!)
+  ~&  tokens+tokens
   ?:  (has-punctuator -.tokens %'(')
     =>  .(tokens `(list token)`+.tokens)  :: TMI
+    ?:  (has-punctuator -.tokens %')')
+      ::  no argument, use out-of-bounds axis as signal
+      [[%call [%limb [%axis (bex 63)] ~] ~] +.tokens]
     =^  jock-one  tokens
       (match-inner-jock tokens)
     ?:  (has-punctuator -.tokens %')')
@@ -702,6 +706,17 @@
     =?  tokens  ?=(%'((' ->.tokens)  [[%punctuator %'('] +.tokens]
     =^  arg  tokens
       (match-pair-inner-jock tokens)
+    ~&  arg+arg
+    :: TODO this is a mess and incorrect, NEAL
+    ?~  arg
+      ?:  ?=(%call -.arg)
+        ?:  ?&  =(%limb +<-.arg)
+                =(%axis +<+<-.arg)
+                =((bex 63) +<+<+.arg)  :: out-of-bounds axis as signal
+            ==
+          [[%call [%limb limbs] ~] tokens]
+        [[%call [%limb limbs] ~] tokens]
+      [[%call [%limb limbs] ~] tokens]
     ::  TODO: check if we're in a compare
     [[%call [%limb limbs] `arg] tokens]
   [[%limb limbs] tokens]
@@ -1438,6 +1453,7 @@
             ?=(%type ->-<.u.new-jyp)      :: that refers to a class type
             !=(~ t.lis)                   :: that is not just a name
         ==
+      ~&  >>>  limb+[lis res ret]
       :+  %&
         u.new-jyp
       ?:  =(ret 1)
@@ -1885,7 +1901,9 @@
         ::    4. lambda function (assigned to variable) (single jlimb)
         ::    5. class method (from other method)
         ::    6. library call (at least two jlimbs, the first being a library name)
+        ::    7. class instance leg (single jlimb, name in state)
         ::
+        ~&  'here'
         =/  [typ=jype ljl=(list jlimb) ljw=(list jwing)]
           ?.  =([%axis 0] -.limbs)
             =/  lim  (~(get-limb jt jyp) limbs)
@@ -1896,6 +1914,7 @@
           =/  ret  (~(find-buc jt jyp))
           ?~  ret  ~|("couldn't find $ in {<jyp>}" !!)
           [-.u.ret ~ ~[[2 +.u.ret]]]
+        ~&  'here2'
         ?:  !=(~ ljl)
           ::  case 6, library call
           ::  Construct a gate call from the rest of the limbs.
@@ -1931,6 +1950,7 @@
           [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
         ::  class constructor (case 2), multiple arguments
         ::  [%call func=[%limb p=(list jlimb)] arg=(unit jock)]
+        ~&  'here3'
         ?^  -<.typ
           ~|  %call-case-2-args
           ?:  ?=(%type -<.limbs)
@@ -1962,6 +1982,7 @@
         ::
         ::  class method call by constructor (case 2), single argument
         ::  [%call func=[%limb p=(list jlimb)] arg=(unit jock)]
+        ~&  'here4'
         ?.  ?=(%core -.p.typ)
           ?:  ?=(%type -<.limbs)
             ~|  %call-case-2
@@ -1977,6 +1998,8 @@
             =.  inferred-type  `u.inferred-type
             :-  val
             [[%limb limbs] ->.limbs]
+          ~&  'here5'
+          ~&  >>>  limbs+limbs
           ?>  ?=(%name -<.limbs)
           ~|  %call-case-3
           ::  class method call in instance (case 3)
@@ -2015,6 +2038,7 @@
           [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
         ::
         ::  traditional function call (case 1)
+        ~&  'here6'
         ?:  ?=(%& -.p.p.typ)
           ~|  %call-case-1
           :_  out.p.p.p.typ
@@ -2032,6 +2056,7 @@
           [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
         ::
         ::  lambda function call (case 4)
+        ~&  'here7'
         ?>  &(=(1 (lent p.func.j)) !?=(%type -<.limbs))
         ~|  %call-case-4
         :_  =/  gat  ;;([%core p=core-body q=(unit jype)] -:(~(got by p.p.p.typ) +:(snag 0 p.func.j)))
