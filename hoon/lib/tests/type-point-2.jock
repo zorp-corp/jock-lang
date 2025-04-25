@@ -9,18 +9,15 @@ compose
   }
 ;
 
-// Point(50)
 let origin = Point(50);
-// origin
 origin.add(70 80)
-// origin.inc(500)
 
 /*
 :: this one is the equivalent to the above
 !=
-!:
 =>  mini=mini
 =>
+  ^=  door
   |_  x=@
   ++  add
     |=  p=[x=@ y=@]
@@ -30,7 +27,7 @@ origin.add(70 80)
     +(q)
   --
 =/  origin
-  ~(. . 50)
+  ~(. door 50)
 (add:origin [70 80])
 
 !=

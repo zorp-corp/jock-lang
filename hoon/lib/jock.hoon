@@ -1663,8 +1663,6 @@
           `u.inferred-type(name name.type.j)
         (~(cons jt u.inferred-type) jyp)
       ~|  %let-next
-      ~&  'here'
-      ~&  >>>  type+(~(get-limb jt jyp) ~[[%name 'origin']])
       =+  [nex nex-jyp]=$(j next.j)
       [[%8 val nex] nex-jyp]
     ::
@@ -1988,8 +1986,8 @@
             :: =-  ~&(here+[-] -)
             :_  u.inferred-type
             :+  %8
-              (resolve-wing ljw)
-            [%10 [6 %7 [%0 3] val] %0 2]
+              [%0 1]
+            [%10 [6 %7 [%0 3] val] (resolve-wing ljw)]
           ?>  ?=(%name -<.limbs)
           ?~  arg.j  ~|("expect method argument" !!)
           =+  [val val-jyp]=$(j u.arg.j)
@@ -2057,11 +2055,14 @@
           =-  ~&(here+[-] -)
           :+  %8
             :+  %7
-              [%0 ;;(@ -.ljw)]
+              [%0 2]
             ::   [%0 2]  [%9 2 %0 1]
             :: (resolve-wing ljg)
             =/  axes  (resolve-wing ljg)
-            [%9 ;;(@ -<.ljg) %0 1]
+            ~&  axes+axes
+            ~&  >  ljg+ljg
+            ~&  >>  ljw+ljw
+            [%9 ;;(@ -<.ljg) [%0 ;;(@ -.ljw)]]
             :: [%7 [%0 2] %9 2 %0 1]
             :: resolves to [9 2 0 3] but should be [7 [0 2] 9 2 0 1]
           =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
