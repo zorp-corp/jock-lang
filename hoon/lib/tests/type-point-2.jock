@@ -1,7 +1,8 @@
 compose
-  class Point(x:@) {
+  class Point(x:@ y:@) {
     add(p:(x:@ y:@)) -> Point {
-      x + p.x
+      (x + p.x
+       y + p.y)
     }
     inc(q:@) -> @ {
       +(q)
@@ -9,11 +10,11 @@ compose
   }
 ;
 
-let origin = Point(50);
-origin.add(70 80)
+let origin = Point(12 23);
+(origin.add(30 19)
+ origin.inc(41))
 
 /*
-:: this one is the equivalent to the above
 !=
 =>  mini=mini
 =>
@@ -29,32 +30,4 @@ origin.add(70 80)
 =/  origin
   ~(. door 50)
 (add:origin [70 80])
-
-!=
-=>  mini=mini
-=/  door
-|_  x=@
-++  add
-  |=  p=[x=@ y=@]
-  (add:mini x x.p)
-++  inc
-  |=  q=@
-  +(q)
---
-=/  origin
-  ~(. door 50)
-(add:origin [70 80])
-
-:: to check axes:
-=>  mini
-
-* jype resolution
-
-=mini -build-file /===/lib/mini/hoon
-(slap !>(.) (ream '=>\0a|_  x=@\0a++  add\0a|=(p=[x=@ y=@] (^add x x.p))\0a--\0a=/  origin  ~(. + 50)\0a(add:origin [70 80])'))
-(slap !>(mini) (ream '(add 3 39)'))
-(slap !>(mini) (ream '=>\0a|_  x=@\0a++  add\0a|=(p=[x=@ y=@] (^add x x.p))\0a--\0a=/  origin  ~(. + 50)\0a(add:origin [70 80])'))
-(slap !>(mini) (ream '=>\0a|_  x=@\0a++  add\0a|=(p=[x=@ y=@] (^add x x.p))\0a--\0a=/  origin  ~(. + 50)\0aorigin'))
-(slap !>(mini) (ream '=>\0a|_  x=@\0a++  dd\0a|=(p=[x=@ y=@] (add x x.p))\0a--\0a=/  origin  ~(. + 50)\0a(dd:origin [70 80])'))
-
 */

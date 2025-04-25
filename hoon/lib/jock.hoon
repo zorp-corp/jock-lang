@@ -743,7 +743,7 @@
       =^  jyp-two  tokens  (match-jype tokens)
       ::  TODO: support implicit right-association  (what's a good test case?)
       [[jyp-one `jyp-two] tokens]
-    [?~(q.r `jype`p.r `jype`[[p.r u.q.r] u.nom]) tokens]
+    [?~(q.r `jype`p.r `jype`[[p.r u.q.r] %$]) tokens]
   ?>  (got-punctuator -.tokens %')')
   ?:  ?=(%list type)  [[;;(jype-leaf [type jyp]) u.nom] +.tokens]
   ?:  ?=(%set type)  [[;;(jype-leaf [type jyp]) u.nom] +.tokens]
@@ -1620,10 +1620,7 @@
     ::
         %let
       ~|  %let-value
-      :: ~&  jyp+jyp
       =+  [val val-jyp]=$(j val.j)
-      ~&  >  let-value+val
-      ~&  >>  let-jype+val-jyp
       =.  jyp
         ::  let permits four correct cases:
         ::  1. let name = value;
@@ -1705,12 +1702,6 @@
         =/  context=jype
           (~(cons jt p.p.state.j) jyp)
         [[%core %|^(~(run by arms.j) |=(* untyped-j)) `context] %$]
-        :: %-  %~  cons  jt  jyp
-          :: [[%core %|^(~(run by arms.j) |=(* untyped-j)) ~] %$]
-          :: [[%core %|^(~(run by arms.j) |=(* untyped-j)) `state.j] %$]
-          :: [[%core %|^(~(run by arms.j) |=(* untyped-j)) `(~(cons jt p.p.state.j) jyp)] %$]
-      :: ~&  >  exe-jyp+exe-jyp
-      ::  car 14 vs cdr 15
       =/  lis=(list [name=term val=jock])  ~(tap by arms.j)
       ?>  ?=(^ lis)
       ::  core and jype of first arm
@@ -1905,9 +1896,6 @@
         =/  old-jyp  jyp
         ~|  %call-limb
         =/  limbs=(list jlimb)  p.func.j
-        :: ~&  >  limbs+limbs
-        :: ~&  >>  j+j
-        :: ~&  >>>  jyp+jyp
         ?>  ?=(^ limbs)
         ::  At this point it's looking for a %core (either func or class).
         ::  We need to resolve several cases (in no particular order):
@@ -1964,7 +1952,6 @@
         ::  class constructor (case 2), multiple arguments
         ::  [%call func=[%limb p=(list jlimb)] arg=(unit jock)]
         ?^  -<.typ
-          :: ~&  %case-2
           ~|  %call-case-2-args
           ?:  ?=(%type -<.limbs)
             ?~  arg.j  ~|("expect method argument" !!)
@@ -1977,13 +1964,6 @@
               ~|  "have: {<val-jyp>}\0aneed: {<typ>}"
               !!
             =.  inferred-type  `u.inferred-type(name ->.limbs)
-            :: ~&  >  inferred-type+u.inferred-type
-            :: ~&  >>>  ljw+ljw
-            :: ~&  >>>  wing+(resolve-wing ljw)
-            :: ~&  'here'
-            :: ~&  val+val
-            :: ~&  'there'
-            :: =-  ~&(here+[-] -)
             :_  u.inferred-type
             :+  %8
               [%0 1]
@@ -2023,7 +2003,6 @@
           ::  In this case, we have located the class instance
           ::  but now need the method and the argument to construct
           ::  the Nock.
-          :: ~&  >>>  case-3-jyp+jyp
           ?>  ?=(%limb -.p.typ)
           ::  Get class definition for instance.  This is a cons of
           ::  the state and the methods (arms) as a core.
@@ -2049,25 +2028,12 @@
           ?~  arg.j
             (resolve-wing ljd)
           ::  Compose a class (door), which requires some tree math.
-          ~&  >  ljd+ljd
-          ~&  >>  ljg+ljg
-          ~&  >>>  wing+(resolve-wing ljg)
-          =-  ~&(here+[-] -)
           :+  %8
             :+  %7
               [%0 2]
-            ::   [%0 2]  [%9 2 %0 1]
-            :: (resolve-wing ljg)
-            =/  axes  (resolve-wing ljg)
-            ~&  axes+axes
-            ~&  >  ljg+ljg
-            ~&  >>  ljw+ljw
             [%9 ;;(@ -<.ljg) [%0 ;;(@ -.ljw)]]
-            :: [%7 [%0 2] %9 2 %0 1]
-            :: resolves to [9 2 0 3] but should be [7 [0 2] 9 2 0 1]
           =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
           [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
-          :: [%9 2 %10 [6 arg] %0 2]
         ::
         ::  traditional function call (case 1)
         ?:  ?=(%& -.p.p.typ)
