@@ -2007,7 +2007,6 @@
           :_  out.p.p.p.u.gat
           ?~  arg.j
             (resolve-wing ljd)
-          ::  Compose a class (door), which requires some tree math.
           :+  %8
             :+  %7
               [%0 2]
@@ -2128,6 +2127,8 @@
         %limb
       ~|  %limb
       =/  lim  (~(get-limb jt jyp) p.j)
+      ~&  >>  p-j+p.j
+      ~&  >  lim+lim
       ?>  ?=(%& -.lim)  :: +each resolution
       =/  res=(pair jype (list jwing))  p.lim
       [(resolve-wing q.res) p.res]

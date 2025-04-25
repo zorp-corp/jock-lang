@@ -4,6 +4,10 @@ compose
       (x + p.x
        y + p.y)
     }
+    add2(p:(x:@ y:@)) -> (@ @) {
+      (x + p.x
+       y + p.y)
+    }
     inc(q:@) -> @ {
       +(q)
     }
@@ -12,7 +16,9 @@ compose
 
 let origin = Point(12 23);
 (origin.add(30 19)
- origin.inc(41))
+ origin.add2(30 19)
+ origin.inc(41)
+ origin.y)
 
 /*
 !=
