@@ -1723,25 +1723,6 @@
         cor-nok  [mor-nok cor-nok]
         cor-jyp  (~(put by cor-jyp) name.i.lis mor-jyp)
       ==
-      :: |-  ^-  [nock jype]
-      :: ?~  lis
-      ::   =.  jyp
-      ::     =/  inner-jyp
-      ::       (~(cons jt state.j) [[%core %|^cor-jyp `state.j] name.state.j])
-      ::     =.  inner-jyp  inner-jyp(name name.state.j)
-      ::     (~(cons jt inner-jyp) jyp)
-      ::   ~|  %class-next
-      ::   =+  [nex nex-jyp]=^$(j next.j)
-      ::   :_  nex-jyp
-      ::   :+  %8
-      ::     [%8 sam-nok [%1 cor-nok] [%0 1]]  :: XXX for subject
-      ::   nex
-      :: =+  [mor-nok mor-jyp]=%=(^$ j val.i.lis, jyp exe-jyp)
-      :: %_  $
-      ::   lis      t.lis
-      ::   cor-nok  [mor-nok cor-nok]
-      ::   cor-jyp  (~(put by cor-jyp) name.i.lis mor-jyp)
-      :: ==
     ::
         %edit
       =/  [typ=jype axi=@]
