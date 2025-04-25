@@ -246,8 +246,8 @@
       [%lambda p=lambda]
       [%limb p=(list jlimb)]
       [%atom p=jatom]
-      [%list type=jype-leaf val=(list jock)]
-      [%set type=jype-leaf val=(set jock)]
+      [%list type=jype val=(list jock)]
+      [%set type=jype val=(set jock)]
       [%import name=jype next=jock]
       [%crash ~]
   ==
@@ -330,7 +330,6 @@
       ::  %set
       [%set type=jype]
       ::  %hoon is a vase for the supplied subject (presumably hoon or tiny)
-      :: [%hoon p=vase]
       [%hoon p=truncated-vase]
       ::  %state is a container for class state
       [%state p=jype]
@@ -593,7 +592,7 @@
       :_  +.tokens  :: strip '}'
       ^-  jock
       :+  %set
-        [%none ~]
+        [%none ~]^%$
       acc
     ::  {...}
     =^  jock-nex  tokens
@@ -632,7 +631,7 @@
       :_  +.tokens
       ^-  jock
       :+  %list
-        [%none ~]
+        [%none ~]^%$
       (snoc acc [%atom p=[%number 0] q=%.n])
     ::  [...]
     =^  jock-nex  tokens
@@ -730,8 +729,7 @@
   ?~  nom  ~|("expect name. token: {<-.tokens>}" !!)
   =.  tokens  +.tokens
   ?.  =([%punctuator %'(('] -.tokens)
-    ::  XXX fix when finishing type TODO
-    [`jype`[`jype-leaf`[%limb ~[[%type type]]] type] tokens]
+    [[[%limb ~[[%type type]]] type] tokens]
   ::  match type state
   =^  jyp  tokens
     =^  r=(pair jype (unit jype))  tokens
@@ -744,8 +742,8 @@
       [[jyp-one `jyp-two] tokens]
     [?~(q.r `jype`p.r `jype`[[p.r u.q.r] %$]) tokens]
   ?>  (got-punctuator -.tokens %')')
-  ?:  ?=(%list type)  [[;;(jype-leaf [type jyp]) u.nom] +.tokens]
-  ?:  ?=(%set type)  [[;;(jype-leaf [type jyp]) u.nom] +.tokens]
+  ?:  ?=(%list type)  [jyp(name u.nom) +.tokens]
+  ?:  ?=(%set type)   [jyp(name u.nom) +.tokens]
   [[[%state jyp] u.nom] +.tokens]
 ::
 ++  match-keyword
@@ -2152,19 +2150,22 @@
         %list
       ~|  %list
       |^
+      ~&  starting+val.j
       =/  vals=(list jock)  val.j
       ?:  =(~ vals)  ~|  'list: no value'  !!
       =+  [val val-jyp]=^$(j -.vals)
       ::  XXX right now this means the val-jyp is %none and will be overridden
       =/  inferred-type
-        (~(unify jt type.j^%$) val-jyp)
+        (~(unify jt type.j) val-jyp)
       ?~  inferred-type
         ~|  '%list: value type does not nest in declared type'
         ~|  ['have:' val-jyp 'need:' type.j]
         !!
       =/  nok=(list nock)  ~[val]
       =.  vals  +.vals
-      :_  [[%list u.inferred-type] %$]
+      ~&  >  list-type+[u.inferred-type]
+      :_  [%list u.inferred-type]^%$
+      =-  ~&(- -)
       |-  ^-  nock
       ?~  vals
         ?:  =(%1 -<.nok)
@@ -2173,7 +2174,7 @@
       ::  for each jock, validate that it nests in the container's declared type
       =+  [val val-jyp]=^^$(j -.vals)
       =/  inferred-type
-        (~(unify jt type.j^%$) val-jyp)
+        (~(unify jt type.j) val-jyp)
       ?~  inferred-type
         ~|  '%list: value type does not nest in declared type'
         ~|  ['have:' val-jyp 'need:' type.j]
@@ -2199,7 +2200,7 @@
       =+  [val val-jyp]=$(j -.vals)
       ::  XXX right now this means the val-jyp is %none and will be overridden
       =/  inferred-type
-        (~(unify jt type.j^%$) val-jyp)
+        (~(unify jt type.j) val-jyp)
       ?~  inferred-type
         ~|  '%set: value type does not nest in declared type'
         ~|  ['have:' val-jyp 'need:' type.j]
@@ -2207,13 +2208,13 @@
       ::  At this point, we have a (set jock), not a (set *) of the values
       =/  res=(set *)  (~(put in *(set *)) val)
       =.  vals  +.vals
-      :_  [[%set u.inferred-type] %$]
+      :_  [%set u.inferred-type]^%$
       |-  ^-  nock
       ?~  vals
         [%1 `*`res]
       =+  [val val-jyp]=^$(j -.vals)
       =/  inferred-type
-        (~(unify jt type.j^%$) val-jyp)
+        (~(unify jt type.j) val-jyp)
       ?~  inferred-type
         ~|  '%set: value type does not nest in declared type'
         ~|  ['have:' val-jyp 'need:' type.j]
@@ -2359,7 +2360,7 @@
       ::
           %list
         ::  Lists are composed of a series of values, which we unpack.
-        ::  [%list type=jype-leaf val=(list jock)]
+        ::  [%list type=jype val=(list jock)]
         ~|  %list
         :_  ~
         :-  %clsg
@@ -2416,7 +2417,6 @@
         %cell
       :_  %$
       ^-  jype-leaf
-      :: [%list [type.p.t %$]]
       *jype-leaf
     ::
         %hold
