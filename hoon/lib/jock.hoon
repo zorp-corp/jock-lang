@@ -226,9 +226,8 @@
   $^  [p=jock q=jock]
   $%  [%let type=jype val=jock next=jock]
       [%func type=jype body=jock next=jock]
-      [%class state=jype arms=(map term jock)] :: next=jock]
+      [%class state=jype arms=(map term jock)]
       [%method type=jype body=jock]
-      ::  support value returns?
       [%edit limb=(list jlimb) val=jock next=jock]
       [%increment val=jock]
       [%cell-check val=jock]
