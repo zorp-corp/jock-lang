@@ -2018,14 +2018,9 @@
             :: Output should be an instance.
             ~&  >  gat-out+out.p.p.p.u.gat
             ^-  [nock jype]
-            ::  seems like what we should do is get the new state
-            ::  and then recurse with a constructor
             ?~  arg.j  ~|("expect method argument" !!)
-            ~&  >>>  j+j
-            :: $(j j, jyp old-jyp)
-            ::  the trouble is that I don't just get the state back,
-            ::  I get the Nock back
             :: =-  ~&(- -)
+            :: ~&  wing+[ljw ljd ljg]
             =/  val
               :+  %8
                 :+  %7
@@ -2037,9 +2032,9 @@
             :+  %8
               val
             :+  %8
-              [%0 7]  :: hmm, addresses may be suspect, check
+              [%0 7]  :: [%0 7]
             :+  %10
-              [6 %0 6]  :: ditto
+              [6 (resolve-wing ljd)]  :: [6 %0 6]
             [%0 2]  :: should be okay
           :: Output is a regular type.
           ^-  [nock jype]
@@ -2072,7 +2067,6 @@
           [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
         ::
         ::  lambda function call (case 4)
-        ~&  'here7'
         ?>  &(=(1 (lent p.func.j)) !?=(%type -<.limbs))
         ~|  %call-case-4
         :_  =/  gat  ;;([%core p=core-body q=(unit jype)] -:(~(got by p.p.p.typ) +:(snag 0 p.func.j)))
@@ -2167,8 +2161,6 @@
         %limb
       ~|  %limb
       =/  lim  (~(get-limb jt jyp) p.j)
-      ~&  >>  p-j+p.j
-      ~&  >  lim+lim
       ?>  ?=(%& -.lim)  :: +each resolution
       =/  res=(pair jype (list jwing))  p.lim
       [(resolve-wing q.res) p.res]

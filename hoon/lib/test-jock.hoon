@@ -27,6 +27,7 @@
 /*  type-point            %jock  /lib/tests/type-point/jock
 /*  type-point-2          %jock  /lib/tests/type-point-2/jock
 /*  type-point-3          %jock  /lib/tests/type-point-3/jock
+/*  class-state           %jock  /lib/tests/class-state/jock
 /*  infix-comparator      %jock  /lib/tests/infix-comparator/jock
 /*  infix-arithmetic      %jock  /lib/tests/infix-arithmetic/jock
 /*  hoon-ffi              %jock  /lib/tests/hoon-ffi/jock
@@ -62,6 +63,7 @@
 /*  test-type-point       %hoon  /tests/lib/type-point/hoon
 /*  test-type-point-2     %hoon  /tests/lib/type-point-2/hoon
 :: /*  test-type-point-3     %hoon  /tests/lib/type-point-3/hoon
+:: /*  test-class-state      %hoon  /tests/lib/class-state/hoon
 :: /*  test-infix-comparator  %hoon  /tests/lib/infix-comparator/hoon
 :: /*  test-infix-arithmetic  %hoon  /tests/lib/infix-arithmetic/hoon
 :: /*  test-hoon-ffi       %hoon  /tests/lib/hoon-ffi/hoon
@@ -100,12 +102,13 @@
       [%type-point q.type-point]                      :: 24
       [%type-point-2 q.type-point-2]                  :: 25
       [%type-point-3 q.type-point-3]                  :: 26
-      [%infix-comparator q.infix-comparator]          :: 27
-      [%infix-arithmetic q.infix-arithmetic]          :: 28
-      [%hoon-ffi q.hoon-ffi]                          :: 29
-      [%hoon-arithmetic q.hoon-arithmetic]            :: 30
-      [%hoon-alias q.hoon-alias]                      :: 31
-      [%fib q.fib]                                    :: 32
+      [%class-state q.class-state]                    :: 27
+      [%infix-comparator q.infix-comparator]          :: 28
+      [%infix-arithmetic q.infix-arithmetic]          :: 29
+      [%hoon-ffi q.hoon-ffi]                          :: 30
+      [%hoon-arithmetic q.hoon-arithmetic]            :: 31
+      [%hoon-alias q.hoon-alias]                      :: 32
+      [%fib q.fib]                                    :: 33
  ==
 ::
 ++  test-jocks
@@ -219,6 +222,14 @@
       [%test-type-point-2-jeam test-jeam:test-type-point-2]
       [%test-type-point-2-mint test-mint:test-type-point-2]
       [%test-type-point-2-nock test-nock:test-type-point-2]
+      :: [%test-type-point-3-tokens test-tokenize:test-type-point-3]
+      :: [%test-type-point-3-jeam test-jeam:test-type-point-3]
+      :: [%test-type-point-3-mint test-mint:test-type-point-3]
+      :: [%test-type-point-3-nock test-nock:test-type-point-3]
+      :: [%test-class-state-tokens test-tokenize:test-class-state]
+      :: [%test-class-state-jeam test-jeam:test-class-state]
+      :: [%test-class-state-mint test-mint:test-class-state]
+      :: [%test-class-state-nock test-nock:test-class-state]
       :: [%test-infix-comparator-tokens test-tokenize:test-infix-comparator]
       :: [%test-infix-comparator-jeam test-jeam:test-infix-comparator]
       :: [%test-infix-comparator-mint test-mint:test-infix-comparator]
