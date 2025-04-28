@@ -2025,6 +2025,7 @@
             :: $(j j, jyp old-jyp)
             ::  the trouble is that I don't just get the state back,
             ::  I get the Nock back
+            :: =-  ~&(- -)
             =/  val
               :+  %8
                 :+  %7
@@ -2032,14 +2033,18 @@
                 [%9 ;;(@ -<.ljg) [%0 ;;(@ -.ljw)]]
               =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
               [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
-            ~&  >  'here'
             :_  out.p.p.p.u.gat
             :+  %8
-              [%0 1]
-            [%10 [6 %7 [%0 3] val] (resolve-wing ljw)]
+              val
+            :+  %8
+              [%0 7]  :: hmm, addresses may be suspect, check
+            :+  %10
+              [6 %0 6]  :: ditto
+            [%0 2]  :: should be okay
           :: Output is a regular type.
           ^-  [nock jype]
           :_  out.p.p.p.u.gat
+          =-  ~&(- -)
           ?~  arg.j
             (resolve-wing ljd)
           :+  %8
