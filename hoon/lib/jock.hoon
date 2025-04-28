@@ -472,12 +472,8 @@
   |=  =tokens
   ^-  [jock (list token)]
   ?:  =(~ tokens)  ~|("expect jock. token: ~" !!)
-  ~&  tokens+tokens
   ?:  (has-punctuator -.tokens %'(')
     =>  .(tokens `(list token)`+.tokens)  :: TMI
-    ?:  (has-punctuator -.tokens %')')
-      ::  no argument, use out-of-bounds axis as signal
-      [[%call [%limb [%axis (bex 63)] ~] ~] +.tokens]
     =^  jock-one  tokens
       (match-inner-jock tokens)
     ?:  (has-punctuator -.tokens %')')
@@ -703,21 +699,14 @@
     [[%edit limbs val jock] tokens]
   ::  - %call ('((' is the next token)
   ?:  |((has-punctuator -.tokens %'((') (has-punctuator -.tokens %'('))
+    ?:  (has-punctuator +<.tokens %')')
+      ::  no argument
+      =^  arg  tokens
+        [~ +>.tokens]
+      [[%call [%limb limbs] ~] tokens]
     =?  tokens  ?=(%'((' ->.tokens)  [[%punctuator %'('] +.tokens]
     =^  arg  tokens
       (match-pair-inner-jock tokens)
-    ~&  arg+arg
-    :: TODO this is a mess and incorrect, NEAL
-    ?~  arg
-      ?:  ?=(%call -.arg)
-        ?:  ?&  =(%limb +<-.arg)
-                =(%axis +<+<-.arg)
-                =((bex 63) +<+<+.arg)  :: out-of-bounds axis as signal
-            ==
-          [[%call [%limb limbs] ~] tokens]
-        [[%call [%limb limbs] ~] tokens]
-      [[%call [%limb limbs] ~] tokens]
-    ::  TODO: check if we're in a compare
     [[%call [%limb limbs] `arg] tokens]
   [[%limb limbs] tokens]
 ::
@@ -1903,7 +1892,6 @@
         ::    6. library call (at least two jlimbs, the first being a library name)
         ::    7. class instance leg (single jlimb, name in state)
         ::
-        ~&  'here'
         =/  [typ=jype ljl=(list jlimb) ljw=(list jwing)]
           ?.  =([%axis 0] -.limbs)
             =/  lim  (~(get-limb jt jyp) limbs)
@@ -1914,7 +1902,7 @@
           =/  ret  (~(find-buc jt jyp))
           ?~  ret  ~|("couldn't find $ in {<jyp>}" !!)
           [-.u.ret ~ ~[[2 +.u.ret]]]
-        ~&  'here2'
+        ::
         ?:  !=(~ ljl)
           ::  case 6, library call
           ::  Construct a gate call from the rest of the limbs.
@@ -1948,9 +1936,9 @@
             :: 1
           =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
           [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
+        ::
         ::  class constructor (case 2), multiple arguments
         ::  [%call func=[%limb p=(list jlimb)] arg=(unit jock)]
-        ~&  'here3'
         ?^  -<.typ
           ~|  %call-case-2-args
           ?:  ?=(%type -<.limbs)
@@ -1968,6 +1956,7 @@
             :+  %8
               [%0 1]
             [%10 [6 %7 [%0 3] val] (resolve-wing ljw)]
+          ::
           ?>  ?=(%name -<.limbs)
           ?~  arg.j  ~|("expect method argument" !!)
           =+  [val val-jyp]=$(j u.arg.j)
@@ -1982,12 +1971,11 @@
         ::
         ::  class method call by constructor (case 2), single argument
         ::  [%call func=[%limb p=(list jlimb)] arg=(unit jock)]
-        ~&  'here4'
         ?.  ?=(%core -.p.typ)
           ?:  ?=(%type -<.limbs)
             ~|  %call-case-2
             ?>  ?=(%type -<.limbs)
-            ?~  arg.j  ~|("expect method argument" !!)
+            ?~  arg.j  ~|("expect constructor state argument" !!)
             =+  [val val-jyp]=$(j u.arg.j)
             ::  XXX this checks to make sure state and input actually nest
             =/  inferred-type  (~(unify jt typ) val-jyp)
@@ -1998,8 +1986,6 @@
             =.  inferred-type  `u.inferred-type
             :-  val
             [[%limb limbs] ->.limbs]
-          ~&  'here5'
-          ~&  >>>  limbs+limbs
           ?>  ?=(%name -<.limbs)
           ~|  %call-case-3
           ::  class method call in instance (case 3)
@@ -2012,6 +1998,7 @@
           =/  lim  (~(get-limb jt jyp) p.p.typ)
           ?>  ?=(%& -.lim)
           =/  dyp=jype  p.p.lim
+          =/  dor-nom  -<+.dyp  :: class name, used to determine return type
           =/  ljd=(list jwing)  q.p.lim
           =/  cyp  ;;(jype ->.dyp)
           ?>  ?=(%core -<.cyp)
@@ -2019,6 +2006,7 @@
           ::  Search for the door defn in the subject jype.
           =/  gat-nom  `cord`+<+.limbs
           =/  gim  (~(get-limb jt dyp) +.limbs)
+          ::
           ?>  ?=(%& -.gim)
           =/  gyp=jype  p.p.gim
           =/  ljg=(list jwing)  q.p.gim
@@ -2026,6 +2014,30 @@
           ?~  gat  ~|("gate not found: {<gat-nom>} in {<name.typ>}" !!)
           ?>  ?=(%core -<.u.gat)
           ?.  ?=(%& -.p.p.u.gat)  ~|("method cannot be lambda" !!)
+          ?:  =(name.out.p.p.p.u.gat dor-nom)
+            :: Output should be an instance.
+            ~&  >  gat-out+out.p.p.p.u.gat
+            ^-  [nock jype]
+            ::  seems like what we should do is get the new state
+            ::  and then recurse with a constructor
+            ?~  arg.j  ~|("expect method argument" !!)
+            ~&  >>>  j+j
+            :: $(j j, jyp old-jyp)
+            ::  the trouble is that I don't just get the state back,
+            ::  I get the Nock back
+            =/  val
+              :+  %8
+                :+  %7
+                  [%0 2]
+                [%9 ;;(@ -<.ljg) [%0 ;;(@ -.ljw)]]
+              =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
+              [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
+            ~&  >  'here'
+            :_  out.p.p.p.u.gat
+            :+  %8
+              [%0 1]
+            [%10 [6 %7 [%0 3] val] (resolve-wing ljw)]
+          :: Output is a regular type.
           ^-  [nock jype]
           :_  out.p.p.p.u.gat
           ?~  arg.j
@@ -2038,7 +2050,6 @@
           [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
         ::
         ::  traditional function call (case 1)
-        ~&  'here6'
         ?:  ?=(%& -.p.p.typ)
           ~|  %call-case-1
           :_  out.p.p.p.typ
@@ -2068,7 +2079,6 @@
           (resolve-wing ljw)
         =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
         [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
-      ::
       ::
           %lambda
         ~|  %call-lambda
