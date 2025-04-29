@@ -1911,7 +1911,6 @@
           [-.u.ret ~ ~[[2 +.u.ret]]]
         ::
         ~&  >  limbs+limbs
-        ~&  >  typ+typ
         ~&  >  ljw+ljw
         ?:  !=(~ ljl)
           ::  case 6, library call
@@ -2014,7 +2013,8 @@
           =/  gat-nom  `cord`+<+.limbs
           :: ~&  >  dyp+dyp
           ~&  >>  search+[[%name dor-nom] +.limbs]
-          =/  gat-lim  (~(get-limb jt dyp) [[%name dor-nom] +.limbs])
+          :: =/  gat-lim  (~(get-limb jt dyp) [[%name dor-nom] +.limbs])
+          =/  gat-lim  (~(get-limb jt dyp) +.limbs)
           ~&  gat-lim+gat-lim
           ?~  gat-lim
             ~|  %call-case-7
@@ -2037,7 +2037,8 @@
             ~&  >>>  ljs+u.ljs
             :_  *jype  ::`jype`[[%none *(unit @tas)] %$]
             :+  %7
-              [%0 ;;(@ -.ljw)]
+              [%0 2]
+              :: [%0 ;;(@ -.ljw)]
             :+  %7
               [%0 6]  :: door state is always at +30
             [%0 ;;(@ +>-.u.ljs)]

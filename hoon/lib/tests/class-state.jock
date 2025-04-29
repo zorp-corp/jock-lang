@@ -1,9 +1,9 @@
 compose
   class Point(x:@ y:@) {
-    add(p:(x:@ y:@)) -> Point {
-      (x + p.x
-       y + p.y)
-    }
+//    add(p:(x:@ y:@)) -> Point {
+//      (x + p.x
+//       y + p.y)
+//    }
     inc(q:@) -> @ {
       +(q)
     }
