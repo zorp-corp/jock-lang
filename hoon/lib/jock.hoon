@@ -1388,16 +1388,19 @@
   ::  or a name/type reference to it.
   ++  get-limb
     |=  lis=(list jlimb)
-    ^-  (each (pair jype (list jwing)) (trel jype (list jlimb) (list jwing)))
+    ^-  (unit (each (pair jype (list jwing)) (trel jype (list jlimb) (list jwing))))
     |^
     ::  The resulting jwing.
     =/  res=(list jwing)  ~
     ::  The resulting axis, default subject.
     =/  ret=jwing  1
-    ?:  =(~ lis)  ~|("no limb requested" !!)
+    ?:  =(~ lis)  ~|("no limb requested" ~)
     |-
+    ~&  get-limb-search+lis
     ?~  lis
+      ~&  found+[ret res]
       ::  If we've searched to the bottom, return what we have.
+      :-  ~
       :+  %&
         jyp
       ::  If self, return the wing.
@@ -1415,17 +1418,17 @@
       ?:  |(?=(%name -<.lis) ?=(%type -<.lis) !=(%$ name.jyp))
         (axis-at-name ->.lis)
       `[->.lis]
-    ?~  axi  ~|("limb not found: {<lis>} in {<jyp>}" !!)
+    ?~  axi  ~|("limb not found: {<lis>} in {<jyp>}" ~)
     ::  If it exists and we need to search further, do so.
     ?^  u.axi
       ?~  new-jyp=(type-at-axis (peg +.u.axi -.u.axi))
-        ~|  no-type-at-axis+[axi jyp]
-        !!
+        ~|(no-type-at-axis+[axi jyp] ~)
       $(lis t.lis, jyp u.new-jyp, res [u.axi res])
     ?~  new-jyp=(type-at-axis u.axi)
-      ~|(%expect-type-at-axis !!)
+      ~|(%expect-type-at-axis ~)
     ::  If this is a Hoon library, then return now.
     ?:  =(%hoon -<.u.new-jyp)
+      :-  ~
       :-  %|
       :+  u.new-jyp
         t.lis
@@ -1442,7 +1445,8 @@
             ?=(%type ->-<.u.new-jyp)      :: that refers to a class type
             !=(~ t.lis)                   :: that is not just a name
         ==
-      ~&  >>>  limb+[lis res ret]
+      ~&  here+[u.new-jyp res ret]
+      :-  ~
       :+  %&
         u.new-jyp
       ?:  =(ret 1)
@@ -1458,7 +1462,7 @@
       ::  TODO: in order to support additional limbs
       ::  after a core resolution, we require the return type
       ::  to be a (list jwing)
-      !!
+      ~
     =.  ret  (peg ret u.axi)
     ?>  (lth ret (bex 63))  :: disallow axes larger than Goldilocks prime field
     $(lis t.lis, jyp u.new-jyp)
@@ -1640,9 +1644,10 @@
             :: =/  [lyp=jype ljw=(list jwing)]
             ::   (~(get-limb jt jyp) +.p.type.j)
             =/  lim  (~(get-limb jt jyp) +.p.type.j)
-            ?>  ?=(%& -.lim)
-            =/  lyp=jype  p.p.lim
-            =/  ljw=(list jwing)  q.p.lim
+            ?~  lim  ~|('limb not found' !!)
+            ?>  ?=(%& -.u.lim)
+            =/  lyp=jype  p.p.u.lim
+            =/  ljw=(list jwing)  q.p.u.lim
             `[[%limb ~[[%type name.val-jyp]]] name.type.j]
           ?:  (is-type name.val-jyp)
             :: case 4, let name = Type(value);
@@ -1732,10 +1737,11 @@
         %edit
       =/  [typ=jype axi=@]
         =/  res  (~(get-limb jt jyp) limb.j)
-        ?>  ?=(%& -.res)
-        ?>  ?=(^ q.p.res)
-        ?>  ?=(@ i.q.p.res)
-        [p.p.res i.q.p.res]
+        ?~  res  ~|('limb not found' !!)
+        ?>  ?=(%& -.u.res)
+        ?>  ?=(^ q.p.u.res)
+        ?>  ?=(@ i.q.p.u.res)
+        [p.p.u.res i.q.p.u.res]
       ~|  %edit-value
       =+  [val val-jyp]=$(j val.j)
       ~|  %edit-next
@@ -1895,19 +1901,24 @@
         =/  [typ=jype ljl=(list jlimb) ljw=(list jwing)]
           ?.  =([%axis 0] -.limbs)
             =/  lim  (~(get-limb jt jyp) limbs)
-            ?:  ?=(%& -.lim)
-              [p.p.lim ~ q.p.lim]
-            p.lim
+            ?~  lim  ~|('limb not found' !!)
+            ?:  ?=(%& -.u.lim)
+              [p.p.u.lim ~ q.p.u.lim]
+            p.u.lim
           ::  special case: we're looking for $
           =/  ret  (~(find-buc jt jyp))
           ?~  ret  ~|("couldn't find $ in {<jyp>}" !!)
           [-.u.ret ~ ~[[2 +.u.ret]]]
         ::
+        ~&  >  limbs+limbs
+        ~&  >  typ+typ
+        ~&  >  ljw+ljw
         ?:  !=(~ ljl)
           ::  case 6, library call
           ::  Construct a gate call from the rest of the limbs.
           ::  We have to +slam the gate into the Hoon library,
           ::  thus two separate wings.
+          ~|  %call-case-6
           ?>  ?=(^ limbs)
           ?~  arg.j  ~|("expect function argument" !!)
           =+  [val val-jyp]=$(j u.arg.j)
@@ -1987,40 +1998,66 @@
             :-  val
             [[%limb limbs] ->.limbs]
           ?>  ?=(%name -<.limbs)
-          ~|  %call-case-3
-          ::  class method call in instance (case 3)
-          ::  In this case, we have located the class instance
-          ::  but now need the method and the argument to construct
-          ::  the Nock.
           ?>  ?=(%limb -.p.typ)
           ::  Get class definition for instance.  This is a cons of
           ::  the state and the methods (arms) as a core.
           =/  lim  (~(get-limb jt jyp) p.p.typ)
-          ?>  ?=(%& -.lim)
-          =/  dyp=jype  p.p.lim
+          ?~  lim  ~|('limb not found' !!)
+          ?>  ?=(%& -.u.lim)
+          =/  dyp=jype  p.p.u.lim
           =/  dor-nom  -<+.dyp  :: class name, used to determine return type
-          =/  ljd=(list jwing)  q.p.lim
+          =/  ljd=(list jwing)  q.p.u.lim
           =/  cyp  ;;(jype ->.dyp)
           ?>  ?=(%core -<.cyp)
           ?:  ?=(%& -.p.p.cyp)  ~|("class cannot be lambda" !!)
           ::  Search for the door defn in the subject jype.
           =/  gat-nom  `cord`+<+.limbs
-          =/  gim  (~(get-limb jt dyp) +.limbs)
+          :: ~&  >  dyp+dyp
+          ~&  >>  search+[[%name dor-nom] +.limbs]
+          =/  gat-lim  (~(get-limb jt dyp) [[%name dor-nom] +.limbs])
+          ~&  gat-lim+gat-lim
+          ?~  gat-lim
+            ~|  %call-case-7
+            ::  Check in state for getter.
+            :: =/  dor-jyp=jype
+            ::   (~(cons jt p.p.state.j) jyp)
+            :: =/  var-lim  (~(get-limb jt dor-jyp) +.limbs)
+            :: ~&  var-lim+var-lim
+            :: [7 [%0 3] [%0 60]]
+            =-  ~&(- -)
+            ~&  >  ljd+ljd
+            ~&  >>  state+[-<.dyp]
+            =/  sta  -<.dyp
+            ?>  ?=(%state -<.sta)
+            =/  stn  p.p.sta
+            :: ?>  ?=(%state -.stn)
+            =/  ljs  (~(get-limb jt +.stn) +.limbs)
+            ?~  ljs  ~|('leg not found' !!)
+            ~&  stn+[+.stn]
+            ~&  >>>  ljs+u.ljs
+            :_  *jype  ::`jype`[[%none *(unit @tas)] %$]
+            :+  %7
+              [%0 ;;(@ -.ljw)]
+            :+  %7
+              [%0 6]  :: door state is always at +30
+            [%0 ;;(@ +>-.u.ljs)]
           ::
-          ?>  ?=(%& -.gim)
-          =/  gyp=jype  p.p.gim
-          =/  ljg=(list jwing)  q.p.gim
+          ~|  %call-case-3
+          ::  class method call in instance (case 3)
+          ::  In this case, we have located the class instance
+          ::  but now need the method and the argument to construct
+          ::  the Nock.
+          ?>  ?=(%& -.u.gat-lim)
+          =/  gat-jyp=jype  p.p.u.gat-lim
+          =/  ljg=(list jwing)  q.p.u.gat-lim
           =/  gat  (~(get by p.p.p.cyp) gat-nom)
           ?~  gat  ~|("gate not found: {<gat-nom>} in {<name.typ>}" !!)
           ?>  ?=(%core -<.u.gat)
           ?.  ?=(%& -.p.p.u.gat)  ~|("method cannot be lambda" !!)
           ?:  =(name.out.p.p.p.u.gat dor-nom)
             :: Output should be an instance.
-            ~&  >  gat-out+out.p.p.p.u.gat
             ^-  [nock jype]
             ?~  arg.j  ~|("expect method argument" !!)
-            :: =-  ~&(- -)
-            :: ~&  wing+[ljw ljd ljg]
             =/  val
               :+  %8
                 :+  %7
@@ -2039,7 +2076,6 @@
           :: Output is a regular type.
           ^-  [nock jype]
           :_  out.p.p.p.u.gat
-          =-  ~&(- -)
           ?~  arg.j
             (resolve-wing ljd)
           :+  %8
@@ -2161,8 +2197,9 @@
         %limb
       ~|  %limb
       =/  lim  (~(get-limb jt jyp) p.j)
-      ?>  ?=(%& -.lim)  :: +each resolution
-      =/  res=(pair jype (list jwing))  p.lim
+      ?~  lim  ~|('limb not found' !!)
+      ?>  ?=(%& -.u.lim)  :: +each resolution
+      =/  res=(pair jype (list jwing))  p.u.lim
       [(resolve-wing q.res) p.res]
     ::
         %lambda
@@ -2331,8 +2368,9 @@
     ::
         %limb
       =/  lim  (~(get-limb jt jyp) p.p.j)
-      ?>  ?=(%& -.lim)  :: if you want from a library then resolve it yourself
-      $(j p.p.lim)
+      ?~  lim  ~|('limb not found' !!)
+      ?>  ?=(%& -.u.lim)  :: if you want from a library then resolve it yourself
+      $(j p.p.u.lim)
     ::
         %fork      $(j p.p.j)
     ::

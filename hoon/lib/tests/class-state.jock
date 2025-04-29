@@ -31,4 +31,17 @@ let origin = Point(70 80);
 =/  origin
   ~(. door [70 80])
 [+13 +12]:origin
+
+!=
+=>
+  ^=  door
+  |_  [x=@ y=@]
+  ++  inc
+    |=  [p=@ q=@]
+    +(q)
+  --
+=/  origin
+  ~(. door [70 80])
++13:origin
+
 */
