@@ -14,7 +14,7 @@ compose
   }
 ;
 
-let origin = Point(12 23);
+let origin = Point(2 13);
 let pigeon = origin.add(30 19);
 pigeon.add-cell(10 10)
 

@@ -28,6 +28,7 @@
 /*  type-point-2          %jock  /lib/tests/type-point-2/jock
 /*  type-point-3          %jock  /lib/tests/type-point-3/jock
 /*  class-state           %jock  /lib/tests/class-state/jock
+/*  class-ops             %jock  /lib/tests/class-ops/jock
 /*  infix-comparator      %jock  /lib/tests/infix-comparator/jock
 /*  infix-arithmetic      %jock  /lib/tests/infix-arithmetic/jock
 /*  hoon-ffi              %jock  /lib/tests/hoon-ffi/jock
@@ -64,6 +65,7 @@
 /*  test-type-point-2     %hoon  /tests/lib/type-point-2/hoon
 :: /*  test-type-point-3     %hoon  /tests/lib/type-point-3/hoon
 :: /*  test-class-state      %hoon  /tests/lib/class-state/hoon
+:: /*  test-class-ops        %hoon  /tests/lib/class-ops/hoon
 :: /*  test-infix-comparator  %hoon  /tests/lib/infix-comparator/hoon
 :: /*  test-infix-arithmetic  %hoon  /tests/lib/infix-arithmetic/hoon
 :: /*  test-hoon-ffi       %hoon  /tests/lib/hoon-ffi/hoon
@@ -103,12 +105,13 @@
       [%type-point-2 q.type-point-2]                  :: 25
       [%type-point-3 q.type-point-3]                  :: 26
       [%class-state q.class-state]                    :: 27
-      [%infix-comparator q.infix-comparator]          :: 28
-      [%infix-arithmetic q.infix-arithmetic]          :: 29
-      [%hoon-ffi q.hoon-ffi]                          :: 30
-      [%hoon-arithmetic q.hoon-arithmetic]            :: 31
-      [%hoon-alias q.hoon-alias]                      :: 32
-      [%fib q.fib]                                    :: 33
+      [%class-ops q.class-ops]                        :: 28
+      [%infix-comparator q.infix-comparator]          :: 29
+      [%infix-arithmetic q.infix-arithmetic]          :: 30
+      [%hoon-ffi q.hoon-ffi]                          :: 31
+      [%hoon-arithmetic q.hoon-arithmetic]            :: 32
+      [%hoon-alias q.hoon-alias]                      :: 33
+      [%fib q.fib]                                    :: 34
  ==
 ::
 ++  test-jocks

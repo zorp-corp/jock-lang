@@ -1,21 +1,16 @@
 compose
   class Point(x:@ y:@) {
-//    add(p:(x:@ y:@)) -> Point {
-//      (x + p.x
-//       y + p.y)
-//    }
     inc(q:@) -> @ {
       +(q)
     }
   }
 ;
 
-let origin = Point(70 80);
-(origin.y() origin.x())
+let point-1 = Point(70 80);
+let point-2 = Point(90 100);
+(point-2.x() point-2.y() point-1.x() point-1.y())
 
 /*
-:: notice that in this Hoon, pigeon is the sample
-:: while in Jock it's an instance ~(. door pigeon)
 !=
 =>  mini=mini
 =>

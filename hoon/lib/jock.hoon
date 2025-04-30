@@ -1396,9 +1396,7 @@
     =/  ret=jwing  1
     ?:  =(~ lis)  ~|("no limb requested" ~)
     |-
-    ~&  get-limb-search+lis
     ?~  lis
-      ~&  found+[ret res]
       ::  If we've searched to the bottom, return what we have.
       :-  ~
       :+  %&
@@ -1445,9 +1443,11 @@
             ?=(%type ->-<.u.new-jyp)      :: that refers to a class type
             !=(~ t.lis)                   :: that is not just a name
         ==
-      ~&  here+[u.new-jyp res ret]
+      :: =.  ret  (peg ?^(ret 1 ret) u.axi)
+      ~&  found+[lis ret res u.axi]
       :-  ~
       :+  %&
+        ~&  new-jyp+u.new-jyp
         u.new-jyp
       ?:  =(ret 1)
         ::  If search list empty, then return self.
@@ -1882,7 +1882,7 @@
       ==
     ::
         %call
-      ?+    -.func.j  !!
+      ?+    -.func.j  ~|('must call a limb' !!)
           %limb
         =/  old-jyp  jyp
         ~|  %call-limb
@@ -1910,8 +1910,8 @@
           ?~  ret  ~|("couldn't find $ in {<jyp>}" !!)
           [-.u.ret ~ ~[[2 +.u.ret]]]
         ::
-        ~&  >  limbs+limbs
-        ~&  >  ljw+ljw
+        ~&  >>  ljw+ljw
+        =-  ~&(- -)
         ?:  !=(~ ljl)
           ::  case 6, library call
           ::  Construct a gate call from the rest of the limbs.
@@ -1984,6 +1984,7 @@
         ?.  ?=(%core -.p.typ)
           ?:  ?=(%type -<.limbs)
             ~|  %call-case-2
+            ::  XXX possibly unused now
             ?>  ?=(%type -<.limbs)
             ?~  arg.j  ~|("expect constructor state argument" !!)
             =+  [val val-jyp]=$(j u.arg.j)
@@ -2004,43 +2005,33 @@
           ?~  lim  ~|('limb not found' !!)
           ?>  ?=(%& -.u.lim)
           =/  dyp=jype  p.p.u.lim
-          =/  dor-nom  -<+.dyp  :: class name, used to determine return type
           =/  ljd=(list jwing)  q.p.u.lim
           =/  cyp  ;;(jype ->.dyp)
           ?>  ?=(%core -<.cyp)
           ?:  ?=(%& -.p.p.cyp)  ~|("class cannot be lambda" !!)
           ::  Search for the door defn in the subject jype.
           =/  gat-nom  `cord`+<+.limbs
-          :: ~&  >  dyp+dyp
-          ~&  >>  search+[[%name dor-nom] +.limbs]
-          :: =/  gat-lim  (~(get-limb jt dyp) [[%name dor-nom] +.limbs])
           =/  gat-lim  (~(get-limb jt dyp) +.limbs)
-          ~&  gat-lim+gat-lim
+          ~&  'gate outer'
+          ~&  >  ljw+ljw
           ?~  gat-lim
             ~|  %call-case-7
             ::  Check in state for getter.
-            :: =/  dor-jyp=jype
-            ::   (~(cons jt p.p.state.j) jyp)
-            :: =/  var-lim  (~(get-limb jt dor-jyp) +.limbs)
-            :: ~&  var-lim+var-lim
-            :: [7 [%0 3] [%0 60]]
-            =-  ~&(- -)
-            ~&  >  ljd+ljd
-            ~&  >>  state+[-<.dyp]
             =/  sta  -<.dyp
             ?>  ?=(%state -<.sta)
             =/  stn  p.p.sta
-            :: ?>  ?=(%state -.stn)
             =/  ljs  (~(get-limb jt +.stn) +.limbs)
             ?~  ljs  ~|('leg not found' !!)
-            ~&  stn+[+.stn]
-            ~&  >>>  ljs+u.ljs
-            :_  *jype  ::`jype`[[%none *(unit @tas)] %$]
+            ~&  'attempt'
+            ~&  >  ljw+ljw
+            ~&  >>  ljs+ljs
+            =-  ~&(- -)
+            :_  *jype
             :+  %7
-              [%0 2]
               :: [%0 ;;(@ -.ljw)]
+              (resolve-wing ljw)
             :+  %7
-              [%0 6]  :: door state is always at +30
+              [%0 6]  :: door state is always at sample +6
             [%0 ;;(@ +>-.u.ljs)]
           ::
           ~|  %call-case-3
@@ -2055,6 +2046,7 @@
           ?~  gat  ~|("gate not found: {<gat-nom>} in {<name.typ>}" !!)
           ?>  ?=(%core -<.u.gat)
           ?.  ?=(%& -.p.p.u.gat)  ~|("method cannot be lambda" !!)
+          =/  dor-nom  -<+.dyp  :: class name, used to determine return type
           ?:  =(name.out.p.p.p.u.gat dor-nom)
             :: Output should be an instance.
             ^-  [nock jype]
