@@ -8,7 +8,7 @@ compose
 
 let point-1 = Point(70 80);
 let point-2 = Point(90 100);
-(point-2.x() point-2.y() point-1.x() point-1.y())
+((point-2.x() point-2.y()) (point-1.x() point-1.y()))
 
 /*
 !=
@@ -23,20 +23,9 @@ let point-2 = Point(90 100);
     |=  q=@
     +(q)
   --
-=/  origin
+=/  point-1
   ~(. door [70 80])
-[+13 +12]:origin
-
-!=
-=>
-  ^=  door
-  |_  [x=@ y=@]
-  ++  inc
-    |=  [p=@ q=@]
-    +(q)
-  --
-=/  origin
-  ~(. door [70 80])
-+13:origin
-
+=/  point-2
+  ~(. door [90 100])
+[[+13 +12]:point-2 [+13 +12]:point-1]
 */

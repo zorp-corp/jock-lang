@@ -35,6 +35,7 @@
 /*  hoon-arithmetic       %jock  /lib/tests/hoon-arithmetic/jock
 /*  hoon-alias            %jock  /lib/tests/hoon-alias/jock
 /*  fib                   %jock  /lib/tests/fib/jock
+/*  lists-indexing        %jock  /lib/tests/lists-indexing/jock
 ::
 /*  test-let-edit         %hoon  /tests/lib/let-edit/hoon
 /*  test-let-inner-exp    %hoon  /tests/lib/let-inner-exp/hoon
@@ -72,6 +73,7 @@
 :: /*  test-hoon-arithmetic   %hoon  /tests/lib/hoon-arithmetic/hoon
 :: /*  test-hoon-alias      %hoon  /tests/lib/hoon-alias/hoon
 :: /*  test-fib            %hoon  /tests/lib/fib/hoon
+:: /*  test-lists-indexing  %hoon  /tests/lib/lists-indexing/hoon
 ::
 |%
 ++  list-jocks
@@ -112,6 +114,7 @@
       [%hoon-arithmetic q.hoon-arithmetic]            :: 32
       [%hoon-alias q.hoon-alias]                      :: 33
       [%fib q.fib]                                    :: 34
+      [%lists-indexing q.lists-indexing]              :: 35
  ==
 ::
 ++  test-jocks
@@ -257,6 +260,10 @@
       :: [%test-fib-jeam test-jeam:test-fib]
       :: [%test-fib-mint test-mint:test-fib]
       :: [%test-fib-nock test-nock:test-fib]
+      :: [%test-lists-indexing-tokens test-tokenize:test-lists-indexing]
+      :: [%test-lists-indexing-jeam test-jeam:test-lists-indexing]
+      :: [%test-lists-indexing-mint test-mint:test-lists-indexing]
+      :: [%test-lists-indexing-nock test-nock:test-lists-indexing]
   ==
 ::
 ++  parse

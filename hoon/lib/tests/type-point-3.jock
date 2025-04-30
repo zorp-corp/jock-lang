@@ -14,9 +14,10 @@ compose
   }
 ;
 
-let origin = Point(2 13);
-let pigeon = origin.add(30 19);
-pigeon.add-cell(10 10)
+let one = Point(2 13);
+let two = one.add(30 19);
+let three = one.inc(41);
+two.add-cell(10 10)
 
 /*
 :: notice that in this Hoon, pigeon is the sample

@@ -1443,11 +1443,9 @@
             ?=(%type ->-<.u.new-jyp)      :: that refers to a class type
             !=(~ t.lis)                   :: that is not just a name
         ==
-      :: =.  ret  (peg ?^(ret 1 ret) u.axi)
-      ~&  found+[lis ret res u.axi]
+      =.  ret  (peg ?^(ret 1 ret) u.axi)
       :-  ~
       :+  %&
-        ~&  new-jyp+u.new-jyp
         u.new-jyp
       ?:  =(ret 1)
         ::  If search list empty, then return self.
@@ -1910,8 +1908,6 @@
           ?~  ret  ~|("couldn't find $ in {<jyp>}" !!)
           [-.u.ret ~ ~[[2 +.u.ret]]]
         ::
-        ~&  >>  ljw+ljw
-        =-  ~&(- -)
         ?:  !=(~ ljl)
           ::  case 6, library call
           ::  Construct a gate call from the rest of the limbs.
@@ -2012,8 +2008,6 @@
           ::  Search for the door defn in the subject jype.
           =/  gat-nom  `cord`+<+.limbs
           =/  gat-lim  (~(get-limb jt dyp) +.limbs)
-          ~&  'gate outer'
-          ~&  >  ljw+ljw
           ?~  gat-lim
             ~|  %call-case-7
             ::  Check in state for getter.
@@ -2022,17 +2016,15 @@
             =/  stn  p.p.sta
             =/  ljs  (~(get-limb jt +.stn) +.limbs)
             ?~  ljs  ~|('leg not found' !!)
-            ~&  'attempt'
-            ~&  >  ljw+ljw
-            ~&  >>  ljs+ljs
-            =-  ~&(- -)
             :_  *jype
+            =-  ~&  >>>  -  -
             :+  %7
-              :: [%0 ;;(@ -.ljw)]
               (resolve-wing ljw)
+              :: [%9 ;;(@ +:(resolve-wing ljw)) %0 1]
             :+  %7
               [%0 6]  :: door state is always at sample +6
             [%0 ;;(@ +>-.u.ljs)]
+            :: 7 [0 6] 7 [9 1 0 2] 0 3]
           ::
           ~|  %call-case-3
           ::  class method call in instance (case 3)
@@ -2054,8 +2046,8 @@
             =/  val
               :+  %8
                 :+  %7
-                  [%0 2]
-                [%9 ;;(@ -<.ljg) [%0 ;;(@ -.ljw)]]
+                  [%0 ;;(@ -.ljw)]
+                [%9 ;;(@ -<.ljg) [%0 1]]
               =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
               [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
             :_  out.p.p.p.u.gat
@@ -2073,8 +2065,8 @@
             (resolve-wing ljd)
           :+  %8
             :+  %7
-              [%0 2]
-            [%9 ;;(@ -<.ljg) [%0 ;;(@ -.ljw)]]
+                [%0 (peg ;;(@ -.ljw) 2)]
+              [%9 ;;(@ -<.ljg) [%0 1]]
           =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
           [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
         ::
