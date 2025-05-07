@@ -54,7 +54,6 @@
 /*  test-multi-limb       %hoon  /tests/lib/multi-limb/hoon
 /*  test-compose          %hoon  /tests/lib/compose/hoon
 /*  test-compose-cores    %hoon  /tests/lib/compose-cores/hoon
-:: /*  test-baby             %hoon  /tests/lib/baby/hoon
 /*  test-comparator       %hoon  /tests/lib/comparator/hoon
 /*  test-lists            %hoon  /tests/lib/lists/hoon
 /*  test-lists-nested     %hoon  /tests/lib/lists-nested/hoon
@@ -95,7 +94,6 @@
       [%multi-limb q.multi-limb]                      :: 14
       [%compose q.compose]                            :: 15
       [%compose-cores q.compose-cores]                :: 16
-      :: [%baby q.baby]
       [%comparator q.comparator]                      :: 17
       [%lists q.lists]                                :: 18
       [%lists-nested q.lists-nested]                  :: 19
@@ -141,9 +139,9 @@
       [%test-inline-lambda-call-mint test-mint:test-inline-lambda-call]
       [%test-inline-lambda-call-nock test-nock:test-inline-lambda-call]
       [%test-in-subj-call-tokens test-tokenize:test-in-subj-call]
-      :: [%test-in-subj-call-jeam test-jeam:test-in-subj-call]
-      :: [%test-in-subj-call-mint test-mint:test-in-subj-call]
-      :: [%test-in-subj-call-nock test-nock:test-in-subj-call]
+      [%test-in-subj-call-jeam test-jeam:test-in-subj-call]
+      [%test-in-subj-call-mint test-mint:test-in-subj-call]
+      [%test-in-subj-call-nock test-nock:test-in-subj-call]
       [%test-if-else-tokens test-tokenize:test-if-else]
       [%test-if-else-jeam test-jeam:test-if-else]
       [%test-if-else-mint test-mint:test-if-else]
@@ -188,10 +186,6 @@
       [%test-compose-cores-jeam test-jeam:test-compose-cores]
       [%test-compose-cores-mint test-mint:test-compose-cores]
       [%test-compose-cores-nock test-nock:test-compose-cores]
-      :: [%test-baby-tokens test-tokenize:test-baby]
-      :: [%test-baby-jeam test-jeam:test-baby]
-      :: [%test-baby-mint test-mint:test-baby]
-      :: [%test-baby-nock test-nock:test-baby]
       [%test-comparator-tokens test-tokenize:test-comparator]
       [%test-comparator-jeam test-jeam:test-comparator]
       [%test-comparator-mint test-mint:test-comparator]

@@ -1,8 +1,12 @@
 let a = 1;
-let b = 2;
+let b = 41;
+let c = 43;
+let d = 6;
+let e = 7;
+let f = 252;
 
 (hoon.add(a b)
- hoon.sub(b a)
- hoon.mul(b b)
- hoon.div(b a)
+ hoon.sub(c a)
+ hoon.mul(d e)
+ hoon.div(f d)
 )

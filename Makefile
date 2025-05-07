@@ -20,7 +20,7 @@ PROFILE_DEV_DEBUG = --profile dev
 PROFILE_RELEASE = --profile release
 
 .PHONY: build
-build: build-dev-fast
+build: build-dev-debug
 
 .PHONY: release
 release: build-release
