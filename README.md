@@ -1,9 +1,9 @@
 # Jock, a friendly and practical programming language
 
-This is a developer preview of Jock, a friendly programming language that compiles to the Nock combinator calculus.
+This is a developer preview of Jock, a friendly programming language that compiles to the [Nock instruction set architecture](#nock).
 
 - [Jock language site](https://jock.org)
-- [Announcement post](https://zorp.io/blog/jock)
+- [@JockNockISA on X](https://x.com/JockNockISA)
 
 ![](./img/wordmark-logo.png)
 
@@ -13,9 +13,27 @@ Jock code results in Nock which can be run on any Nock VM ([Sword](https://githu
 
 ## Resources
 
+### Jock
+
 - [Jock tutorial repo](https://github.com/zorp-corp/jockapp-tutorial)
 - [Jock tutorial site](https://docs.jock.org/getting-started)
 - [Jock docs](https://docs.jock.org)
+- [@JockNockISA on X](https://x.com/JockNockISA)
+
+### Nock
+
+Nock serves as the instruction set architecture for [Nockchain](https://nockchain.org), [zkVM](https://zorp.io/), and [Urbit](https://urbit.org), among other projects.  The Nock ISA is a minimalist combinator calculus.  All computations are reduced to a set of twelve opcodes that are easy to reason about and make proofs about.
+
+- [Zorp, “Nock Definition”](https://zorp.io/nock/)
+- [Urbit, “Nock Definition” (with discussion)](https://docs.urbit.org/language/nock/reference/definition)
+- [~timluc-miptev, “Nock for Everyday Coders” (tutorial)](https://blog.timlucmiptev.space/part1.html)
+
+### NockApp
+
+The NockApp framework consists of Sword (formerly Ares), a runtime VM interpreter for Nock, the Crown Rust interface, and `choo`, which builds Nock programs from Jock or Hoon into executable standalones.
+
+- [NockApp in Nockchain](https://github.com/zorp-corp/nockchain)
+- [Announcement post](https://zorp.io/blog/nockapp-dev-alpha)
 
 ## Setup
 
@@ -74,5 +92,9 @@ Jock code results in Nock which can be run on any Nock VM ([Sword](https://githu
     ./target/release/jocktest test-all
     # - or -
     make release-test-all
-
     ```
+
+## Releases
+
+- [0.0.0-dp, Developer Preview](https://zorp.io/blog/jock), ~2024.10.24
+- 0.1.0-alpha, upcoming
