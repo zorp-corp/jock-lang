@@ -49,7 +49,16 @@ enum Command {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = TestCli::parse();
-    let mut nockapp = boot::setup(KERNEL_JAM, Some(cli.boot.clone()), &[], "jock")?;
+
+    let mut nockapp = boot::setup(
+        KERNEL_JAM,
+        Some(cli.boot.clone()),
+        &[],
+        "jockc",
+        None,
+    )
+    .await?;
+
     boot::init_default_tracing(&cli.boot.clone());
 
     let poke = match cli.command {

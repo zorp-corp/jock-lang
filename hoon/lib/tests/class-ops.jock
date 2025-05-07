@@ -1,0 +1,39 @@
+compose
+  class Point(x:@ y:@) {
+   add(p:(x:@ y:@)) -> Point {
+     (x + p.x
+      y + p.y)
+   }
+  }
+;
+
+let point-1 = Point(14 104);
+point-1 = point-1.add(28 38);
+(point-1.x() point-1.y())
+
+/*
+!=
+=>  mini=mini
+=>
+  ^=  door
+  |_  [x=@ y=@]
+  ++  add
+    |=  p=[x=@ y=@]
+    [(add:mini x x.p) (add:mini y y.p)]
+  --
+=/  point-1
+  ~(. door [14 104])
+=.  point-1  ~(. door (add:point-1 [28 38]))
+[+12 +13]:point-1
+
+!=
+=>  mini=mini
+=>
+  ^=  door
+  |_  [x=@ y=@]
+  ++  add
+    |=  p=[x=@ y=@]
+    [(add:mini x x.p) (add:mini y y.p)]
+  --
+~(. door [14 104])
+*/
