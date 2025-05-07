@@ -1,5 +1,5 @@
 [package]
-name = "jock-testing"
+name = "jocktest"
 version = "0.1.0"
 edition = "2021"
 
@@ -13,7 +13,7 @@ tokio = { version = "1.32", features = ["rt", "rt-multi-thread", "net", "macros"
 tracing = "0.1.41"
 
 [[bin]]
-name = "jock-testing"
+name = "jocktest"
 path = "main.rs"
 
 [profile.dev]

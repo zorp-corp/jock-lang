@@ -54,7 +54,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         KERNEL_JAM,
         Some(cli.boot.clone()),
         &[],
-        "jock-test",
+        "jocktest",
         None,
     )
     .await?;

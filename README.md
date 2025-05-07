@@ -5,33 +5,74 @@ This is a developer preview of Jock, a friendly programming language that compil
 - [Jock language site](https://jock.org)
 - [Announcement post](https://zorp.io/blog/jock)
 
-The Jock compiler is written in Hoon and runs on the NockApp architecture.
+![](./img/wordmark-logo.png)
 
-##  Prerequisites
+The Jock compiler is written in [Hoon](https://docs.urbit.org) and runs on the NockApp architecture, [part of Nockchain](https://github.com/zorp-corp/nockchain).
 
-Jock requires a `choo` NockApp executable.  The `Makefile` can retrieve the latest tagged `choo`.  For Linux, run the following:
+Jock code results in Nock which can be run on any Nock VM ([Sword](https://github.com/zorp-corp/sword), [Vere](https://github.com/urbit/vere)).
 
-```bash
-make update-choo
-```
+## Resources
 
-If you would like a nightly build of `choo`, or if you are using something other than Linux, [clone this repo](https://github.com/zorp-corp/nockapp) and build.
-Then copy the `choo` executable to the root folder.
+- [Jock tutorial repo](https://github.com/zorp-corp/jockapp-tutorial)
+- [Jock tutorial site](https://docs.jock.org/getting-started)
+- [Jock docs](https://docs.jock.org)
 
-## Building
+## Setup
 
-To build and run Jock with tests:
+1. Download and build `choo`, a NockApp compiler which forms part of Nockchain.
 
-```bash
-make release
+    - ​GitHub:  [zorp-corp/nockchain](https://github.com/zorp-corp/nockchain)
 
-# run all codes in /lib/tests
-./target/release/jock-testing exec-all
-# - or -
-make release-test-all
+    ```sh
+    make install-choo
+    ```
 
-# run specific code in /lib/tests
-./target/release/jock-testing test-n 0
-# - or -
-make test 0
-```
+2. In a separate location, download the Jock language repo (this repo).
+
+    - ​GitHub:  [zorp-corp/jock-lang](https://github.com/zorp-corp/jock-lang)
+
+3. Copy `choo` from `nockchain/target/build/release` to the root of `jock-lang`.
+
+    ```sh
+    cp nockchain/target/build/release/choo jock-lang/
+    ```
+
+4. Compile the examples:
+
+    ```sh
+    cd jockapp-tutorial
+    make release
+    ```
+
+5. Run one of the available demos from `/hoon/lib/tests`:
+
+    ```bash
+    ./target/release/jocktest test 0
+    # - or -
+    make test 0
+    ```
+
+    The demo will output several pieces of information:
+
+    1. `%parse`, the tokenization.
+    2. `%jeam`, the Jock abstract syntax tree (AST).
+    3. `%mint`, the compiled Nock (which will be rather long).
+    4. `%jype`, the Jock result type.
+    5. `%nock`, the evaluated Nock result, as an atom.
+
+    Alternatively, run all codes:
+
+    ```bash
+    ./target/release/jocktest exec-all
+    # - or -
+    make release-exec-all
+    ```
+
+    Or run all tests (slow):
+
+    ```bash
+    ./target/release/jocktest test-all
+    # - or -
+    make release-test-all
+
+    ```
