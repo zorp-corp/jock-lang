@@ -68,39 +68,23 @@ release-run-details:
 .PHONY: build-dev-fast
 build-dev-fast: ## Slower to compile, faster to execute. Builds all projects
 	@set -e; \
-	RUST_LOG=TRACE ./choo hoon/main.hoon hoon; \
+	RUST_LOG=TRACE MINIMAL_LOG_FORMAT=true ./choo hoon/main.hoon hoon; \
 	mv out.jam assets/jocktest.jam; \
-	cargo build $(PROFILE_DEV_FAST)
-
-.PHONY: build-parallel
-build-parallel: ## profiling profile with parallel feature enabled
-	@set -e; \
-	./choo hoon/main.hoon hoon; \
-	mv out.jam assets/jocktest.jam; \
-	cargo build $(FEATURES_PARALLEL) $(PROFILE_PROFILING)
+	MINIMAL_LOG_FORMAT=true cargo build $(PROFILE_DEV_FAST)
 
 .PHONY: build
 build-dev-debug: ## Fast to compile, slow to execute. Builds all projects
 	@set -e; \
-	RUST_LOG=TRACE ./choo --new --log-level trace hoon/main.hoon hoon; \
+	RUST_LOG=TRACE MINIMAL_LOG_FORMAT=true ./choo hoon/main.hoon hoon; \
 	mv out.jam assets/jocktest.jam; \
-	cargo build
+	MINIMAL_LOG_FORMAT=true cargo build $(PROFILE_DEV_FAST)
 
 .PHONY: build-release
 build-release: ## Slowest to compile, fastest to execute. Builds all projects
 	@set -e; \
-	RUST_LOG=TRACE ./choo hoon/main.hoon hoon; \
+	RUST_LOG=TRACE MINIMAL_LOG_FORMAT=true ./choo hoon/main.hoon hoon; \
 	mv out.jam assets/jocktest.jam; \
-	cargo build $(PROFILE_RELEASE)
-
-.PHONY: update-choo
-update-choo:
-	curl -L -o choo "$(CHOO_URL)/releases/download/$(CHOO_TAG)/choo"
-	chmod u+x choo
-
-.PHONY: choo-version
-choo-version:
-	@echo "Latest choo version: $(CHOO_TAG)"
+	MINIMAL_LOG_FORMAT=true cargo build $(PROFILE_DEV_FAST)
 
 .PHONY: clean
 clean: ## Clean all projects

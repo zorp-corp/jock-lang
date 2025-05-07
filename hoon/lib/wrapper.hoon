@@ -76,6 +76,8 @@
       (slog tang.goof.u.g)
     ::
         [[%poke ~] *]
+        :: [[%poke %one-punch @ ~] *]
+      ~&  ovum+ovum
       =/  ovum  ((soft ^ovum) ovum)
       ?~  ovum  ~&("invalid arg: {<ovum>}" ~^..poke)
       =/  o  ((soft input) input.u.ovum)

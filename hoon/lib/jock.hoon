@@ -2017,14 +2017,12 @@
             =/  ljs  (~(get-limb jt +.stn) +.limbs)
             ?~  ljs  ~|('leg not found' !!)
             :_  *jype
-            =-  ~&  >>>  -  -
             :+  %7
               (resolve-wing ljw)
               :: [%9 ;;(@ +:(resolve-wing ljw)) %0 1]
             :+  %7
               [%0 6]  :: door state is always at sample +6
             [%0 ;;(@ +>-.u.ljs)]
-            :: 7 [0 6] 7 [9 1 0 2] 0 3]
           ::
           ~|  %call-case-3
           ::  class method call in instance (case 3)
@@ -2049,8 +2047,18 @@
                   [%0 ;;(@ -.ljw)]
                 [%9 ;;(@ -<.ljg) [%0 1]]
               =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
+              :: okay
               [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
+              ::
             :_  out.p.p.p.u.gat
+            ::  NEAL trouble is here
+            ~&  >  ljw+ljw
+            ~&  >>  ljg+ljg
+            ~&  >>>  ljd+ljd
+:: 2025-05-01T18:44:15.288338Z  WARN slogger: [%ljw ~[2]]
+:: 2025-05-01T18:44:15.289534Z DEBUG slogger: [%ljg ~[[arm-axis=2 core-axis=3]]]
+:: 2025-05-01T18:44:15.290628Z TRACE slogger: [%ljd ~[6]]
+            =-  ~&(- -)
             :+  %8
               val
             :+  %8
