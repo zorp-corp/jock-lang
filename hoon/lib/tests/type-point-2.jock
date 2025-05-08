@@ -5,11 +5,11 @@ compose
       (x + p.x
        y + p.y)
     }
-    // return a cell
+/*    // return a cell
     add2(p:(x:@ y:@)) -> (@ @) {
       (x + p.x
        y + p.y)
-    }
+    }*/
     // return an atom
     inc(q:@) -> @ {
       +(q)
@@ -21,19 +21,28 @@ let origin = Point(12 23);
 origin.add(30 19)
 
 /*
+;;  nock
 !=
 =>  mini=mini
-=>
-  ^=  door
+=>  ^=  door
+  ::=/  state  ,[x=@ y=@]
   |_  [x=@ y=@]
   ++  add
     |=  p=[x=@ y=@]
-    (add:mini x x.p)
+    ~(. . [(add:mini x x.p) (add:mini y y.p)])
   ++  inc
     |=  q=@
     +(q)
   --
 =/  origin
   ~(. door [12 23])
+=/  origin
+  ~(. door +6:(add:origin [30 19]))
+origin
+
+=^  origin  origin
+  (add:origin [30 19])
+origin
+(add-2:origin 1 2)
 (add:origin [30 19])
 */

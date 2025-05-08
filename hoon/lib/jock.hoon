@@ -2055,17 +2055,17 @@
             ~&  >  ljw+ljw
             ~&  >>  ljg+ljg
             ~&  >>>  ljd+ljd
-:: 2025-05-01T18:44:15.288338Z  WARN slogger: [%ljw ~[2]]
-:: 2025-05-01T18:44:15.289534Z DEBUG slogger: [%ljg ~[[arm-axis=2 core-axis=3]]]
-:: 2025-05-01T18:44:15.290628Z TRACE slogger: [%ljd ~[6]]
             =-  ~&(- -)
             :+  %8
-              val
-            :+  %8
-              [%0 7]  :: [%0 7]
+              [%0 3] ::XXX
             :+  %10
-              [6 (resolve-wing ljd)]  :: [6 %0 6]
-            [%0 2]  :: should be okay
+              :-  6
+              :+  %7
+                [%0 3]
+              :+  %7
+                val
+              [%0 6]
+            [%0 2]
           :: Output is a regular type.
           ^-  [nock jype]
           :_  out.p.p.p.u.gat
