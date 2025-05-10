@@ -989,7 +989,8 @@
       ?>  =(%name +<-.tokens)
       ;;(term +<+.tokens)
     =?  tokens  (has-keyword -.tokens %as)  +>.tokens
-    ?>  (got-punctuator -.tokens %';')
+    ?>  ~|  'expected terminator ; after import'
+      (got-punctuator -.tokens %';')
     =^  q  tokens
       (match-jock +.tokens)
     :_  tokens
@@ -997,6 +998,7 @@
   ::
       %crash
     [[%crash ~] tokens]
+  ::
   ==
 ::
 ::  Match tokens into jype information.
@@ -1686,6 +1688,8 @@
     ::
         %method
       =+  [val val-jyp]=$(j body.j)
+      :: ~&  val+val
+      :: ~&  >  val-jyp+val-jyp
       =.  jyp
         =/  inferred-type
           (~(unify jt type.j) val-jyp)
@@ -2019,7 +2023,6 @@
             :_  *jype
             :+  %7
               (resolve-wing ljw)
-              :: [%9 ;;(@ +:(resolve-wing ljw)) %0 1]
             :+  %7
               [%0 6]  :: door state is always at sample +6
             [%0 ;;(@ +>-.u.ljs)]
@@ -2047,7 +2050,6 @@
                   [%0 ;;(@ -.ljw)]
                 [%9 ;;(@ -<.ljg) [%0 1]]
               =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
-              :: okay
               [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
               ::
             :_  out.p.p.p.u.gat

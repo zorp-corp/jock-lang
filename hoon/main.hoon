@@ -8,6 +8,7 @@
 +$  cause
   $%  [%test n=@]
       [%test-all ~]
+      [%exec n=@]
       [%exec-all ~]
       [%parse-all ~]
       [%jeam-all ~]
@@ -45,7 +46,7 @@
   ?~  soft-cau  ~|("could not mold poke type: {<cause>}" !!)
   =/  c=^cause  u.soft-cau
   ?-    -.c
-      %test
+      %exec
     ?.  (gth (lent list-jocks:test-jock) n.c)
       ~&  >>>  "index out of range: {<n.c>}"
       [~ k]
@@ -62,6 +63,11 @@
   ::
       %exec-all
     ~&  exec-all:test-jock
+    [~ k]
+  ::
+      %test
+    ~&  "testing {<n.c>}"
+    ~&  (test:test-jock n.c)
     [~ k]
   ::
       %test-all

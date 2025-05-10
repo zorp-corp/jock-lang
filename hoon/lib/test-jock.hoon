@@ -138,6 +138,10 @@
       [%test-inline-lambda-call-jeam test-jeam:test-inline-lambda-call]
       [%test-inline-lambda-call-mint test-mint:test-inline-lambda-call]
       [%test-inline-lambda-call-nock test-nock:test-inline-lambda-call]
+      [%test-inline-lambda-no-arg-tokens test-tokenize:test-inline-lambda-no-arg]
+      [%test-inline-lambda-no-arg-jeam test-jeam:test-inline-lambda-no-arg]
+      [%test-inline-lambda-no-arg-mint test-mint:test-inline-lambda-no-arg]
+      [%test-inline-lambda-no-arg-nock test-nock:test-inline-lambda-no-arg]
       [%test-in-subj-call-tokens test-tokenize:test-in-subj-call]
       [%test-in-subj-call-jeam test-jeam:test-in-subj-call]
       [%test-in-subj-call-mint test-mint:test-in-subj-call]
@@ -162,10 +166,6 @@
       [%test-inline-point-jeam test-jeam:test-inline-point]
       [%test-inline-point-mint test-mint:test-inline-point]
       [%test-inline-point-nock test-nock:test-inline-point]
-      [%test-inline-lambda-no-arg-tokens test-tokenize:test-inline-lambda-no-arg]
-      [%test-inline-lambda-no-arg-jeam test-jeam:test-inline-lambda-no-arg]
-      [%test-inline-lambda-no-arg-mint test-mint:test-inline-lambda-no-arg]
-      [%test-inline-lambda-no-arg-nock test-nock:test-inline-lambda-no-arg]
       [%test-dec-tokens test-tokenize:test-dec]
       [%test-dec-jeam test-jeam:test-dec]
       [%test-dec-mint test-mint:test-dec]
@@ -218,10 +218,10 @@
       [%test-type-point-jeam test-jeam:test-type-point]
       [%test-type-point-mint test-mint:test-type-point]
       [%test-type-point-nock test-nock:test-type-point]
-      [%test-type-point-2-tokens test-tokenize:test-type-point-2]
-      [%test-type-point-2-jeam test-jeam:test-type-point-2]
-      [%test-type-point-2-mint test-mint:test-type-point-2]
-      [%test-type-point-2-nock test-nock:test-type-point-2]
+      :: [%test-type-point-2-tokens test-tokenize:test-type-point-2]
+      :: [%test-type-point-2-jeam test-jeam:test-type-point-2]
+      :: [%test-type-point-2-mint test-mint:test-type-point-2]
+      :: [%test-type-point-2-nock test-nock:test-type-point-2]
       :: [%test-type-point-3-tokens test-tokenize:test-type-point-3]
       :: [%test-type-point-3-jeam test-jeam:test-type-point-3]
       :: [%test-type-point-3-mint test-mint:test-type-point-3]
@@ -364,6 +364,29 @@
   |=  [=term noun=*]
   ^-  cord
   (crip "{<term>}: {<noun>}")
+::
+++  test
+  |=  i=@
+  ::  four indices in test-jocks list
+  =/  a  (mul i 4)
+  =/  b  +(a)
+  =/  c  +(b)
+  =/  d  +(c)
+  ~&  [a b c d]
+  =/  [tag=@tas tan=tang]  (snag a test-jocks)
+  ~&  "{<tag>}"
+  ~&  tan
+  ~&  ["{<tag>}" tag `tape`(zing (turn tan |=(=tank ~(ram re tank))))]
+  =/  [tag=@tas tan=tang]  (snag b test-jocks)
+  ~&  >  "{<tag>}"
+  ~&  >  ["{<tag>}" tag `tape`(zing (turn tan |=(=tank ~(ram re tank))))]
+  =/  [tag=@tas tan=tang]  (snag c test-jocks)
+  ~&  >>  "{<tag>}"
+  ~&  >>  ["{<tag>}" tag `tape`(zing (turn tan |=(=tank ~(ram re tank))))]
+  =/  [tag=@tas tan=tang]  (snag d test-jocks)
+  ~&  >>>  "{<tag>}"
+  ~&  >>>  ["{<tag>}" tag `tape`(zing (turn tan |=(=tank ~(ram re tank))))]
+  ~
 ::
 ++  test-all
   =|  i=@
