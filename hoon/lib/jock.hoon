@@ -1893,12 +1893,19 @@
         ::  At this point it's looking for a %core (either func or class).
         ::  We need to resolve several cases (in no particular order):
         ::    1. func function (single jlimb)
+        ::       func(args)
         ::    2. class constructor (one jlimb) (single or multiple args)
+        ::       Type(state)
         ::    3. class method (in instance) (two jlimbs, first a name)
+        ::       instance.method(args)
         ::    4. lambda function (assigned to variable) (single jlimb)
+        ::       lambda(args)->out{}
         ::    5. class method (from other method)
+        ::       method(args)
         ::    6. library call (at least two jlimbs, the first being a library name)
+        ::       library.func(args)
         ::    7. class instance leg (single jlimb, name in state)
+        ::       instance.state()
         ::
         =/  [typ=jype ljl=(list jlimb) ljw=(list jwing)]
           ?.  =([%axis 0] -.limbs)
@@ -1914,6 +1921,7 @@
         ::
         ?:  !=(~ ljl)
           ::  case 6, library call
+          ::    library.func(args)
           ::  Construct a gate call from the rest of the limbs.
           ::  We have to +slam the gate into the Hoon library,
           ::  thus two separate wings.
@@ -1949,6 +1957,7 @@
         ::
         ::  class constructor (case 2), multiple arguments
         ::  [%call func=[%limb p=(list jlimb)] arg=(unit jock)]
+        ::    Type(state)
         ?^  -<.typ
           ~|  %call-case-2-args
           ?:  ?=(%type -<.limbs)
@@ -1980,7 +1989,8 @@
           u.inferred-type
         ::
         ::  class method call by constructor (case 2), single argument
-        ::  [%call func=[%limb p=(list jlimb)] arg=(unit jock)]
+        ::    [%call func=[%limb p=(list jlimb)] arg=(unit jock)]
+        ::    Type(state)
         ?.  ?=(%core -.p.typ)
           ?:  ?=(%type -<.limbs)
             ~|  %call-case-2
@@ -2014,7 +2024,8 @@
           =/  gat-lim  (~(get-limb jt dyp) +.limbs)
           ?~  gat-lim
             ~|  %call-case-7
-            ::  Check in state for getter.
+            ::  Getter for state variables.
+            ::    instance.state()
             =/  sta  -<.dyp
             ?>  ?=(%state -<.sta)
             =/  stn  p.p.sta
@@ -2029,6 +2040,7 @@
           ::
           ~|  %call-case-3
           ::  class method call in instance (case 3)
+          ::    instance.method(args)
           ::  In this case, we have located the class instance
           ::  but now need the method and the argument to construct
           ::  the Nock.
@@ -2081,6 +2093,7 @@
           [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
         ::
         ::  traditional function call (case 1)
+        ::    func(args)
         ?:  ?=(%& -.p.p.typ)
           ~|  %call-case-1
           :_  out.p.p.p.typ
@@ -2091,20 +2104,25 @@
             =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
             [%9 2 %10 [6 [%7 [%0 1] arg]] %0 1]
           ?~  arg.j
+            :: no or default args
             (resolve-wing ljw)
+          :: supplied args, mutate sample
           :+  %8
             (resolve-wing ljw)
           =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
           [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
         ::
         ::  lambda function call (case 4)
+        ::    lambda(args)->out{}
         ?>  &(=(1 (lent p.func.j)) !?=(%type -<.limbs))
         ~|  %call-case-4
         :_  =/  gat  ;;([%core p=core-body q=(unit jype)] -:(~(got by p.p.p.typ) +:(snag 0 p.func.j)))
             ?>  ?=(%& -.p.gat)
             out.p.p.gat
         ?~  arg.j
+          :: no or default args
           (resolve-wing ljw)
+        :: supplied args, mutate sample
         :+  %8
           (resolve-wing ljw)
         =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)

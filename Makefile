@@ -35,6 +35,16 @@ test:
 	RUST_LOG=TRACE cargo run $(PROFILE_RELEASE) -- --new test $(word 2,$(MAKECMDGOALS))
 	@exit 0
 
+.PHONY: exec
+exec:
+	@if [ $(words $(MAKECMDGOALS)) -lt 2 ]; then \
+		echo "Usage: make exec <number>"; \
+		exit 1; \
+	fi
+	$(call show_env_vars)
+	RUST_LOG=TRACE cargo run $(PROFILE_RELEASE) -- --new exec $(word 2,$(MAKECMDGOALS))
+	@exit 0
+
 %::
 	@:
 
