@@ -1,14 +1,14 @@
 compose
-  class Point(x:@ y:@) {
-    add(p:(x:@ y:@)) -> Point {
+  class Point(x:Atom y:Atom) {
+    add(p:(x:Atom y:Atom)) -> Point {
       (x + p.x
        y + p.y)
     }
-    add-cell(p:(x:@ y:@)) -> (@ @) {
+    add-cell(p:(x:Atom y:Atom)) -> (@ @) {
       (x + p.x
        y + p.y)
     }
-    inc(q:@) -> @ {
+    inc(q:Atom) -> @ {
       +(q)
     }
   }

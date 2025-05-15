@@ -63,20 +63,20 @@ release-test-all:
 .PHONY: build
 build-dev-debug:
 	$(call show_env_vars)
-	RUST_LOG=trace ./choo hoon/main.hoon hoon; \
+	RUST_LOG=trace ./hoonc hoon/main.hoon hoon; \
 	mv out.jam assets/jocktest.jam; \
 	cargo build $(PROFILE_DEV_DEBUG)
 
 .PHONY: build-release
 build-release:
 	$(call show_env_vars)
-	RUST_LOG=trace ./choo hoon/main.hoon hoon; \
+	RUST_LOG=trace ./hoonc hoon/main.hoon hoon; \
 	mv out.jam assets/jocktest.jam; \
 	cargo build $(PROFILE_RELEASE)
 
 .PHONY: clean
 clean: ## Clean all projects
 	@set -e; \
-	rm -rf .data.choo/ ; \
+	rm -rf .data.hoonc/ ; \
 	rm -rf target/ ; \
 	cargo clean

@@ -30,29 +30,29 @@ Nock serves as the instruction set architecture for [Nockchain](https://nockchai
 
 ### NockApp
 
-The NockApp framework consists of Sword (formerly Ares), a runtime VM interpreter for Nock, the Crown Rust interface, and `choo`, which builds Nock programs from Jock or Hoon into executable standalones.
+The NockApp framework consists of Sword (formerly Ares), a runtime VM interpreter for Nock, the Crown Rust interface, and `hoonc`, which builds Nock programs from Jock or Hoon into executable standalones.
 
 - [NockApp in Nockchain](https://github.com/zorp-corp/nockchain)
 - [Announcement post](https://zorp.io/blog/nockapp-dev-alpha)
 
 ## Setup
 
-1. Download and build `choo`, a NockApp compiler which forms part of Nockchain.
+1. Download and build `hoonc`, a NockApp compiler which forms part of Nockchain.
 
     - ​GitHub:  [zorp-corp/nockchain](https://github.com/zorp-corp/nockchain)
 
     ```sh
-    make install-choo
+    make install-hoonc
     ```
 
 2. In a separate location, download the Jock language repo (this repo).
 
     - ​GitHub:  [zorp-corp/jock-lang](https://github.com/zorp-corp/jock-lang)
 
-3. Copy `choo` from `nockchain/target/build/release` to the root of `jock-lang`.
+3. Copy `hoonc` from `nockchain/target/build/release` to the root of `jock-lang`.
 
     ```sh
-    cp nockchain/target/build/release/choo jock-lang/
+    cp nockchain/target/build/release/hoonc jock-lang/
     ```
 
 4. Compile the examples:
@@ -65,9 +65,9 @@ The NockApp framework consists of Sword (formerly Ares), a runtime VM interprete
 5. Run one of the available demos from `/hoon/lib/tests`:
 
     ```bash
-    ./target/release/jocktest test 0
+    ./target/release/jocktest exec 0
     # - or -
-    make test 0
+    make exec 0
     ```
 
     The demo will output several pieces of information:
@@ -84,6 +84,14 @@ The NockApp framework consists of Sword (formerly Ares), a runtime VM interprete
     ./target/release/jocktest exec-all
     # - or -
     make release-exec-all
+    ```
+
+    Run a single test:
+
+    ```bash
+    ./target/release/jocktest test 25
+    # - or -
+    make test 25
     ```
 
     Or run all tests (slow):

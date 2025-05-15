@@ -732,6 +732,13 @@
     ->.tokens
   =/  nom  (get-name -.tokens)
   ?~  nom  ~|("expect name. token: {<-.tokens>}" !!)
+  ::  Short-circuit on built-in primitive types
+  ?:  =('Atom' u.nom)    [[%atom %number %.n]^u.nom +.tokens]
+  ?:  =('Uint' u.nom)    [[%atom %number %.n]^u.nom +.tokens]
+  ?:  =('Uhex' u.nom)    [[%atom %hexadecimal %.n]^u.nom +.tokens]
+  ?:  =('String' u.nom)  [[%atom %string %.n]^u.nom +.tokens]
+  ?:  =('Loob' u.nom)    [[%atom %loobean %.n]^u.nom +.tokens]
+  ::
   =.  tokens  +.tokens
   ?.  =([%punctuator %'(('] -.tokens)
     ::  XXX fix when finishing type TODO
@@ -2068,6 +2075,9 @@
                 [%9 ;;(@ -<.ljg) [%0 1]]
               =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
               [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
+            ~&  >>>  j+j
+            ~&  >>>  val+val
+            ::  if this is a `%let` then we just want the val
             :_  out.p.p.p.u.gat
             :+  %10
               [6 val]
