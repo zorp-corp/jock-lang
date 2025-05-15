@@ -1974,7 +1974,9 @@
             :_  u.inferred-type
             :+  %8
               [%0 1]
-            [%10 [6 %7 [%0 3] val] (resolve-wing ljw)]
+            :+  %10
+              [6 %7 [%0 3] val]
+            (resolve-wing ljw)
           ::
           ?>  ?=(%name -<.limbs)
           ?~  arg.j  ~|("expect method argument" !!)
@@ -2052,6 +2054,9 @@
           ?>  ?=(%core -<.u.gat)
           ?.  ?=(%& -.p.p.u.gat)  ~|("method cannot be lambda" !!)
           =/  dor-nom  -<+.dyp  :: class name, used to determine return type
+          ~&  >  name+name.out.p.p.p.u.gat
+          ~&  >>  door+dor-nom
+          =-  ~&(- -)
           ?:  =(name.out.p.p.p.u.gat dor-nom)
             :: Output should be an instance.
             ^-  [nock jype]
@@ -2063,22 +2068,9 @@
                 [%9 ;;(@ -<.ljg) [%0 1]]
               =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
               [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
-              ::
             :_  out.p.p.p.u.gat
-            ::  NEAL trouble is here
-            ~&  >  ljw+ljw
-            ~&  >>  ljg+ljg
-            ~&  >>>  ljd+ljd
-            =-  ~&(- -)
-            :+  %8
-              [%0 3] ::XXX
             :+  %10
-              :-  6
-              :+  %7
-                [%0 3]
-              :+  %7
-                val
-              [%0 6]
+              [6 val]
             [%0 2]
           :: Output is a regular type.
           ^-  [nock jype]

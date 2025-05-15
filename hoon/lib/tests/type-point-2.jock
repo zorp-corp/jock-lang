@@ -1,48 +1,45 @@
 compose
   class Point(x:@ y:@) {
-    // return an instance
-    add(p:(x:@ y:@)) -> Point {
-      (x + p.x
-       y + p.y)
-    }
-/*    // return a cell
-    add2(p:(x:@ y:@)) -> (@ @) {
-      (x + p.x
-       y + p.y)
-    }*/
-    // return an atom
-    inc(q:@) -> @ {
-      +(q)
-    }
+   add(p:(x:@ y:@)) -> Point {
+     (x + p.x
+      y + p.y)
+   }
+   sub(p:(x:@ y:@)) -> Point {
+     (x - p.x
+      y - p.y)
+   }
   }
 ;
 
-let origin = Point(12 23);
-origin.add(30 19)
+let point-1 = Point(104 124);
+point-1 = point-1.add(38 38);
+let point-2 = Point(30 40);
+point-2 = point-2.add(212 302);
+point-1 = point-1.sub(100 20);
+( (point-1.x() point-1.y())
+  (point-2.x() point-2.y())
+)
 
 /*
-;;  nock
+::  Hoon equivalent program
 !=
 =>  mini=mini
-=>  ^=  door
-  ::=/  state  ,[x=@ y=@]
+=>
+  ^=  door
   |_  [x=@ y=@]
   ++  add
     |=  p=[x=@ y=@]
-    ~(. . [(add:mini x x.p) (add:mini y y.p)])
-  ++  inc
-    |=  q=@
-    +(q)
+    ~(. +> [(add:mini x x.p) (add:mini y y.p)])
+  ++  sub
+    |=  p=[x=@ y=@]
+    ~(. +> [(sub:mini x x.p) (sub:mini y y.p)])
   --
-=/  origin
-  ~(. door [12 23])
-=/  origin
-  ~(. door +6:(add:origin [30 19]))
-origin
-
-=^  origin  origin
-  (add:origin [30 19])
-origin
-(add-2:origin 1 2)
-(add:origin [30 19])
+=/  point-1
+  ~(. door [104 124])
+=.  point-1  (add:point-1 [38 38])
+=/  point-2
+  ~(. door [30 40])
+=.  point-2  (add:point-2 [212 302])
+=.  point-1  (sub:point-1 [100 20])
+[[+12 +13]:point-1 [+12 +13]:point-2]
 */

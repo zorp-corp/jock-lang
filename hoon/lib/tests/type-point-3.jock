@@ -17,11 +17,10 @@ compose
 let one = Point(2 13);
 let two = one.add(30 19);
 let three = one.inc(41);
-two.add-cell(10 10)
+(two.add-cell(10 10) three)
 
 /*
-:: notice that in this Hoon, pigeon is the sample
-:: while in Jock it's an instance ~(. door pigeon)
+::  Hoon equivalent program
 !=
 =>  mini=mini
 =>
@@ -29,13 +28,17 @@ two.add-cell(10 10)
   |_  [x=@ y=@]
   ++  add
     |=  p=[x=@ y=@]
+    ~(. +> [(add:mini x x.p) (add:mini y y.p)])
+  ++  add-cell
+    |=  p=[x=@ y=@]
     [(add:mini x x.p) (add:mini y y.p)]
   ++  inc
     |=  q=@
     +(q)
   --
-=/  origin
-  ~(. door [50 40])
-=/  pigeon  (add:origin [70 80])
-~(. door pigeon)
+=/  one
+  ~(. door [2 13])
+=/  two  (add:one [30 19])
+=/  three  (inc:one 41)
+[(add-cell:two [10 10]) three]
 */
