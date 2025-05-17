@@ -869,12 +869,8 @@
         :-  %lambda
         [[`inp out] body ~]
       $(arms (~(put by arms) name.type [%method type body]))
-    :: ?>  (got-punctuator -.tokens %';')
-    :: =^  next  tokens
-    ::   (match-jock +.tokens)
     :_  tokens
     [%class state=state arms=arms]
-    :: [%class state=state arms=arms next=next]
   ::
   ::  if (a < b) { +(a) } else { +(b) }
   ::  [%if cond=jock then=jock after-if=after-if-expression]
@@ -1675,8 +1671,11 @@
         =?  inferred-type  ?=(%limb -<.type.j)
           `u.inferred-type(name name.type.j)
         (~(cons jt u.inferred-type) jyp)
+      ~&  >  'here'
+      ~&  next+next.j
       ~|  %let-next
       =+  [nex nex-jyp]=$(j next.j)
+      ~&  >  'there'
       [[%8 val nex] nex-jyp]
     ::
         %func
@@ -1695,17 +1694,6 @@
     ::
         %method
       =+  [val val-jyp]=$(j body.j)
-      :: ~&  val+val
-      :: ~&  >  val-jyp+val-jyp
-      =.  jyp
-        =/  inferred-type
-          (~(unify jt type.j) val-jyp)
-        ?~  inferred-type
-          ~|  '%func: value type does not nest in declared type'
-          ~|  ['have:' val-jyp 'need:' type.j]
-          !!
-        (~(cons jt u.inferred-type) jyp)
-        :: (~(cons jt jyp) u.inferred-type)
       [val val-jyp]
     ::
         %class
@@ -1756,6 +1744,8 @@
       ~|  %edit-next
       ?>  ?=(^ (~(unify jt typ) val-jyp))
       =+  [nex nex-jyp]=$(j next.j)
+      =?  val  (is-type name.val-jyp)
+        [%10 [6 val] [%0 2]]
       [[%7 [%10 [axi val] %0 1] nex] nex-jyp]
     ::
         %increment
@@ -1778,14 +1768,14 @@
     ::
         %object
       ~|  %object
-      =/  pay=(unit (pair nock jype))
+      =/  con=(unit (pair nock jype))
         ?~  q.j
           ::  TODO: should I put `jyp here?
           ~
         `$(j u.q.j)
       =/  exe-jyp=jype
         ::  TODO: should we default to `jyp?
-        [%core %|^(~(run by p.j) |=(* untyped-j)) ?~(pay ~ `q.u.pay)]^%$
+        [%core %|^(~(run by p.j) |=(* untyped-j)) ?~(con ~ `q.u.con)]^%$
       =/  lis=(list [name=term val=jock])  ~(tap by p.j)
       ?>  ?=(^ lis)
       =+  [cor-nok one-jyp]=$(j val.i.lis, jyp exe-jyp)
@@ -1795,11 +1785,11 @@
       =>  .(lis `(list [name=term val=jock])`+.lis)
       |-
       ?~  lis
-        ?~  pay
+        ?~  con
           :-  [%1 cor-nok]
           [%core %|^cor-jyp ~]^%$
-        :-  [[%1 cor-nok] p.u.pay]
-        [%core %|^cor-jyp `q.u.pay]^%$
+        :-  [[%1 cor-nok] p.u.con]
+        [%core %|^cor-jyp `q.u.con]^%$
       =+  [mor-nok mor-jyp]=^$(j val.i.lis, jyp exe-jyp)
       %_    $
         lis      t.lis
@@ -1896,6 +1886,7 @@
         =/  old-jyp  jyp
         ~|  %call-limb
         =/  limbs=(list jlimb)  p.func.j
+        ~&  call-limbs+limbs
         ?>  ?=(^ limbs)
         ::  At this point it's looking for a %core (either func or class).
         ::  We need to resolve several cases (in no particular order):
@@ -2053,43 +2044,55 @@
           ::  In this case, we have located the class instance
           ::  but now need the method and the argument to construct
           ::  the Nock.
+          ~&  'case 3 here'
+          ~&  >  ljw+ljw
+          ~&  >  ljl+ljl
           ?>  ?=(%& -.u.gat-lim)
           =/  gat-jyp=jype  p.p.u.gat-lim
           =/  ljg=(list jwing)  q.p.u.gat-lim
           =/  gat  (~(get by p.p.p.cyp) gat-nom)
+          ~&  >  gat+gat-nom
           ?~  gat  ~|("gate not found: {<gat-nom>} in {<name.typ>}" !!)
+          ~&  'thru'
+          ~&  gat+gat
+          ~&  >  jype+gat-jyp
           ?>  ?=(%core -<.u.gat)
+          ~&  >  'here'
           ?.  ?=(%& -.p.p.u.gat)  ~|("method cannot be lambda" !!)
+          ~&  >>  'here'
           =/  dor-nom  -<+.dyp  :: class name, used to determine return type
-          ~&  >  name+name.out.p.p.p.u.gat
-          ~&  >>  door+dor-nom
+          ~&  >>>  'here'
           =-  ~&(- -)
-          ?:  =(name.out.p.p.p.u.gat dor-nom)
-            :: Output should be an instance.
-            ^-  [nock jype]
-            ?~  arg.j  ~|("expect method argument" !!)
-            =/  val
-              :+  %8
-                :+  %7
-                  [%0 ;;(@ -.ljw)]
-                [%9 ;;(@ -<.ljg) [%0 1]]
-              =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
-              [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
-            ~&  >>>  j+j
-            ~&  >>>  val+val
-            ::  if this is a `%let` then we just want the val
-            :_  out.p.p.p.u.gat
-            :+  %10
-              [6 val]
-            [%0 2]
-          :: Output is a regular type.
+          :: ?:  =(name.out.p.p.p.u.gat dor-nom)
+          ::   :: Output should be an instance.
+          ::   ~&  'this branch'
+          ::   ^-  [nock jype]
+          ::   ?~  arg.j  ~|("expect method argument" !!)
+          ::   =/  val
+          ::     :+  %8
+          ::       :+  %7
+          ::         [%0 ;;(@ -.ljw)]
+          ::       [%9 ;;(@ -<.ljg) [%0 1]]
+          ::     =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
+          ::     [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
+          ::   ~&  >>>  j+j
+          ::   ~&  >>>  val+val
+          ::   ::  if this is a `%let` then we just want the val
+          ::   :_  out.p.p.p.u.gat
+          ::   val
+          ::   :: :+  %10
+          ::   ::   [6 val]
+          ::   :: [%0 2]
+          :: :: Output is a regular type.
+          ~&  'that branch'
           ^-  [nock jype]
           :_  out.p.p.p.u.gat
           ?~  arg.j
             (resolve-wing ljd)
           :+  %8
             :+  %7
-                [%0 (peg ;;(@ -.ljw) 2)]
+                [%0 ;;(@ -.ljw)]
+                :: [%0 (peg ;;(@ -.ljw) 2)]
               [%9 ;;(@ -<.ljg) [%0 1]]
           =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
           [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
@@ -2220,19 +2223,50 @@
         %lambda
       ~|  %enter-lambda
       ?>  ?=(^ inp.arg.p.j)
-      =/  pay=(unit (pair nock jype))
+      =/  con=(unit (pair nock jype))
         ?~  context.p.j  ~
         `$(j u.context.p.j)
       =/  input-default  (type-to-default u.inp.arg.p.j)
       ~|  %enter-lambda-body
       ::  TODO: wtf?
-      =/  lam-jyp  (lam-j arg.p.j ?~(pay `jyp `q.u.pay))
+      =/  lam-jyp  (lam-j arg.p.j ?~(con `jyp `q.u.con))
+      ::  1. Get body jype
       =+  [body body-jyp]=$(j body.p.j, jyp lam-jyp)
-      ?~  pay
+      =-  ~&  >>>  lambda+[-<]  -
+      ?:  (is-type name.out.arg.p.j)
+        ::  2. Check nesting in class state if out is type
+          ?>  ?=(%limb -<.out.arg.p.j)
+          =/  lim  ->.out.arg.p.j
+          =/  typ  (~(get-limb jt lam-jyp) lim)
+          ?~  typ  ~|('type not found' !!)
+          ?>  ?=(%& -.u.typ)
+          =/  cor  p.p.u.typ
+          ?>  ?=(%core -<.cor)
+          =/  con-0  p.cor
+          ?~  q.con-0  ~|('type context not found' !!)
+          =/  con-1  u.q.con-0
+          ?>  ?=(%core -<.con-1)
+          =/  con-2  +.p.con-1
+          ?~  q.con-2  ~|('type context not found' !!)
+          =/  con-3  -.u.q.con-2
+          =/  sta  ;;(jype -.con-3)
+          =/  uni-jyp  (~(unify jt sta) body-jyp)
+          ?~  uni-jyp
+            ~|  '%lambda: body value type does not nest in method type'
+            ~|  "have: {<uni-jyp>}\0aneed: {<typ>}"
+            !!
+          :_  u.uni-jyp
+          ::  3. Build custom Nock return
+          :+  %8
+            [%0 7]
+          :+  %10
+            [6 [%7 [%0 3] body]]
+          [%0 2]
+      ?~  con
         :_  (lam-j arg.p.j `jyp)
         [%8 input-default [%1 body] %0 1]  ::  XXX for subject
-      :_  (lam-j arg.p.j `q.u.pay)
-      [%8 input-default [%1 body] p.u.pay]
+      :_  (lam-j arg.p.j `q.u.con)
+      [%8 input-default [%1 body] p.u.con]
     ::
         %list
       ~|  %list
