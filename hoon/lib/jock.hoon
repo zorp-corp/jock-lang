@@ -869,12 +869,8 @@
         :-  %lambda
         [[`inp out] body ~]
       $(arms (~(put by arms) name.type [%method type body]))
-    :: ?>  (got-punctuator -.tokens %';')
-    :: =^  next  tokens
-    ::   (match-jock +.tokens)
     :_  tokens
     [%class state=state arms=arms]
-    :: [%class state=state arms=arms next=next]
   ::
   ::  if (a < b) { +(a) } else { +(b) }
   ::  [%if cond=jock then=jock after-if=after-if-expression]
@@ -1672,8 +1668,8 @@
           ~|  '%let: value type does not nest in declared type'
           ~|  "have: {<val-jyp>}\0aneed: {<type.j>}"
           !!
-        =?  inferred-type  ?=(%limb -<.type.j)
-          `u.inferred-type(name name.type.j)
+        :: =?  inferred-type  ?=(%limb -<.type.j)
+        ::   `u.inferred-type(name name.type.j)
         (~(cons jt u.inferred-type) jyp)
       ~|  %let-next
       =+  [nex nex-jyp]=$(j next.j)
@@ -1753,9 +1749,14 @@
         [p.p.u.res i.q.p.u.res]
       ~|  %edit-value
       =+  [val val-jyp]=$(j val.j)
+      ~&  edit-val-jyp+val-jyp
       ~|  %edit-next
+      ::  assert type compatibility
       ?>  ?=(^ (~(unify jt typ) val-jyp))
+      ::  expose updated value address
       =+  [nex nex-jyp]=$(j next.j)
+      :: =?  val  (is-type name.val-jyp)
+      ::   [%10 [6 val] [%0 2]]
       [[%7 [%10 [axi val] %0 1] nex] nex-jyp]
     ::
         %increment
@@ -1980,10 +1981,11 @@
             =.  inferred-type  `u.inferred-type(name ->.limbs)
             :_  u.inferred-type
             :+  %8
-              [%0 1]
+              ::  parent of axis
+              [%0 (div ;;(@ +:(resolve-wing ljw)) 2)]
             :+  %10
               [6 %7 [%0 3] val]
-            (resolve-wing ljw)
+            [%0 2]
           ::
           ?>  ?=(%name -<.limbs)
           ?~  arg.j  ~|("expect method argument" !!)
@@ -2061,27 +2063,27 @@
           ?>  ?=(%core -<.u.gat)
           ?.  ?=(%& -.p.p.u.gat)  ~|("method cannot be lambda" !!)
           =/  dor-nom  -<+.dyp  :: class name, used to determine return type
-          ~&  >  name+name.out.p.p.p.u.gat
-          ~&  >>  door+dor-nom
-          =-  ~&(- -)
-          ?:  =(name.out.p.p.p.u.gat dor-nom)
-            :: Output should be an instance.
-            ^-  [nock jype]
-            ?~  arg.j  ~|("expect method argument" !!)
-            =/  val
-              :+  %8
-                :+  %7
-                  [%0 ;;(@ -.ljw)]
-                [%9 ;;(@ -<.ljg) [%0 1]]
-              =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
-              [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
-            ~&  >>>  j+j
-            ~&  >>>  val+val
-            ::  if this is a `%let` then we just want the val
-            :_  out.p.p.p.u.gat
-            :+  %10
-              [6 val]
-            [%0 2]
+          :: ~&  >  name+name.out.p.p.p.u.gat
+          :: ~&  >>  door+dor-nom
+          :: =-  ~&(- -)
+          :: ?:  =(name.out.p.p.p.u.gat dor-nom)
+          ::   :: Output should be an instance.
+          ::   ^-  [nock jype]
+          ::   ?~  arg.j  ~|("expect method argument" !!)
+          ::   =/  val
+          ::     :+  %8
+          ::       :+  %7
+          ::         [%0 ;;(@ -.ljw)]
+          ::       [%9 ;;(@ -<.ljg) [%0 1]]
+          ::     =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
+          ::     [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
+          ::   ~&  >>>  j+j
+          ::   ~&  >>>  val+val
+          ::   ::  if this is a `%let` then we just want the val
+          ::   :_  out.p.p.p.u.gat
+          ::   :+  %10
+          ::     [6 val]
+          ::   [%0 2]
           :: Output is a regular type.
           ^-  [nock jype]
           :_  out.p.p.p.u.gat
@@ -2089,8 +2091,10 @@
             (resolve-wing ljd)
           :+  %8
             :+  %7
-                [%0 (peg ;;(@ -.ljw) 2)]
-              [%9 ;;(@ -<.ljg) [%0 1]]
+                :: [%0 (peg ;;(@ -.ljw) 2)]
+                :: [%0 ;;(@ -.ljw)]
+                (resolve-wing ljw)
+              [%9 ;;(@ -<.ljg) %0 1]
           =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
           [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
         ::
