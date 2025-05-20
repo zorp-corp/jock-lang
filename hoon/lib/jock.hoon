@@ -1671,8 +1671,11 @@
         :: =?  inferred-type  ?=(%limb -<.type.j)
         ::   `u.inferred-type(name name.type.j)
         (~(cons jt u.inferred-type) jyp)
+      ~&  >  'here'
+      ~&  next+next.j
       ~|  %let-next
       =+  [nex nex-jyp]=$(j next.j)
+      ~&  >  'there'
       [[%8 val nex] nex-jyp]
     ::
         %func
@@ -1691,14 +1694,12 @@
     ::
         %method
       =+  [val val-jyp]=$(j body.j)
-      =.  jyp
-        =/  inferred-type
-          (~(unify jt type.j) val-jyp)
-        ?~  inferred-type
-          ~|  '%func: value type does not nest in declared type'
-          ~|  ['have:' val-jyp 'need:' type.j]
-          !!
-        (~(cons jt u.inferred-type) jyp)
+      =/  inferred-type
+        (~(unify jt type.j) val-jyp)
+      ?~  inferred-type
+        ~|  '%func: value type does not nest in declared type'
+        ~|  ['have:' val-jyp 'need:' type.j]
+        !!
       [val val-jyp]
     ::
         %class
@@ -1775,14 +1776,14 @@
     ::
         %object
       ~|  %object
-      =/  pay=(unit (pair nock jype))
+      =/  con=(unit (pair nock jype))
         ?~  q.j
           ::  TODO: should I put `jyp here?
           ~
         `$(j u.q.j)
       =/  exe-jyp=jype
         ::  TODO: should we default to `jyp?
-        [%core %|^(~(run by p.j) |=(* untyped-j)) ?~(pay ~ `q.u.pay)]^%$
+        [%core %|^(~(run by p.j) |=(* untyped-j)) ?~(con ~ `q.u.con)]^%$
       =/  lis=(list [name=term val=jock])  ~(tap by p.j)
       ?>  ?=(^ lis)
       =+  [cor-nok one-jyp]=$(j val.i.lis, jyp exe-jyp)
@@ -1792,11 +1793,11 @@
       =>  .(lis `(list [name=term val=jock])`+.lis)
       |-
       ?~  lis
-        ?~  pay
+        ?~  con
           :-  [%1 cor-nok]
           [%core %|^cor-jyp ~]^%$
-        :-  [[%1 cor-nok] p.u.pay]
-        [%core %|^cor-jyp `q.u.pay]^%$
+        :-  [[%1 cor-nok] p.u.con]
+        [%core %|^cor-jyp `q.u.con]^%$
       =+  [mor-nok mor-jyp]=^$(j val.i.lis, jyp exe-jyp)
       %_    $
         lis      t.lis
@@ -1893,6 +1894,7 @@
         =/  old-jyp  jyp
         ~|  %call-limb
         =/  limbs=(list jlimb)  p.func.j
+        ~&  call-limbs+limbs
         ?>  ?=(^ limbs)
         ::  At this point it's looking for a %core (either func or class).
         ::  We need to resolve several cases (in no particular order):
@@ -2051,13 +2053,22 @@
           ::  In this case, we have located the class instance
           ::  but now need the method and the argument to construct
           ::  the Nock.
+          ~&  'case 3 here'
+          ~&  >  ljw+ljw
+          ~&  >  ljl+ljl
           ?>  ?=(%& -.u.gat-lim)
           =/  gat-jyp=jype  p.p.u.gat-lim
           =/  ljg=(list jwing)  q.p.u.gat-lim
           =/  gat  (~(get by p.p.p.cyp) gat-nom)
+          ~&  >  gat+gat-nom
           ?~  gat  ~|("gate not found: {<gat-nom>} in {<name.typ>}" !!)
+          ~&  'thru'
+          ~&  gat+gat
+          ~&  >  jype+gat-jyp
           ?>  ?=(%core -<.u.gat)
+          ~&  >  'here'
           ?.  ?=(%& -.p.p.u.gat)  ~|("method cannot be lambda" !!)
+          ~&  >>  'here'
           =/  dor-nom  -<+.dyp  :: class name, used to determine return type
           :: Output is a regular type.
           ^-  [nock jype]
@@ -2197,13 +2208,14 @@
         %lambda
       ~|  %enter-lambda
       ?>  ?=(^ inp.arg.p.j)
-      =/  pay=(unit (pair nock jype))
+      =/  con=(unit (pair nock jype))
         ?~  context.p.j  ~
         `$(j u.context.p.j)
       =/  input-default  (type-to-default u.inp.arg.p.j)
       ~|  %enter-lambda-body
       ::  TODO: wtf?
-      =/  lam-jyp  (lam-j arg.p.j ?~(pay `jyp `q.u.pay))
+      =/  lam-jyp  (lam-j arg.p.j ?~(con `jyp `q.u.con))
+      ::  1. Get body jype
       =+  [body body-jyp]=$(j body.p.j, jyp lam-jyp)
       ?:  (is-type name.out.arg.p.j)
         ::  instance return from method
@@ -2234,8 +2246,8 @@
       ?~  pay
         :_  (lam-j arg.p.j `jyp)
         [%8 input-default [%1 body] %0 1]  ::  XXX for subject
-      :_  (lam-j arg.p.j `q.u.pay)
-      [%8 input-default [%1 body] p.u.pay]
+      :_  (lam-j arg.p.j `q.u.con)
+      [%8 input-default [%1 body] p.u.con]
     ::
         %list
       ~|  %list
