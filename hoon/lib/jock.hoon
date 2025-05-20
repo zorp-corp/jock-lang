@@ -1668,14 +1668,9 @@
           ~|  '%let: value type does not nest in declared type'
           ~|  "have: {<val-jyp>}\0aneed: {<type.j>}"
           !!
-        :: =?  inferred-type  ?=(%limb -<.type.j)
-        ::   `u.inferred-type(name name.type.j)
         (~(cons jt u.inferred-type) jyp)
-      ~&  >  'here'
-      ~&  next+next.j
       ~|  %let-next
       =+  [nex nex-jyp]=$(j next.j)
-      ~&  >  'there'
       [[%8 val nex] nex-jyp]
     ::
         %func
@@ -1894,7 +1889,6 @@
         =/  old-jyp  jyp
         ~|  %call-limb
         =/  limbs=(list jlimb)  p.func.j
-        ~&  call-limbs+limbs
         ?>  ?=(^ limbs)
         ::  At this point it's looking for a %core (either func or class).
         ::  We need to resolve several cases (in no particular order):
@@ -2053,22 +2047,13 @@
           ::  In this case, we have located the class instance
           ::  but now need the method and the argument to construct
           ::  the Nock.
-          ~&  'case 3 here'
-          ~&  >  ljw+ljw
-          ~&  >  ljl+ljl
           ?>  ?=(%& -.u.gat-lim)
           =/  gat-jyp=jype  p.p.u.gat-lim
           =/  ljg=(list jwing)  q.p.u.gat-lim
           =/  gat  (~(get by p.p.p.cyp) gat-nom)
-          ~&  >  gat+gat-nom
           ?~  gat  ~|("gate not found: {<gat-nom>} in {<name.typ>}" !!)
-          ~&  'thru'
-          ~&  gat+gat
-          ~&  >  jype+gat-jyp
           ?>  ?=(%core -<.u.gat)
-          ~&  >  'here'
           ?.  ?=(%& -.p.p.u.gat)  ~|("method cannot be lambda" !!)
-          ~&  >>  'here'
           =/  dor-nom  -<+.dyp  :: class name, used to determine return type
           :: Output is a regular type.
           ^-  [nock jype]
@@ -2219,7 +2204,7 @@
       =+  [body body-jyp]=$(j body.p.j, jyp lam-jyp)
       ?:  (is-type name.out.arg.p.j)
         ::  instance return from method
-        ?~  pay
+        ?~  con
           :_  (lam-j arg.p.j `jyp)
           :+  %8
             input-default
@@ -2231,7 +2216,7 @@
               [6 %7 [%0 3] body]
             [%0 2]
           [%0 1]
-        :_  (lam-j arg.p.j `q.u.pay)
+        :_  (lam-j arg.p.j `q.u.con)
         :+  %8
           input-default
         :-
@@ -2241,9 +2226,9 @@
           :+  %10
             [6 %7 [%0 3] body]
           [%0 2]
-        p.u.pay
+        p.u.con
       ::  normal return
-      ?~  pay
+      ?~  con
         :_  (lam-j arg.p.j `jyp)
         [%8 input-default [%1 body] %0 1]  ::  XXX for subject
       :_  (lam-j arg.p.j `q.u.con)
