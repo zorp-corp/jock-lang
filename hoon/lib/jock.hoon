@@ -1668,14 +1668,9 @@
           ~|  '%let: value type does not nest in declared type'
           ~|  "have: {<val-jyp>}\0aneed: {<type.j>}"
           !!
-        =?  inferred-type  ?=(%limb -<.type.j)
-          `u.inferred-type(name name.type.j)
         (~(cons jt u.inferred-type) jyp)
-      ~&  >  'here'
-      ~&  next+next.j
       ~|  %let-next
       =+  [nex nex-jyp]=$(j next.j)
-      ~&  >  'there'
       [[%8 val nex] nex-jyp]
     ::
         %func
@@ -1694,6 +1689,12 @@
     ::
         %method
       =+  [val val-jyp]=$(j body.j)
+      =/  inferred-type
+        (~(unify jt type.j) val-jyp)
+      ?~  inferred-type
+        ~|  '%func: value type does not nest in declared type'
+        ~|  ['have:' val-jyp 'need:' type.j]
+        !!
       [val val-jyp]
     ::
         %class
@@ -1742,10 +1743,12 @@
       ~|  %edit-value
       =+  [val val-jyp]=$(j val.j)
       ~|  %edit-next
+      ::  assert type compatibility
       ?>  ?=(^ (~(unify jt typ) val-jyp))
+      ::  expose updated value address
       =+  [nex nex-jyp]=$(j next.j)
-      =?  val  (is-type name.val-jyp)
-        [%10 [6 val] [%0 2]]
+      :: =?  val  (is-type name.val-jyp)
+      ::   [%10 [6 val] [%0 2]]
       [[%7 [%10 [axi val] %0 1] nex] nex-jyp]
     ::
         %increment
@@ -1886,7 +1889,6 @@
         =/  old-jyp  jyp
         ~|  %call-limb
         =/  limbs=(list jlimb)  p.func.j
-        ~&  call-limbs+limbs
         ?>  ?=(^ limbs)
         ::  At this point it's looking for a %core (either func or class).
         ::  We need to resolve several cases (in no particular order):
@@ -1971,10 +1973,11 @@
             =.  inferred-type  `u.inferred-type(name ->.limbs)
             :_  u.inferred-type
             :+  %8
-              [%0 1]
+              ::  parent of axis
+              [%0 (div ;;(@ +:(resolve-wing ljw)) 2)]
             :+  %10
               [6 %7 [%0 3] val]
-            (resolve-wing ljw)
+            [%0 2]
           ::
           ?>  ?=(%name -<.limbs)
           ?~  arg.j  ~|("expect method argument" !!)
@@ -2044,56 +2047,23 @@
           ::  In this case, we have located the class instance
           ::  but now need the method and the argument to construct
           ::  the Nock.
-          ~&  'case 3 here'
-          ~&  >  ljw+ljw
-          ~&  >  ljl+ljl
           ?>  ?=(%& -.u.gat-lim)
           =/  gat-jyp=jype  p.p.u.gat-lim
           =/  ljg=(list jwing)  q.p.u.gat-lim
           =/  gat  (~(get by p.p.p.cyp) gat-nom)
-          ~&  >  gat+gat-nom
           ?~  gat  ~|("gate not found: {<gat-nom>} in {<name.typ>}" !!)
-          ~&  'thru'
-          ~&  gat+gat
-          ~&  >  jype+gat-jyp
           ?>  ?=(%core -<.u.gat)
-          ~&  >  'here'
           ?.  ?=(%& -.p.p.u.gat)  ~|("method cannot be lambda" !!)
-          ~&  >>  'here'
           =/  dor-nom  -<+.dyp  :: class name, used to determine return type
-          ~&  >>>  'here'
-          =-  ~&(- -)
-          :: ?:  =(name.out.p.p.p.u.gat dor-nom)
-          ::   :: Output should be an instance.
-          ::   ~&  'this branch'
-          ::   ^-  [nock jype]
-          ::   ?~  arg.j  ~|("expect method argument" !!)
-          ::   =/  val
-          ::     :+  %8
-          ::       :+  %7
-          ::         [%0 ;;(@ -.ljw)]
-          ::       [%9 ;;(@ -<.ljg) [%0 1]]
-          ::     =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
-          ::     [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
-          ::   ~&  >>>  j+j
-          ::   ~&  >>>  val+val
-          ::   ::  if this is a `%let` then we just want the val
-          ::   :_  out.p.p.p.u.gat
-          ::   val
-          ::   :: :+  %10
-          ::   ::   [6 val]
-          ::   :: [%0 2]
-          :: :: Output is a regular type.
-          ~&  'that branch'
+          :: Output is a regular type.
           ^-  [nock jype]
           :_  out.p.p.p.u.gat
           ?~  arg.j
             (resolve-wing ljd)
           :+  %8
             :+  %7
-                [%0 ;;(@ -.ljw)]
-                :: [%0 (peg ;;(@ -.ljw) 2)]
-              [%9 ;;(@ -<.ljg) [%0 1]]
+                (resolve-wing ljw)
+              [%9 ;;(@ -<.ljg) %0 1]
           =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
           [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
         ::
@@ -2232,36 +2202,32 @@
       =/  lam-jyp  (lam-j arg.p.j ?~(con `jyp `q.u.con))
       ::  1. Get body jype
       =+  [body body-jyp]=$(j body.p.j, jyp lam-jyp)
-      =-  ~&  >>>  lambda+[-<]  -
       ?:  (is-type name.out.arg.p.j)
-        ::  2. Check nesting in class state if out is type
-          ?>  ?=(%limb -<.out.arg.p.j)
-          =/  lim  ->.out.arg.p.j
-          =/  typ  (~(get-limb jt lam-jyp) lim)
-          ?~  typ  ~|('type not found' !!)
-          ?>  ?=(%& -.u.typ)
-          =/  cor  p.p.u.typ
-          ?>  ?=(%core -<.cor)
-          =/  con-0  p.cor
-          ?~  q.con-0  ~|('type context not found' !!)
-          =/  con-1  u.q.con-0
-          ?>  ?=(%core -<.con-1)
-          =/  con-2  +.p.con-1
-          ?~  q.con-2  ~|('type context not found' !!)
-          =/  con-3  -.u.q.con-2
-          =/  sta  ;;(jype -.con-3)
-          =/  uni-jyp  (~(unify jt sta) body-jyp)
-          ?~  uni-jyp
-            ~|  '%lambda: body value type does not nest in method type'
-            ~|  "have: {<uni-jyp>}\0aneed: {<typ>}"
-            !!
-          :_  u.uni-jyp
-          ::  3. Build custom Nock return
+        ::  instance return from method
+        ?~  con
+          :_  (lam-j arg.p.j `jyp)
+          :+  %8
+            input-default
+          :-
+            :-  %1
+            :+  %8
+              [%0 7]
+            :+  %10
+              [6 %7 [%0 3] body]
+            [%0 2]
+          [%0 1]
+        :_  (lam-j arg.p.j `q.u.con)
+        :+  %8
+          input-default
+        :-
+          :-  %1
           :+  %8
             [%0 7]
           :+  %10
-            [6 [%7 [%0 3] body]]
+            [6 %7 [%0 3] body]
           [%0 2]
+        p.u.con
+      ::  normal return
       ?~  con
         :_  (lam-j arg.p.j `jyp)
         [%8 input-default [%1 body] %0 1]  ::  XXX for subject
