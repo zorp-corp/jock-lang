@@ -1691,8 +1691,6 @@
     ::
         %method
       =+  [val val-jyp]=$(j body.j)
-      :: ~&  val+val
-      :: ~&  >  val-jyp+val-jyp
       =.  jyp
         =/  inferred-type
           (~(unify jt type.j) val-jyp)
@@ -1701,7 +1699,6 @@
           ~|  ['have:' val-jyp 'need:' type.j]
           !!
         (~(cons jt u.inferred-type) jyp)
-        :: (~(cons jt jyp) u.inferred-type)
       [val val-jyp]
     ::
         %class
@@ -1749,7 +1746,6 @@
         [p.p.u.res i.q.p.u.res]
       ~|  %edit-value
       =+  [val val-jyp]=$(j val.j)
-      ~&  edit-val-jyp+val-jyp
       ~|  %edit-next
       ::  assert type compatibility
       ?>  ?=(^ (~(unify jt typ) val-jyp))
@@ -2063,27 +2059,6 @@
           ?>  ?=(%core -<.u.gat)
           ?.  ?=(%& -.p.p.u.gat)  ~|("method cannot be lambda" !!)
           =/  dor-nom  -<+.dyp  :: class name, used to determine return type
-          :: ~&  >  name+name.out.p.p.p.u.gat
-          :: ~&  >>  door+dor-nom
-          :: =-  ~&(- -)
-          :: ?:  =(name.out.p.p.p.u.gat dor-nom)
-          ::   :: Output should be an instance.
-          ::   ^-  [nock jype]
-          ::   ?~  arg.j  ~|("expect method argument" !!)
-          ::   =/  val
-          ::     :+  %8
-          ::       :+  %7
-          ::         [%0 ;;(@ -.ljw)]
-          ::       [%9 ;;(@ -<.ljg) [%0 1]]
-          ::     =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
-          ::     [%9 2 %10 [6 [%7 [%0 3] arg]] %0 2]
-          ::   ~&  >>>  j+j
-          ::   ~&  >>>  val+val
-          ::   ::  if this is a `%let` then we just want the val
-          ::   :_  out.p.p.p.u.gat
-          ::   :+  %10
-          ::     [6 val]
-          ::   [%0 2]
           :: Output is a regular type.
           ^-  [nock jype]
           :_  out.p.p.p.u.gat
@@ -2091,8 +2066,6 @@
             (resolve-wing ljd)
           :+  %8
             :+  %7
-                :: [%0 (peg ;;(@ -.ljw) 2)]
-                :: [%0 ;;(@ -.ljw)]
                 (resolve-wing ljw)
               [%9 ;;(@ -<.ljg) %0 1]
           =+  [arg arg-jyp]=$(j u.arg.j, jyp old-jyp)
@@ -2232,6 +2205,32 @@
       ::  TODO: wtf?
       =/  lam-jyp  (lam-j arg.p.j ?~(pay `jyp `q.u.pay))
       =+  [body body-jyp]=$(j body.p.j, jyp lam-jyp)
+      ?:  (is-type name.out.arg.p.j)
+        ::  instance return from method
+        ?~  pay
+          :_  (lam-j arg.p.j `jyp)
+          :+  %8
+            input-default
+          :-
+            :-  %1
+            :+  %8
+              [%0 7]
+            :+  %10
+              [6 %7 [%0 3] body]
+            [%0 2]
+          [%0 1]
+        :_  (lam-j arg.p.j `q.u.pay)
+        :+  %8
+          input-default
+        :-
+          :-  %1
+          :+  %8
+            [%0 7]
+          :+  %10
+            [6 %7 [%0 3] body]
+          [%0 2]
+        p.u.pay
+      ::  normal return
       ?~  pay
         :_  (lam-j arg.p.j `jyp)
         [%8 input-default [%1 body] %0 1]  ::  XXX for subject
