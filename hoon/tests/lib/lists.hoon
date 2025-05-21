@@ -1,6 +1,7 @@
 ::  /lib/tests/lists
 /+  jock,
     test
+/*  hoon  %txt  /lib/mini/txt
 ::
 |%
 ++  text
@@ -13,17 +14,23 @@
 ++  test-jeam
   %+  expect-eq:test
     !>  ^-  jock:jock
-        [%let type=[p=[%none ~] name=%d] val=[%list type=[%none ~] val=~[[%atom p=[[%number p=11] q=%.n]] [%atom p=[[%number p=0] q=%.n]]]] next=[%let type=[p=[%none ~] name=%c] val=[%list type=[%none ~] val=~[[%atom p=[[%number p=9] q=%.n]] [%atom p=[[%number p=10] q=%.n]] [%atom p=[[%number p=0] q=%.n]]]] next=[%let type=[p=[%none ~] name=%b] val=[%list type=[%none ~] val=~[[%atom p=[[%number p=6] q=%.n]] [%atom p=[[%number p=7] q=%.n]] [%atom p=[[%number p=8] q=%.n]] [%atom p=[[%number p=0] q=%.n]]]] next=[%let type=[p=[%none ~] name=%a] val=[%list type=[%none ~] val=~[[%atom p=[[%number p=1] q=%.n]] [%atom p=[[%number p=2] q=%.n]] [%atom p=[[%number p=3] q=%.n]] [%atom p=[[%number p=4] q=%.n]] [%atom p=[[%number p=5] q=%.n]] [%atom p=[[%number p=0] q=%.n]]]] next=[%list type=[%none ~] val=~[[%limb p=~[[%name p=%a]]] [%limb p=~[[%name p=%b]]] [%limb p=~[[%name p=%c]]] [%limb p=~[[%name p=%d]]] [%atom p=[[%number p=0] q=%.n]]]]]]]]
+        [%let type=[p=[%none p=~] name='d'] val=[%list type=[%none p=~] val=~[[%atom p=[[%number p=11] q=%.n]] [%atom p=[[%number p=0] q=%.n]]]] next=[%let type=[p=[%none p=~] name='c'] val=[%list type=[%none p=~] val=~[[%atom p=[[%number p=9] q=%.n]] [%atom p=[[%number p=10] q=%.n]] [%atom p=[[%number p=0] q=%.n]]]] next=[%let type=[p=[%none p=~] name='b'] val=[%list type=[%none p=~] val=~[[%atom p=[[%number p=6] q=%.n]] [%atom p=[[%number p=7] q=%.n]] [%atom p=[[%number p=8] q=%.n]] [%atom p=[[%number p=0] q=%.n]]]] next=[%let type=[p=[%none p=~] name='a'] val=[%list type=[%none p=~] val=~[[%atom p=[[%number p=1] q=%.n]] [%atom p=[[%number p=2] q=%.n]] [%atom p=[[%number p=3] q=%.n]] [%atom p=[[%number p=4] q=%.n]] [%atom p=[[%number p=5] q=%.n]] [%atom p=[[%number p=0] q=%.n]]]] next=[%list type=[%none p=~] val=~[[%limb p=~[[%name p=%a]]] [%limb p=~[[%name p=%b]]] [%limb p=~[[%name p=%c]]] [%limb p=~[[%name p=%d]]] [%atom p=[[%number p=0] q=%.n]]]]]]]]
     !>  (jeam:jock text)
 ::
 ++  test-mint
   %+  expect-eq:test
-    !>  [8 [1 11] 8 [[1 9] 1 10] 8 [[1 6] [1 7] 1 8] 8 [[1 1] [1 2] [1 3] [1 4] 1 5] [0 2] [0 6] [0 14] 0 30]
-    !>  (mint:jock text)
+    !>  [%8 p=[p=[%1 p=11] q=[%1 p=0]] q=[%8 p=[p=[%1 p=9] q=[p=[%1 p=10] q=[%1 p=0]]] q=[%8 p=[p=[%1 p=6] q=[p=[%1 p=7] q=[p=[%1 p=8] q=[%1 p=0]]]] q=[%8 p=[p=[%1 p=1] q=[p=[%1 p=2] q=[p=[%1 p=3] q=[p=[%1 p=4] q=[p=[%1 p=5] q=[%1 p=0]]]]]] q=[p=[%0 p=2] q=[p=[%0 p=6] q=[p=[%0 p=14] q=[p=[%0 p=30] q=[%1 p=0]]]]]]]]]
+    !>  +>:(mint:jock text)
 ::
 ++  test-nock
+  =/  past  (rush q.hoon (ifix [gay gay] tall:(vang | /)))
+  ?~  past  ~|("unable to parse Hoon library" !!)
+  =/  p  (~(mint ut %noun) %noun u.past)
   %+  expect-eq:test
-    !>  .*(0 [8 [1 11] 8 [[1 9] 1 10] 8 [[1 6] [1 7] 1 8] 8 [[1 1] [1 2] [1 3] [1 4] 1 5] [0 2] [0 6] [0 14] 0 30])
+    !>  .*  0
+        :+  %8
+          +.p
+        [%8 p=[p=[%1 p=11] q=[%1 p=0]] q=[%8 p=[p=[%1 p=9] q=[p=[%1 p=10] q=[%1 p=0]]] q=[%8 p=[p=[%1 p=6] q=[p=[%1 p=7] q=[p=[%1 p=8] q=[%1 p=0]]]] q=[%8 p=[p=[%1 p=1] q=[p=[%1 p=2] q=[p=[%1 p=3] q=[p=[%1 p=4] q=[p=[%1 p=5] q=[%1 p=0]]]]]] q=[p=[%0 p=2] q=[p=[%0 p=6] q=[p=[%0 p=14] q=[p=[%0 p=30] q=[%1 p=0]]]]]]]]]
     !>  .*(0 (mint:jock text))
 ::
 --
