@@ -1,5 +1,3 @@
-import hoon;
-
 let a = true;
 let b = a == true;
 let c = a < 1;

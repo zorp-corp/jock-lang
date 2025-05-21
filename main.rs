@@ -12,8 +12,8 @@ static KERNEL_JAM: &[u8] =
 use crown::kernel::boot::Cli as BootCli;
 
 #[derive(Parser, Debug)]
-#[command(about = "Tests various poke types for the kernel", author = "zorp", version, color = ColorChoice::Auto)]
-struct TestCli {
+#[command(about = "Execs various poke types for the kernel", author = "zorp", version, color = ColorChoice::Auto)]
+struct ExecCli {
     #[command(flatten)]
     boot: BootCli,
 
@@ -24,14 +24,19 @@ struct TestCli {
 #[derive(Parser, Debug)]
 enum Command {
     #[command(about = "The name of the code to run")]
-    Test {
+    Exec {
         #[arg(help = "The name of the code to run")]
+        n: Option<u64>,
+    },
+    #[command(about = "Execute all")]
+    ExecAll {},
+    #[command(about = "The name of the code to test")]
+    Test {
+        #[arg(help = "The name of the code to test")]
         n: Option<u64>,
     },
     #[command(about = "Test all")]
     TestAll {},
-    #[command(about = "Execute all")]
-    ExecAll {},
     #[command(about = "Parse all")]
     ParseAll {},
     #[command(about = "Jeam all")]
@@ -48,11 +53,29 @@ enum Command {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let cli = TestCli::parse();
-    let mut nockapp = boot::setup(KERNEL_JAM, Some(cli.boot.clone()), &[], "jock")?;
+    let cli = ExecCli::parse();
+
+    let mut nockapp = boot::setup(
+        KERNEL_JAM,
+        Some(cli.boot.clone()),
+        &[],
+        "jocktest",
+        None,
+    )
+    .await?;
+
     boot::init_default_tracing(&cli.boot.clone());
 
     let poke = match cli.command {
+        Command::Exec { n } => {
+            let n = n.unwrap_or(0);
+            create_poke(&[D(tas!(b"exec")), D(n)])
+        }
+        Command::ExecAll {} => {
+            let mut slab = NounSlab::new();
+            let tas = make_tas(&mut slab, "exec-all");
+            create_poke(&[tas.as_noun(), D(0)])
+        }
         Command::Test { n } => {
             let n = n.unwrap_or(0);
             create_poke(&[D(tas!(b"test")), D(n)])
@@ -60,11 +83,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Command::TestAll {} => {
             let mut slab = NounSlab::new();
             let tas = make_tas(&mut slab, "test-all");
-            create_poke(&[tas.as_noun(), D(0)])
-        }
-        Command::ExecAll {} => {
-            let mut slab = NounSlab::new();
-            let tas = make_tas(&mut slab, "exec-all");
             create_poke(&[tas.as_noun(), D(0)])
         }
         Command::ParseAll {} => {

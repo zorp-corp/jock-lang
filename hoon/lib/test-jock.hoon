@@ -26,12 +26,16 @@
 /*  sets                  %jock  /lib/tests/sets/jock
 /*  type-point            %jock  /lib/tests/type-point/jock
 /*  type-point-2          %jock  /lib/tests/type-point-2/jock
+/*  type-point-3          %jock  /lib/tests/type-point-3/jock
+/*  class-state           %jock  /lib/tests/class-state/jock
+/*  class-ops             %jock  /lib/tests/class-ops/jock
 /*  infix-comparator      %jock  /lib/tests/infix-comparator/jock
 /*  infix-arithmetic      %jock  /lib/tests/infix-arithmetic/jock
 /*  hoon-ffi              %jock  /lib/tests/hoon-ffi/jock
 /*  hoon-arithmetic       %jock  /lib/tests/hoon-arithmetic/jock
 /*  hoon-alias            %jock  /lib/tests/hoon-alias/jock
 /*  fib                   %jock  /lib/tests/fib/jock
+/*  lists-indexing        %jock  /lib/tests/lists-indexing/jock
 ::
 /*  test-let-edit         %hoon  /tests/lib/let-edit/hoon
 /*  test-let-inner-exp    %hoon  /tests/lib/let-inner-exp/hoon
@@ -50,7 +54,6 @@
 /*  test-multi-limb       %hoon  /tests/lib/multi-limb/hoon
 /*  test-compose          %hoon  /tests/lib/compose/hoon
 /*  test-compose-cores    %hoon  /tests/lib/compose-cores/hoon
-:: /*  test-baby             %hoon  /tests/lib/baby/hoon
 /*  test-comparator       %hoon  /tests/lib/comparator/hoon
 /*  test-lists            %hoon  /tests/lib/lists/hoon
 /*  test-lists-nested     %hoon  /tests/lib/lists-nested/hoon
@@ -60,12 +63,16 @@
 /*  test-sets             %hoon  /tests/lib/sets/hoon
 /*  test-type-point       %hoon  /tests/lib/type-point/hoon
 /*  test-type-point-2     %hoon  /tests/lib/type-point-2/hoon
+:: /*  test-type-point-3     %hoon  /tests/lib/type-point-3/hoon
+:: /*  test-class-state      %hoon  /tests/lib/class-state/hoon
+:: /*  test-class-ops        %hoon  /tests/lib/class-ops/hoon
 :: /*  test-infix-comparator  %hoon  /tests/lib/infix-comparator/hoon
 :: /*  test-infix-arithmetic  %hoon  /tests/lib/infix-arithmetic/hoon
 :: /*  test-hoon-ffi       %hoon  /tests/lib/hoon-ffi/hoon
 :: /*  test-hoon-arithmetic   %hoon  /tests/lib/hoon-arithmetic/hoon
 :: /*  test-hoon-alias      %hoon  /tests/lib/hoon-alias/hoon
 :: /*  test-fib            %hoon  /tests/lib/fib/hoon
+:: /*  test-lists-indexing  %hoon  /tests/lib/lists-indexing/hoon
 ::
 |%
 ++  list-jocks
@@ -87,7 +94,6 @@
       [%multi-limb q.multi-limb]                      :: 14
       [%compose q.compose]                            :: 15
       [%compose-cores q.compose-cores]                :: 16
-      :: [%baby q.baby]
       [%comparator q.comparator]                      :: 17
       [%lists q.lists]                                :: 18
       [%lists-nested q.lists-nested]                  :: 19
@@ -97,12 +103,16 @@
       [%sets q.sets]                                  :: 23
       [%type-point q.type-point]                      :: 24
       [%type-point-2 q.type-point-2]                  :: 25
-      [%infix-comparator q.infix-comparator]          :: 26
-      [%infix-arithmetic q.infix-arithmetic]          :: 27
-      [%hoon-ffi q.hoon-ffi]                          :: 28
-      [%hoon-arithmetic q.hoon-arithmetic]            :: 29
-      [%hoon-alias q.hoon-alias]                      :: 30
-      [%fib q.fib]                                    :: 31
+      [%type-point-3 q.type-point-3]                  :: 26
+      [%class-state q.class-state]                    :: 27
+      [%class-ops q.class-ops]                        :: 28
+      [%infix-comparator q.infix-comparator]          :: 29
+      [%infix-arithmetic q.infix-arithmetic]          :: 30
+      [%hoon-ffi q.hoon-ffi]                          :: 31
+      [%hoon-arithmetic q.hoon-arithmetic]            :: 32
+      [%hoon-alias q.hoon-alias]                      :: 33
+      [%fib q.fib]                                    :: 34
+      [%lists-indexing q.lists-indexing]              :: 35
  ==
 ::
 ++  test-jocks
@@ -128,10 +138,14 @@
       [%test-inline-lambda-call-jeam test-jeam:test-inline-lambda-call]
       [%test-inline-lambda-call-mint test-mint:test-inline-lambda-call]
       [%test-inline-lambda-call-nock test-nock:test-inline-lambda-call]
+      [%test-inline-lambda-no-arg-tokens test-tokenize:test-inline-lambda-no-arg]
+      [%test-inline-lambda-no-arg-jeam test-jeam:test-inline-lambda-no-arg]
+      [%test-inline-lambda-no-arg-mint test-mint:test-inline-lambda-no-arg]
+      [%test-inline-lambda-no-arg-nock test-nock:test-inline-lambda-no-arg]
       [%test-in-subj-call-tokens test-tokenize:test-in-subj-call]
-      :: [%test-in-subj-call-jeam test-jeam:test-in-subj-call]
-      :: [%test-in-subj-call-mint test-mint:test-in-subj-call]
-      :: [%test-in-subj-call-nock test-nock:test-in-subj-call]
+      [%test-in-subj-call-jeam test-jeam:test-in-subj-call]
+      [%test-in-subj-call-mint test-mint:test-in-subj-call]
+      [%test-in-subj-call-nock test-nock:test-in-subj-call]
       [%test-if-else-tokens test-tokenize:test-if-else]
       [%test-if-else-jeam test-jeam:test-if-else]
       [%test-if-else-mint test-mint:test-if-else]
@@ -152,10 +166,6 @@
       [%test-inline-point-jeam test-jeam:test-inline-point]
       [%test-inline-point-mint test-mint:test-inline-point]
       [%test-inline-point-nock test-nock:test-inline-point]
-      [%test-inline-lambda-no-arg-tokens test-tokenize:test-inline-lambda-no-arg]
-      [%test-inline-lambda-no-arg-jeam test-jeam:test-inline-lambda-no-arg]
-      [%test-inline-lambda-no-arg-mint test-mint:test-inline-lambda-no-arg]
-      [%test-inline-lambda-no-arg-nock test-nock:test-inline-lambda-no-arg]
       [%test-dec-tokens test-tokenize:test-dec]
       [%test-dec-jeam test-jeam:test-dec]
       [%test-dec-mint test-mint:test-dec]
@@ -176,10 +186,6 @@
       [%test-compose-cores-jeam test-jeam:test-compose-cores]
       [%test-compose-cores-mint test-mint:test-compose-cores]
       [%test-compose-cores-nock test-nock:test-compose-cores]
-      :: [%test-baby-tokens test-tokenize:test-baby]
-      :: [%test-baby-jeam test-jeam:test-baby]
-      :: [%test-baby-mint test-mint:test-baby]
-      :: [%test-baby-nock test-nock:test-baby]
       [%test-comparator-tokens test-tokenize:test-comparator]
       [%test-comparator-jeam test-jeam:test-comparator]
       [%test-comparator-mint test-mint:test-comparator]
@@ -212,10 +218,18 @@
       [%test-type-point-jeam test-jeam:test-type-point]
       [%test-type-point-mint test-mint:test-type-point]
       [%test-type-point-nock test-nock:test-type-point]
-      [%test-type-point-2-tokens test-tokenize:test-type-point-2]
-      [%test-type-point-2-jeam test-jeam:test-type-point-2]
-      [%test-type-point-2-mint test-mint:test-type-point-2]
-      [%test-type-point-2-nock test-nock:test-type-point-2]
+      :: [%test-type-point-2-tokens test-tokenize:test-type-point-2]
+      :: [%test-type-point-2-jeam test-jeam:test-type-point-2]
+      :: [%test-type-point-2-mint test-mint:test-type-point-2]
+      :: [%test-type-point-2-nock test-nock:test-type-point-2]
+      :: [%test-type-point-3-tokens test-tokenize:test-type-point-3]
+      :: [%test-type-point-3-jeam test-jeam:test-type-point-3]
+      :: [%test-type-point-3-mint test-mint:test-type-point-3]
+      :: [%test-type-point-3-nock test-nock:test-type-point-3]
+      :: [%test-class-state-tokens test-tokenize:test-class-state]
+      :: [%test-class-state-jeam test-jeam:test-class-state]
+      :: [%test-class-state-mint test-mint:test-class-state]
+      :: [%test-class-state-nock test-nock:test-class-state]
       :: [%test-infix-comparator-tokens test-tokenize:test-infix-comparator]
       :: [%test-infix-comparator-jeam test-jeam:test-infix-comparator]
       :: [%test-infix-comparator-mint test-mint:test-infix-comparator]
@@ -240,6 +254,10 @@
       :: [%test-fib-jeam test-jeam:test-fib]
       :: [%test-fib-mint test-mint:test-fib]
       :: [%test-fib-nock test-nock:test-fib]
+      :: [%test-lists-indexing-tokens test-tokenize:test-lists-indexing]
+      :: [%test-lists-indexing-jeam test-jeam:test-lists-indexing]
+      :: [%test-lists-indexing-mint test-mint:test-lists-indexing]
+      :: [%test-lists-indexing-nock test-nock:test-lists-indexing]
   ==
 ::
 ++  parse
@@ -346,6 +364,29 @@
   |=  [=term noun=*]
   ^-  cord
   (crip "{<term>}: {<noun>}")
+::
+++  test
+  |=  i=@
+  ::  four indices in test-jocks list
+  =/  a  (mul i 4)
+  =/  b  +(a)
+  =/  c  +(b)
+  =/  d  +(c)
+  ~&  [a b c d]
+  =/  [tag=@tas tan=tang]  (snag a test-jocks)
+  ~&  "{<tag>}"
+  ~&  tan
+  ~&  ["{<tag>}" tag `tape`(zing (turn tan |=(=tank ~(ram re tank))))]
+  =/  [tag=@tas tan=tang]  (snag b test-jocks)
+  ~&  >  "{<tag>}"
+  ~&  >  ["{<tag>}" tag `tape`(zing (turn tan |=(=tank ~(ram re tank))))]
+  =/  [tag=@tas tan=tang]  (snag c test-jocks)
+  ~&  >>  "{<tag>}"
+  ~&  >>  ["{<tag>}" tag `tape`(zing (turn tan |=(=tank ~(ram re tank))))]
+  =/  [tag=@tas tan=tang]  (snag d test-jocks)
+  ~&  >>>  "{<tag>}"
+  ~&  >>>  ["{<tag>}" tag `tape`(zing (turn tan |=(=tank ~(ram re tank))))]
+  ~
 ::
 ++  test-all
   =|  i=@
