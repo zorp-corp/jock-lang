@@ -4,7 +4,7 @@
 ::
 |%
 ++  text
-  'let a: ? = true;\0a\0aa = false;\0a\0aa'
+  'let a: ? = true;\0a\0aa = false;\0a\0aprint a;\0a\0aa'
 ++  test-tokenize
   %+  expect-eq:test
     !>  ~[[%keyword %let] [%name %a] [%punctuator %':'] [%punctuator %'?'] [%punctuator %'='] [%literal [[%loobean p=%.y] q=%.n]] [%punctuator %';'] [%name %a] [%punctuator %'='] [%literal [[%loobean p=%.n] q=%.n]] [%punctuator %';'] [%name %a]]

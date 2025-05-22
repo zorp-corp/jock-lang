@@ -65,6 +65,7 @@
       %this
       %import
       %as
+      %print
   ==
 ::
 +$  jpunc
@@ -155,7 +156,7 @@
         %if  %else  %crash  %assert
         %object  %compose  %loop  %defer
         %recur  %match  %switch  %eval  %with  %this
-        %import  %as
+        %import  %as  %print
     ==
   ::
   ++  tagged-punctuator  %+  cook
@@ -249,6 +250,7 @@
       [%list type=jype-leaf val=(list jock)]
       [%set type=jype-leaf val=(set jock)]
       [%import name=jype next=jock]
+      [%print body=?([%jock jock]) next=jock]
       [%crash ~]
   ==
 ::
@@ -999,9 +1001,18 @@
     :_  tokens
     [%import [[%hoon [p.p .*(0 q.p)]] nom] q]
   ::
+  :: [%print body=?([%jock jock]) next=jock]
+      %print
+    =^  body  tokens
+      (match-block [tokens %'(' %')'] match-inner-jock)
+    ?>  (got-punctuator -.tokens %';')
+    =^  next  tokens
+      (match-jock +.tokens)
+    :_  tokens
+    [%print [%jock body] next]
+  ::
       %crash
     [[%crash ~] tokens]
-  ::
   ==
 ::
 ::  Match tokens into jype information.
@@ -1370,7 +1381,8 @@
       [%8 p=nock q=nock]                        ::  push onto jypect
       [%9 p=@ q=nock]                           ::  select arm and fire
       [%10 p=[p=@ q=nock] q=nock]               ::  edit
-      [%11 p=@ q=nock]                          ::  static hint
+      :: [%11 p=@ q=nock]                          ::  static hint
+      [%11 p=$@(@ [p=@ q=nock]) q=nock]         ::  hint
       [%0 p=@]                                  ::  axis select
   ==
 ::
@@ -2324,10 +2336,20 @@
         [%1 q.p.p.name.j]
       nex
     ::
+        %print
+      ~|  %print
+      =+  [val val-jyp]=$(j +.body.j)
+      =+  [nex nex-jyp]=$(j next.j)
+      :_  nex-jyp
+      :+  %11
+        =-  ~&(- -)
+        [%slog [%1 0] %1 (pprint val val-jyp)]
+        ::  [11 [1.735.355.507 [1 1] [1 1.717.658.988] 7 [0 1] 8 [1 1 104 101 108 108 111 0] 9 2 0 1] 1 5]
+      nex
+    ::
         %crash
       ~|  %crash
       [[%0 0] jyp]
-    ::
     ==
   ::
   ++  mint-after-if
@@ -2574,4 +2596,10 @@
       [%5 [%1 `@`+.p.jock] %0 axis]
     ==
   --
+  ::
+  ::  Prettyprinter
+  ++  pprint
+    |=  [=nock =jype]
+    ^-  tank
+    *tank
 --
