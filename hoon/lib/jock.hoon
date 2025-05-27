@@ -2342,9 +2342,7 @@
       =+  [nex nex-jyp]=$(j next.j)
       :_  nex-jyp
       :+  %11
-        =-  ~&(- -)
         [%slog [%1 0] %1 (pprint val val-jyp)]
-        ::  [11 [1.735.355.507 [1 1] [1 1.717.658.988] 7 [0 1] 8 [1 1 104 101 108 108 111 0] 9 2 0 1] 1 5]
       nex
     ::
         %crash
@@ -2601,5 +2599,8 @@
   ++  pprint
     |=  [=nock =jype]
     ^-  tank
-    *tank
+    :: ?^  -<.j    [$(j p.j) $(j q.j)]
+    :: ?+  -.jype  *tank
+    :-  %leaf
+    "print: {<[-.jype]>} {<`*`nock>}"
 --
