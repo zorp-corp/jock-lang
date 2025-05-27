@@ -2600,7 +2600,13 @@
     |=  [=nock =jype]
     ^-  tank
     :: ?^  -<.j    [$(j p.j) $(j q.j)]
-    :: ?+  -.jype  *tank
-    :-  %leaf
-    "print: {<[-.jype]>} {<`*`nock>}"
+    ?+    -<.jype
+        :-  %leaf
+        "print: {<[-.jype]>} {<`*`nock>}"
+    ::
+        %atom
+      :-  %leaf
+      "print: {<[-.jype]>} {<;;(@ +.nock)>}"
+    ::
+    ==
 --
