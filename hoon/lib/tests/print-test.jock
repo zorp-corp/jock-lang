@@ -1,2 +1,5 @@
 print('Hello world!');
+print(0x42);
+print(42);
+print(true);
 42
