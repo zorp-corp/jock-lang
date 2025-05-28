@@ -2605,8 +2605,21 @@
         "print: {<[-.jype]>} {<`*`nock>}"
     ::
         %atom
-      :-  %leaf
-      "print: {<[-.jype]>} {<;;(@ +.nock)>}"
+      %-  crip
+      ?-    ->-.jype
+        %loobean
+      "{<;;(? +.nock)>}"
+      ::
+        %number
+      "{<;;(@ud +.nock)>}"
+      ::
+        %hexadecimal
+      "{<;;(@ux +.nock)>}"
+      ::
+        %string
+      "{<;;(@t +.nock)>}"
+      ::
+      ==
     ::
     ==
 --
