@@ -2340,6 +2340,7 @@
       ~|  %print
       =+  [val val-jyp]=$(j +.body.j)
       =+  [nex nex-jyp]=$(j next.j)
+      :: =/  val  .*(0 [ val])  :: dereference Nock 0
       :_  nex-jyp
       :+  %11
         [%slog [%1 0] %1 (pprint val val-jyp)]
@@ -2599,7 +2600,14 @@
   ++  pprint
     |=  [=nock =jype]
     ^-  tank
-    :: ?^  -<.j    [$(j p.j) $(j q.j)]
+    :+  %rose
+      [" " "[" "]"]
+    |-  ^-  (list tank)
+    ?^  -<.jype
+      %+  weld
+        $(jype p.jype, nock ;;(^nock -.nock))
+      $(jype q.jype, nock ;;(^nock +.nock))
+    :_  ~
     ?+    -<.jype
         :-  %leaf
         "print: {<[-.jype]>} {<`*`nock>}"
