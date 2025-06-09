@@ -1,1 +1,0 @@
-common/hoon/lib/jock.hoon
