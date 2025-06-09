@@ -79,23 +79,54 @@ If you are developing Jock code, you should use the Jock compiler tool `jockc`.
     ./jockc ./common/hoon/try/fib 10
     ```
 
+    See available demos:
+
+    ```sh
+    ls common/hoon/try
+    ```
+
+7. Run a demo with its name and any arguments:
+
+    ```sh
+    ./jockc hello-world
+    ./jockc fib 10
+    ```
+
+    The demo will output several pieces of information:
+
+    1. `%parse`, the tokenization.
+    2. `%jeam`, the Jock abstract syntax tree (AST).
+    3. `%mint`, the compiled Nock (which will be rather long; output is currently slow).
+    4. `%jype`, the Jock result type.
+    5. `%nock`, the evaluated Nock result, as an atom (unsigned decimal value).
+
+    For a tutorial like `hello-world`, the Nock text will be printed as the numeric equivalent of the hexadecimal for the time being.
+
+    (Rust logs from `hoonc` tend to be obnoxiously verbose; to make them more concise, use `MINIMAL_LOG_FORMAT=true` as a command-line environment variable, e.g. `MINIMAL_LOG_FORMAT=true ./jockc fib 10`.  You can also run the same minified log format with `make run fib 10`.)
+
+8. Add a new demo by saving Jock code in `/common/hoon/try` and running it by name.
+
+    If you modify the Hoon code located in `/crates/jockc/hoon/lib` or `/common/hoon/try`, run `make jockc` before running the new code.
+
+    If you modify the Rust code in `/crates/jockc/main.rs`, run `make jockc`.
+
 ### `jockt` Jock Test Framework
 
 If you are developing Jock itself, you should use the Jock testing tool `jockt` to verify behavior.
 
-7. Build the Jock testing tool:
+9. Build the Jock testing tool:
 
     ```sh
     make jockt
     ```
 
-8. Copy `jockt` from `target/build/release` to the root of `jock-lang`.
+10. Copy `jockt` from `target/build/release` to the root of `jock-lang`.
 
     ```sh
     cp target/build/release/jockt .
     ```
 
-9. Run a Jock program using its internal index:
+11. Run a Jock program using its internal index:
 
     ```sh
     ./jockt exec 5
@@ -121,7 +152,7 @@ If you are developing Jock itself, you should use the Jock testing tool `jockt` 
     make release-exec-all
     ```
 
-10. Run a Jock program with all tests:
+12. Run a Jock program with all tests:
 
     ```sh
     ./jockt test 5
