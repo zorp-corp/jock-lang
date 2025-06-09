@@ -75,7 +75,8 @@ If you are developing Jock code, you should use the Jock compiler tool `jockc`.
 6. Run a Jock program directly using its path:
 
     ```sh
-    ./jockc ./hoon/lib/test/let-edit.jock
+    ./jockc ./common/hoon/try/hello-world
+    ./jockc ./common/hoon/try/fib 10
     ```
 
 ### `jockt` Jock Test Framework
@@ -141,4 +142,4 @@ If you are developing Jock itself, you should use the Jock testing tool `jockt` 
 ## Releases
 
 - [0.0.0-dp, Developer Preview](https://zorp.io/blog/jock), ~2024.10.24
-- 0.1.0-alpha, upcoming
+- 0.1.0-alpha, release in preparation

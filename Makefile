@@ -80,26 +80,26 @@ assets/jockc.jam:
 	@set -e; \
 	RUST_LOG=trace MINIMAL_LOG_FORMAT=true ./hoonc crates/jockc/hoon/main.hoon crates/jockc/hoon; \
 	mv out.jam assets/jockc.jam; \
-	@exit 0
+	exit 0
 
 assets/jockt.jam:
 	@set -e; \
 	RUST_LOG=trace MINIMAL_LOG_FORMAT=true ./hoonc crates/jockt/hoon/main.hoon crates/jockt/hoon; \
 	mv out.jam assets/jockt.jam; \
-	@exit 0
+	exit 0
 
 .PHONY: jockc
 jockc: $(HOON_TARGETS) ## Compile the Jock compiler
 	@set -e; \
 	RUST_LOG=trace MINIMAL_LOG_FORMAT=true ./hoonc crates/jockc/hoon/main.hoon crates/jockc/hoon; \
 	mv out.jam assets/jockc.jam; \
-	cargo build $(PROFILE_RELEASE)
-	@exit 0
+	cargo build $(PROFILE_RELEASE); \
+	exit 0
 
 .PHONY: jockt
 jockt: $(HOON_TARGETS) ## Compile the Jock tester
 	@set -e; \
 	RUST_LOG=trace MINIMAL_LOG_FORMAT=true ./hoonc crates/jockt/hoon/main.hoon crates/jockt/hoon; \
 	mv out.jam assets/jockt.jam; \
-	cargo build $(PROFILE_RELEASE)
-	@exit 0
+	cargo build $(PROFILE_RELEASE); \
+	exit 0

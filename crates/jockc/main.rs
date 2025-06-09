@@ -24,11 +24,8 @@ struct TestCli {
     #[arg(help = "Path to Jock file to compile and run")]
     name_: Option<String>,
 
-    #[arg(help = "Path to root of dependency directory", default_value = "hoon/try")]
-    pub directory: std::path::PathBuf,
-
     #[arg(
-        long,
+        // long,
         help = "Optional numeric arguments for the Jock file",
         num_args = 0..,
         value_delimiter = ' '
@@ -53,18 +50,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let poke = {
         // Acquire name.
         let string = cli.name_.unwrap_or("".to_string());
-        let dir = cli.directory.to_str().unwrap_or("hoon/try");
-        let directory = if dir.ends_with('/') {
-            dir.to_string()
-        } else {
-            format!("{}/", dir)
-        };
         let mut slab = NounSlab::new();
         let name = Atom::from_value(&mut slab, string.clone()).unwrap().as_noun().as_atom().unwrap();
 
         // Acquire file text.
-        println!("Reading file: {}/{}.jock", directory, string);
-        let text = std::fs::read_to_string(format!("{}/{}.jock", directory, string))
+        println!("Reading file: {}.jock", string);
+        let text = std::fs::read_to_string(format!("{}.jock", string))
             .expect("Unable to read file");
         let text = Atom::from_value(&mut slab, text).unwrap().as_noun().as_atom().unwrap();
 

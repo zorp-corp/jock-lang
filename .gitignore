@@ -6,8 +6,8 @@ jockc
 jockt
 *.jam
 
-.data.crown
-**/.data.crown
+.data.*
+**/.data.*
 
 # Dev config
 .vscode/settings.json
