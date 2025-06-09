@@ -1,8 +1,10 @@
 # Compilation artifacts
 target
 bin/
-choo
-out.jam
+hoonc
+jockc
+jockt
+*.jam
 
 .data.crown
 **/.data.crown

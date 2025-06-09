@@ -1,3 +1,5 @@
+![](./img/wordmark-logo.png)
+
 # Jock, a friendly and practical programming language
 
 This is a developer preview of Jock, a friendly programming language that compiles to the [Nock instruction set architecture](#nock).
@@ -5,18 +7,17 @@ This is a developer preview of Jock, a friendly programming language that compil
 - [Jock language site](https://jock.org)
 - [@JockNockISA on X](https://x.com/JockNockISA)
 
-![](./img/wordmark-logo.png)
-
-The Jock compiler is written in [Hoon](https://docs.urbit.org) and runs on the NockApp architecture, [part of Nockchain](https://github.com/zorp-corp/nockchain).
-
-Jock code results in Nock which can be run on any Nock VM ([Sword](https://github.com/zorp-corp/sword), [Vere](https://github.com/urbit/vere)).
+This repo contains the Jock base language, tutorial materials, and language unit tests.
 
 ## Resources
 
 ### Jock
 
-- [Jock tutorial repo](https://github.com/zorp-corp/jockapp-tutorial)
-- [Jock tutorial site](https://docs.jock.org/getting-started)
+The Jock compiler is written in [Hoon](https://docs.urbit.org) and runs on the NockApp architecture, [part of Nockchain](https://github.com/zorp-corp/nockchain).
+
+Jock code results in Nock which can be run on any Nock VM ([Sword](https://github.com/zorp-corp/sword), [Vere](https://github.com/urbit/vere)).
+
+- [Jock tutorial](https://docs.jock.org/getting-started)
 - [Jock docs](https://docs.jock.org)
 - [@JockNockISA on X](https://x.com/JockNockISA)
 
@@ -55,20 +56,53 @@ The NockApp framework consists of Sword (formerly Ares), a runtime VM interprete
     cp nockchain/target/build/release/hoonc jock-lang/
     ```
 
-4. Compile the examples:
+### `jockc` Jock Compiler
+
+If you are developing Jock code, you should use the Jock compiler tool `jockc`.
+
+4. Build the Jock compiler and command-line execution environment:
 
     ```sh
-    cd jockapp-tutorial
-    make release
+    make jockc
     ```
 
-5. Run one of the available demos from `/hoon/lib/tests`:
+5. Copy `jockc` from `target/build/release` to the root of `jock-lang`.
 
-    ```bash
-    ./target/release/jocktest exec 0
+    ```sh
+    cp target/build/release/jockc .
+    ```
+
+6. Run a Jock program directly using its path:
+
+    ```sh
+    ./jockc ./hoon/lib/test/let-edit.jock
+    ```
+
+### `jockt` Jock Test Framework
+
+If you are developing Jock itself, you should use the Jock testing tool `jockt` to verify behavior.
+
+7. Build the Jock testing tool:
+
+    ```sh
+    make jockt
+    ```
+
+8. Copy `jockt` from `target/build/release` to the root of `jock-lang`.
+
+    ```sh
+    cp target/build/release/jockt .
+    ```
+
+9. Run a Jock program using its internal index:
+
+    ```sh
+    ./jockt exec 5
     # - or -
-    make exec 0
+    make exec 5
     ```
+
+    These are listed in `/hoon/lib/test-jock.hoon`.
 
     The demo will output several pieces of information:
 
@@ -80,23 +114,25 @@ The NockApp framework consists of Sword (formerly Ares), a runtime VM interprete
 
     Alternatively, run all codes:
 
-    ```bash
-    ./target/release/jocktest exec-all
+    ```sh
+    ./jockt exec-all
     # - or -
     make release-exec-all
     ```
 
-    Run a single test:
+10. Run a Jock program with all tests:
 
-    ```bash
-    ./target/release/jocktest test 25
+    ```sh
+    ./jockt test 5
     # - or -
-    make test 25
+    make test 5
     ```
 
-    Or run all tests (slow):
+    These indices are identical to those obtained in the previous step from `/hoon/lib/test-jock.hoon`.
 
-    ```bash
+    Alternatively, run all tests (slow):
+
+    ```sh
     ./target/release/jocktest test-all
     # - or -
     make release-test-all

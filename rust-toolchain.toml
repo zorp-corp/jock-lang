@@ -3,5 +3,11 @@
 # If we need to change to nightly please
 # note the reason why in this comment.
 # channel = "1.77.0"
-channel = "nightly-2025-01-15"
-components = ["miri"]
+#
+# We are using the nightly corresponding to 1.86
+# because we need to use the unstable cold_hint feature.
+# Using a newer nightly results in linker errors when
+# cross-compiling due to a workaround introduced in
+# rust master for some llvm linker errors, which breaks the zig linker.
+channel = "nightly-2025-02-14"
+components = ["llvm-tools-preview", "miri"]
