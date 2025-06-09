@@ -1,0 +1,11 @@
+// calculator
+// Various arithmetic operations, as a list
+
+[
+    1 + 2
+    4 - 3
+    6 * 5
+    8 / 7
+    9 ** 4
+    11 % 12
+]
