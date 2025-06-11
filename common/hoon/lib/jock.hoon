@@ -2341,10 +2341,14 @@
       =+  [val val-jyp]=$(j +.body.j)
       =+  [nex nex-jyp]=$(j next.j)
       ::  resolve against jyp here?
-      =/  trp  |.((pprint val val-jyp))  :: TODO better in gate
+      ~&  >  print+val
+      =/  trp=(trap tank)  (pprint val val-jyp)
+      ~&  >  %print-out
+      ~&  >>  trap+[-.trp]
+      ~&  >  %print-final
       :_  nex-jyp
       :+  %11
-        [%slog [%1 0] %1 trp %9 2 %0 1]
+        [%slog [%1 0] %1 -:trp %9 2 %0 1]
       nex
     ::
         %crash
@@ -2600,7 +2604,8 @@
   ++  pprint
     |=  [=noun =jype]
     ^-  (trap tank)
-    =>  bus  :: w/ tiny or whatever, jock-pprint in hoon, this is alias for hoon.jock-pprint, execution at runtime is the goal
+    :: =>  bus  :: w/ tiny or whatever, jock-pprint in hoon, this is alias for hoon.jock-pprint, execution at runtime is the goal
+    =-  ~&(inner+[-<] -)
     |.
     ^-  tank
     :+  %rose
@@ -2610,32 +2615,36 @@
       %+  weld
         $(jype p.jype, noun -.noun)
       $(jype q.jype, noun +.noun)
-    :_  ~
+    :_  ~  ::  XXX %rose takes a list
     ?+    -<.jype
+        ::  fall-through case, no type specialization
         :-  %leaf
-        "print: {<[-.jype]>} {<`*`nock>}"  :: scot is okay
+        "print: {<[-.jype]>} {<noun>}"
     ::
         %atom
-      %-  crip
       ?-    ->-.jype
+      ::
         %loobean
-      =/  str  (scot %f +.nock)
+      =/  str  (scot %f ;;(@ noun))
       (cut 3 [1 (dec (met 3 str))] str)
       ::
         %number
-      =/  str  (scot %ui +.nock)
+      =/  str  (scot %ui ;;(@ noun))
       (cut 3 [2 (dec (dec (met 3 str)))] str)
       ::
         %hexadecimal
-      =/  str  (scot %x +.nock)
+      =/  str  (scot %x ;;(@ noun))
       str
       ::
         %string
-      =/  str  (scot %t +.nock)
+      =/  str  (scot %t ;;(@ noun))
       (cut 3 [2 (dec (dec (met 3 str)))] str)  :: XXX scot %t adds ~~ to a cord
       ::
       ==
     ::
+      %list
+    %-  crip
+    "{<noun>}"
     ==
   --
 --
