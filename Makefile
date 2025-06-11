@@ -53,30 +53,53 @@ release-exec-all:
 	$(call show_env_vars)
 	@echo "Running release exec-all"
 	RUST_LOG=TRACE MINIMAL_LOG_FORMAT=true cargo run $(PROFILE_RELEASE) -- --new exec-all
+	@exit 0
 
 .PHONY: release-test-all
 release-test-all:
 	$(call show_env_vars)
 	@echo "Running release test-all"
 	RUST_LOG=TRACE MINIMAL_LOG_FORMAT=true cargo run $(PROFILE_RELEASE) -- --new test-all
+	@exit 0
 
 .PHONY: build
-build-dev-debug:
-	$(call show_env_vars)
-	RUST_LOG=trace ./hoonc hoon/main.hoon hoon; \
-	mv out.jam assets/jocktest.jam; \
-	cargo build $(PROFILE_DEV_DEBUG)
-
-.PHONY: build-release
-build-release:
-	$(call show_env_vars)
-	RUST_LOG=trace ./hoonc hoon/main.hoon hoon; \
-	mv out.jam assets/jocktest.jam; \
-	cargo build $(PROFILE_RELEASE)
+build: jockc jockt ## Build the Jock compiler and tester
 
 .PHONY: clean
 clean: ## Clean all projects
 	@set -e; \
 	rm -rf .data.hoonc/ ; \
 	rm -rf target/ ; \
+	rm -rf assets/*.jam ; \
 	cargo clean
+	@exit 0
+
+HOON_TARGETS=assets/jockc.jam assets/jockt.jam
+
+assets/jockc.jam:
+	@set -e; \
+	RUST_LOG=trace MINIMAL_LOG_FORMAT=true ./hoonc crates/jockc/hoon/main.hoon crates/jockc/hoon; \
+	mv out.jam assets/jockc.jam; \
+	exit 0
+
+assets/jockt.jam:
+	@set -e; \
+	RUST_LOG=trace MINIMAL_LOG_FORMAT=true ./hoonc crates/jockt/hoon/main.hoon crates/jockt/hoon; \
+	mv out.jam assets/jockt.jam; \
+	exit 0
+
+.PHONY: jockc
+jockc: $(HOON_TARGETS) ## Compile the Jock compiler
+	@set -e; \
+	RUST_LOG=trace MINIMAL_LOG_FORMAT=true ./hoonc crates/jockc/hoon/main.hoon crates/jockc/hoon; \
+	mv out.jam assets/jockc.jam; \
+	cargo build $(PROFILE_RELEASE); \
+	exit 0
+
+.PHONY: jockt
+jockt: $(HOON_TARGETS) ## Compile the Jock tester
+	@set -e; \
+	RUST_LOG=trace MINIMAL_LOG_FORMAT=true ./hoonc crates/jockt/hoon/main.hoon crates/jockt/hoon; \
+	mv out.jam assets/jockt.jam; \
+	cargo build $(PROFILE_RELEASE); \
+	exit 0

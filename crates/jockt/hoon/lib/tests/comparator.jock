@@ -1,0 +1,9 @@
+let a = true;
+let b = a == true;
+let c = a < 1;
+let d = a > 2;
+let e = b != true;
+let f = a <= 1;
+let g = a >= 2;
+
+g

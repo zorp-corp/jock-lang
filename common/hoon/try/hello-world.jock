@@ -1,0 +1,6 @@
+// hello-world
+// A simple demo of the Jock language.
+
+let a = 'Hello world!';
+print(a);
+a

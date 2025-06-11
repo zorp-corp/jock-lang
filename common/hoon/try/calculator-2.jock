@@ -1,0 +1,13 @@
+// calculator-2
+// Various transcendental operations, as a list
+import math;
+
+[
+    math.sin(6.283185307179586),
+    math.cos(3.141592653589793),
+    math.tan(1.5707963267948966),
+    math.sinh(0.0),
+    math.cosh(0.0),
+    math.tanh(0.0),
+    math.exp(5.0),
+]
