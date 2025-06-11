@@ -7,7 +7,7 @@ use sword_macros::tas;
 
 use clap::{arg, command, ColorChoice, Parser};
 static KERNEL_JAM: &[u8] =
-    include_bytes!(concat!(env!("CARGO_MANIFEST_DIR"), "/assets/jocktest.jam"));
+    include_bytes!(concat!(env!("CARGO_WORKSPACE_DIR"), "/assets/jockt.jam"));
 
 use crown::kernel::boot::Cli as BootCli;
 

@@ -1,0 +1,42 @@
+compose
+  class Point(x:@ y:@) {
+    add(p:(x:@ y:@)) -> Point {
+      (x + p.x
+       y + p.y)
+    }
+    sub(p:(x:@ y:@)) -> Point {
+      (x - p.x
+       y - p.y)
+    }
+//     // scale(p:@) -> Point {
+//     //   (hoon.mul(p x)
+//     //    hoon.mul(p y))
+//     // }
+  };
+
+let pt = Point(100 100);
+// pt.add(50 80)
+let st = pt.add(50 80);
+(st Point(20 30))
+// pt = Point(pt.add(50 80));
+// pt.sub(30 20)
+// // pt = pt.sub(30 20);
+// // pt.scale(10)
+
+/*
+!=
+=>  mini=mini
+=>
+  ^=  door
+  |_  x=@
+  ++  add
+    |=  p=[x=@ y=@]
+    (add:mini x x.p)
+  ++  inc
+    |=  q=@
+    +(q)
+  --
+=/  origin
+  ~(. door 50)
+=/  origin  (add:origin [70 80])
+*/
