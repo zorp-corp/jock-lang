@@ -2340,10 +2340,11 @@
       ~|  %print
       =+  [val val-jyp]=$(j +.body.j)
       =+  [nex nex-jyp]=$(j next.j)
-      :: =/  val  .*(0 [ val])  :: dereference Nock 0
+      ::  resolve against jyp here?
+      =/  trp  |.((pprint val val-jyp))  :: TODO better in gate
       :_  nex-jyp
       :+  %11
-        [%slog [%1 0] %1 (pprint val val-jyp)]
+        [%slog [%1 0] %1 trp %9 2 %0 1]
       nex
     ::
         %crash
@@ -2594,40 +2595,47 @@
         %atom
       [%5 [%1 `@`+.p.jock] %0 axis]
     ==
-  --
   ::
   ::  Prettyprinter
   ++  pprint
-    |=  [=nock =jype]
+    |=  [=noun =jype]
+    ^-  (trap tank)
+    =>  bus  :: w/ tiny or whatever, jock-pprint in hoon, this is alias for hoon.jock-pprint, execution at runtime is the goal
+    |.
     ^-  tank
     :+  %rose
       [" " "[" "]"]
     |-  ^-  (list tank)
     ?^  -<.jype
       %+  weld
-        $(jype p.jype, nock ;;(^nock -.nock))
-      $(jype q.jype, nock ;;(^nock +.nock))
+        $(jype p.jype, noun -.noun)
+      $(jype q.jype, noun +.noun)
     :_  ~
     ?+    -<.jype
         :-  %leaf
-        "print: {<[-.jype]>} {<`*`nock>}"
+        "print: {<[-.jype]>} {<`*`nock>}"  :: scot is okay
     ::
         %atom
       %-  crip
       ?-    ->-.jype
         %loobean
-      "{<;;(? +.nock)>}"
+      =/  str  (scot %f +.nock)
+      (cut 3 [1 (dec (met 3 str))] str)
       ::
         %number
-      "{<;;(@ud +.nock)>}"
+      =/  str  (scot %ui +.nock)
+      (cut 3 [2 (dec (dec (met 3 str)))] str)
       ::
         %hexadecimal
-      "{<;;(@ux +.nock)>}"
+      =/  str  (scot %x +.nock)
+      str
       ::
         %string
-      "{<;;(@t +.nock)>}"
+      =/  str  (scot %t +.nock)
+      (cut 3 [2 (dec (dec (met 3 str)))] str)  :: XXX scot %t adds ~~ to a cord
       ::
       ==
     ::
     ==
+  --
 --
