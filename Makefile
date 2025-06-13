@@ -63,7 +63,7 @@ release-test-all:
 	@exit 0
 
 .PHONY: build
-build: jockc #jockt ## Build the Jock compiler and tester
+build: jockc jockt ## Build the Jock compiler and tester
 
 .PHONY: clean
 clean: ## Clean all projects
@@ -75,7 +75,7 @@ clean: ## Clean all projects
 	@exit 0
 
 JOCKC_TARGETS=assets/jockc.jam
-# JOCKT_TARGETS=assets/jockt.jam
+JOCKT_TARGETS=assets/jockt.jam
 
 assets/jockc.jam:
 	@set -e; \
@@ -83,11 +83,11 @@ assets/jockc.jam:
 	mv out.jam assets/jockc.jam; \
 	exit 0
 
-# assets/jockt.jam:
-# 	@set -e; \
-# 	RUST_LOG=trace MINIMAL_LOG_FORMAT=true ./hoonc crates/jockt/hoon/main.hoon crates/jockt/hoon; \
-# 	mv out.jam assets/jockt.jam; \
-# 	exit 0
+assets/jockt.jam:
+	@set -e; \
+	RUST_LOG=trace MINIMAL_LOG_FORMAT=true ./hoonc crates/jockt/hoon/main.hoon crates/jockt/hoon; \
+	mv out.jam assets/jockt.jam; \
+	exit 0
 
 .PHONY: jockc
 jockc: $(JOCKC_TARGETS) ## Compile the Jock compiler
@@ -97,10 +97,10 @@ jockc: $(JOCKC_TARGETS) ## Compile the Jock compiler
 	cargo build $(PROFILE_RELEASE); \
 	exit 0
 
-# .PHONY: jockt
-# jockt: $(JOCKT_TARGETS) ## Compile the Jock tester
-# 	@set -e; \
-# 	RUST_LOG=trace MINIMAL_LOG_FORMAT=true ./hoonc crates/jockt/hoon/main.hoon crates/jockt/hoon; \
-# 	mv out.jam assets/jockt.jam; \
-# 	cargo build $(PROFILE_RELEASE); \
-# 	exit 0
+.PHONY: jockt
+jockt: $(JOCKT_TARGETS) ## Compile the Jock tester
+	@set -e; \
+	RUST_LOG=trace MINIMAL_LOG_FORMAT=true ./hoonc crates/jockt/hoon/main.hoon crates/jockt/hoon; \
+	mv out.jam assets/jockt.jam; \
+	cargo build $(PROFILE_RELEASE); \
+	exit 0
