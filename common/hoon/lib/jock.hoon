@@ -1,14 +1,26 @@
 /*  hoon  %txt  /lib/mini/txt
-=<  |%
+::
+::  The core structure of /lib/jock is rather complicated, and since we need
+::  to refer to cores by their relative addresses sometimes, it behooves us to
+::  enumerate them here.
+::
+::  +>        entrypoint door, immediately below
+::  +>+>      mint core, at end
+::  +>+>+     jeam door, in middle
+::  +>+>+>+   parse core, next
+::
+=<  |_  libs=(map path cord)
     ++  tokenize
       |=  txt=@
       ^-  tokens
+      =.  libs  (~(put by *(map path cord)) /hoon q.hoon)
       (rash txt parse-tokens)
     ::
     ++  jeam
       |=  txt=@
       ^-  jock
-      =+  [jok tokens]=(match-jock (rash txt parse-tokens))
+      =.  libs  (~(put by *(map path cord)) /hoon q.hoon)
+      =+  [jok tokens]=(~(match-jock +>+>+ libs) (rash txt parse-tokens))
       ?.  ?=(~ tokens)
         ~|  'jeam: must parse to a single jock'
         ~|  remaining+tokens
@@ -19,16 +31,17 @@
       |=  txt=@
       ^-  *
       =/  jok  (jeam (cat 3 'import hoon;\0a' txt))
-      =+  [nok jyp]=(~(mint cj [%atom %string %.n]^%$) jok)
+      =.  libs  (~(put by *(map path cord)) /hoon q.hoon)
+      =+  [nok jyp]=(~(mint cj:~(. +> libs) [%atom %string %.n]^%$) jok)
       nok
     ::
     ++  jypist
       |=  txt=@
       ^-  jype
       =/  jok  (jeam (cat 3 'import hoon;\0a' txt))
-      =+  [nok jyp]=(~(mint cj [%atom %string %.n]^%$) jok)
+      =.  libs  (~(put by *(map path cord)) /hoon q.hoon)
+      =+  [nok jyp]=(~(mint cj:~(. +> libs) [%atom %string %.n]^%$) jok)
       jyp
-    ::
     --
 =>
 ::
@@ -219,7 +232,7 @@
 ::
 ::  Ultimately all cases in the Jock AST resolve as one of jock, jype, or jlimb.
 ::
-|%
+|_  libs=(map path cord)
 +|  %ast
 ::
 +$  jock
@@ -987,7 +1000,7 @@
     =/  nom=term  ->.tokens
     =/  src=jock  [%limb ~[-.tokens]]
     =/  tokens  +.tokens
-    =/  past  (rush q.hoon (ifix [gay gay] tall:(vang | /)))
+    =/  past  (rush (~(got by libs) /[nom]) (ifix [gay gay] tall:(vang | /)))
     ?~  past  ~|("unable to parse Hoon library: {<[+<+.src]>}" !!)
     =/  p  (~(mint ut %noun) %noun u.past)
     =?  nom  (has-keyword -.tokens %as)
