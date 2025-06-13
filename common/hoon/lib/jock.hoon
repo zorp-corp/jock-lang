@@ -1,14 +1,18 @@
 /*  hoon  %txt  /lib/mini/txt
-=<  |%
+::
+=<  |_  libs=(map path cord)
     ++  tokenize
       |=  txt=@
       ^-  tokens
-      (rash txt parse-tokens)
+      =.  libs  (~(put by *(map path cord)) /hoon q.hoon)
+      (rash txt parse-tokens:~(. + libs))
     ::
     ++  jeam
       |=  txt=@
       ^-  jock
-      =+  [jok tokens]=(match-jock (rash txt parse-tokens))
+      =.  libs  (~(put by *(map path cord)) /hoon q.hoon)
+      ~&  libs+libs
+      =+  [jok tokens]=(match-jock:~(. + libs) (rash txt parse-tokens:~(. + libs)))
       ?.  ?=(~ tokens)
         ~|  'jeam: must parse to a single jock'
         ~|  remaining+tokens
@@ -19,16 +23,17 @@
       |=  txt=@
       ^-  *
       =/  jok  (jeam (cat 3 'import hoon;\0a' txt))
-      =+  [nok jyp]=(~(mint cj [%atom %string %.n]^%$) jok)
+      =.  libs  (~(put by *(map path cord)) /hoon q.hoon)
+      =+  [nok jyp]=(~(mint cj:~(. +> libs) [%atom %string %.n]^%$) jok)
       nok
     ::
     ++  jypist
       |=  txt=@
       ^-  jype
       =/  jok  (jeam (cat 3 'import hoon;\0a' txt))
-      =+  [nok jyp]=(~(mint cj [%atom %string %.n]^%$) jok)
+      =.  libs  (~(put by *(map path cord)) /hoon q.hoon)
+      =+  [nok jyp]=(~(mint cj:~(. +> libs) [%atom %string %.n]^%$) jok)
       jyp
-    ::
     --
 =>
 ::
@@ -40,7 +45,7 @@
 ::  function that takes a string of text and returns a list of tokens.  It is
 ::  agnostic to whitespace.  Comments are ignored at the parser level.
 ::
-|%
+|_  libs=(map path cord)
 +|  %tokenizer
 ::
 +$  keyword
@@ -987,7 +992,8 @@
     =/  nom=term  ->.tokens
     =/  src=jock  [%limb ~[-.tokens]]
     =/  tokens  +.tokens
-    =/  past  (rush q.hoon (ifix [gay gay] tall:(vang | /)))
+    ~&  import+[libs]
+    =/  past  (rush (~(got by libs) /[nom]) (ifix [gay gay] tall:(vang | /)))
     ?~  past  ~|("unable to parse Hoon library: {<[+<+.src]>}" !!)
     =/  p  (~(mint ut %noun) %noun u.past)
     =?  nom  (has-keyword -.tokens %as)
