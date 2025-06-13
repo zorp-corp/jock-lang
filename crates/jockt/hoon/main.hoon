@@ -3,10 +3,11 @@
     *wrapper
 =>
 |%
-+$  test-state  [%0 ~]
++$  test-state  [%0 libs=(map term cord)]
 ++  moat  (keep test-state)
 +$  cause
-  $%  [%test n=@]
+  $%  [%load-libs libs=(list (pair term cord))]
+      [%test n=@]
       [%test-all ~]
       [%exec n=@]
       [%exec-all ~]
@@ -46,56 +47,60 @@
   ?~  soft-cau  ~|("could not mold poke type: {<cause>}" !!)
   =/  c=^cause  u.soft-cau
   ?-    -.c
+      %libs
+    =/  libs  `(map term cord)`(malt libs-list.cau)
+    [~ k(libs libs)]
+    ::
       %exec
-    ?.  (gth (lent list-jocks:test-jock) n.c)
+    ?.  (gth (lent list-jocks:~(. test-jock libs)) n.c)
       ~&  >>>  "index out of range: {<n.c>}"
       [~ k]
     ~&  >  "running code {<n.c>}"
-    =/  code  (snag n.c list-jocks:test-jock)
+    =/  code  (snag n.c list-jocks:~(. test-jock libs))
     ~&       code+[-:code]
-    ~&  >    parse+(parse:test-jock +.code)
-    ~&  >>   jeam+(jeam:test-jock +.code)
-    =/  res  `*`(mint:test-jock +.code)
+    ~&  >    parse+(parse:~(. test-jock libs) +.code)
+    ~&  >>   jeam+(jeam:~(. test-jock libs) +.code)
+    =/  res  `*`(mint:~(. test-jock libs) +.code)
     ~&  >    mint+res
-    ~&  >>   jype+(jype:test-jock +.code)
-    ~&  >>>  nock+(nock:test-jock +.code)
+    ~&  >>   jype+(jype:~(. test-jock libs) +.code)
+    ~&  >>>  nock+(nock:~(. test-jock libs) +.code)
     [~ k]
   ::
       %exec-all
-    ~&  exec-all:test-jock
+    ~&  exec-all:~(. test-jock libs)
     [~ k]
   ::
       %test
     ~&  "testing {<n.c>}"
-    ~&  (test:test-jock n.c)
+    ~&  (test:~(. test-jock libs) n.c)
     [~ k]
   ::
       %test-all
-    ~&  test-all:test-jock
+    ~&  test-all:~(. test-jock libs)
     [~ k]
   ::
       %parse-all
-    ~&  parse-all:test-jock
+    ~&  parse-all:~(. test-jock libs)
     [~ k]
   ::
       %jeam-all
-    ~&  jeam-all:test-jock
+    ~&  jeam-all:~(. test-jock libs)
     [~ k]
   ::
       %mint-all
-    ~&  mint-all:test-jock
+    ~&  mint-all:~(. test-jock libs)
     [~ k]
   ::
       %jype-all
-    ~&  jype-all:test-jock
+    ~&  jype-all:~(. test-jock libs)
     [~ k]
   ::
       %nock-all
-    ~&  nock-all:test-jock
+    ~&  nock-all:~(. test-jock libs)
     [~ k]
   ::
       %run-details
-    ~&  run-details:test-jock
+    ~&  run-details:~(. test-jock libs)
     [~ k]
   ::
   ==
