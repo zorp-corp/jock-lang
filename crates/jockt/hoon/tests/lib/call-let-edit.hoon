@@ -1,7 +1,7 @@
 ::  /lib/tests/call-let-edit
 /+  jock,
-    test
-/*  hoon  %txt  /lib/mini/txt
+    test,
+    hoon
 ::
 |%
 ++  text

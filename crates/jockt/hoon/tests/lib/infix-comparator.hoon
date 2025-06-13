@@ -1,7 +1,7 @@
 ::  /lib/tests/infix-comparator
 /+  jock,
-    test
-/*  hoon  %txt  /lib/mini/txt
+    test,
+    hoon
 ::
 |%
 ++  text

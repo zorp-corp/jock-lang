@@ -1,7 +1,7 @@
 ::  /lib/tests/type-point-2
 /+  jock,
-    test
-/*  hoon  %txt  /lib/mini/txt
+    test,
+    hoon
 ::
 |%
 ++  text

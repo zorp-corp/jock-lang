@@ -1,11 +1,11 @@
 /+  jock
 ::
-|%
+|_  libs=(map term cord)
 ++  parse
   |=  =cord
   ^-  (list token:jock)
   ~|  %parse
-  (rash cord parse-tokens:jock)
+  (rash cord parse-tokens:~(. jock libs))
 ::
 ++  jeam
   |=  =cord
@@ -14,7 +14,7 @@
   =/  res=(unit jock:jock)
     %-  mole
     |.
-    (jeam:jock cord)
+    (jeam:~(. jock libs) cord)
   ?~  res
     *jock:jock
   u.res
@@ -26,7 +26,7 @@
   =/  res=(unit *)
     %-  mole
     |.
-    (mint:jock cord)
+    (mint:~(. jock libs) cord)
   ?~  res
     *nock:jock
   ;;(nock:jock u.res)
@@ -38,7 +38,7 @@
   =/  res=(unit jype:jock)
     %-  mole
     |.
-    (jypist:jock cord)
+    (jypist:~(. jock libs) cord)
   ?~  res
     *jype:jock
   u.res
@@ -50,7 +50,7 @@
   =/  res=(unit *)
     %-  mole
     |.
-    .*(%0 (mint cord))
+    .*(%0 (mint:~(. jock libs) cord))
   ?~  res
     *nock:jock
   u.res
@@ -58,7 +58,7 @@
 ++  exec
   |=  =cord
   ^-  *
-  =/  nok  (mint cord)
+  =/  nok  (mint:~(. jock libs) cord)
   .*(0 +.nok)
 ::
 --

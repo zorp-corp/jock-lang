@@ -1,7 +1,7 @@
 ::  /lib/tests/match-type
 /+  jock,
-    test
-/*  hoon  %txt  /lib/mini/txt
+    test,
+    hoon
 ::
 |%
 ++  text

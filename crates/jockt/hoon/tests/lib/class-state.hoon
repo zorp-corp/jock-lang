@@ -1,7 +1,7 @@
 ::  /lib/tests/class-state
 /+  jock,
-    test
-/*  hoon  %txt  /lib/mini/txt
+    test,
+    hoon
 ::
 |%
 ++  text

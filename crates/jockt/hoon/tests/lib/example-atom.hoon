@@ -1,7 +1,7 @@
 ::  /lib/tests/example-atom
 /+  jock,
-    test
-/*  hoon  %txt  /lib/mini/txt
+    test,
+    hoon
 ::
 |%
 ++  text

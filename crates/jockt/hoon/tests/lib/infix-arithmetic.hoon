@@ -1,7 +1,7 @@
 ::  /lib/tests/infix-arithmetic
 /+  jock,
-    test
-/*  hoon  %txt  /lib/mini/txt
+    test,
+    hoon
 ::
 |%
 ++  text

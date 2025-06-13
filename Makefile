@@ -74,7 +74,8 @@ clean: ## Clean all projects
 	cargo clean
 	@exit 0
 
-HOON_TARGETS=assets/jockc.jam assets/jockt.jam
+JOCKC_TARGETS=assets/jockc.jam
+JOCKT_TARGETS=assets/jockt.jam
 
 assets/jockc.jam:
 	@set -e; \
@@ -89,7 +90,7 @@ assets/jockt.jam:
 	exit 0
 
 .PHONY: jockc
-jockc: $(HOON_TARGETS) ## Compile the Jock compiler
+jockc: $(JOCKC_TARGETS) ## Compile the Jock compiler
 	@set -e; \
 	RUST_LOG=trace MINIMAL_LOG_FORMAT=true ./hoonc crates/jockc/hoon/main.hoon crates/jockc/hoon; \
 	mv out.jam assets/jockc.jam; \
@@ -97,7 +98,7 @@ jockc: $(HOON_TARGETS) ## Compile the Jock compiler
 	exit 0
 
 .PHONY: jockt
-jockt: $(HOON_TARGETS) ## Compile the Jock tester
+jockt: $(JOCKT_TARGETS) ## Compile the Jock tester
 	@set -e; \
 	RUST_LOG=trace MINIMAL_LOG_FORMAT=true ./hoonc crates/jockt/hoon/main.hoon crates/jockt/hoon; \
 	mv out.jam assets/jockt.jam; \

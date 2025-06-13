@@ -85,6 +85,12 @@ If you are developing Jock code, you should use the Jock compiler tool `jockc`.
     ls common/hoon/try
     ```
 
+    Supply a path for library imports:
+
+    ```sh
+    ./jockc ./common/hoon/try/import --import-dir ./common/hoon/jib
+    ```
+
 7. Run a demo with its name and any arguments:
 
     ```sh
