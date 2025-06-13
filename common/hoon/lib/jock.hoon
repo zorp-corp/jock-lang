@@ -14,30 +14,18 @@
       |=  txt=@
       ^-  tokens
       =.  libs  (~(put by *(map path cord)) /hoon q.hoon)
-      (rash txt parse-tokens:~(. + libs))
+      (rash txt parse-tokens)
     ::
     ++  jeam
       |=  txt=@
       ^-  jock
-      :: =.  libs  (~(put by *(map path cord)) /hoon q.hoon)
-      :: ~&  libs+libs
-      :: ~&  >  thing+[~(. + libs)]
-      :: =/  dor  ~(. +>+>+ libs)
-      ~&  >  dor+[+]  :: payload
-      ~&  >>  dor+[(sloe -:!>(+>))]  :: context 4 7 50 11
-      ~&  >>>  dor+[(sloe -:!>(+>+))]  :: 7 50 11
-      ~&  dor+[(sloe -:!>(+>+>))]  :: 7
-      ~&  >  dor+[(sloe -:!>(+>+>+))]  :: 50
-      ~&  >>  dor+[(sloe -:!>(+>+>+>))]  :: 50
-      ~&  >>>  dor+[(sloe -:!>(+>+>+>+))]  :: 50
-      =/  gat  ~(match-jock +>+>+ libs) 
+      =.  libs  (~(put by *(map path cord)) /hoon q.hoon)
       =+  [jok tokens]=(~(match-jock +>+>+ libs) (rash txt parse-tokens))
       ?.  ?=(~ tokens)
         ~|  'jeam: must parse to a single jock'
         ~|  remaining+tokens
         !!
-      :: jok
-      !!
+      jok
     ::
     ++  mint
       |=  txt=@
@@ -1012,7 +1000,6 @@
     =/  nom=term  ->.tokens
     =/  src=jock  [%limb ~[-.tokens]]
     =/  tokens  +.tokens
-    ~&  import+[libs]
     =/  past  (rush (~(got by libs) /[nom]) (ifix [gay gay] tall:(vang | /)))
     ?~  past  ~|("unable to parse Hoon library: {<[+<+.src]>}" !!)
     =/  p  (~(mint ut %noun) %noun u.past)
