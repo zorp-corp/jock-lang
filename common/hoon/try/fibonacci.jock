@@ -1,12 +1,12 @@
 // fibonacci
 
-func fib(n:@) -> @ {
-  if n == 0 {
+func fib(n_:@) -> @ {
+  if n_ == 0 {
     1
-  } else if n == 1 {
+  } else if n_ == 1 {
     1
   } else {
-    $(n - 1) + $(n - 2)
+    $(n_ - 1) + $(n_ - 2)
   }
 };
 
