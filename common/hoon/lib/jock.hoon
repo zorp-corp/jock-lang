@@ -1,5 +1,14 @@
 /*  hoon  %txt  /lib/mini/txt
 ::
+::  The core structure of /lib/jock is rather complicated, and since we need
+::  to refer to cores by their relative addresses sometimes, it behooves us to
+::  enumerate them here.
+::
+::  +>        entrypoint door, immediately below
+::  +>+>      mint core, at end
+::  +>+>+     jeam door, in middle
+::  +>+>+>+   parse core, next
+::
 =<  |_  libs=(map path cord)
     ++  tokenize
       |=  txt=@
@@ -10,14 +19,25 @@
     ++  jeam
       |=  txt=@
       ^-  jock
-      =.  libs  (~(put by *(map path cord)) /hoon q.hoon)
-      ~&  libs+libs
-      =+  [jok tokens]=(match-jock:~(. + libs) (rash txt parse-tokens:~(. + libs)))
+      :: =.  libs  (~(put by *(map path cord)) /hoon q.hoon)
+      :: ~&  libs+libs
+      :: ~&  >  thing+[~(. + libs)]
+      :: =/  dor  ~(. +>+>+ libs)
+      ~&  >  dor+[+]  :: payload
+      ~&  >>  dor+[(sloe -:!>(+>))]  :: context 4 7 50 11
+      ~&  >>>  dor+[(sloe -:!>(+>+))]  :: 7 50 11
+      ~&  dor+[(sloe -:!>(+>+>))]  :: 7
+      ~&  >  dor+[(sloe -:!>(+>+>+))]  :: 50
+      ~&  >>  dor+[(sloe -:!>(+>+>+>))]  :: 50
+      ~&  >>>  dor+[(sloe -:!>(+>+>+>+))]  :: 50
+      =/  gat  ~(match-jock +>+>+ libs) 
+      =+  [jok tokens]=(~(match-jock +>+>+ libs) (rash txt parse-tokens))
       ?.  ?=(~ tokens)
         ~|  'jeam: must parse to a single jock'
         ~|  remaining+tokens
         !!
-      jok
+      :: jok
+      !!
     ::
     ++  mint
       |=  txt=@
@@ -45,7 +65,7 @@
 ::  function that takes a string of text and returns a list of tokens.  It is
 ::  agnostic to whitespace.  Comments are ignored at the parser level.
 ::
-|_  libs=(map path cord)
+|%
 +|  %tokenizer
 ::
 +$  keyword
@@ -224,7 +244,7 @@
 ::
 ::  Ultimately all cases in the Jock AST resolve as one of jock, jype, or jlimb.
 ::
-|%
+|_  libs=(map path cord)
 +|  %ast
 ::
 +$  jock
