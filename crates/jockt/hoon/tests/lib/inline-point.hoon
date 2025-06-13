@@ -1,7 +1,7 @@
 ::  /lib/tests/inline-point
 /+  jock,
-    test
-/*  hoon  %txt  /lib/mini/txt
+    test,
+    hoon
 ::
 |%
 ++  text

@@ -1,7 +1,7 @@
 ::  /lib/tests/in-subj-call
 /+  jock,
-    test
-/*  hoon  %txt  /lib/mini/txt
+    test,
+    hoon
 ::
 |%
 ++  text

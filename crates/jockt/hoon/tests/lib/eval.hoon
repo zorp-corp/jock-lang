@@ -1,7 +1,7 @@
 ::  /lib/tests/eval
 /+  jock,
-    test
-/*  hoon  %txt  /lib/mini/txt
+    test,
+    hoon
 ::
 |%
 ++  text
