@@ -1,7 +1,7 @@
 ::  /lib/tests/inline-lambda-no-arg
 /+  jock,
-    test,
-    hoon
+    test
+/*  hoon  %txt  /lib/mini/txt
 ::
 |%
 ++  text

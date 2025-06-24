@@ -1,7 +1,7 @@
 ::  /lib/tests/hoon-arithmetic
 /+  jock,
-    test,
-    hoon
+    test
+/*  hoon  %txt  /lib/mini/txt
 ::
 |%
 ++  text

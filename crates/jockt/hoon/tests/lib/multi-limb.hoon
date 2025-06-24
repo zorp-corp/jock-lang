@@ -1,7 +1,7 @@
 ::  /lib/tests/multi-limb
 /+  jock,
-    test,
-    hoon
+    test
+/*  hoon  %txt  /lib/mini/txt
 ::
 |%
 ++  text

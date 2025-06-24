@@ -1,7 +1,7 @@
 ::  /lib/tests/lists-nested
 /+  jock,
-    test,
-    hoon
+    test
+/*  hoon  %txt  /lib/mini/txt
 ::
 |%
 ++  text

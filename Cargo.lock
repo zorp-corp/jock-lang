@@ -148,7 +148,7 @@ checksum = "7c02d123df017efcdfbd739ef81735b36c5ba83ec3c59c80a9d7ecc718f92e50"
 [[package]]
 name = "assert_no_alloc"
 version = "1.1.2"
-source = "git+https://github.com/zorp-corp/nockchain.git?rev=932c8e6b6d159e072d1f4b6d26cc0dccbae4a377#932c8e6b6d159e072d1f4b6d26cc0dccbae4a377"
+source = "git+https://github.com/zorp-corp/nockchain?rev=932c8e6b6d159e072d1f4b6d26cc0dccbae4a377#932c8e6b6d159e072d1f4b6d26cc0dccbae4a377"
 
 [[package]]
 name = "async-stream"
@@ -655,7 +655,7 @@ dependencies = [
 [[package]]
 name = "crown"
 version = "0.1.0"
-source = "git+https://github.com/zorp-corp/nockchain.git?rev=932c8e6b6d159e072d1f4b6d26cc0dccbae4a377#932c8e6b6d159e072d1f4b6d26cc0dccbae4a377"
+source = "git+https://github.com/zorp-corp/nockchain?rev=932c8e6b6d159e072d1f4b6d26cc0dccbae4a377#932c8e6b6d159e072d1f4b6d26cc0dccbae4a377"
 dependencies = [
  "anyhow",
  "assert_no_alloc",
@@ -1294,7 +1294,7 @@ dependencies = [
 [[package]]
 name = "ibig"
 version = "0.3.6"
-source = "git+https://github.com/zorp-corp/nockchain.git?rev=932c8e6b6d159e072d1f4b6d26cc0dccbae4a377#932c8e6b6d159e072d1f4b6d26cc0dccbae4a377"
+source = "git+https://github.com/zorp-corp/nockchain?rev=932c8e6b6d159e072d1f4b6d26cc0dccbae4a377#932c8e6b6d159e072d1f4b6d26cc0dccbae4a377"
 dependencies = [
  "cfg-if",
  "num-traits",
@@ -1527,7 +1527,6 @@ checksum = "49f1f14873335454500d59611f1cf4a4b0f786f9ac11f4312a78e4cf2566695b"
 name = "jockc"
 version = "0.1.0"
 dependencies = [
- "assert_no_alloc",
  "clap",
  "crown",
  "sword",
@@ -1753,7 +1752,7 @@ dependencies = [
 [[package]]
 name = "murmur3"
 version = "0.5.2"
-source = "git+https://github.com/zorp-corp/nockchain.git?rev=932c8e6b6d159e072d1f4b6d26cc0dccbae4a377#932c8e6b6d159e072d1f4b6d26cc0dccbae4a377"
+source = "git+https://github.com/zorp-corp/nockchain?rev=932c8e6b6d159e072d1f4b6d26cc0dccbae4a377#932c8e6b6d159e072d1f4b6d26cc0dccbae4a377"
 
 [[package]]
 name = "no-std-compat"
@@ -2512,7 +2511,7 @@ checksum = "13c2bddecc57b384dee18652358fb23172facb8a2c51ccc10d74c157bdea3292"
 [[package]]
 name = "sword"
 version = "0.1.0"
-source = "git+https://github.com/zorp-corp/nockchain.git?rev=932c8e6b6d159e072d1f4b6d26cc0dccbae4a377#932c8e6b6d159e072d1f4b6d26cc0dccbae4a377"
+source = "git+https://github.com/zorp-corp/nockchain?rev=932c8e6b6d159e072d1f4b6d26cc0dccbae4a377#932c8e6b6d159e072d1f4b6d26cc0dccbae4a377"
 dependencies = [
  "assert_no_alloc",
  "autotools",
@@ -2541,7 +2540,7 @@ dependencies = [
 [[package]]
 name = "sword_crypto"
 version = "0.1.0"
-source = "git+https://github.com/zorp-corp/nockchain.git?rev=932c8e6b6d159e072d1f4b6d26cc0dccbae4a377#932c8e6b6d159e072d1f4b6d26cc0dccbae4a377"
+source = "git+https://github.com/zorp-corp/nockchain?rev=932c8e6b6d159e072d1f4b6d26cc0dccbae4a377#932c8e6b6d159e072d1f4b6d26cc0dccbae4a377"
 dependencies = [
  "aes",
  "aes-siv",
@@ -2557,7 +2556,7 @@ dependencies = [
 [[package]]
 name = "sword_macros"
 version = "0.1.0"
-source = "git+https://github.com/zorp-corp/nockchain.git?rev=932c8e6b6d159e072d1f4b6d26cc0dccbae4a377#932c8e6b6d159e072d1f4b6d26cc0dccbae4a377"
+source = "git+https://github.com/zorp-corp/nockchain?rev=932c8e6b6d159e072d1f4b6d26cc0dccbae4a377#932c8e6b6d159e072d1f4b6d26cc0dccbae4a377"
 dependencies = [
  "quote",
  "syn 1.0.109",

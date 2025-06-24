@@ -1,7 +1,7 @@
 ::  /lib/tests/compose-cores
 /+  jock,
-    test,
-    hoon
+    test
+/*  hoon  %txt  /lib/mini/txt
 ::
 |%
 ++  text

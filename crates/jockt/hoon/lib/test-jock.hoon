@@ -394,13 +394,13 @@
   |-
   ?:  =(i len)  ~
   =/  [tag=@tas =cord]  (snag i list-jocks)
-  =/  par  (parse:~(. jock libs) cord)
+  =/  par  (parse cord)
   ~&  "{<i>}: parse {<par>}"
-  =/  jem  (jeam:~(. jock libs) cord)
+  =/  jem  (jeam cord)
   ~&  >  "{<i>}: jeam {<jem>}"
-  =/  min  (mint:~(. jock libs) cord)
+  =/  min  (mint cord)
   ~&  >>  "{<i>}: mint {<min>}"
-  =/  nok  (nock:~(. jock libs) cord)
+  =/  nok  (nock cord)
   ~&  >>>  "{<i>}: nock {<nok>}"
   $(i +(i))
 ++  run-details

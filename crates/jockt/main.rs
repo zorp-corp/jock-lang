@@ -1,8 +1,8 @@
 use crown::nockapp::driver::Operation;
 use crown::utils::make_tas;
 use crown::{kernel::boot, noun::slab::NounSlab};
-use crown::{one_punch_driver, Noun};
-use sword::noun::{D, T};
+use crown::{one_punch_driver, Noun, AtomExt};
+use sword::noun::{Atom, D, T};
 use sword_macros::tas;
 
 use clap::{arg, command, ColorChoice, Parser};
@@ -72,6 +72,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     .await?;
 
     boot::init_default_tracing(&cli.boot.clone());
+    let mut slab = NounSlab::new();
 
     // Load libraries from path if provided.
     let lib_path = cli.lib_path.unwrap_or("lib_path".to_string());
@@ -111,19 +112,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
     println!("Found {} library files", lib_texts.len());
-    if (lib_texts.len() > 0) {
+    if lib_texts.len() > 0 {
         let tuple = vec_to_hoon_tuple_list(&mut slab, lib_texts);
         let tas = make_tas(&mut slab, "load-libs");
-        create_poke(&[
+        let poke = create_poke(&[
             D(tas!(b"jock")),
-            T(&mut slab, &[tas, tuple])
-        ])
+            T(&mut slab, &[tas.as_noun(), tuple])
+        ]);
         
         nockapp
             .add_io_driver(one_punch_driver(poke, Operation::Poke))
             .await;
 
-        nockapp.run().await?;
+        // nockapp.run().await?;
     }
 
     let poke = match cli.command {
