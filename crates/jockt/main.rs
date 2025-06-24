@@ -94,7 +94,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                     .as_noun()
                                     .as_atom()
                                     .unwrap();
-                                // lib_names.push(lib_name);
                                 // Read file content.
                                 let lib_text = std::fs::read_to_string(&path)
                                     .expect("Unable to read library file");
@@ -103,7 +102,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                     .as_noun()
                                     .as_atom()
                                     .unwrap();
-                                // lib_texts.push(T(&mut slab, &[lib_name, _lib_text]));
                                 lib_texts.push((lib_name, _lib_text));
                                 println!("Loaded library: {}", stem_str);
                             }
@@ -116,14 +114,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Found {} library files", lib_texts.len());
     if lib_texts.len() > 0 {
         let tuple = vec_to_hoon_tuple_list(&mut slab, lib_texts);
-        let tas = make_tas(&mut slab, "load-libs");
-        let poke = create_poke(&[
-            D(tas!(b"jock")),
-            T(&mut slab, &[tas.as_noun(), tuple])
-        ]);
+        let tas = make_tas(&mut slab, "load-libs").as_noun();
+
+        // do this: create a new slab. now build your entire poke
+        // on this slab by passing the slab into T. if you have
+        // existing nouns before you create the slab then call
+        // slab.copy_into() to copy them into the slab. then
+        // finally call slab.set_root() to set the root of the
+        // slab to be the final noun for the poke. and now finally
+        // pass the slab itself into the call to poke().
 
         println!("Poking with load-libs");
-        nockapp.poke(SystemWire.to_wire(), poke).await?;
+        let poke = T(&mut slab, &[tas, tuple]);
+        slab.set_root(poke);
+        nockapp.poke(SystemWire.to_wire(), slab).await?;
         println!("Load-libs poke completed successfully");
     }
 
@@ -182,7 +186,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .add_io_driver(one_punch_driver(poke, Operation::Poke))
         .await;
 
-    println!("Running nock app with poke");
     nockapp.run().await?;
     println!("Nock app run completed successfully");
 

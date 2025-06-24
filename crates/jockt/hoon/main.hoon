@@ -6,7 +6,7 @@
 +$  test-state  [%0 libs=(map term cord)]
 ++  moat  (keep test-state)
 +$  cause
-  $%  [%load-libs libs=(list (pair term cord))]
+  $%  [%load-libs libs=*] ::(list (pair term cord))]
       [%test n=@]
       [%test-all ~]
       [%exec n=@]
@@ -48,7 +48,8 @@
   =/  c=^cause  u.soft-cau
   ?-    -.c
       %load-libs
-    =/  libs  `(map term cord)`(malt libs.c)
+    =/  libs  `(map term cord)`(malt ;;((list (pair term cord)) libs.c))
+    ~&  >  "loading libs {<~(tap by libs)>}"
     [~ k(libs libs)]
     ::
       %exec
