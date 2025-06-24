@@ -4,6 +4,7 @@ use crown::{kernel::boot, noun::slab::NounSlab};
 use crown::{one_punch_driver, Noun, AtomExt};
 use sword::noun::{Atom, D, T};
 use sword_macros::tas;
+use crown::nockapp::wire::{SystemWire, Wire};
 
 use clap::{arg, command, ColorChoice, Parser};
 static KERNEL_JAM: &[u8] =
@@ -23,7 +24,8 @@ struct ExecCli {
     #[arg(
         long = "import-dir",
         help = "Supply a path for library imports",
-        num_args = 1
+        num_args = 1,
+        global = true
     )]
     lib_path: Option<String>,
 }
@@ -119,12 +121,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             D(tas!(b"jock")),
             T(&mut slab, &[tas.as_noun(), tuple])
         ]);
-        
-        nockapp
-            .add_io_driver(one_punch_driver(poke, Operation::Poke))
-            .await;
 
-        // nockapp.run().await?;
+        println!("Poking with load-libs");
+        nockapp.poke(SystemWire.to_wire(), poke).await?;
+        println!("Load-libs poke completed successfully");
     }
 
     let poke = match cli.command {
@@ -182,7 +182,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .add_io_driver(one_punch_driver(poke, Operation::Poke))
         .await;
 
+    println!("Running nock app with poke");
     nockapp.run().await?;
+    println!("Nock app run completed successfully");
 
     Ok(())
 }

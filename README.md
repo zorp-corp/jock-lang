@@ -179,4 +179,4 @@ If you are developing Jock itself, you should use the Jock testing tool `jockt` 
 ## Releases
 
 - [0.0.0-dp, Developer Preview](https://zorp.io/blog/jock), ~2024.10.24
-- 0.1.0-alpha, release in preparation
+- 0.1.0-alpha, ~2025.6.27
