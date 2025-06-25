@@ -125,8 +125,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         // pass the slab itself into the call to poke().
 
         println!("Poking with load-libs");
-        let poke = T(&mut slab, &[tas, tuple]);
-        slab.set_root(poke);
+        // let poke = T(&mut slab, &[tas, tuple]);
+        // slab.set_root(poke);
+        // slab.modify(|root| { vec![D(tas!(b"jock")), name.as_noun(), text.as_noun(), args, tuple] })
+        slab.modify(| _root | { vec![tas, tuple] });
+
         nockapp.poke(SystemWire.to_wire(), slab).await?;
         println!("Load-libs poke completed successfully");
     }

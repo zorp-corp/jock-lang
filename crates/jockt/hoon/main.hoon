@@ -6,7 +6,7 @@
 +$  test-state  [%0 libs=(map term cord)]
 ++  moat  (keep test-state)
 +$  cause
-  $%  [%load-libs libs=*] ::(list (pair term cord))]
+  $%  [%load-libs libs=(list (pair term cord))]
       [%test n=@]
       [%test-all ~]
       [%exec n=@]
