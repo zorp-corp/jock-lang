@@ -1,16 +1,17 @@
-use crown::nockapp::driver::Operation;
-use crown::utils::make_tas;
-use crown::{kernel::boot, noun::slab::NounSlab};
-use crown::{one_punch_driver, Noun, AtomExt};
-use sword::noun::{Atom, D, T};
-use sword_macros::tas;
-use crown::nockapp::wire::{SystemWire, Wire};
+use nockapp::driver::Operation;
+use nockapp::utils::make_tas;
+use nockapp::kernel::boot;
+use nockapp::noun::slab::NounSlab;
+use nockapp::{one_punch_driver, Noun, AtomExt};
+use nockvm::noun::{Atom, D, T};
+use nockvm_macros::tas;
+use nockapp::wire::{SystemWire, Wire};
 
 use clap::{arg, command, ColorChoice, Parser};
 static KERNEL_JAM: &[u8] =
     include_bytes!(concat!(env!("CARGO_WORKSPACE_DIR"), "/assets/jockt.jam"));
 
-use crown::kernel::boot::Cli as BootCli;
+use nockapp::kernel::boot::Cli as BootCli;
 
 #[derive(Parser, Debug)]
 #[command(about = "Execs various poke types for the kernel", author = "zorp", version, color = ColorChoice::Auto)]
@@ -64,7 +65,7 @@ enum Command {
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = ExecCli::parse();
 
-    let mut nockapp = boot::setup(
+    let mut nockapp:nockapp::NockApp = boot::setup(
         KERNEL_JAM,
         Some(cli.boot.clone()),
         &[],
@@ -140,7 +141,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             create_poke(&[D(tas!(b"exec")), D(n)])
         }
         Command::ExecAll {} => {
-            let mut slab = NounSlab::new();
+            let mut slab:NounSlab = NounSlab::new();
             let tas = make_tas(&mut slab, "exec-all");
             create_poke(&[tas.as_noun(), D(0)])
         }
@@ -149,37 +150,37 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             create_poke(&[D(tas!(b"test")), D(n)])
         }
         Command::TestAll {} => {
-            let mut slab = NounSlab::new();
+            let mut slab:NounSlab = NounSlab::new();
             let tas = make_tas(&mut slab, "test-all");
             create_poke(&[tas.as_noun(), D(0)])
         }
         Command::ParseAll {} => {
-            let mut slab = NounSlab::new();
+            let mut slab:NounSlab = NounSlab::new();
             let tas = make_tas(&mut slab, "parse-all");
             create_poke(&[tas.as_noun(), D(0)])
         }
         Command::JeamAll {} => {
-            let mut slab = NounSlab::new();
+            let mut slab:NounSlab = NounSlab::new();
             let tas = make_tas(&mut slab, "jeam-all");
             create_poke(&[tas.as_noun(), D(0)])
         }
         Command::MintAll {} => {
-            let mut slab = NounSlab::new();
+            let mut slab:NounSlab = NounSlab::new();
             let tas = make_tas(&mut slab, "mint-all");
             create_poke(&[tas.as_noun(), D(0)])
         }
         Command::JypeAll {} => {
-            let mut slab = NounSlab::new();
+            let mut slab:NounSlab = NounSlab::new();
             let tas = make_tas(&mut slab, "jype-all");
             create_poke(&[tas.as_noun(), D(0)])
         }
         Command::NockAll {} => {
-            let mut slab = NounSlab::new();
+            let mut slab:NounSlab = NounSlab::new();
             let tas = make_tas(&mut slab, "nock-all");
             create_poke(&[tas.as_noun(), D(0)])
         }
         Command::RunDetails {} => {
-            let mut slab = NounSlab::new();
+            let mut slab:NounSlab = NounSlab::new();
             let tas = make_tas(&mut slab, "run-details");
             create_poke(&[tas.as_noun(), D(0)])
         }

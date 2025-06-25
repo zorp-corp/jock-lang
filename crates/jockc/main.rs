@@ -1,14 +1,14 @@
-use crown::nockapp::driver::Operation;
-use crown::{kernel::boot, noun::slab::NounSlab};
-use crown::{one_punch_driver, Noun, AtomExt};
-use sword::noun::{Atom, D, T};
-use sword_macros::tas;
+use nockapp::driver::Operation;
+use nockapp::{kernel::boot, noun::slab::NounSlab};
+use nockapp::{one_punch_driver, Noun, AtomExt};
+use nockvm::noun::{Atom, D, T};
+use nockvm_macros::tas;
 
 use clap::{arg, command, ColorChoice, Parser};
 static KERNEL_JAM: &[u8] =
     include_bytes!(concat!(env!("CARGO_WORKSPACE_DIR"), "/assets/jockc.jam"));
 
-use crown::kernel::boot::Cli as BootCli;
+use nockapp::kernel::boot::Cli as BootCli;
 
 #[derive(Parser, Debug)]
 #[command(about = "Run Jock programs",
@@ -44,7 +44,7 @@ struct TestCli {
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = TestCli::parse();
 
-    let mut nockapp = boot::setup(
+    let mut nockapp:nockapp::NockApp = boot::setup(
         KERNEL_JAM,
         Some(cli.boot.clone()),
         &[],
