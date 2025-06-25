@@ -6,8 +6,7 @@ use sword::noun::{D, T};
 use sword_macros::tas;
 
 use clap::{arg, command, ColorChoice, Parser};
-static KERNEL_JAM: &[u8] =
-    include_bytes!(concat!(env!("CARGO_WORKSPACE_DIR"), "/assets/jockt.jam"));
+static KERNEL_JAM: &[u8] = include_bytes!(concat!(env!("CARGO_WORKSPACE_DIR"), "assets/jockt.jam"));
 
 use crown::kernel::boot::Cli as BootCli;
 
@@ -55,14 +54,8 @@ enum Command {
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = ExecCli::parse();
 
-    let mut nockapp = boot::setup(
-        KERNEL_JAM,
-        Some(cli.boot.clone()),
-        &[],
-        "jocktest",
-        None,
-    )
-    .await?;
+    let mut nockapp =
+        boot::setup(KERNEL_JAM, Some(cli.boot.clone()), &[], "jocktest", None).await?;
 
     boot::init_default_tracing(&cli.boot.clone());
 
