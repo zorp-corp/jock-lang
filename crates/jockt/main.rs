@@ -3,6 +3,7 @@ use nockapp::kernel::boot;
 use nockapp::noun::slab::NounSlab;
 use nockapp::{one_punch_driver, Noun, AtomExt};
 use nockvm::noun::{Atom, D, T};
+use nockapp::utils::make_tas;
 use nockvm_macros::tas;
 use nockapp::wire::{SystemWire, Wire};
 
@@ -115,10 +116,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let tuple = vec_to_hoon_tuple_list(&mut slab, lib_texts);
 
         println!("Poking with load-libs");
+        let one_punch = make_tas(&mut slab, "one-punch").as_noun();
         slab.modify(|_root|
-            { vec![D(tas!(b"loadlibs")), tuple] });
+            { vec![//D(tas!(b"poke")),
+                   //one_punch,
+                   //D(0),
+                   //D(0),
+                   D(tas!(b"loadlibs")),
+                   tuple] });
 
-        nockapp.poke(SystemWire.to_wire(), slab).await?;
+        // nockapp.poke(SystemWire.to_wire(), slab).await?;
+        nockapp
+            .add_io_driver(one_punch_driver(slab, Operation::Poke))
+            .await;
         println!("Load-libs poke completed successfully");
     }
 

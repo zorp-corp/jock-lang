@@ -47,8 +47,8 @@
   ?~  soft-cau  ~|("could not mold poke type: {<cause>}" !!)
   =/  c=^cause  u.soft-cau
   ?-    -.c
-      %load-libs
-    =/  libs  `(map term cord)`(malt ;;((list (pair term cord)) libs.c))
+      %loadlibs
+    =/  libs  `(map term cord)`(malt libs.c)
     ~&  >  "loading libs {<~(tap by libs)>}"
     [~ k(libs libs)]
     ::
