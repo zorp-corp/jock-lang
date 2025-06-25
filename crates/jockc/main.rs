@@ -73,8 +73,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         // Load libraries from path if provided.
         let lib_path = cli.lib_path.unwrap_or("lib_path".to_string());
         // Get names of all Hoon and Jock files in that directory.
-        let mut lib_names:Vec<Atom> = Vec::new();
-        let mut lib_texts:Vec<Atom> = Vec::new();
+        let mut lib_texts:Vec<(Atom,Atom)> = Vec::new();
         if let Ok(entries) = std::fs::read_dir(lib_path) {
             for entry in entries {
                 if let Ok(entry) = entry {
@@ -88,7 +87,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                         .as_noun()
                                         .as_atom()
                                         .unwrap();
-                                    // lib_names.push(lib_name);
                                     // Read file content.
                                     let lib_text = std::fs::read_to_string(&path)
                                         .expect("Unable to read library file");
@@ -97,10 +95,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                         .as_noun()
                                         .as_atom()
                                         .unwrap();
-                                    // lib_texts.push(T(&mut slab, &[lib_name, _lib_text]));
-                                    // lib_texts.push((lib_name, _lib_text));
-                                    lib_names.push(lib_name);
-                                    lib_texts.push(_lib_text);
+                                    lib_texts.push((lib_name, _lib_text));
                                     println!("Loaded library: {}", stem_str);
                                 }
                             }
@@ -109,26 +104,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 }
             }
         }
-        //  17500 fails, 16000 succeeds - string size issue
-        // lib_names.push(Atom::from_value(&mut slab,
-        //                             std::iter::repeat("X").take(16000).collect::<String>())
-        //                                 .unwrap()
-        //                                 .as_noun()
-        //                                 .as_atom()
-        //                                 .unwrap());
         println!("Found {} library files", lib_texts.len());
 
-        let names = vec_to_hoon_atom_list(&mut slab, lib_names);
-        let texts = vec_to_hoon_atom_list(&mut slab, lib_texts);
+        let texts = vec_to_hoon_tuple_list(&mut slab, lib_texts);
 
         slab.modify(|_root|
             { vec![D(tas!(b"jock")),
                 name.as_noun(),
                 text.as_noun(),
                 args,
-                names,
-                D(0)] });
-                // texts] });
+                texts] });
         slab
     };
 
