@@ -155,7 +155,10 @@
   ::  This only happens if there is a name or type immediately preceding '(',
   ::  e.g. foo(bar)  ->  'foo' '((' 'bar' ')'
   ++  tagged-name        (stag %name name)                :: [%name term]
-  ++  name               sym                              :: term
+  ++  name               snek                             :: term with _
+  ++  snek               %+  cook
+                           |=(a=tape (rap 3 ^-((list @) a)))
+                         ;~(plug low (star ;~(pose nud low cab)))
   ::
   ++  tagged-type        (stag %type type)                :: [%type 'Cord']
   ++  type               aul                              :: Cord

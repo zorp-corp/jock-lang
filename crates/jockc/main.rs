@@ -5,8 +5,7 @@ use nockvm::noun::{Atom, D, T};
 use nockvm_macros::tas;
 
 use clap::{arg, command, ColorChoice, Parser};
-static KERNEL_JAM: &[u8] =
-    include_bytes!(concat!(env!("CARGO_WORKSPACE_DIR"), "/assets/jockc.jam"));
+static KERNEL_JAM: &[u8] = include_bytes!(concat!(env!("CARGO_WORKSPACE_DIR"), "assets/jockc.jam"));
 
 use nockapp::kernel::boot::Cli as BootCli;
 
@@ -44,14 +43,7 @@ struct TestCli {
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = TestCli::parse();
 
-    let mut nockapp:nockapp::NockApp = boot::setup(
-        KERNEL_JAM,
-        Some(cli.boot.clone()),
-        &[],
-        "jockc",
-        None,
-    )
-    .await?;
+    let mut nockapp = boot::setup(KERNEL_JAM, Some(cli.boot.clone()), &[], "jockc", None).await?;
     boot::init_default_tracing(&cli.boot.clone());
 
     let mut slab = NounSlab::new();
@@ -59,13 +51,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let poke = {
         // Acquire name.
         let string = cli.name_.unwrap_or("".to_string());
-        let name = Atom::from_value(&mut slab, string.clone()).unwrap().as_noun().as_atom().unwrap();
+        let mut slab = NounSlab::new();
+        let name = Atom::from_value(&mut slab, string.clone())
+            .unwrap()
+            .as_noun()
+            .as_atom()
+            .unwrap();
 
         // Acquire file text.
         println!("Reading file: {}.jock", string);
-        let text = std::fs::read_to_string(format!("{}.jock", string))
-            .expect("Unable to read file");
-        let text = Atom::from_value(&mut slab, text).unwrap().as_noun().as_atom().unwrap();
+        let text =
+            std::fs::read_to_string(format!("{}.jock", string)).expect("Unable to read file");
+        let text = Atom::from_value(&mut slab, text)
+            .unwrap()
+            .as_noun()
+            .as_atom()
+            .unwrap();
 
         // Convert args to a Hoon list.
         let args = vec_to_hoon_list(&mut slab, cli.args_);

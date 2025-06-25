@@ -6,8 +6,7 @@ use nockvm::noun::{Atom, D, T};
 use nockvm_macros::tas;
 
 use clap::{arg, command, ColorChoice, Parser};
-static KERNEL_JAM: &[u8] =
-    include_bytes!(concat!(env!("CARGO_WORKSPACE_DIR"), "/assets/jockt.jam"));
+static KERNEL_JAM: &[u8] = include_bytes!(concat!(env!("CARGO_WORKSPACE_DIR"), "assets/jockt.jam"));
 
 use nockapp::kernel::boot::Cli as BootCli;
 
@@ -63,14 +62,8 @@ enum Command {
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = ExecCli::parse();
 
-    let mut nockapp:nockapp::NockApp = boot::setup(
-        KERNEL_JAM,
-        Some(cli.boot.clone()),
-        &[],
-        "jockt",
-        None,
-    )
-    .await?;
+    let mut nockapp =
+        boot::setup(KERNEL_JAM, Some(cli.boot.clone()), &[], "jockt", None).await?;
 
     boot::init_default_tracing(&cli.boot.clone());
     let mut slab = NounSlab::new();
