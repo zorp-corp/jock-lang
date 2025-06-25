@@ -50,10 +50,10 @@ The NockApp framework consists of Sword (formerly Ares), a runtime VM interprete
 
     - ​GitHub:  [zorp-corp/jock-lang](https://github.com/zorp-corp/jock-lang)
 
-3. Copy `hoonc` from `nockchain/target/build/release` to the root of `jock-lang`.
+3. Copy `hoonc` from `nockchain/target/release` to the root of `jock-lang`.
 
     ```sh
-    cp nockchain/target/build/release/hoonc jock-lang/
+    cp nockchain/target/release/hoonc jock-lang/
     ```
 
 ### `jockc` Jock Compiler
@@ -69,14 +69,14 @@ If you are developing Jock code, you should use the Jock compiler tool `jockc`.
 5. Copy `jockc` from `target/build/release` to the root of `jock-lang`.
 
     ```sh
-    cp target/build/release/jockc .
+    cp ./target/release/jockc .
     ```
 
 6. Run a Jock program directly using its path:
 
     ```sh
-    ./jockc ./common/hoon/try/hello-world
-    ./jockc ./common/hoon/try/fib 10
+    ./jockc ./common/hoon/try/hello-world --import-dir ./common/hoon/jib
+    ./jockc ./common/hoon/try/fib 10 --import-dir ./common/hoon/jib
     ```
 
     See available demos:
@@ -126,16 +126,16 @@ If you are developing Jock itself, you should use the Jock testing tool `jockt` 
     make jockt
     ```
 
-10. Copy `jockt` from `target/build/release` to the root of `jock-lang`.
+10. Copy `jockt` from `target/release` to the root of `jock-lang`.
 
     ```sh
-    cp target/build/release/jockt .
+    cp ./target/release/jockt .
     ```
 
 11. Run a Jock program using its internal index:
 
     ```sh
-    ./jockt exec 5
+    ./jockt exec 5 --import-dir ./common/hoon/jib
     # - or -
     make exec 5
     ```
@@ -153,7 +153,7 @@ If you are developing Jock itself, you should use the Jock testing tool `jockt` 
     Alternatively, run all codes:
 
     ```sh
-    ./jockt exec-all
+    ./jockt exec-all --import-dir ./common/hoon/jib
     # - or -
     make release-exec-all
     ```
@@ -161,7 +161,7 @@ If you are developing Jock itself, you should use the Jock testing tool `jockt` 
 12. Run a Jock program with all tests:
 
     ```sh
-    ./jockt test 5
+    ./jockt test 5 --import-dir ./common/hoon/jib
     # - or -
     make test 5
     ```
@@ -171,7 +171,7 @@ If you are developing Jock itself, you should use the Jock testing tool `jockt` 
     Alternatively, run all tests (slow):
 
     ```sh
-    ./target/release/jocktest test-all
+    ./target/release/jockt test-all --import-dir ./common/hoon/jib
     # - or -
     make release-test-all
     ```
