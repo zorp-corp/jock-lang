@@ -54,10 +54,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     .await?;
     boot::init_default_tracing(&cli.boot.clone());
 
+    let mut slab = NounSlab::new();
+
     let poke = {
         // Acquire name.
         let string = cli.name_.unwrap_or("".to_string());
-        let mut slab = NounSlab::new();
         let name = Atom::from_value(&mut slab, string.clone()).unwrap().as_noun().as_atom().unwrap();
 
         // Acquire file text.
@@ -72,7 +73,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         // Load libraries from path if provided.
         let lib_path = cli.lib_path.unwrap_or("lib_path".to_string());
         // Get names of all Hoon and Jock files in that directory.
-        // let mut lib_names = Vec::new();
         let mut lib_texts:Vec<(Atom,Atom)> = Vec::new();
         if let Ok(entries) = std::fs::read_dir(lib_path) {
             for entry in entries {
@@ -109,10 +109,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("Found {} library files", lib_texts.len());
 
         let tuple = vec_to_hoon_tuple_list(&mut slab, lib_texts);
-        create_poke(&[
-            D(tas!(b"jock")),
-            T(&mut slab, &[name.as_noun(), text.as_noun(), args, tuple])
-        ])
+
+        slab.modify(|_root|
+            { vec![D(tas!(b"jock")),
+                name.as_noun(),
+                text.as_noun(),
+                args,
+                tuple] });
+        slab
     };
 
     nockapp
@@ -122,16 +126,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     nockapp.run().await?;
 
     Ok(())
-}
-
-fn create_poke(args: &[Noun]) -> NounSlab {
-    if args.len() < 2 {
-        panic!("args must have at least 2 elements");
-    }
-    let mut slab = NounSlab::new();
-    let copy_root = T(&mut slab, args);
-    slab.copy_into(copy_root);
-    slab
 }
 
 #[inline(always)]

@@ -6,17 +6,17 @@
 +$  test-state  [%0 libs=(map term cord)]
 ++  moat  (keep test-state)
 +$  cause
-  $%  [%load-libs libs=(list (pair term cord))]
+  $%  [%loadlibs libs=(list (pair term cord))]
       [%test n=@]
       [%test-all ~]
       [%exec n=@]
       [%exec-all ~]
-      [%parse-all ~]
+      [%parseall ~]
       [%jeam-all ~]
       [%mint-all ~]
       [%jype-all ~]
       [%nock-all ~]
-      [%run-details ~]
+      [%run ~]
   ==
 +$  effect  ~
 --
@@ -80,7 +80,7 @@
     ~&  test-all:~(. test-jock libs.k)
     [~ k]
   ::
-      %parse-all
+      %parseall
     ~&  parse-all:~(. test-jock libs.k)
     [~ k]
   ::
@@ -100,7 +100,7 @@
     ~&  nock-all:~(. test-jock libs.k)
     [~ k]
   ::
-      %run-details
+      %run
     ~&  run-details:~(. test-jock libs.k)
     [~ k]
   ::

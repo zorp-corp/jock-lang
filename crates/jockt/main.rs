@@ -1,5 +1,4 @@
 use nockapp::driver::Operation;
-use nockapp::utils::make_tas;
 use nockapp::kernel::boot;
 use nockapp::noun::slab::NounSlab;
 use nockapp::{one_punch_driver, Noun, AtomExt};
@@ -80,7 +79,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Load libraries from path if provided.
     let lib_path = cli.lib_path.unwrap_or("lib_path".to_string());
     // Get names of all Hoon and Jock files in that directory.
-    // let mut lib_names = Vec::new();
     let mut lib_texts:Vec<(Atom,Atom)> = Vec::new();
     if let Ok(entries) = std::fs::read_dir(lib_path) {
         for entry in entries {
@@ -115,21 +113,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Found {} library files", lib_texts.len());
     if lib_texts.len() > 0 {
         let tuple = vec_to_hoon_tuple_list(&mut slab, lib_texts);
-        let tas = make_tas(&mut slab, "load-libs").as_noun();
-
-        // do this: create a new slab. now build your entire poke
-        // on this slab by passing the slab into T. if you have
-        // existing nouns before you create the slab then call
-        // slab.copy_into() to copy them into the slab. then
-        // finally call slab.set_root() to set the root of the
-        // slab to be the final noun for the poke. and now finally
-        // pass the slab itself into the call to poke().
 
         println!("Poking with load-libs");
-        // let poke = T(&mut slab, &[tas, tuple]);
-        // slab.set_root(poke);
-        // slab.modify(|root| { vec![D(tas!(b"jock")), name.as_noun(), text.as_noun(), args, tuple] })
-        slab.modify(| _root | { vec![tas, tuple] });
+        slab.modify(|_root|
+            { vec![D(tas!(b"loadlibs")), tuple] });
 
         nockapp.poke(SystemWire.to_wire(), slab).await?;
         println!("Load-libs poke completed successfully");
@@ -141,48 +128,32 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             create_poke(&[D(tas!(b"exec")), D(n)])
         }
         Command::ExecAll {} => {
-            let mut slab:NounSlab = NounSlab::new();
-            let tas = make_tas(&mut slab, "exec-all");
-            create_poke(&[tas.as_noun(), D(0)])
+            create_poke(&[D(tas!(b"exec-all")), D(0)])
         }
         Command::Test { n } => {
             let n = n.unwrap_or(0);
             create_poke(&[D(tas!(b"test")), D(n)])
         }
         Command::TestAll {} => {
-            let mut slab:NounSlab = NounSlab::new();
-            let tas = make_tas(&mut slab, "test-all");
-            create_poke(&[tas.as_noun(), D(0)])
+            create_poke(&[D(tas!(b"test-all")), D(0)])
         }
         Command::ParseAll {} => {
-            let mut slab:NounSlab = NounSlab::new();
-            let tas = make_tas(&mut slab, "parse-all");
-            create_poke(&[tas.as_noun(), D(0)])
+            create_poke(&[D(tas!(b"parseall")), D(0)])
         }
         Command::JeamAll {} => {
-            let mut slab:NounSlab = NounSlab::new();
-            let tas = make_tas(&mut slab, "jeam-all");
-            create_poke(&[tas.as_noun(), D(0)])
+            create_poke(&[D(tas!(b"jeam-all")), D(0)])
         }
         Command::MintAll {} => {
-            let mut slab:NounSlab = NounSlab::new();
-            let tas = make_tas(&mut slab, "mint-all");
-            create_poke(&[tas.as_noun(), D(0)])
+            create_poke(&[D(tas!(b"mint-all")), D(0)])
         }
         Command::JypeAll {} => {
-            let mut slab:NounSlab = NounSlab::new();
-            let tas = make_tas(&mut slab, "jype-all");
-            create_poke(&[tas.as_noun(), D(0)])
+            create_poke(&[D(tas!(b"jype-all")), D(0)])
         }
         Command::NockAll {} => {
-            let mut slab:NounSlab = NounSlab::new();
-            let tas = make_tas(&mut slab, "nock-all");
-            create_poke(&[tas.as_noun(), D(0)])
+            create_poke(&[D(tas!(b"nock-all")), D(0)])
         }
         Command::RunDetails {} => {
-            let mut slab:NounSlab = NounSlab::new();
-            let tas = make_tas(&mut slab, "run-details");
-            create_poke(&[tas.as_noun(), D(0)])
+            create_poke(&[D(tas!(b"run")), D(0)])
         }
     };
 
