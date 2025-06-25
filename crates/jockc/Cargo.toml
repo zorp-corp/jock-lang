@@ -1,16 +1,15 @@
 [package]
 name = "jockc"
-version = "0.1.0"
-edition = "2021"
+version = "0.1.0-alpha"
+edition.workspace = true
 
 [dependencies]
-crown = { git = "https://github.com/zorp-corp/nockchain", rev="932c8e6b6d159e072d1f4b6d26cc0dccbae4a377"}
-sword = { git = "https://github.com/zorp-corp/nockchain.git", rev = "932c8e6b6d159e072d1f4b6d26cc0dccbae4a377" }
-sword_macros = { git = "https://github.com/zorp-corp/nockchain.git", rev = "932c8e6b6d159e072d1f4b6d26cc0dccbae4a377" }
-assert_no_alloc = { git = "https://github.com/zorp-corp/nockchain.git", rev = "932c8e6b6d159e072d1f4b6d26cc0dccbae4a377" }
-clap = { version = "4.4.4", features = ["derive", "cargo", "color", "env"]}
-tokio = { version = "1.32", features = ["rt", "rt-multi-thread", "net", "macros", "io-util", "fs", "sync", "time"] }
-tracing = "0.1.41"
+nockapp = { workspace = true }
+nockvm = { workspace = true }
+nockvm_macros = { workspace = true }
+clap = { workspace = true, features = ["derive", "cargo", "color", "env"] }
+tokio = { workspace = true, features = ["sync"] }
+tracing = { workspace = true }
 
 [[bin]]
 name = "jockc"

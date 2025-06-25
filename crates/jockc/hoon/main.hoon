@@ -6,7 +6,7 @@
 +$  test-state  [%0 ~]
 ++  moat  (keep test-state)
 +$  cause
-  $%  [%jock name=@t text=@t args=(list @)]
+  $%  [%jock name=@t text=@t args=(list @) libs-list=(list (pair term cord))]
   ==
 +$  effect  ~
 --
@@ -32,7 +32,7 @@
 ++  poke
   |=  input:moat
   ^-  [(list effect) test-state]
-  ~&  "poked at {<now^cause>}"
+  ~&  "poked at {<now>}"
   =/  soft-cau  ((soft ^cause) cause)
   ?~  soft-cau  ~|("could not mold poke type: {<cause>}" !!)
   =/  cau=^cause  u.soft-cau
@@ -41,13 +41,15 @@
   ~&  "running code {<name.cau>} with args {<args.cau>}"
   =/  args  (turn args.cau (cury scot %ud))
   =/  code  (preprocess text.cau args)
+  =/  libs  `(map term cord)`(malt libs-list.cau)
+  ~&  libs+[~(tap by libs)]
   ~&  code+[code]
-  ~&  parse+(parse:runner code)
-  ~&  jeam+(jeam:runner code)
-  =/  res  `*`(mint:runner code)
+  ~&  parse+(parse:~(. runner libs) code)
+  ~&  jeam+(jeam:~(. runner libs) code)
+  =/  res  `*`(mint:~(. runner libs) code)
   ~&  mint+res
-  ~&  jype+(jype:runner code)
-  ~&  nock+(nock:runner code)
+  ~&  jype+(jype:~(. runner libs) code)
+  ~&  nock+(nock:~(. runner libs) code)
   [~ k]
   ::
   ++  preprocess

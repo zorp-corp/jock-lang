@@ -74,7 +74,7 @@
 :: /*  test-fib            %hoon  /tests/lib/fib/hoon
 :: /*  test-lists-indexing  %hoon  /tests/lib/lists-indexing/hoon
 ::
-|%
+|_  libs=(map term cord)
 ++  list-jocks
   ^-  (list [term @t])
   :~  [%let-edit q.let-edit]                          :: 0
@@ -264,7 +264,7 @@
   |=  =cord
   ^-  (list token:jock)
   ~|  %parse
-  (rash cord parse-tokens:jock)
+  (rash cord parse-tokens:~(. jock libs))
 ::
 ++  parse-all
   ^-  (list (pair term (list token:jock)))
@@ -280,7 +280,7 @@
   =/  res=(unit jock:jock)
     %-  mole
     |.
-    (jeam:jock cord)
+    (jeam:~(. jock libs) cord)
   ?~  res
     *jock:jock
   u.res
@@ -303,7 +303,7 @@
   =/  res=(unit *)
     %-  mole
     |.
-    (mint:jock cord)
+    (mint:~(. jock libs) cord)
   ?~  res
     *nock:jock
   ;;(nock:jock u.res)
@@ -326,7 +326,7 @@
   =/  res=(unit jype:jock)
     %-  mole
     |.
-    (jypist:jock cord)
+    (jypist:~(. jock libs) cord)
   ?~  res
     *jype:jock
   u.res
@@ -349,7 +349,7 @@
   =/  res=(unit *)
     %-  mole
     |.
-    .*(%0 (mint cord))
+    .*(%0 (mint:~(. jock libs) cord))
   ?~  res
     *nock:jock
   u.res

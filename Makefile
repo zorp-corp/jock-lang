@@ -75,7 +75,8 @@ clean: ## Clean all projects
 	cargo clean
 	@exit 0
 
-HOON_TARGETS=assets/jockc.jam assets/jockt.jam
+JOCKC_TARGETS=assets/jockc.jam
+JOCKT_TARGETS=assets/jockt.jam
 
 assets: ## Create the assets directory
 	@mkdir -p assets

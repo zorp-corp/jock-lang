@@ -17,6 +17,23 @@ path = "crates/jockc"
 [workspace.dependencies.jockt]
 path = "crates/jockt"
 
+[workspace.dependencies]
+nockapp = { git = "https://github.com/zorp-corp/nockchain", branch="master"}
+nockvm = { git = "https://github.com/zorp-corp/nockchain", branch = "master" }
+nockvm_macros = { git = "https://github.com/zorp-corp/nockchain", branch = "master" }
+clap = "4.4.4"
+tokio = { version = "1.32", features = [
+    "fs",
+    "io-util",
+    "macros",
+    "net",
+    "rt-multi-thread",
+    "rt",
+    "signal",
+] }
+tracing = "0.1.41"
+
+# Profiles
 [profile.dev]
 opt-level = 3
 

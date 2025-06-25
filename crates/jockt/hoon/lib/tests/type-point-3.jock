@@ -4,7 +4,7 @@ compose
       (x + p.x
        y + p.y)
     }
-    add-cell(p:(x:Uint y:Uint)) -> (Uint Uint) {
+    add_cell(p:(x:Uint y:Uint)) -> (Uint Uint) {
       (x + p.x
        y + p.y)
     }
@@ -17,7 +17,7 @@ compose
 let one = Point(2 13);
 let two = one.add(30 19);
 let three = one.inc(41);
-(two.add-cell(10 10) three)
+(two.add_cell(10 10) three)
 
 /*
 ::  Hoon equivalent program

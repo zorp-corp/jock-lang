@@ -83,8 +83,6 @@
         ~&  "could not mold poke type: {<ovum>}"
         =+  (road |.(;;(^^ovum ovum)))
         ~^..poke
-      ~!  :-  'here'  input.u.ovum
-      ~&  >>>  input.u.ovum
       =^  effects  internal.outer
         (poke:inner-fort input.u.ovum)
       [effects ..poke(internal.outer internal.outer)]
