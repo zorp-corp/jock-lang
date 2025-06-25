@@ -3,6 +3,7 @@ use nockapp::{kernel::boot, noun::slab::NounSlab};
 use nockapp::{one_punch_driver, Noun, AtomExt};
 use nockvm::noun::{Atom, D, T};
 use nockvm_macros::tas;
+use nockapp::utils::NOCK_STACK_SIZE;
 
 use clap::{arg, command, ColorChoice, Parser};
 static KERNEL_JAM: &[u8] =
@@ -107,6 +108,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
         }
         println!("Found {} library files", lib_texts.len());
+        println!("Stack size is {}", NOCK_STACK_SIZE);
 
         let tuple = vec_to_hoon_tuple_list(&mut slab, lib_texts);
 
