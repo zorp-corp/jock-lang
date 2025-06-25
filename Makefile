@@ -89,9 +89,9 @@ assets/jockt.jam: assets
 	mv out.jam assets/jockt.jam
 
 .PHONY: jockc
-jockc: $(HOON_TARGETS) ## Compile the Jock compiler
-	cargo build $(PROFILE_RELEASE)
+jockc: assets/jockc.jam ## Compile the Jock compiler
+	cargo build $(PROFILE_RELEASE) --bin jockc
 
 .PHONY: jockt
-jockt: $(HOON_TARGETS) ## Compile the Jock tester
-	cargo build $(PROFILE_RELEASE)
+jockt: assets/jockt.jam ## Compile the Jock tester
+	cargo build $(PROFILE_RELEASE) --bin jockt
