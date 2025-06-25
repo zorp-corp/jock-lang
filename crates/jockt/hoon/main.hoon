@@ -49,10 +49,11 @@
   ?-    -.c
       %loadlibs
     =/  libs  `(map term cord)`(malt libs.c)
-    ~&  >  "loading libs {<~(tap by libs)>}"
+    ~&  >  "loading libs {<[~(key by libs)]>}"
     [~ k(libs libs)]
     ::
       %exec
+    ~&  loaded-libs+[~(key by libs.k)]
     ?.  (gth (lent list-jocks:~(. test-jock libs.k)) n.c)
       ~&  >>>  "index out of range: {<n.c>}"
       [~ k]
