@@ -6,7 +6,8 @@
 +$  test-state  [%0 ~]
 ++  moat  (keep test-state)
 +$  cause
-  $%  [%jock name=@t text=@t args=(list @) libs-list=(list (pair term cord))]
+  $%  [%jock name=@t text=@t args=(list @) lib-names=(list term) lib-texts=(list cord)]
+  :: $%  [%jock name=@t text=@t args=(list @) lib-names=(list term)]
   ==
 +$  effect  ~
 --
@@ -32,19 +33,20 @@
 ++  poke
   |=  input:moat
   ^-  [(list effect) test-state]
-  ~&  "Hello World"
+  ~&  "poked at {<now^cause>}"
+  =/  soft-cau  ((soft ^cause) cause)
+  ?~  soft-cau  ~|("could not mold poke type: {<cause>}" !!)
+  =/  cau=^cause  u.soft-cau
+  ?>  ?=(%jock -.cau)
+  ~&  libs+lib-names.cau
+  :: ~&  >  libs+lib-texts.cau
   [~ k]
-  :: ~&  "poked at {<now^cause>}"
-  :: =/  soft-cau  ((soft ^cause) cause)
-  :: ?~  soft-cau  ~|("could not mold poke type: {<cause>}" !!)
-  :: =/  cau=^cause  u.soft-cau
-  :: ?>  ?=(%jock -.cau)
   :: |^
   :: ~&  "running code {<name.cau>} with args {<args.cau>}"
   :: =/  args  (turn args.cau (cury scot %ud))
   :: =/  code  (preprocess text.cau args)
-  :: ~&  libs+libs-list.cau
   :: =/  libs  `(map term cord)`(malt libs-list.cau)
+  :: ~&  libs+[~(tap by libs)]
   :: ~&  code+[code]
   :: ~&  parse+(parse:~(. runner libs) code)
   :: ~&  jeam+(jeam:~(. runner libs) code)

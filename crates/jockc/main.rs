@@ -3,7 +3,6 @@ use nockapp::{kernel::boot, noun::slab::NounSlab};
 use nockapp::{one_punch_driver, Noun, AtomExt};
 use nockvm::noun::{Atom, D, T};
 use nockvm_macros::tas;
-use nockapp::utils::NOCK_STACK_SIZE;
 
 use clap::{arg, command, ColorChoice, Parser};
 static KERNEL_JAM: &[u8] =
@@ -74,7 +73,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         // Load libraries from path if provided.
         let lib_path = cli.lib_path.unwrap_or("lib_path".to_string());
         // Get names of all Hoon and Jock files in that directory.
-        let mut lib_texts:Vec<(Atom,Atom)> = Vec::new();
+        let mut lib_names:Vec<Atom> = Vec::new();
+        let mut lib_texts:Vec<Atom> = Vec::new();
         if let Ok(entries) = std::fs::read_dir(lib_path) {
             for entry in entries {
                 if let Ok(entry) = entry {
@@ -98,7 +98,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                         .as_atom()
                                         .unwrap();
                                     // lib_texts.push(T(&mut slab, &[lib_name, _lib_text]));
-                                    lib_texts.push((lib_name, _lib_text));
+                                    // lib_texts.push((lib_name, _lib_text));
+                                    lib_names.push(lib_name);
+                                    lib_texts.push(_lib_text);
                                     println!("Loaded library: {}", stem_str);
                                 }
                             }
@@ -107,17 +109,26 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 }
             }
         }
+        //  17500 fails, 16000 succeeds - string size issue
+        // lib_names.push(Atom::from_value(&mut slab,
+        //                             std::iter::repeat("X").take(16000).collect::<String>())
+        //                                 .unwrap()
+        //                                 .as_noun()
+        //                                 .as_atom()
+        //                                 .unwrap());
         println!("Found {} library files", lib_texts.len());
-        println!("Stack size is {}", NOCK_STACK_SIZE);
 
-        let tuple = vec_to_hoon_tuple_list(&mut slab, lib_texts);
+        let names = vec_to_hoon_atom_list(&mut slab, lib_names);
+        let texts = vec_to_hoon_atom_list(&mut slab, lib_texts);
 
         slab.modify(|_root|
             { vec![D(tas!(b"jock")),
                 name.as_noun(),
                 text.as_noun(),
                 args,
-                tuple] });
+                names,
+                D(0)] });
+                // texts] });
         slab
     };
 
@@ -157,6 +168,15 @@ pub fn vec_to_hoon_list(slab: &mut NounSlab, vec: Vec<u64>) -> Noun {
     for e in vec.iter().rev() {
         let n = Atom::new(slab, *e).as_noun();
         list = T(slab, &[n, list]);
+    }
+    list
+}
+
+#[inline(always)]
+pub fn vec_to_hoon_atom_list(slab: &mut NounSlab, vec: Vec<Atom>) -> Noun {
+    let mut list = D(0);
+    for a in vec.iter().rev() {
+        list = T(slab, &[a.as_noun(), list]);
     }
     list
 }
