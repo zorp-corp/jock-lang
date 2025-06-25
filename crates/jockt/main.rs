@@ -62,7 +62,7 @@ enum Command {
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = ExecCli::parse();
 
-    let mut nockapp =
+    let mut nockapp:nockapp::NockApp =
         boot::setup(KERNEL_JAM, Some(cli.boot.clone()), &[], "jockt", None).await?;
 
     boot::init_default_tracing(&cli.boot.clone());

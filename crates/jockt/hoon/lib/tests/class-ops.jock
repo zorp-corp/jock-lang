@@ -7,9 +7,9 @@ compose
   }
 ;
 
-let point-1 = Point(14 104);
-point-1 = point-1.add(28 38);
-(point-1.x() point-1.y())
+let point_1 = Point(14 104);
+point_1 = point_1.add(28 38);
+(point_1.x() point_1.y())
 
 /*
 !=

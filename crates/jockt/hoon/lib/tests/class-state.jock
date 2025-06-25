@@ -6,9 +6,9 @@ compose
   }
 ;
 
-let point-1 = Point(70 80);
-let point-2 = Point(90 100);
-((point-2.x() point-2.y()) (point-1.x() point-1.y()))
+let point_1 = Point(70 80);
+let point_2 = Point(90 100);
+((point_2.x() point_2.y()) (point_1.x() point_1.y()))
 
 /*
 !=

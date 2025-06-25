@@ -42,7 +42,7 @@
 ++  poke
   |=  input:moat
   ^-  [(list effect) test-state]
-  ~&  "poked at {<now^cause>}"
+  ~&  "poked at {<now>}"
   =/  soft-cau  ((soft ^cause) cause)
   ?~  soft-cau  ~|("could not mold poke type: {<cause>}" !!)
   =/  c=^cause  u.soft-cau

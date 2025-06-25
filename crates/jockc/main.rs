@@ -43,15 +43,14 @@ struct TestCli {
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = TestCli::parse();
 
-    let mut nockapp = boot::setup(KERNEL_JAM, Some(cli.boot.clone()), &[], "jockc", None).await?;
+    let mut nockapp:nockapp::NockApp = boot::setup(KERNEL_JAM, Some(cli.boot.clone()), &[], "jockc", None).await?;
     boot::init_default_tracing(&cli.boot.clone());
 
-    let mut slab = NounSlab::new();
+    let mut slab:NounSlab = NounSlab::new();
 
     let poke = {
         // Acquire name.
         let string = cli.name_.unwrap_or("".to_string());
-        let mut slab = NounSlab::new();
         let name = Atom::from_value(&mut slab, string.clone())
             .unwrap()
             .as_noun()

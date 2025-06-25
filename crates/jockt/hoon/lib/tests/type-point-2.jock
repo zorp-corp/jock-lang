@@ -11,17 +11,14 @@ compose
   }
 ;
 
-let point-1 = Point(104 124);
-point-1 = point-1.add(38 38);
-let point-2 = Point(30 40);
-//&2
-point-2 = point-2.add(212 302);
-//&1
-point-1 = point-1.sub(100 20);
-//&1
-( (point-1.x() point-1.y())
-  (point-2.x() point-2.y())
-)/**/
+let point_1 = Point(104 124);
+point_1 = point_1.add(38 38);
+let point_2 = Point(30 40);
+point_2 = point_2.add(212 302);
+point_1 = point_1.sub(100 20);
+( (point_1.x() point_1.y())
+  (point_2.x() point_2.y())
+)
 
 /*
 ::  Hoon equivalent program

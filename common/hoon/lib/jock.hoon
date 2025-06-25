@@ -14,13 +14,11 @@
     ++  tokenize
       |=  txt=@
       ^-  tokens
-      :: =.  libs  (~(put by *(map term cord)) %hoon q.hoon)
       (rash txt parse-tokens)
     ::
     ++  jeam
       |=  txt=@
       ^-  jock
-      :: =.  libs  (~(put by *(map term cord)) %hoon q.hoon)
       =+  [jok tokens]=(~(match-jock +>+>+ libs) (rash txt parse-tokens))
       ?.  ?=(~ tokens)
         ~|  'jeam: must parse to a single jock'
@@ -32,7 +30,6 @@
       |=  txt=@
       ^-  *
       =/  jok  (jeam (cat 3 'import hoon;\0a' txt))
-      :: =.  libs  (~(put by *(map term cord)) %hoon q.hoon)
       =+  [nok jyp]=(~(mint cj:~(. +> libs) [%atom %string %.n]^%$) jok)
       nok
     ::
@@ -40,7 +37,6 @@
       |=  txt=@
       ^-  jype
       =/  jok  (jeam (cat 3 'import hoon;\0a' txt))
-      :: =.  libs  (~(put by *(map term cord)) %hoon q.hoon)
       =+  [nok jyp]=(~(mint cj:~(. +> libs) [%atom %string %.n]^%$) jok)
       jyp
     --
@@ -107,7 +103,7 @@
   $%  [%keyword keyword]
       [%punctuator jpunc]
       [%literal jatom]
-      [%name term]
+      [%name cord]
       [%type cord]
   ==
 ::
@@ -732,7 +728,7 @@
 ++  make-jlimb
   |=  name=cord
   ^-  jlimb
-  ?:  ((sane %tas) name)
+  ?:  !(is-type name)
     [%name name]
   [%type name]
 ::
@@ -1301,10 +1297,22 @@
   ?:  ?=(%name -.token)  [~ +.token]
   ?>  ?=(%type -.token)  [~ +.token]
 ::
+::  like +sane but for snake case
+::  !((sane %tas) name)
 ++  is-type
   |=  name=cord
   ^-  ?
-  !((sane %tas) name)
+  =+  [inx=0 len=(met 3 name)]
+  ?!
+  |-  ^-  ?
+  ?:  =(inx len)  &
+  =+  cur=(cut 3 [inx 1] name)
+  ?&  ?|  &((gte cur 'a') (lte cur 'z'))
+          &(=('_' cur) !=(0 inx) !=(len inx))
+          &(&((gte cur '0') (lte cur '9')) !=(0 inx))
+      ==
+      $(inx +(inx))
+  ==
 ::
 ++  got-punctuator
   |=  [=token punc=jpunc]
@@ -1776,8 +1784,6 @@
       ?>  ?=(^ (~(unify jt typ) val-jyp))
       ::  expose updated value address
       =+  [nex nex-jyp]=$(j next.j)
-      :: =?  val  (is-type name.val-jyp)
-      ::   [%10 [6 val] [%0 2]]
       [[%7 [%10 [axi val] %0 1] nex] nex-jyp]
     ::
         %increment
