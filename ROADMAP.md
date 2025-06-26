@@ -28,6 +28,12 @@ This involves converting the single `$map` in the compiler door sample to a `mip
 
 - Current status:  libraries can be supplied to the sample of the compiler door as a `(map term cord)`.  (This should be changed to `(map path cord)` for flexibility, versioning, etc.)  `jockc` supports preprocessed argument insertion, but this should be replaced with this better system.
 
+## Jock imports
+
+Support Jock library imports just like Hoon imports.
+
+This probably requires changing the library map to use paths as the keys instead of terms.
+
 ## Hoon return types
 
 Implement Jock-compatible `$jype` values for Hoon FFI returns.
