@@ -135,8 +135,6 @@ If you are developing Jock itself, you should use the Jock testing tool `jockt` 
 
     ```sh
     ./jockt exec 5 --import-dir ./common/hoon/jib
-    # - or -
-    make exec 5
     ```
 
     These are listed in `/hoon/lib/test-jock.hoon`.
@@ -153,16 +151,12 @@ If you are developing Jock itself, you should use the Jock testing tool `jockt` 
 
     ```sh
     ./jockt exec-all --import-dir ./common/hoon/jib
-    # - or -
-    make release-exec-all
     ```
 
 12. Run a Jock program with all tests:
 
     ```sh
     ./jockt test 5 --import-dir ./common/hoon/jib
-    # - or -
-    make test 5
     ```
 
     These indices are identical to those obtained in the previous step from `/hoon/lib/test-jock.hoon`.
@@ -171,8 +165,6 @@ If you are developing Jock itself, you should use the Jock testing tool `jockt` 
 
     ```sh
     ./target/release/jockt test-all --import-dir ./common/hoon/jib
-    # - or -
-    make release-test-all
     ```
 
 ## Releases
