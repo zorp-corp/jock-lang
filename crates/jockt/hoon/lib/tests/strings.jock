@@ -1,0 +1,7 @@
+// Define a function that returns a greeting
+func greet(name: @t) -> @t {
+  "Hello, " + name + "!"
+};
+
+print(greet("Zorp"));
+greet("Zorp")
