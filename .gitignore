@@ -2,8 +2,8 @@
 target
 bin/
 hoonc
-jockc
-jockt
+./jockc
+./jockt
 *.jam
 
 .data.*

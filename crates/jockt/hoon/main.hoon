@@ -3,19 +3,20 @@
     *wrapper
 =>
 |%
-+$  test-state  [%0 ~]
++$  test-state  [%0 libs=(map term cord)]
 ++  moat  (keep test-state)
 +$  cause
-  $%  [%test n=@]
+  $%  [%loadlibs libs=(list (pair term cord))]
+      [%test n=@]
       [%test-all ~]
       [%exec n=@]
       [%exec-all ~]
-      [%parse-all ~]
+      [%parseall ~]
       [%jeam-all ~]
       [%mint-all ~]
       [%jype-all ~]
       [%nock-all ~]
-      [%run-details ~]
+      [%run ~]
   ==
 +$  effect  ~
 --
@@ -41,61 +42,67 @@
 ++  poke
   |=  input:moat
   ^-  [(list effect) test-state]
-  ~&  "poked at {<now^cause>}"
+  ~&  "poked at {<now>}"
   =/  soft-cau  ((soft ^cause) cause)
   ?~  soft-cau  ~|("could not mold poke type: {<cause>}" !!)
   =/  c=^cause  u.soft-cau
   ?-    -.c
+      %loadlibs
+    =/  libs  `(map term cord)`(malt libs.c)
+    ~&  >  "loading libs {<[~(key by libs)]>}"
+    [~ k(libs libs)]
+    ::
       %exec
-    ?.  (gth (lent list-jocks:test-jock) n.c)
+    ~&  loaded-libs+[~(key by libs.k)]
+    ?.  (gth (lent list-jocks:~(. test-jock libs.k)) n.c)
       ~&  >>>  "index out of range: {<n.c>}"
       [~ k]
     ~&  >  "running code {<n.c>}"
-    =/  code  (snag n.c list-jocks:test-jock)
+    =/  code  (snag n.c list-jocks:~(. test-jock libs.k))
     ~&       code+[-:code]
-    ~&  >    parse+(parse:test-jock +.code)
-    ~&  >>   jeam+(jeam:test-jock +.code)
-    =/  res  `*`(mint:test-jock +.code)
+    ~&  >    parse+(parse:~(. test-jock libs.k) +.code)
+    ~&  >>   jeam+(jeam:~(. test-jock libs.k) +.code)
+    =/  res  `*`(mint:~(. test-jock libs.k) +.code)
     ~&  >    mint+res
-    ~&  >>   jype+(jype:test-jock +.code)
-    ~&  >>>  nock+(nock:test-jock +.code)
+    ~&  >>   jype+(jype:~(. test-jock libs.k) +.code)
+    ~&  >>>  nock+(nock:~(. test-jock libs.k) +.code)
     [~ k]
   ::
       %exec-all
-    ~&  exec-all:test-jock
+    ~&  exec-all:~(. test-jock libs.k)
     [~ k]
   ::
       %test
     ~&  "testing {<n.c>}"
-    ~&  (test:test-jock n.c)
+    ~&  (test:~(. test-jock libs.k) n.c)
     [~ k]
   ::
       %test-all
-    ~&  test-all:test-jock
+    ~&  test-all:~(. test-jock libs.k)
     [~ k]
   ::
-      %parse-all
-    ~&  parse-all:test-jock
+      %parseall
+    ~&  parse-all:~(. test-jock libs.k)
     [~ k]
   ::
       %jeam-all
-    ~&  jeam-all:test-jock
+    ~&  jeam-all:~(. test-jock libs.k)
     [~ k]
   ::
       %mint-all
-    ~&  mint-all:test-jock
+    ~&  mint-all:~(. test-jock libs.k)
     [~ k]
   ::
       %jype-all
-    ~&  jype-all:test-jock
+    ~&  jype-all:~(. test-jock libs.k)
     [~ k]
   ::
       %nock-all
-    ~&  nock-all:test-jock
+    ~&  nock-all:~(. test-jock libs.k)
     [~ k]
   ::
-      %run-details
-    ~&  run-details:test-jock
+      %run
+    ~&  run-details:~(. test-jock libs.k)
     [~ k]
   ::
   ==

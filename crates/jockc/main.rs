@@ -1,14 +1,13 @@
-use crown::nockapp::driver::Operation;
-use crown::{kernel::boot, noun::slab::NounSlab};
-use crown::{one_punch_driver, Noun, AtomExt};
-use sword::noun::{Atom, D, T};
-use sword_macros::tas;
+use nockapp::driver::Operation;
+use nockapp::{kernel::boot, noun::slab::NounSlab};
+use nockapp::{one_punch_driver, Noun, AtomExt};
+use nockvm::noun::{Atom, D, T};
+use nockvm_macros::tas;
 
 use clap::{arg, command, ColorChoice, Parser};
-static KERNEL_JAM: &[u8] =
-    include_bytes!(concat!(env!("CARGO_WORKSPACE_DIR"), "/assets/jockc.jam"));
+static KERNEL_JAM: &[u8] = include_bytes!(concat!(env!("CARGO_WORKSPACE_DIR"), "assets/jockc.jam"));
 
-use crown::kernel::boot::Cli as BootCli;
+use nockapp::kernel::boot::Cli as BootCli;
 
 #[derive(Parser, Debug)]
 #[command(about = "Run Jock programs",
@@ -31,41 +30,91 @@ struct TestCli {
         value_delimiter = ' '
     )]
     args_: Vec<u64>,
+
+    #[arg(
+        long = "import-dir",
+        help = "Supply a path for library imports",
+        num_args = 1
+    )]
+    lib_path: Option<String>,
 }
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = TestCli::parse();
 
-    let mut nockapp = boot::setup(
-        KERNEL_JAM,
-        Some(cli.boot.clone()),
-        &[],
-        "jockc",
-        None,
-    )
-    .await?;
+    let mut nockapp:nockapp::NockApp = boot::setup(KERNEL_JAM, Some(cli.boot.clone()), &[], "jockc", None).await?;
     boot::init_default_tracing(&cli.boot.clone());
+
+    let mut slab:NounSlab = NounSlab::new();
 
     let poke = {
         // Acquire name.
         let string = cli.name_.unwrap_or("".to_string());
-        let mut slab = NounSlab::new();
-        let name = Atom::from_value(&mut slab, string.clone()).unwrap().as_noun().as_atom().unwrap();
+        let name = Atom::from_value(&mut slab, string.clone())
+            .unwrap()
+            .as_noun()
+            .as_atom()
+            .unwrap();
 
         // Acquire file text.
         println!("Reading file: {}.jock", string);
-        let text = std::fs::read_to_string(format!("{}.jock", string))
-            .expect("Unable to read file");
-        let text = Atom::from_value(&mut slab, text).unwrap().as_noun().as_atom().unwrap();
+        let text =
+            std::fs::read_to_string(format!("{}.jock", string)).expect("Unable to read file");
+        let text = Atom::from_value(&mut slab, text)
+            .unwrap()
+            .as_noun()
+            .as_atom()
+            .unwrap();
 
         // Convert args to a Hoon list.
         let args = vec_to_hoon_list(&mut slab, cli.args_);
 
-        create_poke(&[
-            D(tas!(b"jock")),
-            T(&mut slab, &[name.as_noun(), text.as_noun(), args])
-        ])
+        // Load libraries from path if provided.
+        let lib_path = cli.lib_path.unwrap_or("lib_path".to_string());
+        // Get names of all Hoon and Jock files in that directory.
+        let mut lib_texts:Vec<(Atom,Atom)> = Vec::new();
+        if let Ok(entries) = std::fs::read_dir(lib_path) {
+            for entry in entries {
+                if let Ok(entry) = entry {
+                    let path = entry.path();
+                    if let Some(ext) = path.extension() {
+                        if ext == "hoon" || ext == "jock" || ext == "txt" {  // XXX kludge for now on txt
+                            if let Some(stem) = path.file_stem() {
+                                if let Some(stem_str) = stem.to_str() {
+                                    let lib_name = Atom::from_value(&mut slab, stem_str.to_string())
+                                        .unwrap()
+                                        .as_noun()
+                                        .as_atom()
+                                        .unwrap();
+                                    // Read file content.
+                                    let lib_text = std::fs::read_to_string(&path)
+                                        .expect("Unable to read library file");
+                                    let _lib_text = Atom::from_value(&mut slab, lib_text.clone())
+                                        .unwrap()
+                                        .as_noun()
+                                        .as_atom()
+                                        .unwrap();
+                                    lib_texts.push((lib_name, _lib_text));
+                                    println!("Loaded library: {}", stem_str);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        println!("Found {} library files", lib_texts.len());
+
+        let texts = vec_to_hoon_tuple_list(&mut slab, lib_texts);
+
+        slab.modify(|_root|
+            { vec![D(tas!(b"jock")),
+                name.as_noun(),
+                text.as_noun(),
+                args,
+                texts] });
+        slab
     };
 
     nockapp
@@ -75,16 +124,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     nockapp.run().await?;
 
     Ok(())
-}
-
-fn create_poke(args: &[Noun]) -> NounSlab {
-    if args.len() < 2 {
-        panic!("args must have at least 2 elements");
-    }
-    let mut slab = NounSlab::new();
-    let copy_root = T(&mut slab, args);
-    slab.copy_into(copy_root);
-    slab
 }
 
 #[inline(always)]
@@ -114,6 +153,27 @@ pub fn vec_to_hoon_list(slab: &mut NounSlab, vec: Vec<u64>) -> Noun {
     for e in vec.iter().rev() {
         let n = Atom::new(slab, *e).as_noun();
         list = T(slab, &[n, list]);
+    }
+    list
+}
+
+#[inline(always)]
+pub fn vec_to_hoon_atom_list(slab: &mut NounSlab, vec: Vec<Atom>) -> Noun {
+    let mut list = D(0);
+    for a in vec.iter().rev() {
+        list = T(slab, &[a.as_noun(), list]);
+    }
+    list
+}
+
+#[inline(always)]
+pub fn vec_to_hoon_tuple_list(slab: &mut NounSlab, vec: Vec<(Atom,Atom)>) -> Noun {
+    let mut list = D(0);
+    for (a,b) in vec.iter().rev() {
+        let n1 = a.as_noun();
+        let n2 = b.as_noun();
+        let tuple = T(slab, &[n1, n2]);
+        list = T(slab, &[tuple, list]);
     }
     list
 }

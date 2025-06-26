@@ -1,5 +1,6 @@
 /+  jock,
     test
+/*  hoon  %txt  /lib/mini/txt
 ::
 |%
 ++  text

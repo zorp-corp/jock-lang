@@ -1,25 +1,24 @@
-/*  hoon  %txt  /lib/mini/txt
 ::
 ::  The core structure of /lib/jock is rather complicated, and since we need
 ::  to refer to cores by their relative addresses sometimes, it behooves us to
 ::  enumerate them here.
 ::
-::  +>        entrypoint door, immediately below
-::  +>+>      mint core, at end
-::  +>+>+     jeam door, in middle
-::  +>+>+>+   parse core, next
+::    +>        entrypoint door, immediately below
+::    +>+>      mint core, at end
+::    +>+>+     jeam door, in middle
+::    +>+>+>+   parse core, next
 ::
-=<  |_  libs=(map path cord)
+::  We automatically supply a copy of Hoon into the namespace as an FFI because
+::  so many built-in tools like arithmetic depend on it.
+=<  |_  libs=(map term cord)
     ++  tokenize
       |=  txt=@
       ^-  tokens
-      =.  libs  (~(put by *(map path cord)) /hoon q.hoon)
       (rash txt parse-tokens)
     ::
     ++  jeam
       |=  txt=@
       ^-  jock
-      =.  libs  (~(put by *(map path cord)) /hoon q.hoon)
       =+  [jok tokens]=(~(match-jock +>+>+ libs) (rash txt parse-tokens))
       ?.  ?=(~ tokens)
         ~|  'jeam: must parse to a single jock'
@@ -31,7 +30,6 @@
       |=  txt=@
       ^-  *
       =/  jok  (jeam (cat 3 'import hoon;\0a' txt))
-      =.  libs  (~(put by *(map path cord)) /hoon q.hoon)
       =+  [nok jyp]=(~(mint cj:~(. +> libs) [%atom %string %.n]^%$) jok)
       nok
     ::
@@ -39,7 +37,6 @@
       |=  txt=@
       ^-  jype
       =/  jok  (jeam (cat 3 'import hoon;\0a' txt))
-      =.  libs  (~(put by *(map path cord)) /hoon q.hoon)
       =+  [nok jyp]=(~(mint cj:~(. +> libs) [%atom %string %.n]^%$) jok)
       jyp
     --
@@ -106,7 +103,7 @@
   $%  [%keyword keyword]
       [%punctuator jpunc]
       [%literal jatom]
-      [%name term]
+      [%name cord]
       [%type cord]
   ==
 ::
@@ -235,7 +232,7 @@
 ::
 ::  Ultimately all cases in the Jock AST resolve as one of jock, jype, or jlimb.
 ::
-|_  libs=(map path cord)
+|_  libs=(map term cord)
 +|  %ast
 ::
 +$  jock
@@ -731,7 +728,7 @@
 ++  make-jlimb
   |=  name=cord
   ^-  jlimb
-  ?:  ((sane %tas) name)
+  ?:  !(is-type name)
     [%name name]
   [%type name]
 ::
@@ -1003,7 +1000,7 @@
     =/  nom=term  ->.tokens
     =/  src=jock  [%limb ~[-.tokens]]
     =/  tokens  +.tokens
-    =/  past  (rush (~(got by libs) /[nom]) (ifix [gay gay] tall:(vang | /)))
+    =/  past  (rush (~(got by libs) nom) (ifix [gay gay] tall:(vang | /)))
     ?~  past  ~|("unable to parse Hoon library: {<[+<+.src]>}" !!)
     =/  p  (~(mint ut %noun) %noun u.past)
     =?  nom  (has-keyword -.tokens %as)
@@ -1300,10 +1297,22 @@
   ?:  ?=(%name -.token)  [~ +.token]
   ?>  ?=(%type -.token)  [~ +.token]
 ::
+::  like +sane but for snake case
+::  !((sane %tas) name)
 ++  is-type
   |=  name=cord
   ^-  ?
-  !((sane %tas) name)
+  =+  [inx=0 len=(met 3 name)]
+  ?!
+  |-  ^-  ?
+  ?:  =(inx len)  &
+  =+  cur=(cut 3 [inx 1] name)
+  ?&  ?|  &((gte cur 'a') (lte cur 'z'))
+          &(=('_' cur) !=(0 inx) !=(len inx))
+          &(&((gte cur '0') (lte cur '9')) !=(0 inx))
+      ==
+      $(inx +(inx))
+  ==
 ::
 ++  got-punctuator
   |=  [=token punc=jpunc]
@@ -1775,8 +1784,6 @@
       ?>  ?=(^ (~(unify jt typ) val-jyp))
       ::  expose updated value address
       =+  [nex nex-jyp]=$(j next.j)
-      :: =?  val  (is-type name.val-jyp)
-      ::   [%10 [6 val] [%0 2]]
       [[%7 [%10 [axi val] %0 1] nex] nex-jyp]
     ::
         %increment
@@ -2440,18 +2447,18 @@
   ++  j2h
     |=  [wing=(list jlimb) arg=(unit jock)]
     ::  XXX formally this is a potential mismatch from the imported Hoon, be careful!
-    ^-  ^hoon
+    ^-  hoon
     =/  p
-      =|  out=^hoon
-      |-  ^-  ^hoon
+      =|  out=hoon
+      |-  ^-  hoon
       ?~  wing
         out
-      ?:  =(*^hoon out)
+      ?:  =(*hoon out)
         ::  overwrite bunt with first value
         $(out [%wing ~[->.wing]], wing +.wing)
       $(out [%wing (snoc ;;(^wing +.out) ->.wing)], wing +.wing)  :: XXX not as efficient but easy
     =/  q
-      |-  ^-  (list ^hoon)
+      |-  ^-  (list hoon)
       ?~  arg  ~
       =/  arg  u.arg
       ?^  -.arg
@@ -2461,9 +2468,9 @@
         ::  Atoms trivially map to Hoon atoms.
         ::  [%atom p=jatom]
         ::    [[%string p=term] q=?], etc.
-        ^-  (list ^hoon)
+        ^-  (list hoon)
         :_  ~
-        ;;  ^hoon
+        ;;  hoon
         :+  ?:(q.p.arg %rock %sand)
           ?-  -<.p.arg
             %string       %ta
@@ -2489,7 +2496,7 @@
         %+  turn
           val.arg
         |=  item=jock
-        ^-  ^hoon
+        ^-  hoon
         -:^$(arg `item)
       ::
           %set
