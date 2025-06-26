@@ -14,3 +14,6 @@
 
 * Above all else, strive for legibility.  While names should not be verbose, they should be descriptive rather than lapidary.
 
+* Jock's design inspirations include Swift, Ruby, Python, and Rust.
+
+* Jock is agnostic to whitespace (including tabs).
