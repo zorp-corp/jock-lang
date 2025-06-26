@@ -6,6 +6,8 @@
 
 * Jock should not rely on any external preprocessing or runtime functionality to correctly compile an entire Jock program.
 
+* Jock exposes several entry points and may be compiled to an executable Nock noun or interpreted dynamically.
+
 * Wrappers may be used to structure and supply Jock programs with nouns and events.
 
 * The Jock compiler may maintain context (such as libraries and command-line arguments) using a door.
