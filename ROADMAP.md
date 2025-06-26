@@ -6,6 +6,10 @@ Cache large noun builds.
 
 - Current status:  `hoon` and other libraries are rebuilt every time they are used, which is expensive and should be avoided.
 
+## Debugging support
+
+Implement per-line debugging traceback on Jock compilation.
+
 ## Floating-point support
 
 Support a fractional-part number system.
@@ -77,6 +81,8 @@ This will facilitate paths and wires for JockApp interactions.
 ## `print` keyword
 
 Produce output as a side effect.
+
+We can print literals fine, but references (variables) are not yet complete.
 
 ```
 let a = 5;
