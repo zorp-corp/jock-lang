@@ -1,6 +1,5 @@
 // hello-world
 // A simple demo of the Jock language.
 
-let a = 'Hello world!';
-print(a);
-a
+print('Hello world');
+0
