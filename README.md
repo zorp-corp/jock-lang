@@ -66,7 +66,7 @@ If you are developing Jock code, you should use the Jock compiler tool `jockc`.
     make jockc
     ```
 
-5. Copy `jockc` from `target/build/release` to the root of `jock-lang`.
+5. Copy `jockc` from `./target/release` to the root of `jock-lang`.
 
     ```sh
     cp ./target/release/jockc .
@@ -76,7 +76,6 @@ If you are developing Jock code, you should use the Jock compiler tool `jockc`.
 
     ```sh
     ./jockc ./common/hoon/try/hello-world --import-dir ./common/hoon/jib
-    ./jockc ./common/hoon/try/fib 10 --import-dir ./common/hoon/jib
     ```
 
     See available demos:
@@ -94,8 +93,8 @@ If you are developing Jock code, you should use the Jock compiler tool `jockc`.
 7. Run a demo with its name and any arguments:
 
     ```sh
-    ./jockc hello-world
-    ./jockc fib 10
+    ./jockc ./common/hoon/try/hello-world --import-dir ./common/hoon/jib
+    ./jockc ./common/hoon/try/fib 10 --import-dir ./common/hoon/jib
     ```
 
     The demo will output several pieces of information:
@@ -136,8 +135,6 @@ If you are developing Jock itself, you should use the Jock testing tool `jockt` 
 
     ```sh
     ./jockt exec 5 --import-dir ./common/hoon/jib
-    # - or -
-    make exec 5
     ```
 
     These are listed in `/hoon/lib/test-jock.hoon`.
@@ -154,16 +151,12 @@ If you are developing Jock itself, you should use the Jock testing tool `jockt` 
 
     ```sh
     ./jockt exec-all --import-dir ./common/hoon/jib
-    # - or -
-    make release-exec-all
     ```
 
 12. Run a Jock program with all tests:
 
     ```sh
     ./jockt test 5 --import-dir ./common/hoon/jib
-    # - or -
-    make test 5
     ```
 
     These indices are identical to those obtained in the previous step from `/hoon/lib/test-jock.hoon`.
@@ -172,8 +165,6 @@ If you are developing Jock itself, you should use the Jock testing tool `jockt` 
 
     ```sh
     ./target/release/jockt test-all --import-dir ./common/hoon/jib
-    # - or -
-    make release-test-all
     ```
 
 ## Releases
