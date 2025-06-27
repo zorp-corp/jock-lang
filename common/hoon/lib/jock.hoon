@@ -1930,6 +1930,7 @@
       ?+    -.func.j  ~|('must call a limb' !!)
           %limb
         =/  old-jyp  jyp
+        ~&  call-limb+j
         ~|  %call-limb
         =/  limbs=(list jlimb)  p.func.j
         ?>  ?=(^ limbs)
@@ -1969,9 +1970,12 @@
           ::  We have to +slam the gate into the Hoon library,
           ::  thus two separate wings.
           ~|  %call-case-6
+          ~&  'here'
           ?>  ?=(^ limbs)
           ?~  arg.j  ~|("expect function argument" !!)
+          ~&  here2+u.arg.j
           =+  [val val-jyp]=$(j u.arg.j)
+          ~&  val+val
           ::  Construct the AST for the Hoon RPC using the bunt for now.
           =+  ast=(j2h ljl ~)
           ?>  ?=(%hoon -<.typ)
@@ -2203,7 +2207,7 @@
           ==
       ::  TODO support unary operands
       ?~  b.j  !!
-      =/  b  $(j u.b.j)
+      =/  b  u.b.j ::$(j u.b.j)
       ?-    op.j
           %'+'
         =/  j=jock
@@ -2211,7 +2215,7 @@
               ~|('binary + requires two arguments' !!)
             ::
               [%atom [[%number p=@ud] q=?]]
-            [%call [%limb p=~[[%name %hoon] [%name %add]]] arg=`[a.j -.b]]
+            [%call [%limb p=~[[%name %hoon] [%name %add]]] arg=`[a.j b]]
             ::
               [%atom [[%string p=cord] q=?]]
             [%call [%limb p=~[[%name %hoon] [%name %concat]]] arg=`[a.j b]]
