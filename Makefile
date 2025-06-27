@@ -77,15 +77,17 @@ clean: ## Clean all projects
 
 JOCKC_TARGETS=assets/jockc.jam
 JOCKT_TARGETS=assets/jockt.jam
+JOCKC_HOON_SOURCES := $(find -L crates/jockc/hoon -type f -name '*.hoon')
+JOCKT_HOON_SOURCES := $(find -L crates/jockt/hoon -type f -name '*.hoon')
 
 assets: ## Create the assets directory
 	@mkdir -p assets
 
-assets/jockc.jam: assets
+assets/jockc.jam: assets $(JOCKC_HOON_SOURCES)
 	RUST_LOG=trace MINIMAL_LOG_FORMAT=true $(HOONC) crates/jockc/hoon/main.hoon crates/jockc/hoon
 	mv out.jam assets/jockc.jam
 
-assets/jockt.jam: assets
+assets/jockt.jam: assets $(JOCKT_HOON_SOURCES)
 	RUST_LOG=trace MINIMAL_LOG_FORMAT=true $(HOONC) crates/jockt/hoon/main.hoon crates/jockt/hoon
 	mv out.jam assets/jockt.jam
 
