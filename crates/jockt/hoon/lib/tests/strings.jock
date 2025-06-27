@@ -1,5 +1,5 @@
 // Define a function that returns a greeting
-func greet(name: @t) -> @t {
+func greet(name: String) -> String {
   'Hello, ' + name + '!'
 };
 

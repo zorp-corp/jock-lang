@@ -429,7 +429,6 @@
     [[%compare ;;(comparator u.oc) lock rock] tokens]
   ::  - arithmetic ('+' or '-' or '*' or '/' or '%' or '**' is next)
   ?:  (~(has in operator-set) u.oc)
-    ~&  >  'here'
     =^  rock  tokens
       (match-inner-jock tokens)
     :_  tokens
@@ -483,10 +482,8 @@
     =>  .(tokens `(list token)`tokens)  :: TMI
     =^  op  tokens
       (match-operator tokens)
-    ~&  >>>  rock+[-.tokens]
     =^  rock  tokens
       (match-inner-jock tokens)
-    ~&  >>>  rock+rock
     [[%operator op lock `rock] tokens]
   ::  no infix operator
   [lock tokens]
@@ -524,6 +521,7 @@
     %type        (match-start-name tokens)
   ==
 ::  match jocks with no terminating jock (i.e. func bodies)
+::    use with +curr
 ++  match-jock-body
   |=  [=tokens end=jpunc]
   ^-  [jock (list token)]
@@ -531,16 +529,18 @@
     ~|("expect jock. token: ~" !!)
   ?:  (has-punctuator -.tokens end)  !!
   =^  jock  tokens
-    ?-    -<.tokens
-        %literal
-      ::  TODO: check if we're in a compare
-      (match-literal tokens)
-    ::
-      %name        (match-start-name tokens)
-      %keyword     (match-keyword tokens)
-      %punctuator  (match-start-punctuator tokens)
-      %type        (match-start-name tokens)
-    ==
+    (match-jock tokens)
+    :: ?-    -<.tokens
+    ::     %literal
+    ::   ::  TODO: check if we're in a compare
+    ::   (match-literal tokens)
+    :: ::
+    ::   %name        (match-start-name tokens)
+    ::   %keyword     (match-keyword tokens)
+    ::   %punctuator  (match-start-punctuator tokens)
+    ::   %type        (match-start-name tokens)
+    :: ==
+  ?>  (has-punctuator -.tokens end)
   [jock tokens]
 ::
 ++  match-trait
@@ -1024,10 +1024,8 @@
   ::
   :: [%print body=?([%jock jock]) next=jock]
       %print
-    ~&  print+[-.tokens]
     =^  body  tokens
       (match-block [tokens %'(' %')'] match-inner-jock)
-    ~&  tokens+tokens
     ?>  (got-punctuator -.tokens %';')
     =^  next  tokens
       (match-jock +.tokens)
@@ -2193,36 +2191,51 @@
     ::
         %operator
       ~|  %operator
-      :_  [%atom %number %.n]^%$
+      :_  ?+    a.j
+              ~|('operator: no valid result type' !!)
+          ::
+            [%atom [[%number p=@ud] q=?]]
+          [%atom %number %.n]^%$
+          ::
+            [%atom [[%string p=cord] q=?]]
+          [%atom %string %.n]^%$
+          ::
+          ==
+      ::  TODO support unary operands
+      ?~  b.j  !!
+      =/  b  $(j u.b.j)
       ?-    op.j
           %'+'
-        ?~  b.j  !!
-        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %add]]] arg=`[a.j u.b.j]]
+        =/  j=jock
+          ?+    a.j
+              ~|('binary + requires two arguments' !!)
+            ::
+              [%atom [[%number p=@ud] q=?]]
+            [%call [%limb p=~[[%name %hoon] [%name %add]]] arg=`[a.j -.b]]
+            ::
+              [%atom [[%string p=cord] q=?]]
+            [%call [%limb p=~[[%name %hoon] [%name %concat]]] arg=`[a.j b]]
+          ==
         -:$(j j)
         ::
           %'-'
-        ?~  b.j  !!
-        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %sub]]] arg=`[a.j u.b.j]]
+        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %sub]]] arg=`[a.j b]]
         -:$(j j)
         ::
           %'*'
-        ?~  b.j  !!
-        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %mul]]] arg=`[a.j u.b.j]]
+        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %mul]]] arg=`[a.j b]]
         -:$(j j)
         ::
           %'/'
-        ?~  b.j  !!
-        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %div]]] arg=`[a.j u.b.j]]
+        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %div]]] arg=`[a.j b]]
         -:$(j j)
         ::
           %'%'
-        ?~  b.j  !!
-        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %mod]]] arg=`[a.j u.b.j]]
+        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %mod]]] arg=`[a.j b]]
         -:$(j j)
         ::
           %'**'
-        ?~  b.j  !!
-        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %pow]]] arg=`[a.j u.b.j]]
+        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %pow]]] arg=`[a.j b]]
         -:$(j j)
         ::
       ==
