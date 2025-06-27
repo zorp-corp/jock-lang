@@ -2198,6 +2198,7 @@
           %'+'
         ~&  >  a+a.j
         =/  j=jock
+          :: TODO NED this is the crux of the operator stuff for right now (strings)
           ?+    a.j
               :: ~|('binary + requires two arguments' !!)
             [%call [%limb p=~[[%name %hoon] [%name %add]]] arg=`[a.j u.b.j]]
