@@ -639,4 +639,12 @@
     =+  d=(get b)
     (~(put by a) b (~(put in d) c))
   --
+::
+::  String support operations
+::
+++  concat
+  |=  [p=@t q=@t]
+  ^-  @t
+  (cat 3 p q)
+::
 --

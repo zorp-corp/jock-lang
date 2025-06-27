@@ -36,6 +36,7 @@
 /*  hoon-alias            %jock  /lib/tests/hoon-alias/jock
 /*  fib                   %jock  /lib/tests/fib/jock
 /*  lists-indexing        %jock  /lib/tests/lists-indexing/jock
+/*  strings               %jock  /lib/tests/strings/jock
 ::
 /*  test-let-edit         %hoon  /tests/lib/let-edit/hoon
 /*  test-let-inner-exp    %hoon  /tests/lib/let-inner-exp/hoon
@@ -73,6 +74,7 @@
 :: /*  test-hoon-alias      %hoon  /tests/lib/hoon-alias/hoon
 :: /*  test-fib            %hoon  /tests/lib/fib/hoon
 :: /*  test-lists-indexing  %hoon  /tests/lib/lists-indexing/hoon
+:: /*  test-strings        %hoon  /tests/lib/strings/hoon
 ::
 |_  libs=(map term cord)
 ++  list-jocks
@@ -113,7 +115,8 @@
       [%hoon-alias q.hoon-alias]                      :: 33
       [%fib q.fib]                                    :: 34
       [%lists-indexing q.lists-indexing]              :: 35
- ==
+      [%strings q.strings]                            :: 36
+  ==
 ::
 ++  test-jocks
   ~+
@@ -258,6 +261,10 @@
       :: [%test-lists-indexing-jeam test-jeam:test-lists-indexing]
       :: [%test-lists-indexing-mint test-mint:test-lists-indexing]
       :: [%test-lists-indexing-nock test-nock:test-lists-indexing]
+      :: [%test-strings-tokens test-tokenize:test-strings]
+      :: [%test-strings-jeam test-jeam:test-strings]
+      :: [%test-strings-mint test-mint:test-strings]
+      :: [%test-strings-nock test-nock:test-strings]
   ==
 ::
 ++  parse
