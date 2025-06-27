@@ -8,8 +8,6 @@
 ::    +>+>+     jeam door, in middle
 ::    +>+>+>+   parse core, next
 ::
-::  We automatically supply a copy of Hoon into the namespace as an FFI because
-::  so many built-in tools like arithmetic depend on it.
 =<  |_  libs=(map term cord)
     ++  tokenize
       |=  txt=@
@@ -125,7 +123,14 @@
 ++  tokenize
   =|  fun=?(%.y %.n)
   |%
-  ++  string             (stag %string (cook crip (ifix [soq soq] (star ;~(less soq prn)))))
+  ++  string             %+  stag
+                           %string
+                         %+  cook
+                           crip
+                         ;~  pose
+                           (ifix [soq soq] (star ;~(less soq prn)))
+                           (ifix [doq doq] (star ;~(less doq prn)))
+                         ==
   ++  number             (stag %number dem:ag)
   ++  hexadecimal        (stag %hexadecimal ;~(pfix (jest %'0x') hex))
   ++  loobean
@@ -424,6 +429,7 @@
     [[%compare ;;(comparator u.oc) lock rock] tokens]
   ::  - arithmetic ('+' or '-' or '*' or '/' or '%' or '**' is next)
   ?:  (~(has in operator-set) u.oc)
+    ~&  >  'here'
     =^  rock  tokens
       (match-inner-jock tokens)
     :_  tokens
@@ -477,8 +483,10 @@
     =>  .(tokens `(list token)`tokens)  :: TMI
     =^  op  tokens
       (match-operator tokens)
+    ~&  >>>  rock+[-.tokens]
     =^  rock  tokens
       (match-inner-jock tokens)
+    ~&  >>>  rock+rock
     [[%operator op lock `rock] tokens]
   ::  no infix operator
   [lock tokens]
@@ -1016,8 +1024,10 @@
   ::
   :: [%print body=?([%jock jock]) next=jock]
       %print
+    ~&  print+[-.tokens]
     =^  body  tokens
       (match-block [tokens %'(' %')'] match-inner-jock)
+    ~&  tokens+tokens
     ?>  (got-punctuator -.tokens %';')
     =^  next  tokens
       (match-jock +.tokens)
