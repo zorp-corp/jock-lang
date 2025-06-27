@@ -125,7 +125,14 @@
 ++  tokenize
   =|  fun=?(%.y %.n)
   |%
-  ++  string             (stag %string (cook crip (ifix [soq soq] (star ;~(less soq prn)))))
+  ++  string             %+  stag
+                           %string
+                         %+  cook
+                           crip
+                         ;~  pose
+                           (ifix [soq soq] (star ;~(less soq prn)))
+                           (ifix [doq doq] (star ;~(less doq prn)))
+                         ==
   ++  number             (stag %number dem:ag)
   ++  hexadecimal        (stag %hexadecimal ;~(pfix (jest %'0x') hex))
   ++  loobean
@@ -523,16 +530,18 @@
     ~|("expect jock. token: ~" !!)
   ?:  (has-punctuator -.tokens end)  !!
   =^  jock  tokens
-    ?-    -<.tokens
-        %literal
-      ::  TODO: check if we're in a compare
-      (match-literal tokens)
-    ::
-      %name        (match-start-name tokens)
-      %keyword     (match-keyword tokens)
-      %punctuator  (match-start-punctuator tokens)
-      %type        (match-start-name tokens)
-    ==
+    (match-jock tokens)
+    :: ?-    -<.tokens
+    ::     %literal
+    ::   ::  TODO: check if we're in a compare
+    ::   (match-literal tokens)
+    :: ::
+    ::   %name        (match-start-name tokens)
+    ::   %keyword     (match-keyword tokens)
+    ::   %punctuator  (match-start-punctuator tokens)
+    ::   %type        (match-start-name tokens)
+    :: ==
+  ?>  (has-punctuator -.tokens end)
   [jock tokens]
 ::
 ++  match-trait
@@ -2183,35 +2192,45 @@
     ::
         %operator
       ~|  %operator
+      ?~  b.j  !!
       :_  [%atom %number %.n]^%$
       ?-    op.j
           %'+'
-        ?~  b.j  !!
-        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %add]]] arg=`[a.j u.b.j]]
+        ~&  >  a+a.j
+        =/  j=jock
+          ?+    a.j
+              :: ~|('binary + requires two arguments' !!)
+            [%call [%limb p=~[[%name %hoon] [%name %add]]] arg=`[a.j u.b.j]]
+            ::
+              [%atom [[%number p=@ud] q=?]]
+            [%call [%limb p=~[[%name %hoon] [%name %add]]] arg=`[a.j u.b.j]]
+            ::
+              [%limb p=cord]
+            ::  TODO:  change to smarter identification of limb jype
+            [%call [%limb p=~[[%name %hoon] [%name %concat]]] arg=`[a.j u.b.j]]
+            ::
+              [%atom [[%string p=cord] q=?]]
+            [%call [%limb p=~[[%name %hoon] [%name %concat]]] arg=`[a.j u.b.j]]
+          ==
         -:$(j j)
         ::
           %'-'
-        ?~  b.j  !!
         =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %sub]]] arg=`[a.j u.b.j]]
         -:$(j j)
         ::
           %'*'
-        ?~  b.j  !!
         =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %mul]]] arg=`[a.j u.b.j]]
         -:$(j j)
         ::
           %'/'
-        ?~  b.j  !!
         =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %div]]] arg=`[a.j u.b.j]]
         -:$(j j)
         ::
           %'%'
-        ?~  b.j  !!
         =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %mod]]] arg=`[a.j u.b.j]]
         -:$(j j)
         ::
           %'**'
-        ?~  b.j  !!
         =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %pow]]] arg=`[a.j u.b.j]]
         -:$(j j)
         ::
