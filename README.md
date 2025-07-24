@@ -15,7 +15,7 @@ This repo contains the Jock base language, tutorial materials, and language unit
 
 The Jock compiler is written in [Hoon](https://docs.urbit.org) and runs on the NockApp architecture, [part of Nockchain](https://github.com/zorp-corp/nockchain).
 
-Jock code results in Nock which can be run on any Nock VM ([Sword](https://github.com/zorp-corp/sword), [Vere](https://github.com/urbit/vere)).
+Jock code results in Nock which can be run on any Nock VM ([NockVM](https://github.com/zorp-corp/nockchain/crates/nockvm), [Vere](https://github.com/urbit/vere)).
 
 - [Jock tutorial](https://docs.jock.org/getting-started)
 - [Jock docs](https://docs.jock.org)
@@ -23,7 +23,7 @@ Jock code results in Nock which can be run on any Nock VM ([Sword](https://githu
 
 ### Nock
 
-Nock serves as the instruction set architecture for [Nockchain](https://nockchain.org), [zkVM](https://zorp.io/), and [Urbit](https://urbit.org), among other projects.  The Nock ISA is a minimalist combinator calculus.  All computations are reduced to a set of twelve opcodes that are easy to reason about and make proofs about.
+Nock serves as the instruction set architecture for [Nockchain](https://nockchain.org), [Nock ZKVM](https://zorp.io/), and [Urbit](https://urbit.org), among other projects.  The Nock ISA is a minimalist combinator calculus.  All computations are reduced to a set of twelve opcodes that are easy to reason about and make proofs about.
 
 - [Zorp, “Nock Definition”](https://zorp.io/nock/)
 - [Urbit, “Nock Definition” (with discussion)](https://docs.urbit.org/language/nock/reference/definition)
@@ -31,7 +31,7 @@ Nock serves as the instruction set architecture for [Nockchain](https://nockchai
 
 ### NockApp
 
-The NockApp framework consists of Sword (formerly Ares), a runtime VM interpreter for Nock, the Crown Rust interface, and `hoonc`, which builds Nock programs from Jock or Hoon into executable standalones.
+The NockApp framework consists of NockVM, a runtime VM interpreter for Nock, the NockApp Rust framework, and `hoonc`, which builds Nock programs from Jock or Hoon into executable standalones.
 
 - [NockApp in Nockchain](https://github.com/zorp-corp/nockchain)
 - [Announcement post](https://zorp.io/blog/nockapp-dev-alpha)
