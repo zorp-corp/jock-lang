@@ -2,5 +2,7 @@ let a: ? = true;
 
 a = false;
 
+print(a);
+
 a
 

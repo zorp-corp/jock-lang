@@ -2363,9 +2363,15 @@
       ~|  %print
       =+  [val val-jyp]=$(j +.body.j)
       =+  [nex nex-jyp]=$(j next.j)
+      ::  resolve against jyp here?
+      ~&  >  print+val
+      =/  trp=(trap tank)  (pprint val val-jyp)
+      ~&  >  %print-out
+      ~&  >>  trap+[-.trp]
+      ~&  >  %print-final
       :_  nex-jyp
       :+  %11
-        [%slog [%1 0] %1 (pprint val val-jyp)]
+        [%slog [%1 0] %1 -:trp %9 2 %0 1]
       nex
     ::
         %crash
@@ -2616,33 +2622,52 @@
         %atom
       [%5 [%1 `@`+.p.jock] %0 axis]
     ==
-  --
   ::
   ::  Prettyprinter
   ++  pprint
-    |=  [=nock =jype]
+    |=  [=noun =jype]
+    ^-  (trap tank)
+    :: =>  bus  :: w/ tiny or whatever, jock-pprint in hoon, this is alias for hoon.jock-pprint, execution at runtime is the goal
+    =-  ~&(inner+[-<] -)
+    |.
     ^-  tank
-    :: ?^  -<.j    [$(j p.j) $(j q.j)]
+    :+  %rose
+      [" " "[" "]"]
+    |-  ^-  (list tank)
+    ?^  -<.jype
+      %+  weld
+        $(jype p.jype, noun -.noun)
+      $(jype q.jype, noun +.noun)
+    :_  ~  ::  XXX %rose takes a list
     ?+    -<.jype
+        ::  fall-through case, no type specialization
         :-  %leaf
-        "print: {<[-.jype]>} {<`*`nock>}"
+        "print: {<[-.jype]>} {<noun>}"
     ::
         %atom
-      %-  crip
       ?-    ->-.jype
+      ::
         %loobean
-      "{<;;(? +.nock)>}"
+      =/  str  (scot %f ;;(@ noun))
+      (cut 3 [1 (dec (met 3 str))] str)
       ::
         %number
-      "{<;;(@ud +.nock)>}"
+      =/  str  (scot %ui ;;(@ noun))
+      (cut 3 [2 (dec (dec (met 3 str)))] str)
       ::
         %hexadecimal
-      "{<;;(@ux +.nock)>}"
+      =/  str  (scot %x ;;(@ noun))
+      str
       ::
         %string
-      "{<;;(@t +.nock)>}"
+      =/  str  (scot %t ;;(@ noun))
+      (cut 3 [2 (dec (dec (met 3 str)))] str)  :: XXX scot %t adds ~~ to a cord
       ::
       ==
     ::
+      %list
+    %-  crip
+    "{<noun>}"
     ==
+  --
 --
