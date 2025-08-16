@@ -72,6 +72,10 @@ Implement a native `Map` type with syntax support.
 
 Change to left-to-right association to minimize surprise.
 
+## Operator overloading
+
+Allow a standard battery of `class`-affiliated arms to process values.
+
 ## `Path` type
 
 Implement a `List(String)` type with syntax support.

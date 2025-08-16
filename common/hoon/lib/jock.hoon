@@ -8,8 +8,6 @@
 ::    +>+>+     jeam door, in middle
 ::    +>+>+>+   parse core, next
 ::
-::  We automatically supply a copy of Hoon into the namespace as an FFI because
-::  so many built-in tools like arithmetic depend on it.
 =<  |_  libs=(map term cord)
     ++  tokenize
       |=  txt=@
@@ -125,7 +123,14 @@
 ++  tokenize
   =|  fun=?(%.y %.n)
   |%
-  ++  string             (stag %string (cook crip (ifix [soq soq] (star ;~(less soq prn)))))
+  ++  string             %+  stag
+                           %string
+                         %+  cook
+                           crip
+                         ;~  pose
+                           (ifix [soq soq] (star ;~(less soq prn)))
+                           (ifix [doq doq] (star ;~(less doq prn)))
+                         ==
   ++  number             (stag %number dem:ag)
   ++  hexadecimal        (stag %hexadecimal ;~(pfix (jest %'0x') hex))
   ++  loobean
@@ -516,6 +521,7 @@
     %type        (match-start-name tokens)
   ==
 ::  match jocks with no terminating jock (i.e. func bodies)
+::    use with +curr
 ++  match-jock-body
   |=  [=tokens end=jpunc]
   ^-  [jock (list token)]
@@ -523,16 +529,18 @@
     ~|("expect jock. token: ~" !!)
   ?:  (has-punctuator -.tokens end)  !!
   =^  jock  tokens
-    ?-    -<.tokens
-        %literal
-      ::  TODO: check if we're in a compare
-      (match-literal tokens)
-    ::
-      %name        (match-start-name tokens)
-      %keyword     (match-keyword tokens)
-      %punctuator  (match-start-punctuator tokens)
-      %type        (match-start-name tokens)
-    ==
+    (match-jock tokens)
+    :: ?-    -<.tokens
+    ::     %literal
+    ::   ::  TODO: check if we're in a compare
+    ::   (match-literal tokens)
+    :: ::
+    ::   %name        (match-start-name tokens)
+    ::   %keyword     (match-keyword tokens)
+    ::   %punctuator  (match-start-punctuator tokens)
+    ::   %type        (match-start-name tokens)
+    :: ==
+  ?>  (has-punctuator -.tokens end)
   [jock tokens]
 ::
 ++  match-trait
@@ -1922,6 +1930,7 @@
       ?+    -.func.j  ~|('must call a limb' !!)
           %limb
         =/  old-jyp  jyp
+        ~&  call-limb+j
         ~|  %call-limb
         =/  limbs=(list jlimb)  p.func.j
         ?>  ?=(^ limbs)
@@ -1961,9 +1970,12 @@
           ::  We have to +slam the gate into the Hoon library,
           ::  thus two separate wings.
           ~|  %call-case-6
+          ~&  'here'
           ?>  ?=(^ limbs)
           ?~  arg.j  ~|("expect function argument" !!)
+          ~&  here2+u.arg.j
           =+  [val val-jyp]=$(j u.arg.j)
+          ~&  val+val
           ::  Construct the AST for the Hoon RPC using the bunt for now.
           =+  ast=(j2h ljl ~)
           ?>  ?=(%hoon -<.typ)
@@ -2183,36 +2195,51 @@
     ::
         %operator
       ~|  %operator
-      :_  [%atom %number %.n]^%$
+      :_  ?+    a.j
+              ~|('operator: no valid result type' !!)
+          ::
+            [%atom [[%number p=@ud] q=?]]
+          [%atom %number %.n]^%$
+          ::
+            [%atom [[%string p=cord] q=?]]
+          [%atom %string %.n]^%$
+          ::
+          ==
+      ::  TODO support unary operands
+      ?~  b.j  !!
+      =/  b  u.b.j ::$(j u.b.j)
       ?-    op.j
           %'+'
-        ?~  b.j  !!
-        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %add]]] arg=`[a.j u.b.j]]
+        =/  j=jock
+          ?+    a.j
+              ~|('binary + requires two arguments' !!)
+            ::
+              [%atom [[%number p=@ud] q=?]]
+            [%call [%limb p=~[[%name %hoon] [%name %add]]] arg=`[a.j b]]
+            ::
+              [%atom [[%string p=cord] q=?]]
+            [%call [%limb p=~[[%name %hoon] [%name %concat]]] arg=`[a.j b]]
+          ==
         -:$(j j)
         ::
           %'-'
-        ?~  b.j  !!
-        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %sub]]] arg=`[a.j u.b.j]]
+        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %sub]]] arg=`[a.j b]]
         -:$(j j)
         ::
           %'*'
-        ?~  b.j  !!
-        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %mul]]] arg=`[a.j u.b.j]]
+        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %mul]]] arg=`[a.j b]]
         -:$(j j)
         ::
           %'/'
-        ?~  b.j  !!
-        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %div]]] arg=`[a.j u.b.j]]
+        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %div]]] arg=`[a.j b]]
         -:$(j j)
         ::
           %'%'
-        ?~  b.j  !!
-        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %mod]]] arg=`[a.j u.b.j]]
+        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %mod]]] arg=`[a.j b]]
         -:$(j j)
         ::
           %'**'
-        ?~  b.j  !!
-        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %pow]]] arg=`[a.j u.b.j]]
+        =/  j=jock  [%call [%limb p=~[[%name %hoon] [%name %pow]]] arg=`[a.j b]]
         -:$(j j)
         ::
       ==
