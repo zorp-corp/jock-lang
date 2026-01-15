@@ -1,7 +1,7 @@
 use nockapp::driver::Operation;
 use nockapp::kernel::boot;
 use nockapp::noun::slab::NounSlab;
-use nockapp::{one_punch_driver, Noun, AtomExt};
+use nockapp::{one_punch_driver, AtomExt, Noun};
 use nockvm::noun::{Atom, D, T};
 use nockvm_macros::tas;
 
@@ -62,7 +62,7 @@ enum Command {
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = ExecCli::parse();
 
-    let mut nockapp:nockapp::NockApp =
+    let mut nockapp: nockapp::NockApp =
         boot::setup(KERNEL_JAM, Some(cli.boot.clone()), &[], "jockt", None).await?;
 
     boot::init_default_tracing(&cli.boot.clone());
@@ -71,13 +71,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Load libraries from path if provided.
     let lib_path = cli.lib_path.unwrap_or("lib_path".to_string());
     // Get names of all Hoon and Jock files in that directory.
-    let mut lib_texts:Vec<(Atom,Atom)> = Vec::new();
+    let mut lib_texts: Vec<(Atom, Atom)> = Vec::new();
     if let Ok(entries) = std::fs::read_dir(lib_path) {
         for entry in entries {
             if let Ok(entry) = entry {
                 let path = entry.path();
                 if let Some(ext) = path.extension() {
-                    if ext == "hoon" || ext == "jock" || ext == "txt" {  // XXX kludge for now on txt
+                    if ext == "hoon" || ext == "jock" || ext == "txt" {
+                        // XXX kludge for now on txt
                         if let Some(stem) = path.file_stem() {
                             if let Some(stem_str) = stem.to_str() {
                                 let lib_name = Atom::from_value(&mut slab, stem_str.to_string())
@@ -106,7 +107,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     if lib_texts.len() > 0 {
         let tuple = vec_to_hoon_tuple_list(&mut slab, lib_texts);
 
-        slab.modify(|_root| { vec![D(tas!(b"loadlibs")), tuple] });
+        slab.modify(|_root| vec![D(tas!(b"loadlibs")), tuple]);
 
         nockapp
             .add_io_driver(one_punch_driver(slab, Operation::Poke))
@@ -118,34 +119,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             let n = n.unwrap_or(0);
             create_poke(&[D(tas!(b"exec")), D(n)])
         }
-        Command::ExecAll {} => {
-            create_poke(&[D(tas!(b"exec-all")), D(0)])
-        }
+        Command::ExecAll {} => create_poke(&[D(tas!(b"exec-all")), D(0)]),
         Command::Test { n } => {
             let n = n.unwrap_or(0);
             create_poke(&[D(tas!(b"test")), D(n)])
         }
-        Command::TestAll {} => {
-            create_poke(&[D(tas!(b"test-all")), D(0)])
-        }
-        Command::ParseAll {} => {
-            create_poke(&[D(tas!(b"parseall")), D(0)])
-        }
-        Command::JeamAll {} => {
-            create_poke(&[D(tas!(b"jeam-all")), D(0)])
-        }
-        Command::MintAll {} => {
-            create_poke(&[D(tas!(b"mint-all")), D(0)])
-        }
-        Command::JypeAll {} => {
-            create_poke(&[D(tas!(b"jype-all")), D(0)])
-        }
-        Command::NockAll {} => {
-            create_poke(&[D(tas!(b"nock-all")), D(0)])
-        }
-        Command::RunDetails {} => {
-            create_poke(&[D(tas!(b"run")), D(0)])
-        }
+        Command::TestAll {} => create_poke(&[D(tas!(b"test-all")), D(0)]),
+        Command::ParseAll {} => create_poke(&[D(tas!(b"parseall")), D(0)]),
+        Command::JeamAll {} => create_poke(&[D(tas!(b"jeam-all")), D(0)]),
+        Command::MintAll {} => create_poke(&[D(tas!(b"mint-all")), D(0)]),
+        Command::JypeAll {} => create_poke(&[D(tas!(b"jype-all")), D(0)]),
+        Command::NockAll {} => create_poke(&[D(tas!(b"nock-all")), D(0)]),
+        Command::RunDetails {} => create_poke(&[D(tas!(b"run")), D(0)]),
     };
 
     nockapp
@@ -169,9 +154,9 @@ fn create_poke(args: &[Noun]) -> NounSlab {
 }
 
 #[inline(always)]
-pub fn vec_to_hoon_tuple_list(slab: &mut NounSlab, vec: Vec<(Atom,Atom)>) -> Noun {
+pub fn vec_to_hoon_tuple_list(slab: &mut NounSlab, vec: Vec<(Atom, Atom)>) -> Noun {
     let mut list = D(0);
-    for (a,b) in vec.iter().rev() {
+    for (a, b) in vec.iter().rev() {
         let n1 = a.as_noun();
         let n2 = b.as_noun();
         let tuple = T(slab, &[n1, n2]);

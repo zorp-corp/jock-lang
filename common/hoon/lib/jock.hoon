@@ -320,7 +320,22 @@
   ::  the goal is to parse a function call into the pseudo-punctuator '(('.
   ::  This only happens if there is a name or type immediately preceding '(',
   ::  e.g. foo(bar)  ->  'foo' '((' 'bar' ')'
-  ++  tagged-name       (stag %name sym)
+  ++  jname
+    %+  cook
+      |=(a=tape (rap 3 ^-((list @) a)))
+    ;~(plug low (star ;~(pose low (shim '0' '9') (just '_'))))
+  ++  jname-hyphen
+    %+  cook
+      |=(a=tape (rap 3 ^-((list @) a)))
+    ;~(plug low (star ;~(pose low (shim '0' '9') (just '-') (just '_'))))
+  ++  tagged-name
+    %+  stag  %name
+    jname
+  ++  tagged-name-hyphen
+    %+  cook
+      |=(a=cord [%name a])
+    jname-hyphen
+
   ::
   ++  tagged-type
     %+  stag  %type
@@ -365,6 +380,7 @@
         (knee *(list token) |.(~+(;~(plug tagged-symbol ;~(pfix gav tokens(fun %.n))))))
         (knee *(list token) |.(~+(;~(plug tagged-literal-atom ;~(pfix gav tokens(fun %.n))))))
         (knee *(list token) |.(~+(;~(plug tagged-literal-noun ;~(pfix gav tokens(fun %.n))))))
+        (knee *(list token) |.(~+(;~(plug tagged-name-hyphen ;~(pfix gav tokens(fun %.y))))))
         (knee *(list token) |.(~+(;~(plug tagged-name ;~(pfix gav tokens(fun %.y))))))
         (knee *(list token) |.(~+(;~(plug tagged-punctuator ;~(pfix gav tokens(fun %.n))))))
         (knee *(list token) |.(~+(;~(plug tagged-type ;~(pfix gav tokens(fun %.y))))))
@@ -862,6 +878,8 @@
     ?:  has-name  ;;(cord ->.tokens)
     ?>  =(%type -<.tokens)
     (got-name -.tokens)
+  ?>  ~|  "invalid identifier: '-' is not allowed; use '_' or add spaces for subtraction"
+    (valid-name name)
   =.  tokens  +.tokens
   =/  limbs=(list jlimb)  ~[(make-jlimb name)]
   ::  - %name (there is no next token, which is the end of the jock)
@@ -880,6 +898,8 @@
       ?.  (has-punctuator -.tokens %'.')
         [(flop acc) tokens]
       ?^  nom=(get-name +<.tokens)
+        ?>  ~|  "invalid identifier: '-' is not allowed; use '_' or add spaces for subtraction"
+          (valid-name u.nom)
         %=  $
           tokens  +>.tokens
           acc     [(make-jlimb u.nom) acc]
@@ -914,9 +934,9 @@
 ++  make-jlimb
   |=  name=cord
   ^-  jlimb
-  ?:  !(is-type name)
-    [%name name]
-  [%type name]
+  ?:  (is-type name)
+    [%type name]
+  [%name (jock-term name)]
 ::
 ::  Metatype is a container type like List or Set
 ++  match-metatype
@@ -1203,22 +1223,23 @@
   ::
       %import
     ?>  ?=(%name -<.tokens)
-    =/  nom=term  ->.tokens
+    =/  nom=cord  (got-name -.tokens)
     =/  src=jock  [%limb ~[-.tokens]]
     =/  tokens  +.tokens
-    =/  past  (rush (~(got by libs) nom) (ifix [gay gay] tall:(vang | /)))
+    =/  lib-name=term  (jock-term nom)
+    =/  past  (rush (~(got by libs) lib-name) (ifix [gay gay] tall:(vang | /)))
     ?~  past  ~|("unable to parse Hoon library: {<[+<+.src]>}" !!)
     =/  p  (~(mint ut %noun) %noun u.past)
     =?  nom  (has-keyword -.tokens %as)
       ?>  =(%name +<-.tokens)
-      ;;(term +<+.tokens)
+      (got-name +<.tokens)
     =?  tokens  (has-keyword -.tokens %as)  +>.tokens
     ?>  ~|  'expected terminator ; after import'
       (got-punctuator -.tokens %';')
     =^  q  tokens
       (match-jock +.tokens)
     :_  tokens
-    [%import [[%hoon [p.p .*(0 q.p)]] nom] q]
+    [%import [[%hoon [p.p .*(0 q.p)]] lib-name] q]
   ::
   :: [%print body=?([%jock jock]) next=jock]
       %print
@@ -1306,7 +1327,7 @@
   ::  %limb (fallthrough)
   ::    Match on limb lookup.
   ?^  nom=(get-name -.tokens)
-    [[%limb ~[name+u.nom]] +.tokens]
+    [[%limb ~[(make-jlimb u.nom)]] +.tokens]
   ::    Match on axis (& axis).
   ?:  (has-punctuator -.tokens %'&')
     =^  axis-lit  tokens
@@ -1437,7 +1458,8 @@
   ^-  [[%limb (list jlimb)] (list token)]
   ?.  ?=(%name -<.tokens)
     ~|("expect name. token: {<-<.tokens>}" !!)
-  [[%limb [%name -<.tokens]~] +.tokens]
+  =/  name=cord  (got-name -.tokens)
+  [[%limb ~[(make-jlimb name)]] +.tokens]
 ::
 ++  match-block
   |*  [[=tokens start=jpunc end=jpunc] gate=$-(tokens [* tokens])]
@@ -1498,7 +1520,16 @@
   ^-  cord
   ?.  |(?=(%name -.token) ?=(%type -.token))
     ~|("expect name. token: {<-.token>}" !!)
-  ;;(cord +.token)
+  =/  name=cord  ;;(cord +.token)
+  ?>  ~|  "invalid identifier: '-' is not allowed; use '_' or add spaces for subtraction"
+    (valid-name name)
+  name
+
+++  jock-term
+  |=  name=cord
+  ^-  term
+  =+  replaced=(crip (turn (trip name) |=(c=@t ?:(=(c '_') '-' c))))
+  ;;(term replaced)
 ::
 ++  get-name
   |=  =token
@@ -1507,9 +1538,7 @@
   ?:  ?=(%name -.token)  [~ +.token]
   ?>  ?=(%type -.token)  [~ +.token]
 ::
-::  like +sane but for snake case
-::  !((sane %tas) name)
-++  is-type
+++  valid-name
   |=  name=cord
   ^-  ?
   =+  [inx=0 len=(met 3 name)]
@@ -1518,7 +1547,27 @@
   ?:  =(inx len)  &
   =+  cur=(cut 3 [inx 1] name)
   ?&  ?|  &((gte cur 'a') (lte cur 'z'))
+          &((gte cur 'A') (lte cur 'Z'))
           &(=('_' cur) !=(0 inx) !=(len inx))
+          &(&((gte cur '0') (lte cur '9')) !=(0 inx))
+      ==
+      $(inx +(inx))
+  ==
+::  like +sane but for snake case
+::  !((sane %tas) name)
+++  is-type
+  |=  name=cord
+  ^-  ?
+  =+  len=(met 3 name)
+  ?:  =(len 0)  %.n
+  =+  first=(cut 3 [0 1] name)
+  ?.  &((gte first 'A') (lte first 'Z'))  %.n
+  =+  inx=1
+  |-  ^-  ?
+  ?:  =(inx len)  &
+  =+  cur=(cut 3 [inx 1] name)
+  ?&  ?|  &((gte cur 'a') (lte cur 'z'))
+          &((gte cur 'A') (lte cur 'Z'))
           &(&((gte cur '0') (lte cur '9')) !=(0 inx))
       ==
       $(inx +(inx))

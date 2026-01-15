@@ -1,6 +1,6 @@
 use nockapp::driver::Operation;
 use nockapp::{kernel::boot, noun::slab::NounSlab};
-use nockapp::{one_punch_driver, Noun, AtomExt};
+use nockapp::{one_punch_driver, AtomExt, Noun};
 use nockvm::noun::{Atom, D, T};
 use nockvm_macros::tas;
 
@@ -43,10 +43,11 @@ struct TestCli {
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = TestCli::parse();
 
-    let mut nockapp:nockapp::NockApp = boot::setup(KERNEL_JAM, Some(cli.boot.clone()), &[], "jockc", None).await?;
+    let mut nockapp: nockapp::NockApp =
+        boot::setup(KERNEL_JAM, Some(cli.boot.clone()), &[], "jockc", None).await?;
     boot::init_default_tracing(&cli.boot.clone());
 
-    let mut slab:NounSlab = NounSlab::new();
+    let mut slab: NounSlab = NounSlab::new();
 
     let poke = {
         // Acquire name.
@@ -73,20 +74,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         // Load libraries from path if provided.
         let lib_path = cli.lib_path.unwrap_or("lib_path".to_string());
         // Get names of all Hoon and Jock files in that directory.
-        let mut lib_texts:Vec<(Atom,Atom)> = Vec::new();
+        let mut lib_texts: Vec<(Atom, Atom)> = Vec::new();
         if let Ok(entries) = std::fs::read_dir(lib_path) {
             for entry in entries {
                 if let Ok(entry) = entry {
                     let path = entry.path();
                     if let Some(ext) = path.extension() {
-                        if ext == "hoon" || ext == "jock" || ext == "txt" {  // XXX kludge for now on txt
+                        if ext == "hoon" || ext == "jock" || ext == "txt" {
+                            // XXX kludge for now on txt
                             if let Some(stem) = path.file_stem() {
                                 if let Some(stem_str) = stem.to_str() {
-                                    let lib_name = Atom::from_value(&mut slab, stem_str.to_string())
-                                        .unwrap()
-                                        .as_noun()
-                                        .as_atom()
-                                        .unwrap();
+                                    let lib_name =
+                                        Atom::from_value(&mut slab, stem_str.to_string())
+                                            .unwrap()
+                                            .as_noun()
+                                            .as_atom()
+                                            .unwrap();
                                     // Read file content.
                                     let lib_text = std::fs::read_to_string(&path)
                                         .expect("Unable to read library file");
@@ -108,12 +111,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         let texts = vec_to_hoon_tuple_list(&mut slab, lib_texts);
 
-        slab.modify(|_root|
-            { vec![D(tas!(b"jock")),
+        slab.modify(|_root| {
+            vec![
+                D(tas!(b"jock")),
                 name.as_noun(),
                 text.as_noun(),
                 args,
-                texts] });
+                texts,
+            ]
+        });
         slab
     };
 
@@ -167,9 +173,9 @@ pub fn vec_to_hoon_atom_list(slab: &mut NounSlab, vec: Vec<Atom>) -> Noun {
 }
 
 #[inline(always)]
-pub fn vec_to_hoon_tuple_list(slab: &mut NounSlab, vec: Vec<(Atom,Atom)>) -> Noun {
+pub fn vec_to_hoon_tuple_list(slab: &mut NounSlab, vec: Vec<(Atom, Atom)>) -> Noun {
     let mut list = D(0);
-    for (a,b) in vec.iter().rev() {
+    for (a, b) in vec.iter().rev() {
         let n1 = a.as_noun();
         let n2 = b.as_noun();
         let tuple = T(slab, &[n1, n2]);

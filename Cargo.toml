@@ -2,6 +2,7 @@
 members = [
     "crates/jockc",
     "crates/jockt",
+    "crates/ockc",
 ]
 
 resolver = "2"
@@ -21,6 +22,7 @@ path = "crates/jockt"
 nockapp = { git = "https://github.com/zorp-corp/nockchain", branch="master"}
 nockvm = { git = "https://github.com/zorp-corp/nockchain", branch = "master" }
 nockvm_macros = { git = "https://github.com/zorp-corp/nockchain", branch = "master" }
+chumsky = "0.10"
 clap = "4.4.4"
 tokio = { version = "1.32", features = [
     "fs",
