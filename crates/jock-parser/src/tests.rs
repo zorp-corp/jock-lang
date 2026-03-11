@@ -614,6 +614,373 @@ if a == +(b) {
     );
 }
 
+// ── Missing .jock file tests ────────────────────────────────────
+
+#[test]
+fn parse_axis_call() {
+    assert_parses(
+        r#"func a(b:@) -> @ {
+  +(b)
+};
+
+&2(17)"#,
+    );
+}
+
+#[test]
+fn parse_baby() {
+    assert_parses(
+        r#"compose with 0; object {
+  load = crash
+  peek = crash
+  poke = (a:* -> (* &1)) {
+    (a &1)
+  }
+  wish = crash
+};
+
+poke(3)"#,
+    );
+}
+
+#[test]
+fn parse_call() {
+    let ast = parse_src(
+        r#"func a(b:@) -> @ {
+  +(b)
+};
+
+a(23)"#,
+    );
+    match &ast {
+        Jock::Func { next, .. } => {
+            assert!(matches!(**next, Jock::Call { .. }));
+        }
+        other => panic!("expected Func, got {:?}", other),
+    }
+}
+
+#[test]
+fn parse_call_let_edit() {
+    assert_parses(
+        r#"func a(c:@) -> @ {
+  +(c)
+};
+
+let b: @ = 42;
+b = a(23);
+
+b"#,
+    );
+}
+
+#[test]
+fn parse_class_ops() {
+    assert_parses(
+        r#"compose
+  class Point(x:@ y:@) {
+   add(p:(x:@ y:@)) -> Point {
+     (x + p.x
+      y + p.y)
+   }
+  }
+;
+
+let point_1 = Point(14 104);
+point_1 = point_1.add(28 38);
+(point_1.x() point_1.y())"#,
+    );
+}
+
+#[test]
+fn parse_comparator_file() {
+    assert_parses(
+        r#"let a = true;
+let b = a == true;
+let c = a < 1;
+let d = a > 2;
+let e = b != true;
+let f = a <= 1;
+let g = a >= 2;
+
+g"#,
+    );
+}
+
+#[test]
+fn parse_compose_cores() {
+    assert_parses(
+        r#"func g(a:@) -> @ {
+  29
+};
+
+compose
+  with this; object {
+    b = lambda (c:@) -> @ {
+      g(5)
+    }
+    c = 89
+  };
+
+b(3)"#,
+    );
+}
+
+#[test]
+fn parse_hoon_alias() {
+    assert_parses(
+        r#"import hoon as lib;
+
+let a:@ = 6;
+let b:@ = 7;
+
+lib.mul(a b)"#,
+    );
+}
+
+#[test]
+fn parse_hoon_arithmetic() {
+    assert_parses(
+        r#"import hoon;
+
+let a:@ = 5;
+let b:@ = 37;
+
+(
+  hoon.dec(43)
+  hoon.add(5 37)
+  hoon.add(a b)
+  hoon.sub(47 a)
+  hoon.lent([1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42])
+)"#,
+    );
+}
+
+#[test]
+fn parse_hoon_ffi() {
+    assert_parses(
+        r#"let a = 1;
+let b = 41;
+let c = 43;
+let d = 6;
+let e = 7;
+let f = 252;
+
+(hoon.add(a b)
+ hoon.sub(c a)
+ hoon.mul(d e)
+ hoon.div(f d)
+)"#,
+    );
+}
+
+#[test]
+fn parse_if_elseif_else_file() {
+    assert_parses(
+        r#"let a: @ = 3;
+
+if a == 3 {
+  42
+} else if a == 5 {
+  17
+} else {
+  15
+}"#,
+    );
+}
+
+#[test]
+fn parse_in_subj_call() {
+    assert_parses(
+        r#"let a = 17;
+
+let b = lambda ((b:@ c:&1)) -> @ {
+  if c == 18 {
+    +(b)
+  } else {
+    b
+  }
+}(23 &1);
+
+&1"#,
+    );
+}
+
+#[test]
+fn parse_inline_lambda_no_arg() {
+    assert_parses(
+        r#"lambda (b:@) -> @ {
+  +(b)
+}()"#,
+    );
+}
+
+#[test]
+fn parse_inline_point() {
+    assert_parses(
+        r#"let a: @ = 5;
+let b: @ = 0;
+loop;
+if a == +(b) {
+  b
+} else {
+  b = +(b);
+  $(b)
+}"#,
+    );
+}
+
+#[test]
+fn parse_let_inner_exp() {
+    let ast = parse_src("let a = 42;\n\na");
+    match &ast {
+        Jock::Let { val, next, .. } => {
+            assert!(matches!(**val, Jock::Atom(_)));
+            assert!(matches!(**next, Jock::Limb(_)));
+        }
+        other => panic!("expected Let, got {:?}", other),
+    }
+}
+
+#[test]
+fn parse_lists_indexing() {
+    assert_parses(
+        r#"import hoon;
+
+let a = [100 200 300 400 500];
+let b:List(@ @) = [(10 20) (30 40) (50 60)];
+
+(hoon.snag(0 a) hoon.snag(2 b))"#,
+    );
+}
+
+#[test]
+fn parse_lists_nested() {
+    assert_parses(
+        r#"let a:List(@) = [1];
+
+let b:List(@) = [1 2];
+
+let c:List(@) = [1 2 3];
+
+let d:List((@ @)) = [(1 2) (3 4)];
+
+let e:List((@ List(@))) = [(1 [2]) (3 [4 5])];
+
+(a b c d e)"#,
+    );
+}
+
+#[test]
+fn parse_match_type() {
+    let ast = parse_src(
+        r#"let a: @ = 3;
+
+match a {
+  %1 -> 0;
+  %2 -> 21;
+  %3 -> 42;
+  %4 -> 63;
+  _ -> 84;
+}"#,
+    );
+    match &ast {
+        Jock::Let { next, .. } => {
+            match &**next {
+                Jock::Match {
+                    cases, default, ..
+                } => {
+                    assert_eq!(cases.len(), 4);
+                    assert!(default.is_some());
+                }
+                other => panic!("expected Match, got {:?}", other),
+            }
+        }
+        other => panic!("expected Let, got {:?}", other),
+    }
+}
+
+#[test]
+fn parse_multi_limb() {
+    assert_parses(
+        r#"let a: (p:@ q:(k:@ v:@)) = (52 30 42);
+
+(a.q.v)"#,
+    );
+}
+
+#[test]
+fn parse_type_point() {
+    assert_parses(
+        r#"compose
+  class Foo(x:@) {
+    bar(p:@) -> Foo {
+      p
+    }
+  }
+;
+
+let a:Foo = Foo(41);
+let b = Foo(42);
+let c:@ = 43;
+
+(Foo(40) a b c)"#,
+    );
+}
+
+#[test]
+fn parse_type_point_2() {
+    assert_parses(
+        r#"compose
+  class Point(x:Uint y:Uint) {
+   add(p:(x:Uint y:Uint)) -> Point {
+     (x + p.x
+      y + p.y)
+   }
+   sub(p:(x:Uint y:Uint)) -> Point {
+     (x - p.x
+      y - p.y)
+   }
+  }
+;
+
+let point_1 = Point(104 124);
+point_1 = point_1.add(38 38);
+let point_2 = Point(30 40);
+point_2 = point_2.add(212 302);
+point_1 = point_1.sub(100 20);
+( (point_1.x() point_1.y())
+  (point_2.x() point_2.y())
+)"#,
+    );
+}
+
+#[test]
+fn parse_type_point_3() {
+    assert_parses(
+        r#"compose
+  class Point(x:Uint y:Uint) {
+    add(p:(x:Uint y:Uint)) -> Point {
+      (x + p.x
+       y + p.y)
+    }
+    add_cell(p:(x:Uint y:Uint)) -> (Uint Uint) {
+      (x + p.x
+       y + p.y)
+    }
+    inc(q:Uint) -> @ {
+      +(q)
+    }
+  }
+;
+
+let one = Point(2 13);
+let two = one.add(30 19);
+let three = one.inc(41);
+(two.add_cell(10 10) three)"#,
+    );
+}
+
 // ── Error handling ──────────────────────────────────────────────
 
 #[test]

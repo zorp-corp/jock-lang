@@ -91,6 +91,58 @@ impl Parser {
         }
     }
 
+    /// Scan ahead (without consuming) to determine if the current position
+    /// starts an anonymous lambda.
+    /// Two forms:
+    ///   1. `(params) -> ret { body }` — arrow AFTER the closing paren
+    ///   2. `(params -> ret) { body }` — arrow INSIDE the parens (baby.jock style)
+    /// In both cases the token after the matching `)` must be `{`.
+    fn is_lambda_ahead(&self) -> bool {
+        // Current pos is right after the '(' was consumed.
+        let mut depth = 1u32;
+        let mut i = self.pos;
+        let mut has_arrow_inside = false;
+        while i < self.tokens.len() {
+            match &self.tokens[i] {
+                Token::Punctuator(Jpunc::LParen) => depth += 1,
+                Token::Punctuator(Jpunc::RParen) => {
+                    depth -= 1;
+                    if depth == 0 {
+                        let after = i + 1;
+                        // Form 1: arrow after closing paren
+                        if matches!(
+                            (self.tokens.get(after), self.tokens.get(after + 1)),
+                            (
+                                Some(Token::Punctuator(Jpunc::Minus)),
+                                Some(Token::Punctuator(Jpunc::GreaterThan)),
+                            )
+                        ) {
+                            return true;
+                        }
+                        // Form 2: arrow was inside the parens, `{` follows
+                        return has_arrow_inside
+                            && matches!(
+                                self.tokens.get(after),
+                                Some(Token::Punctuator(Jpunc::LBrace))
+                            );
+                    }
+                }
+                // Detect `-` `>` at depth 1
+                Token::Punctuator(Jpunc::Minus) if depth == 1 => {
+                    if matches!(
+                        self.tokens.get(i + 1),
+                        Some(Token::Punctuator(Jpunc::GreaterThan))
+                    ) {
+                        has_arrow_inside = true;
+                    }
+                }
+                _ => {}
+            }
+            i += 1;
+        }
+        false
+    }
+
     // ── Top-level parse ─────────────────────────────────────────
 
     /// Parse all tokens into a single Jock AST.  Returns error if tokens
@@ -371,8 +423,37 @@ impl Parser {
                 })
             }
 
-            // Tuple  (expr expr)
+            // Tuple  (expr expr) or anonymous lambda (params) -> ret { body }
             Jpunc::LParen => {
+                // Check if this is an anonymous lambda: (params) -> ret { body }
+                // by scanning ahead to find the matching ')' and checking for '->'
+                if self.is_lambda_ahead() {
+                    // Back up to include the '(' we consumed
+                    self.pos -= 1;
+                    let lambda = self.match_lambda_from_paren()?;
+
+                    if self.at_end() || !self.has_punctuator(Jpunc::LParen) {
+                        return Ok(Jock::Lambda(lambda));
+                    }
+
+                    // Immediate call: lambda(...)
+                    self.pos += 1; // consume '('
+                    if self.has_punctuator(Jpunc::RParen) {
+                        self.pos += 1;
+                        return Ok(Jock::Call {
+                            func: Box::new(Jock::Lambda(lambda)),
+                            arg: None,
+                        });
+                    }
+
+                    self.pos -= 1;
+                    let arg = self.match_pair_inner_jock()?;
+                    return Ok(Jock::Call {
+                        func: Box::new(Jock::Lambda(lambda)),
+                        arg: Some(Box::new(arg)),
+                    });
+                }
+
                 // Re-insert the '(' and delegate to match_pair_inner_jock
                 self.pos -= 1;
                 self.match_pair_inner_jock()
@@ -1031,7 +1112,29 @@ impl Parser {
     // ── match-lambda-argument (lines 1125-1136) ─────────────────
 
     fn match_lambda_argument(&mut self) -> Result<LambdaArgument, ParseError> {
-        let inp = self.match_block_inner(Jpunc::LParen, Jpunc::RParen, |p| p.match_jype())?;
+        self.expect_punctuator(Jpunc::LParen)?;
+
+        // Check for no-arg lambda: () -> out
+        if self.has_punctuator(Jpunc::RParen) {
+            self.pos += 1;
+            self.expect_punctuator(Jpunc::Minus)?;
+            self.expect_punctuator(Jpunc::GreaterThan)?;
+            let out = self.match_jype()?;
+            return Ok(LambdaArgument::new(None, out));
+        }
+
+        let inp = self.match_jype()?;
+
+        // Form 2: arrow inside parens — (input -> output)
+        if self.has_punctuator(Jpunc::Minus) && self.has_punctuator_at(1, Jpunc::GreaterThan) {
+            self.pos += 2; // consume '->'
+            let out = self.match_jype()?;
+            self.expect_punctuator(Jpunc::RParen)?;
+            return Ok(LambdaArgument::new(Some(inp), out));
+        }
+
+        // Form 1: arrow after parens — (input) -> output
+        self.expect_punctuator(Jpunc::RParen)?;
         self.expect_punctuator(Jpunc::Minus)?;
         self.expect_punctuator(Jpunc::GreaterThan)?;
         let out = self.match_jype()?;
