@@ -1851,6 +1851,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "jock-tokenizer"
+version = "0.1.0-alpha"
+
+[[package]]
 name = "jockc"
 version = "0.1.0-alpha"
 dependencies = [
