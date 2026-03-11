@@ -1,0 +1,4 @@
+[package]
+name = "jock-tokenizer"
+version = "0.1.0-alpha"
+edition = "2024"
