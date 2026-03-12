@@ -1,0 +1,8 @@
+[package]
+name = "jock-compiler"
+version = "0.1.0-alpha"
+edition = "2024"
+
+[dependencies]
+jock-tokenizer = { path = "../jock-tokenizer" }
+jock-parser = { path = "../jock-parser" }

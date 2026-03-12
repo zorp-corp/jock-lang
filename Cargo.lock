@@ -1851,6 +1851,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "jock-compiler"
+version = "0.1.0-alpha"
+dependencies = [
+ "jock-parser",
+ "jock-tokenizer",
+]
+
+[[package]]
 name = "jock-parser"
 version = "0.1.0-alpha"
 dependencies = [
