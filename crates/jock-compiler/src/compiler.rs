@@ -517,7 +517,13 @@ fn mint_call_direct(
             JypeLeaf::Limb(inner_limbs) => {
                 // Instance reference — need to resolve further for method dispatch.
                 if !inner_limbs.is_empty() && matches!(inner_limbs[0], Jlimb::Type(_)) {
-                    return mint_call_instance_method(typ, inner_limbs, wings, limbs, arg, jyp);
+                    // If the call is just `Type(args)` (limbs.len() == 1), it's a constructor.
+                    // If `a.method(args)` (limbs.len() >= 2), it's an instance method call.
+                    if limbs.len() >= 2 {
+                        return mint_call_instance_method(typ, inner_limbs, wings, limbs, arg, jyp);
+                    } else {
+                        return mint_call_class_constructor(typ, wings, limbs, arg, jyp);
+                    }
                 }
             }
             JypeLeaf::State { .. } => {
