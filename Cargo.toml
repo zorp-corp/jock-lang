@@ -4,6 +4,7 @@ members = [
     "crates/jockt",
     "crates/jock-tokenizer",
     "crates/jock-parser",
+    "crates/jock-compiler",
 ]
 
 resolver = "2"
