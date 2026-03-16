@@ -18,7 +18,7 @@ help:
 
 PROFILE_DEV_DEBUG = --profile dev
 PROFILE_RELEASE = --profile release
-HOONC = hoonc
+HOONC = ~/.cargo/bin/hoonc
 
 .PHONY: build
 build: build-dev-debug

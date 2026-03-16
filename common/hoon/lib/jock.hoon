@@ -30,14 +30,14 @@
       |=  txt=@
       ^-  *
       =/  jok  (jeam (cat 3 'import hoon;\0a' txt))
-      =+  [nok jyp]=(~(mint cj:~(. +> libs) [%atom %string %.n]^%$) jok)
+      =+  [nok jyp]=(~(mint cj:~(. +> libs) [%atom %chars %.n]^%$) jok)
       nok
     ::
     ++  jypist
       |=  txt=@
       ^-  jype
       =/  jok  (jeam (cat 3 'import hoon;\0a' txt))
-      =+  [nok jyp]=(~(mint cj:~(. +> libs) [%atom %string %.n]^%$) jok)
+      =+  [nok jyp]=(~(mint cj:~(. +> libs) [%atom %chars %.n]^%$) jok)
       jyp
     --
 =>
@@ -58,12 +58,16 @@
   $?  %let
       %func
       %lambda
-      %class
+      %struct
+      %impl
+      %trait
+      %union
+      %alias
+      %object
       %if
       %else
       %crash
       %assert
-      %object
       %compose
       %loop
       %defer
@@ -85,24 +89,38 @@
       %'('  %')'  %'{'  %'}'  %'['  %']'
       %'='  %'<'  %'>'  %'#'
       %'+'  %'-'  %'*'  %'/'  %'%'  %'_'
+      %'->'
   ==
 ::
 +$  jatom
   $+  jatom
-  $~  [[%loobean p=%.n] q=%.n]
-  $:  $%  [%string p=cord]
+  $~  [[%logical p=%.n] q=%.n]
+  $:  $%  [%chars p=cord]
           [%number p=@ud]
-          [%hexadecimal p=@ux]
-          [%loobean p=?]
+          [%sint p=@sd]
+          [%hex p=@x]
+          [%real p=@rd]
+          [%real16 p=@rh]
+          [%real32 p=@rs]
+          [%real128 p=@rq]
+          [%logical p=?(%.y %.n)]
+          [%date p=@da]
+          [%span p=@dr]
       ==
       q=?(%.y %.n)                  ::  constant flag
+  ==
+::
++$  jnoun
+  $+  jnoun
+  $%  [%string p=tape]
+      [%path p=path]
   ==
 ::
 +$  token
   $+  token
   $%  [%keyword keyword]
       [%punctuator jpunc]
-      [%literal jatom]
+      [%literal ?([%atom jatom] [%noun jnoun])]
       [%name cord]
       [%type cord]
   ==
@@ -122,20 +140,172 @@
 ++  gav  (cold ~ (star ;~(pose val var gah)))
 ++  gae  ;~(pose gav (easy ~))
 ::
+++  roy
+  =/  moo
+    |=  a=tape
+    :-  (lent a)
+    (scan a (bass 10 (plus sid:ab)))
+  ;~  pose
+    ;~  plug
+      (easy %d)
+      ;~(pose (cold | hep) (cold & lus) (easy &))
+      ;~  plug  dim:ag
+        ;~  pose
+          ;~(pfix dot (cook moo (plus (shim '0' '9'))))
+          (easy [0 0])
+        ==
+        ;~  pose
+          ;~  pfix
+            (just 'e')
+            ;~(plug ;~(pose (cold | hep) (easy &)) dim:ag)
+          ==
+          (easy [& 0])
+        ==
+      ==
+    ==
+    ::
+    ;~  plug
+      (easy %i)
+      ;~  sfix
+        ;~(pose (cold | hep) (easy &))
+        (jest 'inf')
+      ==
+    ==
+    ::
+    ;~  plug
+      (easy %n)
+      (cold ~ (jest 'nan'))
+    ==
+  ==
+::
 ++  tokenize
   =|  fun=?(%.y %.n)
   |%
-  ++  string             (stag %string (cook crip (ifix [soq soq] (star ;~(less soq prn)))))
-  ++  number             (stag %number dem:ag)
-  ++  hexadecimal        (stag %hexadecimal ;~(pfix (jest %'0x') hex))
-  ++  loobean
-    %+  stag  %loobean
-    ;~(pose (cold %.y (jest %true)) (cold %.n (jest %false)))
   ::
-  ++  tagged-literal     (stag %literal (hart literal %.n))
-  ++  literal            ;~(pose loobean hexadecimal number string)
-  ++  tagged-symbol      (stag %literal (hart symbol %.y))
-  ++  symbol             ;~(pfix cen literal)
+  ++  tagged-keyword     (stag %keyword keyword)
+  ++  keyword
+    %-  perk
+    :~  %let  %func  %lambda
+        %struct  %impl  %trait  %union  %alias
+        %object  %if  %else  %crash  %assert
+        %compose  %loop  %defer
+        %recur  %match  %switch  %eval  %with  %this
+        %import  %as  %print
+        :: %for
+    ==
+  ::
+  ++  tagged-symbol
+    %+  stag  %literal
+    %+  stag  %atom
+    (hart ;~(pfix cen literal-atom) %.y)
+  ::
+  ++  tagged-literal-atom
+    %+  stag  %literal
+    %+  stag  %atom
+    (hart literal-atom %.n)
+  ++  literal-atom
+    ;~  pose
+        chars
+        number
+        sint
+        hex
+        real
+        real16
+        real32
+        real128
+        logical
+        date
+        span
+    ==
+  ::  Single-quoted cord: 'foo' -> @t
+  ++  chars
+    %+  stag  %chars
+    (cook crip (ifix [soq soq] (star ;~(less soq prn))))
+  ::  Numeric literal: 1234 -> @ud
+  ++  number
+    %+  stag  %number
+    dem
+  ::  Signed numeric literal: -1234, +1234 -> @sd
+  ++  sint
+    %+  stag  %sint
+    ;~  pose
+        (cook |=(n=@ud (new:si & n)) ;~(pfix lus dem:ag))
+        (cook |=(n=@ud (new:si | n)) ;~(pfix hep dem:ag))
+    ==
+    :: TODO switch to dep when fixed for +1_234_678 support
+  ::  Hexadecimal literal: 0xBA1A3F, 0xba1a3f -> @x
+  ++  hex
+    %+  stag  %hex
+    ;~(pfix (jest %'0x') ^hex)
+  ::  Real 64-bit float: 3.14, +3.14, -0.001 -> @rd
+  ++  real
+    %+  stag  %real
+    (cook ryld (cook royl-cell:so roy))
+  ::  Real 16-bit float: 3.14, +3.14, -0.001 -> @rh
+  ++  real16
+    %+  stag  %real16
+    (cook rylh (cook royl-cell:so roy))
+  ::  Real 32-bit float: 3.14, +3.14, -0.001 -> @rs
+  ++  real32
+    %+  stag  %real32
+    (cook ryls (cook royl-cell:so roy))
+  ::  Real 128-bit float: 3.14, +3.14, -0.001 -> @rq
+  ++  real128 
+    %+  stag  %real128
+    (cook rylq (cook royl-cell:so roy))
+  ::  Real 64-bit float alias
+  ++  real64  real
+  ::  Logical loobean:  %true, %false -> ?
+  ++  logical
+    %+  stag  %logical
+    ;~  pose
+        (cold %.y (jest %true))
+        (cold %.n (jest %false))
+    ==
+  ::  Date:  @2026.1.1..12.0.0..ffff -> @da
+  ++  date
+    %+  stag  %date
+    ;~(pfix pat (cook year when:so))
+  ::  Span:  ~d15h23m45s -> @dr
+  ++  span
+    %+  stag  %span
+    %+  cook
+      |=  [a=(list [p=?(%d %h %m %s) q=@]) b=(list @)]
+      =+  rop=`tarp`[0 0 0 0 b]
+      |-  ^-  @dr
+      ?~  a  (yule rop)
+      ?-  p.i.a
+        %d  $(a t.a, d.rop (add q.i.a d.rop))
+        %h  $(a t.a, h.rop (add q.i.a h.rop))
+        %m  $(a t.a, m.rop (add q.i.a m.rop))
+        %s  $(a t.a, s.rop (add q.i.a s.rop))
+      ==
+    ;~  plug
+      %+  most
+        dot
+      ;~  pose
+        ;~(pfix (just 'd') (stag %d dim:ag))
+        ;~(pfix (just 'h') (stag %h dim:ag))
+        ;~(pfix (just 'm') (stag %m dim:ag))
+        ;~(pfix (just 's') (stag %s dim:ag))
+      ==
+      ;~(pose ;~(pfix ;~(plug dot dot) (most dot qix:ab)) (easy ~))
+    ==
+  ++  tagged-literal-noun
+    %+  stag  %literal
+    %+  stag  %noun
+    ;~  pose
+        string
+        jpath
+    ==
+  ::  Double-quoted tape: "foo" -> (list @tD)
+  ++  string
+    %+  stag  %string
+    (ifix [doq doq] (star ;~(less doq prn)))
+  ::  Path:  /foo/bar/baz -> path
+  ++  jpath
+    %+  stag  %path
+    stap
   ::  add a suffix label
   ++  hart
     |*  [sef=rule gob=*]
@@ -150,44 +320,36 @@
   ::  the goal is to parse a function call into the pseudo-punctuator '(('.
   ::  This only happens if there is a name or type immediately preceding '(',
   ::  e.g. foo(bar)  ->  'foo' '((' 'bar' ')'
-  ++  tagged-name        (stag %name name)                :: [%name term]
-  ++  name               snek                             :: term with _
-  ++  snek               %+  cook
-                           |=(a=tape (rap 3 ^-((list @) a)))
-                         ;~(plug low (star ;~(pose nud low cab)))
+  ++  tagged-name       (stag %name sym)
   ::
-  ++  tagged-type        (stag %type type)                :: [%type 'Cord']
-  ++  type               aul                              :: Cord
-  ++  aul                %+  cook                         :: Ulll
-                             |=(a=tape (rap 3 ^-((list @) a)))
-                         ;~(plug hig (star low))
+  ++  tagged-type
+    %+  stag  %type
+    nik
+  ::  PascalCase identifier (type names)
+  ++  nik
+    %+  cook
+      |=(a=tape (rap 3 ^-((list @) a)))
+    ;~(plug hig (star ;~(pose hig low)))
   ::
-  ++  tagged-keyword     (stag %keyword keyword)
-  ++  keyword
-    %-  perk
-    :~  %let  %func  %lambda  %class
-        %if  %else  %crash  %assert
-        %object  %compose  %loop  %defer
-        %recur  %match  %switch  %eval  %with  %this
-        %import  %as  %print
-    ==
-  ::
-  ++  tagged-punctuator  %+  cook
-                           |=  =token
-                           ^-  ^token
-                           ?.  &(fun =([%punctuator %'('] token))
-                             token
-                          ::  =.  fun  %.n
-                           [%punctuator `jpunc`%'((']
-                         (stag %punctuator punctuator)
+  ++  tagged-punctuator
+    %+  cook
+      |=  =token
+      ^-  ^token
+      ?.  &(fun =([%punctuator %'('] token))
+        token
+    ::  =.  fun  %.n
+      [%punctuator `jpunc`%'((']
+    (stag %punctuator punctuator)
   ++  punctuator
-    %-  perk
-    :~  %'.'  %';'  %','  %':'  %'&'  %'$'
-        %'@'  %'?'  %'!'  :: XXX exclude %'((' which is a pseudo-punctuator
-        %'('  %')'  %'{'  %'}'  %'['  %']'
-        %'='  %'<'  %'>'  %'#'
-        %'+'  %'-'  %'*'  %'/'  %'%'  %'_'
-    ==
+    ;~  pose
+        (cold %'->' (jest '->'))   :: must come before solo '-'
+        %-  perk
+        :~  %'.'  %';'  %','  %':'  %'&'  %'$'
+            %'@'  %'?'  %'!'  :: XXX exclude %'((' which is a pseudo-punctuator
+            %'('  %')'  %'{'  %'}'  %'['  %']'
+            %'='  %'<'  %'>'  %'#'
+            %'+'  %'-'  %'*'  %'/'  %'%'  %'_'
+    ==  ==
   ::
   ::  The parser's precedence rules:
   ::  1.  Keywords
@@ -201,7 +363,8 @@
     ;~  pose
         (knee *(list token) |.(~+(;~(plug tagged-keyword ;~(pfix gav tokens(fun %.n))))))
         (knee *(list token) |.(~+(;~(plug tagged-symbol ;~(pfix gav tokens(fun %.n))))))
-        (knee *(list token) |.(~+(;~(plug tagged-literal ;~(pfix gav tokens(fun %.n))))))
+        (knee *(list token) |.(~+(;~(plug tagged-literal-atom ;~(pfix gav tokens(fun %.n))))))
+        (knee *(list token) |.(~+(;~(plug tagged-literal-noun ;~(pfix gav tokens(fun %.n))))))
         (knee *(list token) |.(~+(;~(plug tagged-name ;~(pfix gav tokens(fun %.y))))))
         (knee *(list token) |.(~+(;~(plug tagged-punctuator ;~(pfix gav tokens(fun %.n))))))
         (knee *(list token) |.(~+(;~(plug tagged-type ;~(pfix gav tokens(fun %.y))))))
@@ -239,32 +402,40 @@
   $+  jock
   $^  [p=jock q=jock]
   $%  [%let type=jype val=jock next=jock]
+      [%edit limb=(list jlimb) val=jock next=jock]
       [%func type=jype body=jock next=jock]
+      [%lambda p=lambda]
+      :: [%struct]
+      :: [%impl]
+      :: [%trait]
+      :: [%union]
+      [%alias name=cord target=cord]
       [%class state=jype arms=(map term jock)]
       [%method type=jype body=jock]
-      [%edit limb=(list jlimb) val=jock next=jock]
-      [%increment val=jock]
-      [%cell-check val=jock]
-      [%compose p=jock q=jock]
+      ::
       [%object name=term p=(map term jock) q=(unit jock)]
-      [%eval p=jock q=jock]
-      [%loop next=jock]
-      [%defer next=jock]
       if-expression
       [%assert cond=jock then=jock]
+      [%compose p=jock q=jock]
+      [%loop next=jock]
+      [%defer next=jock]
       [%match value=jock cases=(map jock jock) default=(unit jock)]
       [%cases value=jock cases=(map jock jock) default=(unit jock)]
+      [%eval p=jock q=jock]
+      [%print body=?([%jock jock]) next=jock]
+      ::
+      [%operator op=operator a=jock b=(unit jock)]
+      [%increment val=jock]
+      [%cell-check val=jock]
       [%call func=jock arg=(unit jock)]
       [%compare comp=comparator a=jock b=jock]
-      [%operator op=operator a=jock b=(unit jock)]
-      [%lambda p=lambda]
       [%limb p=(list jlimb)]
       [%atom p=jatom]
+      [%noun p=jnoun]
       [%list type=jype-leaf val=(list jock)]
       [%set type=jype-leaf val=(set jock)]
       [%import name=jype next=jock]
-      [%print body=?([%jock jock]) next=jock]
-      [%crash ~]
+      [%crash ~]  :: keep last for Hoon type bunting
   ==
 ::
 +$  if-expression
@@ -342,6 +513,8 @@
       [%fork p=jype q=jype]
       ::  %list
       [%list type=jype]
+      ::  %noun
+      [%noun p=jnoun-type]
       ::  %set
       [%set type=jype]
       ::  %hoon is a vase for the supplied subject (presumably hoon or tiny)
@@ -361,10 +534,23 @@
 ::  Jype atom base types; corresponds to jatom tags
 +$  jatom-type
   $+  jatom-type
-  $?  %string
+  $?  %chars
       %number
-      %hexadecimal
-      %loobean
+      %sint
+      %hex
+      %real
+      %real16
+      %real32
+      %real128
+      %logical
+      %date
+      %span
+  ==
+::  Jype noun base types; corresponds to jnoun tags
++$  jnoun-type
+  $+  jnoun-type
+  $?  %string
+      %path
   ==
 ::  Jype core executable, either a direct lambda or a regular core
 +$  core-body  (each lambda-argument (map term jype))
@@ -437,7 +623,7 @@
   ^-  [jock (list token)]
   ?:  =(~ tokens)  ~|("expect inner-jock. token: ~" !!)
   ?:  ?|  (has-keyword -.tokens %object)
-          (has-keyword -.tokens %class)
+          (has-keyword -.tokens %alias)
           (has-keyword -.tokens %with)
           (has-keyword -.tokens %this)
           (has-keyword -.tokens %crash)
@@ -740,6 +926,7 @@
   ?:  !=(%type -<.tokens)
     ~|("expect type. token: {<-.tokens>}" !!)
   =/  type=cord
+    ::  Short-circuits on built-in container types
     ?:  =([%type 'List'] -.tokens)  %list
     ?:  =([%type 'Set'] -.tokens)   %set
     :: ?:  =([%type 'Map'] -.tokens)   %map
@@ -747,12 +934,20 @@
     ->.tokens
   =/  nom  (get-name -.tokens)
   ?~  nom  ~|("expect name. token: {<-.tokens>}" !!)
-  ::  Short-circuit on built-in primitive types
-  ?:  =('Atom' u.nom)    [[%atom %number %.n]^u.nom +.tokens]
-  ?:  =('Uint' u.nom)    [[%atom %number %.n]^u.nom +.tokens]
-  ?:  =('Uhex' u.nom)    [[%atom %hexadecimal %.n]^u.nom +.tokens]
-  ?:  =('String' u.nom)  [[%atom %string %.n]^u.nom +.tokens]
-  ?:  =('Loob' u.nom)    [[%atom %loobean %.n]^u.nom +.tokens]
+  ::  Short-circuits on built-in primitive types
+  ?:  =('Atom' u.nom)     [[%atom %number %.n]^u.nom +.tokens]
+  ?:  =('Uint' u.nom)     [[%atom %number %.n]^u.nom +.tokens]
+  ?:  =('Int' u.nom)      [[%atom %sint %.n]^u.nom +.tokens]
+  ?:  =('Hex' u.nom)      [[%atom %hex %.n]^u.nom +.tokens]
+  ?:  =('Real' u.nom)     [[%atom %real %.n]^u.nom +.tokens]
+  ?:  =('Real16' u.nom)   [[%atom %real16 %.n]^u.nom +.tokens]
+  ?:  =('Real32' u.nom)   [[%atom %real32 %.n]^u.nom +.tokens]
+  ?:  =('Real128' u.nom)  [[%atom %real128 %.n]^u.nom +.tokens]
+  ?:  =('Logical' u.nom)  [[%atom %logical %.n]^u.nom +.tokens]
+  ?:  =('Date' u.nom)     [[%atom %date %.n]^u.nom +.tokens]
+  ?:  =('Span' u.nom)     [[%atom %span %.n]^u.nom +.tokens]
+  ?:  =('String' u.nom)   [[%noun %string]^u.nom +.tokens]
+  ?:  =('Path' u.nom)     [[%noun %path]^u.nom +.tokens]
   ::
   =.  tokens  +.tokens
   ?.  =([%punctuator %'(('] -.tokens)
@@ -837,55 +1032,66 @@
     :: %')' consumed by +match-pair-inner-jock
     [[%call [%lambda lambda] `arg] tokens]
   ::
-  ::  [%class state=jype arms=(map term jock)]
-      %class
-    =^  state  tokens
-      (match-jype tokens)
-    ::  mask out reserved types
-    ?:  =([%type 'List'] name.state)  ~|('Shadowing reserved type List is not allowed.' !!)
-    ?:  =([%type 'Set'] name.state)   ~|('Shadowing reserved type Set is not allowed.' !!)
-    :: ?:  =([%type 'Map'] name.state)   ~|('Shadowing reserved type Map is not allowed.' !!)
-    ?>  (got-punctuator -.tokens %'{')
-    =|  arms=(map term jock)
+  ::  [%alias name=term target=term]
+      %alias
+    =/  name=cord
+      (got-name -.tokens)
     =.  tokens  +.tokens
-    =^  arms  tokens
-      |-
-      ?:  (has-punctuator -.tokens %'}')
-        [arms +.tokens]
-      ::  Retrieve the name of the method.
-      =^  type  tokens
-        (match-jype tokens)
-      ::  Gather the arguments and output type.
-      =^  inp  tokens
-        ?>  (got-punctuator -.tokens %'((')
-        =^  r=(pair jype (unit jype))  tokens
-          =^  jyp-one  tokens  (match-jype +.tokens)
-          ?:  (has-punctuator -.tokens %')')
-            ::  short-circuit if single element in cell
-            [[jyp-one ~] tokens]
-          =^  jyp-two  tokens  (match-jype tokens)
-          ::  TODO: support implicit right-association  (what's a good test case?)
-          [[jyp-one `jyp-two] tokens]
-        [?~(q.r `jype`p.r `jype`[[p.r u.q.r] %$]) tokens]
-      ?>  (got-punctuator -.tokens %')')
-      =.  tokens  +.tokens
-      ?>  (got-punctuator -.tokens %'-')
-      ?>  (got-punctuator +<.tokens %'>')
-      =.  tokens  +>.tokens
-      =^  out  tokens
-        (match-jype tokens)
-      =.  type
-        :-  [%core [%& [`inp out]] ~]
-        name.type
-      ::  Retrieve the body of the method.
-      =^  body  tokens
-        (match-block [tokens %'{' %'}'] match-jock)
-      =.  body
-        :-  %lambda
-        [[`inp out] body ~]
-      $(arms (~(put by arms) name.type [%method type body]))
-    :_  tokens
-    [%class state=state arms=arms]
+    =/  target=cord
+      (got-name -.tokens)
+    =.  tokens  +.tokens
+    =-  ~&(- -)
+    [[%alias name target] tokens]
+  ::
+  ::  [%class state=jype arms=(map term jock)]
+    ::   %class
+    :: =^  state  tokens
+    ::   (match-jype tokens)
+    :: ::  mask out reserved types
+    :: ?:  =([%type 'List'] name.state)  ~|('Shadowing reserved type List is not allowed.' !!)
+    :: ?:  =([%type 'Set'] name.state)   ~|('Shadowing reserved type Set is not allowed.' !!)
+    :: :: ?:  =([%type 'Map'] name.state)   ~|('Shadowing reserved type Map is not allowed.' !!)
+    :: ?>  (got-punctuator -.tokens %'{')
+    :: =|  arms=(map term jock)
+    :: =.  tokens  +.tokens
+    :: =^  arms  tokens
+    ::   |-
+    ::   ?:  (has-punctuator -.tokens %'}')
+    ::     [arms +.tokens]
+    ::   ::  Retrieve the name of the method.
+    ::   =^  type  tokens
+    ::     (match-jype tokens)
+    ::   ::  Gather the arguments and output type.
+    ::   =^  inp  tokens
+    ::     ?>  (got-punctuator -.tokens %'((')
+    ::     =^  r=(pair jype (unit jype))  tokens
+    ::       =^  jyp-one  tokens  (match-jype +.tokens)
+    ::       ?:  (has-punctuator -.tokens %')')
+    ::         ::  short-circuit if single element in cell
+    ::         [[jyp-one ~] tokens]
+    ::       =^  jyp-two  tokens  (match-jype tokens)
+    ::       ::  TODO: support implicit right-association  (what's a good test case?)
+    ::       [[jyp-one `jyp-two] tokens]
+    ::     [?~(q.r `jype`p.r `jype`[[p.r u.q.r] %$]) tokens]
+    ::   ?>  (got-punctuator -.tokens %')')
+    ::   =.  tokens  +.tokens
+    ::   ?>  (got-punctuator -.tokens %'-')
+    ::   ?>  (got-punctuator +<.tokens %'>')
+    ::   =.  tokens  +>.tokens
+    ::   =^  out  tokens
+    ::     (match-jype tokens)
+    ::   =.  type
+    ::     :-  [%core [%& [`inp out]] ~]
+    ::     name.type
+    ::   ::  Retrieve the body of the method.
+    ::   =^  body  tokens
+    ::     (match-block [tokens %'{' %'}'] match-jock)
+    ::   =.  body
+    ::     :-  %lambda
+    ::     [[`inp out] body ~]
+    ::   $(arms (~(put by arms) name.type [%method type body]))
+    :: :_  tokens
+    :: [%class state=state arms=arms]
   ::
   ::  if (a < b) { +(a) } else { +(b) }
   ::  [%if cond=jock then=jock after-if=after-if-expression]
@@ -949,8 +1155,8 @@
     :_  tokens
     [%compose p q]
   ::
-      %match
   :: [%match value=jock cases=(map jock jock) default=(unit jock)]
+      %match
     =^  value  tokens
       (match-inner-jock tokens)
     =^  pairs  tokens
@@ -958,8 +1164,8 @@
     :_  tokens
     [%match value -.pairs +.pairs]
   ::
-      %switch
   :: [%cases value=jock cases=(map jock jock) default=(unit jock)]
+      %switch
     =^  value  tokens
       (match-inner-jock tokens)
     =^  pairs  tokens
@@ -1084,7 +1290,7 @@
     [[%atom %number %.n] +.tokens]
   ::    Match on loobean type  a:?
   ?:  (has-punctuator -.tokens %'?')
-    [[%atom %loobean %.n] +.tokens]
+    [[%atom %logical %.n] +.tokens]
   ::  Match on noun type  a:*
   ?:  (has-punctuator -.tokens %'*')
     [[%none ~] +.tokens]
@@ -1218,11 +1424,13 @@
 ::
 ++  match-literal
   |=  =tokens
-  ^-  [[%atom jatom] (list token)]
+  ^-  [?([%atom jatom] [%noun jnoun]) (list token)]
   ?:  =(~ tokens)  ~|("expect literal. token: ~" !!)
   ?.  ?=(%literal -<.tokens)
     ~|("expect literal. token: {<-<.tokens>}" !!)
-  [[%atom ->.tokens] +.tokens]
+  ?:  ?=(%noun ->-.tokens)
+    [[%noun ->+.tokens] +.tokens]
+  [[%atom ->+.tokens] +.tokens]
 ::
 ++  match-name
   |=  =tokens
@@ -1278,7 +1486,9 @@
   ?:  =(~ tokens)  ~|("expect literal. token: ~" !!)
   ?.  ?=(%literal -<.tokens)
     ~|("expect literal or symbol. token: {<-<.tokens>}" !!)
-  =/  p=jatom  ->.tokens
+  ?.  ?=(%atom ->-.tokens)
+    ~|("expect literal or symbol. token: {<-.tokens>}" !!)
+  =/  p=jatom  ->+.tokens
   ?.  ?=(%number -<.p)
     ~|("expect number or symbol. token: {<-.p>}" !!)
   ->.p
@@ -1658,7 +1868,7 @@
   ++  mint
     |=  j=jock
     ^-  [nock jype]
-    ?-    -.j
+    ?-    -.j  ::~|("cj: unimplemented jock: {<-.j>}" !!)
         ^
       ~|  %pair-p
       =+  [p p-jyp]=$(j p.j)
@@ -1734,6 +1944,11 @@
         !!
       [val val-jyp]
     ::
+        %alias
+      ::  Look up the type being aliased in the current subject.
+      ~&  "alias not implemented yet"
+      ~|("cj: unimplemented alias: {<j>}" !!)
+    ::
         %class
       ~|  %class
       ::  door sample
@@ -1794,7 +2009,7 @@
         %cell-check
       ~|  %cell-check
       =^  val  jyp  $(j val.j)
-      [[%3 val] [%atom %loobean %.n]^%$]
+      [[%3 val] [%atom %logical %.n]^%$]
     ::
         %compose
       ~|  %compose-p
@@ -2151,7 +2366,7 @@
       ==
     ::
         %compare
-      :_  [%atom %loobean %.n]^%$
+      :_  [%atom %logical %.n]^%$
       ?-    comp.j
           %'=='
         =+  [a a-jyp]=$(j a.j)
@@ -2344,9 +2559,16 @@
       ==
     ::
         %atom
+      ::  [%atom [type value] flag]
       ~|  [%atom +<+.j]
       :-  [%1 +<+.j]
       [^-(jype-leaf [%atom +<-.j +>.j]) %$]
+    ::
+        %noun
+      ::  [%noun [type value]]
+      ~|  [%noun +>.j]
+      :-  [%1 +>.j]
+      [^-(jype-leaf [%noun +<.j]) %$]
     ::
         %import
       ~|  %import
@@ -2432,6 +2654,8 @@
     ::
         %fork      $(j p.p.j)
     ::
+        %noun      [%1 0]
+    ::
         %list      [%1 0]
     ::
         %set       [%1 0]
@@ -2473,10 +2697,17 @@
         ;;  hoon
         :+  ?:(q.p.arg %rock %sand)
           ?-  -<.p.arg
-            %string       %ta
+            %chars        %ta
             %number       %ud
-            %hexadecimal  %ux
-            %loobean      %f
+            %sint         %sd
+            %hex          %ux
+            %real         %rd
+            %real16       %rh
+            %real32       %rs
+            %real128      %rq
+            %logical      %f
+            %date         %da
+            %span         %dr
           ==
         p.p.arg
       ::
@@ -2486,10 +2717,36 @@
         ~|  %limb
         ~
       ::
+          %noun
+        ::  What we call nouns are specific types.
+        ::  [%noun p=jnoun]
+        ?-    -.p.arg
+          ::  a string is simply a tape, (list @tD)
+            %string
+          ~|  %string
+          ;;  (list hoon)
+          :_  ~
+          :-  %knit
+          ^-  *
+          p.p.arg
+          ::  a path is a (list @t)
+            %path
+          ~|  %path
+          ~&  "here in path"
+          :_  ~
+          :-  %clsg
+          %+  turn
+            p.p.arg
+          |=  =cord
+          ^-  hoon
+          [%sand %t cord]
+        ==
+      ::
           %list
         ::  Lists are composed of a series of values, which we unpack.
         ::  [%list type=jype-leaf val=(list jock)]
         ~|  %list
+        ;;  (list hoon)
         :_  ~
         :-  %clsg
         %-  snip  :: spurious ~ from Jock representation
@@ -2533,12 +2790,20 @@
       ^-  jype-leaf
       :+  %atom
         ?+  p.t  ~|("cannot convert atom type {<p.t>} to jatom" !!)
+          %t    %chars
+          %ta   %chars
+          %tas  %chars
           %ud   %number
-          %ux   %hexadecimal
-          %t    %string
-          %ta   %string
-          %tas  %string
-          %f    %loobean
+          %sd   %sint
+          %ux   %hex
+          %x    %hex
+          %rd   %real
+          %rh   %real16
+          %rs   %real32
+          %rq   %real128
+          %f    %logical
+          %da   %date
+          %dr   %span
         ==
       =(~ q.t)
     ::
@@ -2580,7 +2845,7 @@
         ~|((crip "hunt: can't match {<`@tas`-<.jype>}") !!)
       ::
         %atom
-      ?>  +.+.-.jype
+      ?>  ->+.jype  ::+.+.-.jype
       [%5 [%1 q.p.jype] %0 axis]
       ::
         %fork
@@ -2629,17 +2894,17 @@
     ::
         %atom
       %-  crip
-      ?-    ->-.jype
-        %loobean
+      ?+    ->-.jype  "{<(* +.nock)>}"
+        %logical
       "{<;;(? +.nock)>}"
       ::
         %number
       "{<;;(@ud +.nock)>}"
       ::
-        %hexadecimal
+        %hex
       "{<;;(@ux +.nock)>}"
       ::
-        %string
+        %chars
       "{<;;(@t +.nock)>}"
       ::
       ==
