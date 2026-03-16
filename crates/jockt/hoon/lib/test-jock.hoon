@@ -36,6 +36,7 @@
 /*  hoon-alias            %jock  /lib/tests/hoon-alias/jock
 /*  fib                   %jock  /lib/tests/fib/jock
 /*  lists-indexing        %jock  /lib/tests/lists-indexing/jock
+/*  print-test            %jock  /lib/tests/print-test/jock
 ::
 /*  test-let-edit         %hoon  /tests/lib/let-edit/hoon
 /*  test-let-inner-exp    %hoon  /tests/lib/let-inner-exp/hoon
@@ -73,9 +74,11 @@
 :: /*  test-hoon-alias      %hoon  /tests/lib/hoon-alias/hoon
 :: /*  test-fib            %hoon  /tests/lib/fib/hoon
 :: /*  test-lists-indexing  %hoon  /tests/lib/lists-indexing/hoon
+:: /*  test-print-test     %hoon  /tests/lib/print-test/hoon
 ::
 |_  libs=(map term cord)
 ++  list-jocks
+  ~+
   ^-  (list [term @t])
   :~  [%let-edit q.let-edit]                          :: 0
       [%let-inner-exp q.let-inner-exp]                :: 1
@@ -113,6 +116,7 @@
       [%hoon-alias q.hoon-alias]                      :: 33
       [%fib q.fib]                                    :: 34
       [%lists-indexing q.lists-indexing]              :: 35
+      [%print-test q.print-test]                      :: 36
  ==
 ::
 ++  test-jocks
@@ -218,10 +222,10 @@
       [%test-type-point-jeam test-jeam:test-type-point]
       [%test-type-point-mint test-mint:test-type-point]
       [%test-type-point-nock test-nock:test-type-point]
-      :: [%test-type-point-2-tokens test-tokenize:test-type-point-2]
-      :: [%test-type-point-2-jeam test-jeam:test-type-point-2]
-      :: [%test-type-point-2-mint test-mint:test-type-point-2]
-      :: [%test-type-point-2-nock test-nock:test-type-point-2]
+      [%test-type-point-2-tokens test-tokenize:test-type-point-2]
+      [%test-type-point-2-jeam test-jeam:test-type-point-2]
+      [%test-type-point-2-mint test-mint:test-type-point-2]
+      [%test-type-point-2-nock test-nock:test-type-point-2]
       :: [%test-type-point-3-tokens test-tokenize:test-type-point-3]
       :: [%test-type-point-3-jeam test-jeam:test-type-point-3]
       :: [%test-type-point-3-mint test-mint:test-type-point-3]
@@ -258,6 +262,10 @@
       :: [%test-lists-indexing-jeam test-jeam:test-lists-indexing]
       :: [%test-lists-indexing-mint test-mint:test-lists-indexing]
       :: [%test-lists-indexing-nock test-nock:test-lists-indexing]
+      :: [%test-print-test-tokens test-tokenize:test-print-test]
+      :: [%test-print-test-jeam test-jeam:test-print-test]
+      :: [%test-print-test-mint test-mint:test-print-test]
+      :: [%test-print-test-nock test-nock:test-print-test]
   ==
 ::
 ++  parse
